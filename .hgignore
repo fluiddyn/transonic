@@ -1,0 +1,16 @@
+syntax: glob
+
+__pycache__
+.vscode/
+
+doc/_build/*
+doc/**generated/*
+doc/**.zip
+
+build/*
+dist/*.tar.gz
+dist*
+.tox/*
+.coverage/*
+
+*.egg-info/*
