@@ -17,11 +17,15 @@ class MyClass:
             result = fp.use_pythranized_block("block0")
         else:
             # pythran block (
-            #     float[][] a, b,
+            #     float[][] a, b;
             #     int n
             # ) -> result
+            # silly comment
+
+            # another comment here
+
             # pythran block (
-            #     float[][][] a, b,
+            #     float[][][] a, b;
             #     int n
             # ) -> result
             result = 0.0
