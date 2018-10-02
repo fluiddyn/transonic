@@ -1,10 +1,13 @@
 
 import numpy as np
 
-import fluidpythran as fp
-
 from fluiddyn.util import mpi
 
+from fluidpythran import FluidPythran
+
+fp = FluidPythran()
+
+# pythran import numpy as np
 
 # pythran def func(float[][], float[][])
 # pythran def func(int[][], float[][])

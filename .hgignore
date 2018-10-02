@@ -14,3 +14,5 @@ dist*
 .coverage/*
 
 *.egg-info/*
+
+**/_pythran/_pythran_*
