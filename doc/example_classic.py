@@ -12,12 +12,9 @@ fp = FluidPythran()
 # pythran def func(float[][], float[][])
 # pythran def func(int[][], float[][])
 
-
+@fp.pythranize
 def func(a, b):
     return (a * np.log(b)).max()
-
-
-func = fp.monkey_patch_function(func)
 
 
 if __name__ == "__main__":

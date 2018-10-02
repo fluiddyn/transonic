@@ -1,6 +1,7 @@
 
 import inspect
 import importlib
+import os
 
 from ._version import __version__
 
@@ -17,7 +18,7 @@ __all__ = [
 class FluidPythran:
     def __init__(self, use_pythran=True):
 
-        if not use_pythran:
+        if not use_pythran or "FLUIDPYTHRAN_COMPILING" in os.environ:
             self.is_pythranized = False
             return
 
@@ -35,8 +36,8 @@ class FluidPythran:
                 self.module_pythran, "arguments_blocks"
             )
 
-    def monkey_patch_function(self, func):
-
+    def pythranize(self, func):
+        """Decorator used for functions"""
         if self.is_pythranized:
             return getattr(self.module_pythran, func.__name__)
         else:

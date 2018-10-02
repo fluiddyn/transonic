@@ -1,5 +1,5 @@
 from fluidpythran import create_pythran_file
 
-path = "example_class.py"
+path = "example_classic.py"
 
 create_pythran_file(path)

@@ -1,12 +1,13 @@
 from tokenize import tokenize, untokenize, COMMENT, INDENT, DEDENT, STRING, NAME
 
-from token import tok_name
-from io import BytesIO
+import os
 
+# from token import tok_name
+from io import BytesIO
 import inspect
 from runpy import run_path
-
 from pathlib import Path
+
 
 import black
 
@@ -119,7 +120,10 @@ def create_pythran_code(path_py):
 
     code_pythran = "\n" + "\n".join(imports) + "\n"
 
+    os.environ["FLUIDPYTHRAN_COMPILING"] = "1"
     mod = run_path(path_py)
+    del os.environ["FLUIDPYTHRAN_COMPILING"]
+
     for name_func in functions:
         signatures = signatures_func[name_func]
         for signature in signatures:
@@ -127,6 +131,10 @@ def create_pythran_code(path_py):
 
         func = mod[name_func]
         code = inspect.getsource(func)
+
+        code = "\n".join(
+            line for line in code.split("\n") if ".pythranize" not in line
+        )
 
         code_pythran += f"\n{code}\n\n"
 
