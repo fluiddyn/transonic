@@ -1,8 +1,10 @@
 from tokenize import tokenize, untokenize, COMMENT, INDENT, DEDENT, STRING, NAME
 
 import os
+from datetime import datetime
+from logging import DEBUG
 
-# from token import tok_name
+from token import tok_name
 from io import BytesIO
 import inspect
 from runpy import run_path
@@ -11,8 +13,11 @@ from pathlib import Path
 
 import black
 
+from .log import logger, set_log_level
+
 
 def parse_py(path):
+    """Parse a .py file and return data"""
 
     blocks = []
     signatures_blocks = {}
@@ -77,7 +82,7 @@ def parse_py(path):
                 signature = tokval.split("# pythran block ", 1)[1]
             elif in_signature:
                 signature += tokval[1:].strip()
-                if ")" in tokval and "-> (" not in tokval:
+                if ")" in tokval and "-> (" not in tokval or tokval.endswith(")"):
                     in_signature = False
 
                     if name_block not in signatures_blocks:
@@ -98,7 +103,7 @@ def parse_py(path):
             has_to_find_code_block = "in block"
             code_blocks[name_block] = []
 
-        # print((tok_name[toknum], tokval))
+        logger.debug((tok_name[toknum], tokval))
 
     return (
         blocks,
@@ -111,18 +116,33 @@ def parse_py(path):
 
 
 def create_pythran_code(path_py):
+    """Create a pythran code from a Python file"""
 
     blocks, signatures_blocks, code_blocks, functions, signatures_func, imports = parse_py(
         path_py
     )
 
-    print(signatures_blocks)
+    if logger.isEnabledFor(DEBUG):
+        logger.debug(
+            f"""
+blocks: {blocks}\n
+signatures_blocks: {signatures_blocks}\n
+code_blocks:  {code_blocks}\n
+functions: {functions}\n
+signatures_func: {signatures_func}\n
+imports: {imports}\n"""
+        )
 
     code_pythran = "\n" + "\n".join(imports) + "\n"
 
+    # it is not optimal. We should be able to get the code of the function
+    # without running the module
     os.environ["FLUIDPYTHRAN_COMPILING"] = "1"
-    mod = run_path(path_py)
-    del os.environ["FLUIDPYTHRAN_COMPILING"]
+    mod = run_path(str(path_py))
+    try:
+        del os.environ["FLUIDPYTHRAN_COMPILING"]
+    except KeyError:
+        pass
 
     for name_func in functions:
         signatures = signatures_func[name_func]
@@ -178,32 +198,98 @@ def create_pythran_code(path_py):
         if name_block in return_block:
             code_pythran += f"    return {return_block[name_block]}\n"
 
-    code_pythran += "# pythran export arguments_blocks\n"
-
-    code_pythran += "arguments_blocks = " + str(arguments_blocks)
+    if arguments_blocks:
+        code_pythran += "# pythran export arguments_blocks\n"
+        code_pythran += "arguments_blocks = " + str(arguments_blocks)
 
     code_pythran = black.format_str(code_pythran, line_length=82)
 
     return code_pythran
 
 
-def create_pythran_file(path_py):
+def modification_date(filename):
+    """Get the modification date of a file"""
+    t = os.path.getmtime(filename)
+    return datetime.fromtimestamp(t)
+
+
+def has_to_build(output_file, input_file):
+    """Check if a file has to be (re)built"""
+    if not output_file.exists():
+        return True
+    mod_date_output = modification_date(output_file)
+    if mod_date_output < modification_date(input_file):
+        return True
+    return False
+
+
+def create_pythran_file(path_py, force=False, log_level=None):
+    """Create a Python file from a Python file (if necessary)"""
+    if log_level is not None:
+        set_log_level(log_level)
+
+    path_py = Path(path_py)
+
+    if path_py.name.startswith("_pythran_"):
+        logger.debug(f"skip file {path_py}")
+        return
+    if not path_py.name.endswith(".py"):
+        raise ValueError(
+            "fluidpythran only processes Python file. Cannot process {path_py}"
+        )
+
+    path_dir = path_py.parent / "_pythran"
+    path_pythran = path_dir / ("_pythran_" + path_py.name)
+
+    if not has_to_build(path_pythran, path_py) and not force:
+        logger.info(f"File {path_pythran} already up-to-date.")
+        return
 
     code_pythran = create_pythran_code(path_py)
 
     if not code_pythran:
         return
 
-    print("code_pythran\n", code_pythran)
+    if path_pythran.exists() and not force:
+        with open(path_pythran) as file:
+            code_pythran_old = file.read()
 
-    path = Path(path_py)
+        if code_pythran_old == code_pythran:
+            logger.info(f"Code in file {path_pythran} already up-to-date.")
+            return
 
-    path_dir = path.parent / "_pythran"
+    logger.debug(f"code_pythran:\n{code_pythran}")
+
     path_dir.mkdir(exist_ok=True)
-
-    path_pythran = path_dir / ("_pythran_" + path.name)
 
     with open(path_pythran, "w") as file:
         file.write(code_pythran)
 
-    print(f"File {str(path_pythran)} written")
+    logger.info(f"File {str(path_pythran)} written")
+
+    return path_pythran
+
+
+def create_pythran_files(paths, force=False, log_level=None):
+    """Create Pythran files from a list of Python files"""
+
+    if log_level is not None:
+        set_log_level(log_level)
+
+    paths_out = []
+    for path in paths:
+        path_out = create_pythran_file(path, force=force)
+        if path_out:
+            paths_out.append(path_out)
+
+    if paths_out:
+        nb_files = len(paths_out)
+        if nb_files == 1:
+            conjug = "s"
+        else:
+            conjug = ""
+
+        logger.warning(
+            f"{nb_files} files created or updated need{conjug}"
+            " to be pythranized"
+        )

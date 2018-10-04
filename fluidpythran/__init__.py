@@ -1,18 +1,16 @@
-
 import inspect
-import importlib
 import os
+import importlib.util
 
 from ._version import __version__
 
-from .toolchain import create_pythran_code, create_pythran_file
+try:
+    from ._path_data_tests import path_data_tests
+except ImportError:
+    pass
 
-__all__ = [
-    "__version__",
-    "create_pythran_code",
-    "create_pythran_file",
-    "FluidPythran",
-]
+
+__all__ = ["__version__", "FluidPythran", "path_data_tests"]
 
 
 class FluidPythran:
@@ -23,18 +21,27 @@ class FluidPythran:
             return
 
         frame = inspect.stack()[1]
-        module_name = inspect.getmodulename(frame.filename)
-        module_pythran_name = "_pythran._pythran_" + module_name
+        module_name = inspect.getmodule(frame[0]).__name__
+
+        if module_name == "__main__":
+            module_name = inspect.getmodulename(frame.filename)
+
+        if "." in module_name:
+            package, module = module_name.rsplit(".", 1)
+            module_pythran = package + "._pythran._pythran_" + module
+        else:
+            module_pythran = "_pythran._pythran_" + module_name
 
         try:
-            self.module_pythran = importlib.import_module(module_pythran_name)
+            self.module_pythran = importlib.import_module(module_pythran)
             self.is_pythranized = True
         except ModuleNotFoundError:
             self.is_pythranized = False
         else:
-            self.arguments_blocks = getattr(
-                self.module_pythran, "arguments_blocks"
-            )
+            if hasattr(self.module_pythran, "arguments_blocks"):
+                self.arguments_blocks = getattr(
+                    self.module_pythran, "arguments_blocks"
+                )
 
     def pythranize(self, func):
         """Decorator used for functions"""

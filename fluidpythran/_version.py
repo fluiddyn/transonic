@@ -1,11 +1,10 @@
-
 __version__ = "0.0.1"
 
 try:
     from pyfiglet import figlet_format
 
     __about__ = figlet_format("fluidpythran v" + __version__, font="big")
-except:
+except ImportError:
     __about__ = r"""
 
  / _| |     (_)   | |           | | | |

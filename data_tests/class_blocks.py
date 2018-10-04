@@ -1,8 +1,8 @@
-
 import numpy as np
 
 # pythran import numpy as np
 
+# pythran blabla
 
 from fluidpythran import FluidPythran
 
@@ -26,11 +26,35 @@ class MyClass:
             #     float[][] a, b;
             #     int n
             # ) -> result
+            # blabla
+
+            # blibli
 
             # pythran block (
             #     float[][][] a, b;
             #     int n
             # ) -> result
+            result = np.zeros_like(a)
+            for _ in range(n):
+                result += a ** 2 + b ** 3
+
+        a = result
+
+        if fp.is_pythranized:
+            result = fp.use_pythranized_block("block1")
+        else:
+            # pythran block (
+            #     float[][] a, b;
+            #     int n
+            # ) -> (result, a)
+            # blabla
+
+            # blibli
+
+            # pythran block (
+            #     float[][][] a, b;
+            #     int n
+            # ) -> (result, a)
             result = np.zeros_like(a)
             for _ in range(n):
                 result += a ** 2 + b ** 3

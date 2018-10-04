@@ -13,6 +13,10 @@ dist*
 .tox/*
 .coverage/*
 
+.pytest_cache
+
 *.egg-info/*
 
 **/_pythran/_pythran_*
+
+fluidpythran/_path_data_tests.py
