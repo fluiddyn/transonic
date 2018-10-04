@@ -8,11 +8,11 @@ black:
 tests:
 	pytest -s
 
-_tests_coverage:
+tests_coverage:
 	mkdir -p .coverage
 	coverage run -p -m pytest
 
-_report_coverage:
+report_coverage:
 	coverage combine
 	coverage report
 	coverage html
@@ -20,4 +20,4 @@ _report_coverage:
 	@echo "Code coverage analysis complete. View detailed report:"
 	@echo "file://${PWD}/.coverage/index.html"
 
-coverage: _tests_coverage _report_coverage
+coverage: tests_coverage report_coverage
