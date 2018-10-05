@@ -6,8 +6,6 @@ from logging import DEBUG
 
 from token import tok_name
 from io import BytesIO
-import inspect
-from runpy import run_path
 from pathlib import Path
 
 
@@ -90,11 +88,16 @@ def parse_py(path):
                     signatures_blocks[name_block].append(signature)
 
         if has_to_find_code_block == "in block":
-            code_blocks[name_block].append((toknum, tokval))
 
             if toknum == DEDENT:
+                logger.debug(
+                    f"code_blocks[name_block]: {code_blocks[name_block]}"
+                )
+
                 code_blocks[name_block] = untokenize(code_blocks[name_block])
                 has_to_find_code_block = False
+            else:
+                code_blocks[name_block].append((toknum, tokval))
 
         if (
             has_to_find_code_block == "after use_pythranized_block"
@@ -113,6 +116,46 @@ def parse_py(path):
         signatures_func,
         imports,
     )
+
+
+def get_code_functions(path_py, func_names):
+    """Get the code of function from a path and function names"""
+
+    with open(path_py) as file:
+        code = file.read()
+
+    indent = 0
+    in_def = False
+    codes = {}
+
+    g = tokenize(BytesIO(code.encode("utf-8")).readline)
+    for toknum, tokval, a, b, c in g:
+
+        if toknum == INDENT:
+            indent += 1
+
+        if toknum == DEDENT:
+            indent -= 1
+
+        if in_def == "def" and tokval in func_names:
+            in_def = tokval
+            codes[in_def] = [(NAME, "def")]
+
+        if indent == 0 and toknum == NAME and tokval == "def":
+            in_def = "def"
+
+        if in_def and in_def != "def":
+
+            if indent == 0 and toknum == DEDENT:
+                print("codes[in_def]", codes[in_def])
+                codes[in_def] = untokenize(codes[in_def])
+                in_def = False
+            else:
+                codes[in_def].append((toknum, tokval))
+
+        logger.debug((indent, tok_name[toknum], tokval))
+
+    return codes
 
 
 def create_pythran_code(path_py):
@@ -135,26 +178,14 @@ imports: {imports}\n"""
 
     code_pythran = "\n" + "\n".join(imports) + "\n"
 
-    # it is not optimal. We should be able to get the code of the function
-    # without running the module
-    os.environ["FLUIDPYTHRAN_COMPILING"] = "1"
-    mod = run_path(str(path_py))
-    try:
-        del os.environ["FLUIDPYTHRAN_COMPILING"]
-    except KeyError:
-        pass
+    codes_functions = get_code_functions(path_py, functions)
 
     for name_func in functions:
         signatures = signatures_func[name_func]
         for signature in signatures:
             code_pythran += f"# pythran export {signature}\n"
 
-        func = mod[name_func]
-        code = inspect.getsource(func)
-
-        code = "\n".join(
-            line for line in code.split("\n") if ".pythranize" not in line
-        )
+        code = codes_functions[name_func]
 
         code_pythran += f"\n{code}\n\n"
 

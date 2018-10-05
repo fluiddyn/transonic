@@ -6,7 +6,7 @@ black:
 	black -l 82 fluidpythran
 
 tests:
-	pytest -s
+	pytest fluidpythran
 
 tests_coverage:
 	mkdir -p .coverage
