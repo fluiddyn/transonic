@@ -21,7 +21,8 @@ class MyClass:
             fp.use_pythranized_block("rk2_step0")
         else:
             # pythran block (
-            #     complex128[][][] state_spect_n12, state_spect, tendencies_n;
+            #     complex128[][][] state_spect_n12, state_spect,
+            #                      tendencies_n;
             #     float64[][] diss2;
             #     float dt
             # )

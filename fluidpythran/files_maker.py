@@ -197,24 +197,25 @@ imports: {imports}\n"""
             variables_types = {}
             lines = types_variables1.split("(", 1)[1].split(")")[0].split(";")
             for line in lines:
-                type_, *variables = line.split()
+                type_, str_variables = line.split(" ", 1)
+                variables = str_variables.split(",")
                 for variable in variables:
-                    variables_types[variable.replace(",", "")] = type_
+                    variables_types[variable.replace(",", "").strip()] = type_
             variables_types_block[name_block].append(variables_types)
 
         if types_variables and "->" in types_variables1:
             return_block[name_block] = types_variables1.split("->", 1)[1]
 
-    # add "pythran export" for blocks
-    for name_block, variables_types0 in variables_types_block.items():
-        for variables_types in variables_types0:
-            str_variables = ", ".join(variables_types.values())
-            code_pythran += f"# pythran export {name_block}({str_variables})\n"
-
     arguments_blocks = {}
 
     # add code for blocks
     for name_block, variables_types0 in variables_types_block.items():
+        # add "pythran export" for blocks
+        for variables_types in variables_types0:
+            str_variables = ", ".join(variables_types.values())
+            code_pythran += f"# pythran export {name_block}({str_variables})\n\n"
+
+        # add code for blocks
         variables = variables_types0[0].keys()
         arguments_blocks[name_block] = list(variables)
 

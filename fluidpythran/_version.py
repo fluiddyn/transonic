@@ -4,7 +4,7 @@ try:
     from pyfiglet import figlet_format
 
     __about__ = (
-        figlet_format("fluidpythran", font="big") + 51 * " " + "v. " + __version__
+        figlet_format("fluidpythran", font="big")
     )
 except ImportError:
     __about__ = r"""
@@ -18,3 +18,5 @@ except ImportError:
                     |_|    |___/
 
 """
+
+__about__ = __about__.rstrip() + f"{17 * ' '} v. {__version__}\n"
