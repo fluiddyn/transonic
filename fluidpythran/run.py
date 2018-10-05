@@ -7,6 +7,7 @@ import argparse
 from pathlib import Path
 from glob import glob
 
+from . import __version__
 from .files_maker import create_pythran_files
 from .log import logger, set_log_level
 
@@ -29,6 +30,13 @@ def parse_args():
         action="store_true",
     )
 
+    parser.add_argument(
+        "-V",
+        "--version",
+        help="print version and exit",
+        action="store_true",
+    )
+
     parser.add_argument("-v", "--verbose", help="verbose mode", action="count")
 
     return parser.parse_args()
@@ -36,6 +44,10 @@ def parse_args():
 
 def run():
     args = parse_args()
+
+    if args.version:
+        print(__version__)
+        return
 
     if args.verbose is None:
         set_log_level("info")
