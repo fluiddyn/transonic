@@ -1,5 +1,5 @@
-FluidPythran: Pythran annotations in Python files
-=================================================
+FluidPythran: use Pythran in non-pythranizable code
+===================================================
 
 |release| |coverage|
 
@@ -14,22 +14,49 @@ FluidPythran: Pythran annotations in Python files
 
 .. warning ::
 
-   This is really just a prototype. See `this post
+   FluidPythran is a prototype.  Remarks and suggestions are very welcome.
+
+   FluidPythran just starts to be used in `fluidsim
+   <https://bitbucket.org/fluiddyn/fluidsim>`_ (for example in `this file
+   <https://bitbucket.org/fluiddyn/fluidsim/src/c0e170ea7c68f2abc4b0f7749b1c89df79db6573/fluidsim/base/time_stepping/pseudo_spect.py>`_)
+
+   See `this post
    <http://www.legi.grenoble-inp.fr/people/Pierre.Augier/broadcasting-numpy-abstraction-cython-pythran-fluidpythran.html>`_
-   (and also `this method
-   <https://bitbucket.org/fluiddyn/fluidsim/src/c0e170ea7c68f2abc4b0f7749b1c89df79db6573/fluidsim/base/time_stepping/pseudo_spect.py#lines-240>`_)
    for an explanation of my motivations.
 
-This pure-Python package will provide few supplementary pythran commands,
-namely :code:`pythran block` and :code:`pythran def` (see examples in the doc
-folder).
+FluidPythran is a pure Python package (requiring Python >= 3.6 or Pypy3) to
+help to write Python code that can use Pythran.
 
-The code of the numerical kernels can stay in the modules and in the classes
-where they were written. The Pythran files (i.e. the files compiled by
-Pythran), which are usually written by the user, are produced automatically.
+**FluidPythran does not depend on Pythran.**
 
-The code continues to work fine without Pythran, which is used only when
-available.
+Overview
+--------
+
+Python + Numpy + Pythran is a great combo to easily write highly efficient
+scientific programs and libraries.
+
+To use Pythran, one needs to isolate the numerical kernels functions in modules
+that are compiled by Pythran. The C++ code produced by Pythran never uses the
+Python interpretor. It means that only a fraction of what is doable in Python
+can be done in Pythran files. This is true in terms of Python features (for
+example no classes) and in terms of external packages.
+
+With FluidPythran, we try to overcome these limitations. FluidPythran provides
+few supplementary Pythran commands and a tiny Python API to define Pythran
+functions without writing the Pythran modules. The code of the numerical
+kernels can stay in the modules and in the classes where they were written. The
+Pythran files (i.e. the files compiled by Pythran), which are usually written
+by the user, are produced automatically by FluidPythran.
+
+**Implementation detail:** for each Python file using FluidPythran, an associated
+Pythran file is created in a directory ``_pythran``. For example, for a Python
+file ``foo.py``, the associated file would be ``_pythran/_foo.py``.
+
+At run time, FluidPythran replaces the Python functions (and blocks) by their
+versions in the Pythran files.
+
+Codes using FluidPythran work fine without Pythran.
+
 
 Installation
 ------------
@@ -37,6 +64,133 @@ Installation
 .. code ::
 
    pip install fluidpythran
+
+Using Pythran in Python files
+-----------------------------
+
+Functions: :code:`pythran def`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code :: python
+
+    import h5py
+    import mpi4py
+
+    from fluidpythran import pythran_def
+
+    # pythran def myfunc(int, float)
+
+    @pythran_def
+    def myfunc(a, b):
+        return a * b
+
+    ...
+
+Most of this code looks familiar to Pythran users. The differences:
+
+- One can use (for example) h5py and mpi4py (of course not in the Pythran
+  functions).
+
+- :code:`# pythran def` instead of :code:`# pythran export` (to stress that it
+  is not the same command).
+
+- A tiny bit of Python... The decorator :code:`@pythran_def` replaces the
+  Python function by the pythranized function if FluidPythran has been used to
+  produced the associated Pythran file.
+
+Blocks: :code:`pythran block`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+One of the most evident application of :code:`# pythran block` is code in
+classes:
+
+.. code :: python
+
+    from fluidpythran import FluidPythran
+
+    fp = FluidPythran()
+
+    class MyClass:
+
+        ...
+
+        def func(self, n):
+            a, b = self.something_that_cannot_be_pythranized()
+
+            if fp.is_pythranized:
+                result = fp.use_pythranized_block("name_block")
+            else:
+                # pythran block (
+                #     float a, b;
+                #     int n
+                # ) -> result
+
+                # pythran block (
+                #     complex a, b;
+                #     int n
+                # ) -> result
+
+                result = a**n + b**n
+
+            return self.another_func_that_cannot_be_pythranized(result)
+
+For blocks, we need pa little bit more of Python.
+
+- At import time, we have :code:`fp = FluidPythran()`, which detect which
+  Pythran module should be used and import it. This is done at import time since
+  we want to be very fast at run time.
+
+- In the function, we define a block with three lines of Python and special
+  Pythran annotations (:code:`# pythran block`). The 3 lines of Python are used
+  (i) at run time to choose between the two branches (:code:`is_pythranized` or
+  not) and (ii) at compiled time to detect the blocks.
+
+
+.. warning ::
+
+    The two branches of the :code:`fp.is_pythranized` are not equivalent, so
+    the user has to be careful because it is not difficult to write such buggy
+    code:
+
+    .. code ::
+
+        c = 0
+        if fp.is_pythranized:
+            a, b = fp.use_pythranized_block("name_block")
+        else:
+            # pythran block () -> (a, b)
+            a = b = c = 1
+
+        print(c)
+
+.. warning ::
+
+    The Pythran keywork :code:`or` cannot yet be used in block annotations.
+
+
+Make the Pythran files
+----------------------
+
+There is a command-line tool ``fluidpythran`` which make the associated Pythran
+files from Python files with annotations and fluidpythran code.
+
+There is also a function :code:`make_pythran_files` that can be used in a
+setup.py like this:
+
+.. code ::
+
+    from pathlib import Path
+
+    from fluidpythran.files_maker import make_pythran_files
+
+    here = Path(__file__).parent.absolute()
+
+    paths = ["fluidsim/base/time_stepping/pseudo_spect.py"]
+    make_pythran_files([here / path for path in paths])
+
+Note that FluidPythran never uses Pythran. Compiling the associated Pythran
+file can be done if wanted (see for example how it is done in `fluidsim's
+setup.py <https://bitbucket.org/fluiddyn/fluidsim/src/default/setup.py>`_).
 
 License
 -------

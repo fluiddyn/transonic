@@ -8,7 +8,7 @@ from pathlib import Path
 from glob import glob
 
 from . import __version__
-from .files_maker import create_pythran_files
+from .files_maker import make_pythran_files
 from .log import logger, set_log_level
 
 doc = """
@@ -31,10 +31,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "-V",
-        "--version",
-        help="print version and exit",
-        action="store_true",
+        "-V", "--version", help="print version and exit", action="store_true"
     )
 
     parser.add_argument("-v", "--verbose", help="verbose mode", action="count")
@@ -71,4 +68,4 @@ def run():
         else:
             paths = glob(str(path))
 
-    create_pythran_files(paths, force=args.force)
+    make_pythran_files(paths, force=args.force)

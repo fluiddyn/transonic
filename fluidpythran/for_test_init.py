@@ -2,16 +2,26 @@ import numpy as np
 
 # pythran import numpy as np
 
-from fluidpythran import FluidPythran
+from fluidpythran import FluidPythran, pythran_def
 
-fp = FluidPythran()
 
 # pythran def func(int, float)
 
 
-@fp.pythranize
+@pythran_def
 def func(a, b):
     return a + b
+
+
+# pythran def func2(int, float)
+
+
+@pythran_def
+def func2(a, b):
+    return a - b
+
+
+fp = FluidPythran()
 
 
 def func1(a, b):

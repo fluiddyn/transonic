@@ -28,7 +28,7 @@ def test_create_pythran_files():
     path_file.touch()
     run()
 
-    path_file = path_data_tests / "_pythran/_pythran_classic.py"
+    path_file = path_data_tests / "_pythran/_classic.py"
     path_file.unlink()
     run()
 

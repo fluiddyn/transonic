@@ -147,7 +147,6 @@ def get_code_functions(path_py, func_names):
         if in_def and in_def != "def":
 
             if indent == 0 and toknum == DEDENT:
-                print("codes[in_def]", codes[in_def])
                 codes[in_def] = untokenize(codes[in_def])
                 in_def = False
             else:
@@ -158,7 +157,7 @@ def get_code_functions(path_py, func_names):
     return codes
 
 
-def create_pythran_code(path_py):
+def make_pythran_code(path_py):
     """Create a pythran code from a Python file"""
 
     blocks, signatures_blocks, code_blocks, functions, signatures_func, imports = parse_py(
@@ -255,14 +254,14 @@ def has_to_build(output_file, input_file):
     return False
 
 
-def create_pythran_file(path_py, force=False, log_level=None):
+def make_pythran_file(path_py, force=False, log_level=None):
     """Create a Python file from a Python file (if necessary)"""
     if log_level is not None:
         set_log_level(log_level)
 
     path_py = Path(path_py)
 
-    if path_py.name.startswith("_pythran_"):
+    if path_py.absolute().parent.name == "_pythran":
         logger.debug(f"skip file {path_py}")
         return
     if not path_py.name.endswith(".py"):
@@ -271,13 +270,13 @@ def create_pythran_file(path_py, force=False, log_level=None):
         )
 
     path_dir = path_py.parent / "_pythran"
-    path_pythran = path_dir / ("_pythran_" + path_py.name)
+    path_pythran = path_dir / ("_" + path_py.name)
 
     if not has_to_build(path_pythran, path_py) and not force:
         logger.info(f"File {path_pythran} already up-to-date.")
         return
 
-    code_pythran = create_pythran_code(path_py)
+    code_pythran = make_pythran_code(path_py)
 
     if not code_pythran:
         return
@@ -302,7 +301,7 @@ def create_pythran_file(path_py, force=False, log_level=None):
     return path_pythran
 
 
-def create_pythran_files(paths, force=False, log_level=None):
+def make_pythran_files(paths, force=False, log_level=None):
     """Create Pythran files from a list of Python files"""
 
     if log_level is not None:
@@ -310,7 +309,7 @@ def create_pythran_files(paths, force=False, log_level=None):
 
     paths_out = []
     for path in paths:
-        path_out = create_pythran_file(path, force=force)
+        path_out = make_pythran_file(path, force=force)
         if path_out:
             paths_out.append(path_out)
 

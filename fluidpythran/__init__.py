@@ -1,5 +1,4 @@
 import inspect
-import os
 import importlib.util
 
 from ._version import __version__
@@ -13,24 +12,44 @@ except ImportError:
 __all__ = ["__version__", "FluidPythran", "path_data_tests"]
 
 
-class FluidPythran:
-    def __init__(self, use_pythran=True):
+_modules = {}
 
-        if not use_pythran or "FLUIDPYTHRAN_COMPILING" in os.environ:
+
+def pythran_def(func):
+    frame = inspect.stack()[1]
+    module_name = get_module_name(frame)
+
+    if module_name in _modules:
+        fp = _modules[module_name]
+    else:
+        fp = FluidPythran(frame=frame)
+
+    return fp.pythran_def(func)
+
+
+def get_module_name(frame):
+    module_name = inspect.getmodule(frame[0]).__name__
+    if module_name == "__main__":
+        module_name = inspect.getmodulename(frame.filename)
+    return module_name
+
+
+class FluidPythran:
+    def __init__(self, use_pythran=True, frame=None):
+
+        if not use_pythran:
             self.is_pythranized = False
             return
 
-        frame = inspect.stack()[1]
-        module_name = inspect.getmodule(frame[0]).__name__
-
-        if module_name == "__main__":
-            module_name = inspect.getmodulename(frame.filename)
+        if frame is None:
+            frame = inspect.stack()[1]
+        module_name = get_module_name(frame)
 
         if "." in module_name:
             package, module = module_name.rsplit(".", 1)
-            module_pythran = package + "._pythran._pythran_" + module
+            module_pythran = package + "._pythran._" + module
         else:
-            module_pythran = "_pythran._pythran_" + module_name
+            module_pythran = "_pythran._" + module_name
 
         try:
             self.module_pythran = importlib.import_module(module_pythran)
@@ -43,7 +62,9 @@ class FluidPythran:
                     self.module_pythran, "arguments_blocks"
                 )
 
-    def pythranize(self, func):
+        _modules[module_name] = self
+
+    def pythran_def(self, func):
         """Decorator used for functions"""
         if self.is_pythranized:
             return getattr(self.module_pythran, func.__name__)
