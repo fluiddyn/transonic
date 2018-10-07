@@ -37,9 +37,12 @@ scientific programs and libraries.
 
 To use Pythran, one needs to isolate the numerical kernels functions in modules
 that are compiled by Pythran. The C++ code produced by Pythran never uses the
-Python interpretor. It means that only a fraction of what is doable in Python
-can be done in Pythran files. This is true in terms of Python features (for
-example no classes) and in terms of external packages.
+Python interpretor. It means that only a subset of what is doable in Python can
+be done in Pythran files. Some `language features
+<https://pythran.readthedocs.io/en/latest/MANUAL.html#disclaimer>`_ are not
+supported by Pythran (for example no classes) and most of the extension
+packages cannot be used in Pythran files (basically only Numpy and some Scipy
+functions).
 
 With FluidPythran, we try to overcome these limitations. FluidPythran provides
 few supplementary Pythran commands and a tiny Python API to define Pythran
@@ -48,15 +51,15 @@ kernels can stay in the modules and in the classes where they were written. The
 Pythran files (i.e. the files compiled by Pythran), which are usually written
 by the user, are produced automatically by FluidPythran.
 
-**Implementation detail:** for each Python file using FluidPythran, an associated
-Pythran file is created in a directory ``_pythran``. For example, for a Python
-file ``foo.py``, the associated file would be ``_pythran/_foo.py``.
+**Implementation detail:** For each Python file using FluidPythran, an
+associated Pythran file is created in a directory :code:`_pythran`. For
+example, for a Python file :code:`foo.py`, the associated file would be
+:code:`_pythran/_foo.py`.
 
 At run time, FluidPythran replaces the Python functions (and blocks) by their
 versions in the Pythran files.
 
-Codes using FluidPythran work fine without Pythran.
-
+Let's stress again that codes using FluidPythran work fine without Pythran!
 
 Installation
 ------------
@@ -134,7 +137,7 @@ classes:
 
             return self.another_func_that_cannot_be_pythranized(result)
 
-For blocks, we need pa little bit more of Python.
+For blocks, we need a little bit more of Python.
 
 - At import time, we have :code:`fp = FluidPythran()`, which detect which
   Pythran module should be used and import it. This is done at import time since
@@ -148,8 +151,8 @@ For blocks, we need pa little bit more of Python.
 
 .. warning ::
 
-    The two branches of the :code:`fp.is_pythranized` are not equivalent, so
-    the user has to be careful because it is not difficult to write such buggy
+    The two branches of the :code:`fp.is_pythranized` are not equivalent! The
+    user has to be careful because it is not difficult to write such buggy
     code:
 
     .. code ::
@@ -165,14 +168,14 @@ For blocks, we need pa little bit more of Python.
 
 .. warning ::
 
-    The Pythran keywork :code:`or` cannot yet be used in block annotations.
-
+    The Pythran keyword :code:`or` cannot be used in block annotations (not yet
+    implemented).
 
 Make the Pythran files
 ----------------------
 
-There is a command-line tool ``fluidpythran`` which make the associated Pythran
-files from Python files with annotations and fluidpythran code.
+There is a command-line tool :code:`fluidpythran` which makes the associated
+Pythran files from Python files with annotations and fluidpythran code.
 
 There is also a function :code:`make_pythran_files` that can be used in a
 setup.py like this:
