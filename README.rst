@@ -139,7 +139,7 @@ classes:
 
 For blocks, we need a little bit more of Python.
 
-- At import time, we have :code:`fp = FluidPythran()`, which detect which
+- At import time, we have :code:`fp = FluidPythran()`, which detects which
   Pythran module should be used and import it. This is done at import time
   since we want to be very fast at run time.
 
@@ -150,8 +150,8 @@ For blocks, we need a little bit more of Python.
 
 Note that the annotations in the command :code:`# pythran block` are different
 (and somehow easier to write) than in the standard command :code:`# pythran
-export`. Moreover, one needs to explicitly write the returned variables (after
-:code:`->`).
+export`. Moreover, one needs to explicitly write the "returned" variables
+(after :code:`->`).
 
 .. warning ::
 
@@ -163,7 +163,7 @@ export`. Moreover, one needs to explicitly write the returned variables (after
 
         c = 0
         if fp.is_pythranized:
-            a, b = fp.use_pythranized_block("name_block")
+            a, b = fp.use_pythranized_block("buggy_block")
         else:
             # pythran block () -> (a, b)
             a = b = c = 1
