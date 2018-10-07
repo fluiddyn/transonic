@@ -14,13 +14,14 @@ FluidPythran: use Pythran in non-pythranizable code
 
 .. warning ::
 
-   FluidPythran is a prototype.  Remarks and suggestions are very welcome.
+   FluidPythran is still just a prototype. Remarks and suggestions are very
+   welcome.
 
-   FluidPythran just starts to be used in `fluidsim
+   FluidPythran just starts to be used in `FluidSim
    <https://bitbucket.org/fluiddyn/fluidsim>`_ (for example in `this file
-   <https://bitbucket.org/fluiddyn/fluidsim/src/c0e170ea7c68f2abc4b0f7749b1c89df79db6573/fluidsim/base/time_stepping/pseudo_spect.py>`_)
+   <https://bitbucket.org/fluiddyn/fluidsim/src/c0e170ea7c68f2abc4b0f7749b1c89df79db6573/fluidsim/base/time_stepping/pseudo_spect.py>`_).
 
-   See `this post
+   See also `this blog post
    <http://www.legi.grenoble-inp.fr/people/Pierre.Augier/broadcasting-numpy-abstraction-cython-pythran-fluidpythran.html>`_
    for an explanation of my motivations.
 
@@ -71,8 +72,8 @@ Installation
 Using Pythran in Python files
 -----------------------------
 
-Defining functions: command :code:`# pythran def`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Command :code:`# pythran def`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code :: python
 
@@ -101,8 +102,8 @@ Most of this code looks familiar to Pythran users. The differences:
   Python function by the pythranized function if FluidPythran has been used to
   produced the associated Pythran file.
 
-Defining blocks: command :code:`pythran block`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Command :code:`# pythran block`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 One of the most evident application of :code:`# pythran block` is code in
 classes:
@@ -140,13 +141,13 @@ classes:
 For blocks, we need a little bit more of Python.
 
 - At import time, we have :code:`fp = FluidPythran()`, which detects which
-  Pythran module should be used and import it. This is done at import time
+  Pythran module should be used and imports it. This is done at import time
   since we want to be very fast at run time.
 
 - In the function, we define a block with three lines of Python and special
   Pythran annotations (:code:`# pythran block`). The 3 lines of Python are used
   (i) at run time to choose between the two branches (:code:`is_pythranized` or
-  not) and (ii) at compiled time to detect the blocks.
+  not) and (ii) at compile time to detect the blocks.
 
 Note that the annotations in the command :code:`# pythran block` are different
 (and somehow easier to write) than in the standard command :code:`# pythran
@@ -168,7 +169,7 @@ export`. Moreover, one needs to explicitly write the "returned" variables
             # pythran block () -> (a, b)
             a = b = c = 1
 
-        print(c)
+        assert c == 1
 
 .. warning ::
 
