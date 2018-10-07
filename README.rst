@@ -41,8 +41,8 @@ Python interpretor. It means that only a subset of what is doable in Python can
 be done in Pythran files. Some `language features
 <https://pythran.readthedocs.io/en/latest/MANUAL.html#disclaimer>`_ are not
 supported by Pythran (for example no classes) and most of the extension
-packages cannot be used in Pythran files (basically only Numpy and some Scipy
-functions).
+packages cannot be used in Pythran files (basically `only Numpy and some Scipy
+functions <https://pythran.readthedocs.io/en/latest/SUPPORT.html>`_).
 
 With FluidPythran, we try to overcome these limitations. FluidPythran provides
 few supplementary Pythran commands and a tiny Python API to define Pythran
@@ -71,8 +71,8 @@ Installation
 Using Pythran in Python files
 -----------------------------
 
-Functions: :code:`pythran def`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Defining functions: command :code:`# pythran def`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code :: python
 
@@ -101,8 +101,8 @@ Most of this code looks familiar to Pythran users. The differences:
   Python function by the pythranized function if FluidPythran has been used to
   produced the associated Pythran file.
 
-Blocks: :code:`pythran block`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Defining blocks: command :code:`pythran block`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 One of the most evident application of :code:`# pythran block` is code in
 classes:
@@ -140,14 +140,18 @@ classes:
 For blocks, we need a little bit more of Python.
 
 - At import time, we have :code:`fp = FluidPythran()`, which detect which
-  Pythran module should be used and import it. This is done at import time since
-  we want to be very fast at run time.
+  Pythran module should be used and import it. This is done at import time
+  since we want to be very fast at run time.
 
 - In the function, we define a block with three lines of Python and special
   Pythran annotations (:code:`# pythran block`). The 3 lines of Python are used
   (i) at run time to choose between the two branches (:code:`is_pythranized` or
   not) and (ii) at compiled time to detect the blocks.
 
+Note that the annotations in the command :code:`# pythran block` are different
+(and somehow easier to write) than in the standard command :code:`# pythran
+export`. Moreover, one needs to explicitly write the returned variables (after
+:code:`->`).
 
 .. warning ::
 
