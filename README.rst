@@ -157,8 +157,14 @@ For blocks, we need a little bit more of Python.
 
 Note that the annotations in the command :code:`# pythran block` are different
 (and somehow easier to write) than in the standard command :code:`# pythran
-export`. Moreover, one needs to explicitly write the "returned" variables
-(after :code:`->`).
+export`.
+
+.. note ::
+
+    Moreover, for the time being, one needs to explicitly write the "returned"
+    variables (after :code:`->`). However, it is a redundant information so we
+    could avoid this in future (see `issue #1
+    <https://bitbucket.org/fluiddyn/fluidpythran/issues/1/no-need-for-explicit-return-values-in>`_).
 
 .. warning ::
 
@@ -177,10 +183,11 @@ export`. Moreover, one needs to explicitly write the "returned" variables
 
         assert c == 1
 
-.. warning ::
+.. note ::
 
     The Pythran keyword :code:`or` cannot be used in block annotations (not yet
-    implemented).
+    implemented, see `issue #2
+    <https://bitbucket.org/fluiddyn/fluidpythran/issues/2/implement-keyword-or-in-block-annotation>`_).
 
 Make the Pythran files
 ----------------------
