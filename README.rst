@@ -26,7 +26,13 @@ FluidPythran: use Pythran in non-pythranizable code
    for an explanation of my motivations.
 
 FluidPythran is a pure Python package (requiring Python >= 3.6 or Pypy3) to
-help to write Python code that can use Pythran.
+help to write Python code that can use `Pythran
+<https://github.com/serge-sans-paille/pythran>`_.
+
+Let's recall that "Pythran is an ahead of time compiler for a subset of the
+Python language, with a focus on scientific computing. It takes a Python module
+annotated with a few interface description and turns it into a native Python
+module with the same interface, but (hopefully) faster."
 
 **FluidPythran does not depend on Pythran.**
 
