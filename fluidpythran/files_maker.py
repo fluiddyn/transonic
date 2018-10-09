@@ -8,8 +8,10 @@ from token import tok_name
 from io import BytesIO
 from pathlib import Path
 
-
-import black
+try:
+    import black
+except ImportError:
+    black = False
 
 from .log import logger, set_log_level
 
@@ -233,7 +235,8 @@ imports: {imports}\n"""
         code_pythran += "# pythran export arguments_blocks\n"
         code_pythran += "arguments_blocks = " + str(arguments_blocks)
 
-    code_pythran = black.format_str(code_pythran, line_length=82)
+    if black:
+        code_pythran = black.format_str(code_pythran, line_length=82)
 
     return code_pythran
 
