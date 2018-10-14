@@ -202,7 +202,7 @@ setup.py like this:
 
     from pathlib import Path
 
-    from fluidpythran.files_maker import make_pythran_files
+    from fluidpythran.dist import make_pythran_files
 
     here = Path(__file__).parent.absolute()
 
@@ -210,8 +210,11 @@ setup.py like this:
     make_pythran_files([here / path for path in paths])
 
 Note that FluidPythran never uses Pythran. Compiling the associated Pythran
-file can be done if wanted (see for example how it is done in `fluidsim's
-setup.py <https://bitbucket.org/fluiddyn/fluidsim/src/default/setup.py>`_).
+file can be done if wanted (see for example how it is done in the example
+package `example_package_fluidpythran
+<https://bitbucket.org/fluiddyn/example_package_fluidpythran>`_ or in
+`fluidsim's setup.py
+<https://bitbucket.org/fluiddyn/fluidsim/src/default/setup.py>`_).
 
 License
 -------

@@ -4,13 +4,13 @@ from pathlib import Path
 
 f"In >=2018, you should use a Python supporting f-strings!"
 
-d = run_path("fluidpythran/_version.py")
+here = Path(__file__).parent.absolute()
+
+d = run_path(here / "fluidpythran/_version.py")
 __version__ = d["__version__"]
 __about__ = d["__about__"]
 
 print(__about__)
-
-here = Path(__file__).parent.absolute()
 
 path_data_tests = here / "data_tests"
 if path_data_tests.exists():
