@@ -168,9 +168,8 @@ export`.
 
 .. warning ::
 
-    The two branches of the :code:`fp.is_pythranized` are not equivalent! The
-    user has to be careful because it is not difficult to write such buggy
-    code:
+    The two branches of the :code:`if fp.is_pythranized` are not equivalent! The
+    user has to be careful because it is not difficult to write such buggy code:
 
     .. code ::
 
@@ -188,6 +187,11 @@ export`.
     The Pythran keyword :code:`or` cannot be used in block annotations (not yet
     implemented, see `issue #2
     <https://bitbucket.org/fluiddyn/fluidpythran/issues/2/implement-keyword-or-in-block-annotation>`_).
+
+Command :code:`# pythran class`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Just a NotImplemented idea! See https://bitbucket.org/fluiddyn/fluidpythran/issues/3/pythran-class
 
 Make the Pythran files
 ----------------------
