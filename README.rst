@@ -171,7 +171,7 @@ export`.
     The two branches of the :code:`if fp.is_pythranized` are not equivalent! The
     user has to be careful because it is not difficult to write such buggy code:
 
-    .. code ::
+    .. code :: python
 
         c = 0
         if fp.is_pythranized:
@@ -192,6 +192,33 @@ Command :code:`# pythran class`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Just a NotImplemented idea! See https://bitbucket.org/fluiddyn/fluidpythran/issues/3/pythran-class
+
+For simple methods only using simple attributes, if could be simple and useful
+to support this:
+
+.. code :: python
+
+    from fluidpythran import pythran_class
+
+    import numpy as np
+
+    @pythran_class
+    class MyClass:
+        # pythran class (
+        #     int[] or float[]: arr0, arr1;
+        #     float[][]: arr2
+        # )
+
+        def __init__(self, n, dtype=int):
+            self.arr0 = np.zeros(n, dtype=dtype)
+            self.arr1 = np.zeros(n, dtype=dtype)
+            self.arr2 = np.zeros(n)
+
+        # pythran def compute(object, float)
+
+        def compute(self, alpha):
+            tmp = (self.arr0 + self.arr1).mean()
+            return tmp ** alpha * self.arr2
 
 Make the Pythran files
 ----------------------
