@@ -7,6 +7,7 @@ from logging import DEBUG
 from token import tok_name
 from io import BytesIO
 from pathlib import Path
+from runpy import run_path
 
 try:
     import black
@@ -14,6 +15,7 @@ except ImportError:
     black = False
 
 from .log import logger, set_log_level
+import fluidpythran
 
 
 def parse_py(path):
@@ -109,6 +111,13 @@ def parse_py(path):
             code_blocks[name_block] = []
 
         logger.debug((tok_name[toknum], tokval))
+
+    if "make_signature(" in code:
+
+        fluidpythran.is_compiling = True
+        namespace = run_path(str(path))
+        fluidpythran.is_compiling = False
+
 
     return (
         blocks,

@@ -9,7 +9,18 @@ except ImportError:
     pass
 
 
-__all__ = ["__version__", "FluidPythran", "path_data_tests"]
+from .annotation import Array, DimVar, TypeVar
+
+__all__ = [
+    "__version__",
+    "FluidPythran",
+    "path_data_tests",
+    "Array",
+    "DimVar",
+    "TypeVar",
+]
+
+is_compiling = False
 
 
 _modules = {}
@@ -27,6 +38,22 @@ def pythran_def(func):
     return fp.pythran_def(func)
 
 
+def make_signature(func, **kwargs):
+
+    if not is_compiling:
+        return
+
+    frame = inspect.stack()[1]
+    module_name = get_module_name(frame)
+
+    if module_name in _modules:
+        fp = _modules[module_name]
+    else:
+        fp = FluidPythran(frame=frame)
+
+    fp.make_signature(func, **kwargs)
+
+
 def get_module_name(frame):
     module_name = inspect.getmodule(frame[0]).__name__
     if module_name == "__main__":
@@ -37,13 +64,19 @@ def get_module_name(frame):
 class FluidPythran:
     def __init__(self, use_pythran=True, frame=None):
 
-        if not use_pythran:
-            self.is_pythranized = False
-            return
-
         if frame is None:
             frame = inspect.stack()[1]
         module_name = get_module_name(frame)
+
+        if is_compiling:
+            self.functions = {}
+            self.signatures = []
+            _modules[module_name] = self
+            return
+
+        if not use_pythran:
+            self.is_pythranized = False
+            return
 
         if "." in module_name:
             package, module = module_name.rsplit(".", 1)
@@ -66,10 +99,33 @@ class FluidPythran:
 
     def pythran_def(self, func):
         """Decorator used for functions"""
+
+        if is_compiling:
+            self.functions[func.__name__] = func
+            return func
+
         if self.is_pythranized:
             return getattr(self.module_pythran, func.__name__)
         else:
             return func
+
+    def make_signature(self, func, **kwargs):
+
+        signature = f"# pythran {func.__name__}("
+        sig = inspect.signature(func)
+        pythran_types = []
+        for k, p in sig.parameters.items():
+            try:
+                pythran_type = p.annotation.get_pythran_type(**kwargs)
+            except AttributeError:
+                pythran_type = p.annotation.__name__
+
+            pythran_types.append(pythran_type)
+
+        signature += ", ".join(pythran_types) + ")"
+        self.signatures.append(signature)
+
+        print(signature)
 
     def use_pythranized_block(self, name):
 
