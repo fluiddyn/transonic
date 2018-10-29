@@ -9,14 +9,14 @@ except ImportError:
     pass
 
 
-from .annotation import Array, DimVar, TypeVar
+from .annotation import Array, NDimVar, TypeVar
 
 __all__ = [
     "__version__",
     "FluidPythran",
     "path_data_tests",
     "Array",
-    "DimVar",
+    "NDimVar",
     "TypeVar",
 ]
 
@@ -56,7 +56,7 @@ def make_signature(func, **kwargs):
 
 def get_module_name(frame):
     module_name = inspect.getmodule(frame[0]).__name__
-    if module_name == "__main__":
+    if module_name in ("__main__", "<run_path>"):
         module_name = inspect.getmodulename(frame.filename)
     return module_name
 
@@ -66,11 +66,14 @@ class FluidPythran:
 
         if frame is None:
             frame = inspect.stack()[1]
+
+        module = inspect.getmodule(frame[0])
+
         module_name = get_module_name(frame)
 
         if is_compiling:
             self.functions = {}
-            self.signatures = []
+            self.signatures_func = {}
             _modules[module_name] = self
             return
 
@@ -87,6 +90,14 @@ class FluidPythran:
         try:
             self.module_pythran = importlib.import_module(module_pythran)
             self.is_pythranized = True
+            try:
+                module.__pythran__ = self.module_pythran.__pythran__
+            except AttributeError:
+                pass
+            try:
+                module.__fluidpythran__ = self.module_pythran.__fluidpythran__
+            except AttributeError:
+                pass
         except ModuleNotFoundError:
             self.is_pythranized = False
         else:
@@ -111,7 +122,7 @@ class FluidPythran:
 
     def make_signature(self, func, **kwargs):
 
-        signature = f"# pythran {func.__name__}("
+        signature = f"{func.__name__}("
         sig = inspect.signature(func)
         pythran_types = []
         for k, p in sig.parameters.items():
@@ -123,9 +134,11 @@ class FluidPythran:
             pythran_types.append(pythran_type)
 
         signature += ", ".join(pythran_types) + ")"
-        self.signatures.append(signature)
 
-        print(signature)
+        if func.__name__ not in self.signatures_func:
+            self.signatures_func[func.__name__] = []
+
+        self.signatures_func[func.__name__].append(signature)
 
     def use_pythranized_block(self, name):
 

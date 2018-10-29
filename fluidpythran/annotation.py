@@ -1,6 +1,13 @@
+import ast
+import astunparse
+
+
 class TypeVar:
     def __init__(self, name):
         self.__name__ = name
+
+    def __repr__(self):
+        return self.__name__
 
     def get_pythran_type(self, **kwargs):
 
@@ -9,6 +16,7 @@ class TypeVar:
         for key, value in kwargs.items():
             if key == self.__name__:
                 dtype = value
+                break
 
         if dtype is None:
             raise ValueError
@@ -16,13 +24,21 @@ class TypeVar:
         return dtype.__name__
 
 
-class DimVar:
+class NDimVar:
     def __init__(self, name, shift=0):
         self.__name__ = name
         self.shift = shift
 
     def __repr__(self):
-        return self.__name__
+
+        name = self.__name__
+
+        if self.shift < 0:
+            name = name + f" - {abs(self.shift)}"
+        elif self.shift > 0:
+            name = name + f" + {abs(self.shift)}"
+
+        return name
 
     def __add__(self, number):
         return type(self)(self.__name__, shift=number)
@@ -42,7 +58,7 @@ class ArrayMeta(type):
                     raise ValueError
             dtype = param
 
-            if isinstance(param, DimVar):
+            if isinstance(param, NDimVar):
                 if ndim is not None:
                     raise ValueError
                 ndim = param
@@ -58,7 +74,9 @@ class ArrayMeta(type):
         return ArrayBis
 
     def __repr__(self):
-        return "Array[" + ", ".join(repr(p) for p in self.parameters) + "]"
+        return (
+            "Array[" + ", ".join(repr(p) for p in self.parameters.values()) + "]"
+        )
 
     def get_pythran_type(self, **kwargs):
 
@@ -72,7 +90,7 @@ class ArrayMeta(type):
 
             if isinstance(template_var, TypeVar):
                 dtype = value
-            elif isinstance(template_var, DimVar):
+            elif isinstance(template_var, NDimVar):
                 ndim = value + template_var.shift
             else:
                 raise ValueError
@@ -80,8 +98,37 @@ class ArrayMeta(type):
         if dtype is None or ndim is None:
             raise ValueError
 
+        if ndim == 0:
+            raise NotImplementedError
+
         return f"{dtype.__name__}[{', '.join([':']*ndim)}]"
 
 
 class Array(metaclass=ArrayMeta):
     pass
+
+
+class TypeHintRemover(ast.NodeTransformer):
+    """
+
+    from https://stackoverflow.com/a/42734810/1779806
+    """
+
+    def visit_FunctionDef(self, node):
+        # remove the return type defintion
+        node.returns = None
+        # remove all argument annotations
+        if node.args.args:
+            for arg in node.args.args:
+                arg.annotation = None
+        return node
+
+
+def strip_typehints(source):
+    # parse the source code into an AST
+    parsed_source = ast.parse(source)
+    # remove all type annotations, function return type definitions
+    # and import statements from 'typing'
+    transformed = TypeHintRemover().visit(parsed_source)
+    # convert the AST back to source code
+    return astunparse.unparse(transformed)
