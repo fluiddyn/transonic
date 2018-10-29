@@ -16,3 +16,12 @@ pipelines:
             script:
               - pip install -U tox --user
               - tox -e py36,codecov
+    dev:
+      - parallel:
+        - step:
+            image: fluiddyn/python3-stable
+            caches:
+              - pip
+            script:
+              - pip install -U tox --user
+              - tox -e py36,codecov

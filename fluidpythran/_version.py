@@ -1,4 +1,4 @@
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 try:
     from pyfiglet import figlet_format
@@ -6,7 +6,7 @@ try:
     __about__ = figlet_format("fluidpythran", font="big")
 except ImportError:
     __about__ = r"""
-
+  __ _       _     _             _   _
  / _| |     (_)   | |           | | | |
 | |_| |_   _ _  __| |_ __  _   _| |_| |__  _ __ __ _ _ __
 |  _| | | | | |/ _` | '_ \| | | | __| '_ \| '__/ _` | '_ \
