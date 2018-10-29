@@ -51,6 +51,13 @@ supported by Pythran (for example no classes) and most of the extension
 packages cannot be used in Pythran files (basically `only Numpy and some Scipy
 functions <https://pythran.readthedocs.io/en/latest/SUPPORT.html>`_).
 
+Another cause of frustration for Python developers when using Pythran is
+related to manual writting of Pythran function signatures in comments, which
+can not be automated. Pythran uses C++ templates but Pythran users can not
+think with this concept. We would like to be able to **express the templated
+nature of Pythran with modern Python syntax** (in particular **type
+annotations**).
+
 With FluidPythran, we try to overcome these limitations. FluidPythran provides
 few supplementary Pythran commands and a tiny Python API to define Pythran
 functions without writing the Pythran modules. The code of the numerical
@@ -107,6 +114,38 @@ Most of this code looks familiar to Pythran users. The differences:
 - A tiny bit of Python... The decorator :code:`@pythran_def` replaces the
   Python function by the pythranized function if FluidPythran has been used to
   produced the associated Pythran file.
+
+Pythran using type annotations (à la C++11 template)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+With FluidPythran, one can now write (see `issue #5
+<https://bitbucket.org/fluiddyn/fluidpythran/issues/5>`_):
+
+.. code :: python
+
+    import numpy as np
+    import fluidpythran as fp
+    from fluidpythran import TypeVar, NDimVar, Array
+
+    T = TypeVar("T")
+    T1 = TypeVar("T1")
+    N = NDimVar("N")
+
+    A = Array[T, N]
+    A1 = Array[T1, N + 1]
+
+
+    @fp.pythran_def
+    def compute(a: A, b: A, c: T, d: A1, e: str):
+        print(e)
+        tmp = a + b
+        return tmp
+
+
+    for dtype in [int, np.complex128]:
+        for ndim in [1, 3]:
+            fp.make_signature(compute, T=dtype, N=ndim, T1=float)
+
 
 Command :code:`# pythran block`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
