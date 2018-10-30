@@ -136,7 +136,7 @@ The previous example can be rewritten without Pythran commands:
 Nice but very limited... So it possible to mix type hints and :code:`# pythran
 def` commands.
 
-If you are used to C++11 template, you can write (see `issue #5
+Moreover, if you like C++11 :code:`template`, you can write (see `issue #5
 <https://bitbucket.org/fluiddyn/fluidpythran/issues/5>`_):
 
 .. code :: python

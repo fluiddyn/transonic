@@ -1,7 +1,5 @@
 import numpy as np
 
-from fluiddyn.util import mpi
-
 from fluidpythran import pythran_def
 
 # pythran import numpy as np
