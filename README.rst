@@ -115,10 +115,28 @@ Most of this code looks familiar to Pythran users. The differences:
   Python function by the pythranized function if FluidPythran has been used to
   produced the associated Pythran file.
 
-Pythran using type annotations (à la C++11 template)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pythran using type annotations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-With FluidPythran, one can now write (see `issue #5
+The previous example can be rewritten without Pythran commands:
+
+.. code :: python
+
+    import h5py
+    import mpi4py
+
+    from fluidpythran import pythran_def
+
+    @pythran_def
+    def myfunc(a: int, b: float):
+        return a * b
+
+    ...
+
+Nice but very limited... So it possible to mix type hints and :code:`# pythran
+def` commands.
+
+If you are used to C++11 template, you can write (see `issue #5
 <https://bitbucket.org/fluiddyn/fluidpythran/issues/5>`_):
 
 .. code :: python
@@ -128,12 +146,10 @@ With FluidPythran, one can now write (see `issue #5
     from fluidpythran import TypeVar, NDimVar, Array
 
     T = TypeVar("T")
-    T1 = TypeVar("T1")
     N = NDimVar("N")
 
     A = Array[T, N]
-    A1 = Array[T1, N + 1]
-
+    A1 = Array[np.float32, N + 1]
 
     @fp.pythran_def
     def compute(a: A, b: A, c: T, d: A1, e: str):
@@ -141,10 +157,30 @@ With FluidPythran, one can now write (see `issue #5
         tmp = a + b
         return tmp
 
-
     for dtype in [int, np.complex128]:
         for ndim in [1, 3]:
-            fp.make_signature(compute, T=dtype, N=ndim, T1=float)
+            fp.make_signature(compute, T=dtype, N=ndim)
+
+
+If you don't like generic templating, you can also just write
+
+.. code :: python
+
+    import numpy as np
+    import fluidpythran as fp
+    from fluidpythran import TypeVar, NDimVar, Array
+
+    T = TypeVar("T", int, np.complex128)
+    N = NDimVar("N", 1, 3)
+
+    A = Array[T, N]
+    A1 = Array[np.float32, N + 1]
+
+    @fp.pythran_def
+    def compute(a: A, b: A, c: T, d: A1, e: str):
+        print(e)
+        tmp = a + b
+        return tmp
 
 
 Command :code:`# pythran block`

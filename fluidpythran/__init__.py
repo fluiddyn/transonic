@@ -1,6 +1,6 @@
 import inspect
 import importlib.util
-
+import itertools
 from ._version import __version__
 
 try:
@@ -32,6 +32,8 @@ def pythran_def(func):
 
     if module_name in _modules:
         fp = _modules[module_name]
+        if fp._created_while_compiling != is_compiling:
+            fp = FluidPythran(frame=frame)
     else:
         fp = FluidPythran(frame=frame)
 
@@ -71,10 +73,13 @@ class FluidPythran:
 
         module_name = get_module_name(frame)
 
+        self._created_while_compiling = is_compiling
+
         if is_compiling:
             self.functions = {}
             self.signatures_func = {}
             _modules[module_name] = self
+            self.is_pythranized = False
             return
 
         if not use_pythran:
@@ -116,16 +121,21 @@ class FluidPythran:
             return func
 
         if self.is_pythranized:
-            return getattr(self.module_pythran, func.__name__)
+            try:
+                return getattr(self.module_pythran, func.__name__)
+            except AttributeError:
+                return func
         else:
             return func
 
-    def make_signature(self, func, **kwargs):
+    def make_signature(self, func, _signature=None, **kwargs):
+
+        if _signature is None:
+            _signature = inspect.signature(func)
 
         signature = f"{func.__name__}("
-        sig = inspect.signature(func)
         pythran_types = []
-        for k, p in sig.parameters.items():
+        for k, p in _signature.parameters.items():
             try:
                 pythran_type = p.annotation.get_pythran_type(**kwargs)
             except AttributeError:
@@ -139,6 +149,47 @@ class FluidPythran:
             self.signatures_func[func.__name__] = []
 
         self.signatures_func[func.__name__].append(signature)
+
+    def _make_signatures_from_annotations(self):
+
+        for func in self.functions.values():
+
+            annotations = func.__annotations__
+
+            if not annotations:
+                continue
+
+            _signature = inspect.signature(func)
+
+            template_parameters = []
+
+            for annotation in annotations.values():
+                if hasattr(annotation, "get_template_parameters"):
+                    template_parameters.extend(
+                        annotation.get_template_parameters()
+                    )
+
+            template_parameters = set(template_parameters)
+
+            if not template_parameters:
+                self.make_signature(func, _signature=_signature)
+                continue
+
+            if not all(param.values for param in template_parameters):
+                continue
+
+            values = {}
+            for param in template_parameters:
+                values[param.__name__] = param.values
+
+            names = values.keys()
+            for set_values in itertools.product(*values.values()):
+                template_variables = {
+                    name: value for name, value in zip(names, set_values)
+                }
+                self.make_signature(
+                    func, _signature=_signature, **template_variables
+                )
 
     def use_pythranized_block(self, name):
 

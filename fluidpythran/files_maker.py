@@ -20,7 +20,7 @@ from .annotation import strip_typehints
 import fluidpythran
 
 
-def parse_py(path):
+def parse_py_code(code):
     """Parse a .py file and return data"""
 
     blocks = []
@@ -31,9 +31,6 @@ def parse_py(path):
     signatures_func = {}
 
     imports = []
-
-    with open(path) as file:
-        code = file.read()
 
     has_to_find_name_block = False
     has_to_find_signatures = False
@@ -114,11 +111,6 @@ def parse_py(path):
 
         logger.debug((tok_name[toknum], tokval))
 
-    if "make_signature(" in code:
-        fluidpythran.is_compiling = True
-        run_path(str(path))
-        fluidpythran.is_compiling = False
-
     return (
         blocks,
         signatures_blocks,
@@ -129,11 +121,8 @@ def parse_py(path):
     )
 
 
-def get_code_functions(path_py, func_names):
+def get_code_functions(code, func_names):
     """Get the code of function from a path and function names"""
-
-    with open(path_py) as file:
-        code = file.read()
 
     indent = 0
     in_def = False
@@ -182,12 +171,18 @@ def get_codes_from_functions(functions):
     return codes
 
 
-def make_pytran_code_functions(functions, signatures_func, codes_functions):
+def make_pythran_code_functions(functions, signatures_func, codes_functions):
 
     code_pythran = ""
 
     for name_func in functions:
-        signatures = signatures_func[name_func]
+
+        try:
+            signatures = signatures_func[name_func]
+        except KeyError:
+            logger.warning("No Pythran signature for function " + name_func)
+            continue
+
         for signature in signatures:
             code_pythran += f"# pythran export {signature}\n"
 
@@ -201,9 +196,23 @@ def make_pytran_code_functions(functions, signatures_func, codes_functions):
 def make_pythran_code(path_py):
     """Create a pythran code from a Python file"""
 
-    blocks, signatures_blocks, code_blocks, functions, signatures_func, imports = parse_py(
-        path_py
-    )
+    with open(path_py) as file:
+        code = file.read()
+
+    if "# FLUIDPYTHRAN_NO_IMPORT" not in code:
+        # we have to import the module!
+        fluidpythran.is_compiling = True
+        run_path(str(path_py))
+        fluidpythran.is_compiling = False
+
+    (
+        blocks,
+        signatures_blocks,
+        code_blocks,
+        functions,
+        signatures_func,
+        imports,
+    ) = parse_py_code(code)
 
     if logger.isEnabledFor(DEBUG):
         logger.debug(
@@ -216,28 +225,31 @@ signatures_func: {signatures_func}\n
 imports: {imports}\n"""
         )
 
-    code_pythran = "\n" + "\n".join(imports) + "\n"
+    code_pythran = ""
+    if imports:
+        code_pythran += "\n" + "\n".join(imports) + "\n"
 
-    # Add functions and signatures introduced with Pythran commands
-    codes_functions = get_code_functions(path_py, functions)
-
-    code_pythran += make_pytran_code_functions(
-        functions, signatures_func, codes_functions
-    )
-
-    # Add functions and signatures introduced with `make_signature`
-    # print(fluidpythran._modules)
     module_name = Path(path_py).with_suffix("").name
     if module_name in fluidpythran._modules:
         fp = fluidpythran._modules[module_name]
-
+        fp._make_signatures_from_annotations()
         functions = fp.functions.keys()
-        signatures_func = fp.signatures_func
+        signatures_func_annot = fp.signatures_func
         codes_functions = get_codes_from_functions(fp.functions)
 
-        code_pythran += make_pytran_code_functions(
-            functions, signatures_func, codes_functions
-        )
+        # merge signatures introduced by type annotations and by Pythran commands
+        signatures_func_all = signatures_func.copy()
+        for name_func, signatures in signatures_func_annot.items():
+            if name_func not in signatures_func_all:
+                signatures_func_all[name_func] = []
+            signatures_func_all[name_func].extend(signatures)
+    else:
+        codes_functions = get_code_functions(code, functions)
+        signatures_func_all = signatures_func
+
+    code_pythran += make_pythran_code_functions(
+        functions, signatures_func_all, codes_functions
+    )
 
     # blocks...
     variables_types_block = {}
@@ -285,10 +297,11 @@ imports: {imports}\n"""
         code_pythran += "# pythran export arguments_blocks\n"
         code_pythran += "arguments_blocks = " + str(arguments_blocks)
 
-    code_pythran += (
-        "# pythran export __fluidpythran__\n"
-        f"__fluidpythran__ = ('{fluidpythran.__version__}',)"
-    )
+    if code_pythran:
+        code_pythran += (
+            "# pythran export __fluidpythran__\n"
+            f"__fluidpythran__ = ('{fluidpythran.__version__}',)"
+        )
 
     if black:
         code_pythran = black.format_str(code_pythran, line_length=82)

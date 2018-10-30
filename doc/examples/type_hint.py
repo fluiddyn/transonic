@@ -3,11 +3,10 @@ import fluidpythran as fp
 from fluidpythran import TypeVar, NDimVar, Array
 
 T = TypeVar("T")
-T1 = TypeVar("T1")
 N = NDimVar("N")
 
 A = Array[T, N]
-A1 = Array[T1, N + 1]
+A1 = Array[np.int8, N + 1]
 
 
 @fp.pythran_def
@@ -19,7 +18,7 @@ def compute(a: A, b: A, c: T, d: A1, e: str):
 
 for dtype in [int, np.complex128]:
     for ndim in [1, 3]:
-        fp.make_signature(compute, T=dtype, N=ndim, T1=float)
+        fp.make_signature(compute, T=dtype, N=ndim)
 
 
 if __name__ == "__main__":

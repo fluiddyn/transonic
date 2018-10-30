@@ -2,9 +2,14 @@ import ast
 import astunparse
 
 
-class TypeVar:
-    def __init__(self, name):
+class TemplateVar:
+    def get_template_parameters(self):
+        return (self,)
+
+class TypeVar(TemplateVar):
+    def __init__(self, name, *values):
         self.__name__ = name
+        self.values = values
 
     def __repr__(self):
         return self.__name__
@@ -24,10 +29,11 @@ class TypeVar:
         return dtype.__name__
 
 
-class NDimVar:
-    def __init__(self, name, shift=0):
+class NDimVar(TemplateVar):
+    def __init__(self, name, *values, shift=0):
         self.__name__ = name
         self.shift = shift
+        self.values = values
 
     def __repr__(self):
 
@@ -41,10 +47,10 @@ class NDimVar:
         return name
 
     def __add__(self, number):
-        return type(self)(self.__name__, shift=number)
+        return type(self)(self.__name__, *self.values, shift=number)
 
     def __sub__(self, number):
-        return type(self)(self.__name__, shift=-number)
+        return type(self)(self.__name__, *self.values, shift=-number)
 
 
 class ArrayMeta(type):
@@ -73,14 +79,38 @@ class ArrayMeta(type):
 
         return ArrayBis
 
-    def __repr__(self):
-        return (
-            "Array[" + ", ".join(repr(p) for p in self.parameters.values()) + "]"
+    def get_parameters(self):
+        return getattr(self, "parameters", tuple())
+
+    def get_template_parameters(self):
+        return tuple(
+            param
+            for param in self.get_parameters().values()
+            if isinstance(param, TemplateVar)
         )
+
+    def __repr__(self):
+        strings = []
+        for p in self.parameters.values():
+            if isinstance(p, type):
+                string = p.__name__
+            else:
+                string = repr(p)
+            strings.append(string)
+
+        return "Array[" + ", ".join(strings) + "]"
 
     def get_pythran_type(self, **kwargs):
 
         dtype = ndim = None
+
+        for var in self.parameters.values():
+            if isinstance(var, TypeVar) and var.values:
+                dtype = var.values[0]
+            elif isinstance(var, NDimVar) and var.values:
+                ndim = var.values[0]
+            elif isinstance(var, type):
+                dtype = var
 
         for key, value in kwargs.items():
             try:
