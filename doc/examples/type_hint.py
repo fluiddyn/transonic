@@ -27,6 +27,6 @@ if __name__ == "__main__":
     shape = [2]
 
     a = b = np.zeros(shape, dtype=int)
-    d = np.zeros(shape + [2], dtype=float)
+    d = np.zeros(shape + [2], dtype=np.int8)
 
     compute(a, b, 5, d, "hello")
