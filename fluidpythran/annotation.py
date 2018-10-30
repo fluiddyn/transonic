@@ -2,15 +2,67 @@ import ast
 import astunparse
 
 
+from . import _get_fluidpythran_object
+
+
 class TemplateVar:
+    """
+
+    T = TemplateVar("T")
+    T = TemplateVar("T", int, float)
+
+    T = TemplateVar()  # raise ValueError
+    T = TemplateVar(1)  # raise TypeError
+
+    """
+
+    _type_values = type
+    _letter = "T"
+
     def get_template_parameters(self):
         return (self,)
 
-class TypeVar(TemplateVar):
-    def __init__(self, name, *values):
-        self.__name__ = name
-        self.values = values
+    def __init__(self, *args, _fp=None):
 
+        if not args:
+            raise ValueError
+
+        if _fp is None:
+            fp = _get_fluidpythran_object()
+        else:
+            fp = _fp
+
+        if type(self) not in fp.names_template_variables:
+            fp.names_template_variables[type(self)] = set()
+
+        names_already_used = fp.names_template_variables[type(self)]
+
+        if self._is_correct_for_name(args[0]):
+            self.__name__ = args[0]
+            args = args[1:]
+        else:
+            index_var = len(names_already_used)
+
+            while self._letter + str(index_var) in names_already_used:
+                index_var += 1
+
+            self.__name__ = self._letter + str(index_var)
+
+        self.values = args
+
+        names_already_used.add(self.__name__)
+
+        self._check_type_values()
+
+    def _is_correct_for_name(self, arg):
+        return isinstance(arg, str)
+
+    def _check_type_values(self):
+        if not all(isinstance(value, self._type_values) for value in self.values):
+            raise TypeError
+
+
+class Type(TemplateVar):
     def __repr__(self):
         return self.__name__
 
@@ -29,11 +81,17 @@ class TypeVar(TemplateVar):
         return dtype.__name__
 
 
-class NDimVar(TemplateVar):
-    def __init__(self, name, *values, shift=0):
-        self.__name__ = name
+class NDim(TemplateVar):
+    _type_values = int
+    _letter = "N"
+
+    def __init__(self, *args, shift=0, _fp=None):
+
+        if _fp is None:
+            _fp = _get_fluidpythran_object()
+
+        super().__init__(*args, _fp=_fp)
         self.shift = shift
-        self.values = values
 
     def __repr__(self):
 
@@ -47,10 +105,21 @@ class NDimVar(TemplateVar):
         return name
 
     def __add__(self, number):
-        return type(self)(self.__name__, *self.values, shift=number)
+        fp = _get_fluidpythran_object()
+        return type(self)(self.__name__, *self.values, shift=number, _fp=fp)
 
     def __sub__(self, number):
-        return type(self)(self.__name__, *self.values, shift=-number)
+        fp = _get_fluidpythran_object()
+        return type(self)(self.__name__, *self.values, shift=-number, _fp=fp)
+
+
+class Shape(TemplateVar):
+    _letter = "S"
+    _type_values = str, list, tuple
+
+    def _is_correct_for_name(self, arg):
+        raise NotImplementedError
+        return isinstance(arg, str)
 
 
 class ArrayMeta(type):
@@ -59,12 +128,12 @@ class ArrayMeta(type):
         dtype = None
         ndim = None
         for param in parameters:
-            if isinstance(param, TypeVar):
+            if isinstance(param, Type):
                 if dtype is not None:
                     raise ValueError
             dtype = param
 
-            if isinstance(param, NDimVar):
+            if isinstance(param, NDim):
                 if ndim is not None:
                     raise ValueError
                 ndim = param
@@ -105,9 +174,9 @@ class ArrayMeta(type):
         dtype = ndim = None
 
         for var in self.parameters.values():
-            if isinstance(var, TypeVar) and var.values:
+            if isinstance(var, Type) and var.values:
                 dtype = var.values[0]
-            elif isinstance(var, NDimVar) and var.values:
+            elif isinstance(var, NDim) and var.values:
                 ndim = var.values[0]
             elif isinstance(var, type):
                 dtype = var
@@ -118,9 +187,9 @@ class ArrayMeta(type):
             except KeyError:
                 continue
 
-            if isinstance(template_var, TypeVar):
+            if isinstance(template_var, Type):
                 dtype = value
-            elif isinstance(template_var, NDimVar):
+            elif isinstance(template_var, NDim):
                 ndim = value + template_var.shift
             else:
                 raise ValueError

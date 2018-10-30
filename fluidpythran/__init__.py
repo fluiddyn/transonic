@@ -9,25 +9,15 @@ except ImportError:
     pass
 
 
-from .annotation import Array, NDimVar, TypeVar
+def _get_fluidpythran_object(index_frame=2):
 
-__all__ = [
-    "__version__",
-    "FluidPythran",
-    "path_data_tests",
-    "Array",
-    "NDimVar",
-    "TypeVar",
-]
+    try:
+        frame = inspect.stack()[index_frame]
+    except IndexError:
+        print("index_frame", index_frame)
+        print([frame[1] for frame in inspect.stack()])
+        raise
 
-is_compiling = False
-
-
-_modules = {}
-
-
-def pythran_def(func):
-    frame = inspect.stack()[1]
     module_name = get_module_name(frame)
 
     if module_name in _modules:
@@ -37,6 +27,30 @@ def pythran_def(func):
     else:
         fp = FluidPythran(frame=frame)
 
+    return fp
+
+
+from .annotation import Array, NDim, Type, Shape
+
+__all__ = [
+    "__version__",
+    "FluidPythran",
+    "path_data_tests",
+    "Array",
+    "NDim",
+    "Type",
+    "Shape",
+]
+
+is_compiling = False
+
+
+_modules = {}
+
+
+def pythran_def(func):
+
+    fp = _get_fluidpythran_object()
     return fp.pythran_def(func)
 
 
@@ -45,14 +59,7 @@ def make_signature(func, **kwargs):
     if not is_compiling:
         return
 
-    frame = inspect.stack()[1]
-    module_name = get_module_name(frame)
-
-    if module_name in _modules:
-        fp = _modules[module_name]
-    else:
-        fp = FluidPythran(frame=frame)
-
+    fp = _get_fluidpythran_object()
     fp.make_signature(func, **kwargs)
 
 
@@ -72,6 +79,8 @@ class FluidPythran:
         module = inspect.getmodule(frame[0])
 
         module_name = get_module_name(frame)
+
+        self.names_template_variables = {}
 
         self._created_while_compiling = is_compiling
 

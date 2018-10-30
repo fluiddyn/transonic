@@ -1,9 +1,9 @@
 import numpy as np
 import fluidpythran as fp
-from fluidpythran import TypeVar, NDimVar, Array
+from fluidpythran import Type, NDim, Array
 
-T = TypeVar("T")
-N = NDimVar("N")
+T = Type("T")
+N = NDim("N")
 
 A = Array[T, N]
 A1 = Array[np.int8, N + 1]

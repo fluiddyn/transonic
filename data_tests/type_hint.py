@@ -1,10 +1,10 @@
 import numpy as np
 import fluidpythran as fp
-from fluidpythran import TypeVar, NDimVar, Array
+from fluidpythran import Type, NDim, Array
 
-T = TypeVar("T")
-T1 = TypeVar("T1")
-N = NDimVar("N")
+T = Type("T")
+T1 = Type("T1")
+N = NDim("N")
 
 A = Array[T, N]
 A1 = Array[T1, N + 1]

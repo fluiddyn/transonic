@@ -1,9 +1,9 @@
 import numpy as np
 import fluidpythran as fp
-from fluidpythran import TypeVar, NDimVar, Array
+from fluidpythran import Type, NDim, Array
 
-T = TypeVar("T", int, np.complex128)
-N = NDimVar("N", 1, 3)
+T = Type(int, np.complex128)
+N = NDim(1, 3)
 
 A = Array[T, N]
 A1 = Array[np.float32, N + 1]
