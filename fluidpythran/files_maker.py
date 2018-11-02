@@ -16,7 +16,7 @@ except ImportError:
     black = False
 
 from .log import logger, set_log_level
-from .annotation import strip_typehints
+from .annotation import strip_typehints, compute_pythran_types_from_valued_types
 import fluidpythran
 
 
@@ -199,10 +199,11 @@ def make_pythran_code(path_py):
     with open(path_py) as file:
         code = file.read()
 
+    namespace = None
     if "# FLUIDPYTHRAN_NO_IMPORT" not in code:
         # we have to import the module!
         fluidpythran.is_compiling = True
-        run_path(str(path_py))
+        namespace = run_path(str(path_py))
         fluidpythran.is_compiling = False
 
     (
@@ -252,39 +253,85 @@ imports: {imports}\n"""
     )
 
     # blocks...
-    variables_types_block = {}
+
+    # we check that some types correspond to fluidpythran types
+    # we can do that only if the module has been imported
+
+    types_variables_blocks = {}
     return_block = {}
-    for name_block, types_variables in signatures_blocks.items():
-        variables_types_block[name_block] = []
-        for types_variables1 in types_variables:
-            variables_types = {}
-            lines = types_variables1.split("(", 1)[1].split(")")[0].split(";")
+    for name_block, list_str_types_variables in signatures_blocks.items():
+        types_variables_blocks[name_block] = []
+
+        for str_types_variables in list_str_types_variables:
+            types_variables = {}
+            lines = str_types_variables.split("(", 1)[1].split(")")[0].split(";")
             for line in lines:
-                type_, str_variables = line.split(" ", 1)
-                variables = str_variables.split(",")
+                type_, str_variables = line.strip().split(" ", 1)
+
+                if namespace is not None and type_ in namespace:
+                    type_ = namespace[type_]
+                else:
+                    try:
+                        type_ = eval(type_)
+                    except SyntaxError:
+                        pass
+
+                variables = [
+                    variable.replace(",", "").strip()
+                    for variable in str_variables.split(",")
+                ]
+
+                types_variables[type_] = variables
+
+            types_variables_blocks[name_block].append(types_variables)
+
+            if list_str_types_variables and "->" in str_types_variables:
+                return_block[name_block] = str_types_variables.split("->", 1)[1]
+
+    for name_block, list_types_variables in tuple(types_variables_blocks.items()):
+        new_list_types_variables = []
+        for types_variables in list_types_variables:
+            sequence_types = compute_pythran_types_from_valued_types(types_variables.keys())
+            variables = types_variables.values()
+            for types in sequence_types:
+                new_types_variables = {}
+                for type_, variable in zip(types, variables):
+                    new_types_variables[type_] = variable
+                new_list_types_variables.append(new_types_variables)
+
+        types_variables_blocks[name_block] = new_list_types_variables
+
+    variables_types_block = {}
+    for name_block, list_types_variables in types_variables_blocks.items():
+        variables_types_block[name_block] = []
+        for types_variables in list_types_variables:
+            variables_types = {}
+            for type_, variables in types_variables.items():
                 for variable in variables:
-                    variables_types[variable.replace(",", "").strip()] = type_
+                    variables_types[variable] = type_
+                variables_types
+
             variables_types_block[name_block].append(variables_types)
 
-        if types_variables and "->" in types_variables1:
-            return_block[name_block] = types_variables1.split("->", 1)[1]
+    print("variables_types_block", variables_types_block)
 
     arguments_blocks = {}
 
-    # add code for blocks
-    for name_block, variables_types0 in variables_types_block.items():
+    for name_block, list_variables_types in variables_types_block.items():
         # add "pythran export" for blocks
-        for variables_types in variables_types0:
-            str_variables = ", ".join(variables_types.values())
-            code_pythran += f"# pythran export {name_block}({str_variables})\n\n"
+        print(list_variables_types)
+        for variables_types in list_variables_types:
+            str_types = variables_types.values()
+            str_variables = ", ".join(str_types)
+            code_pythran += f"# pythran export {name_block}({str_variables})\n"
 
         # add code for blocks
-        variables = variables_types0[0].keys()
+        variables = list_variables_types[0].keys()
         arguments_blocks[name_block] = list(variables)
 
         str_variables = ", ".join(variables)
 
-        code_pythran += f"def {name_block}({str_variables}):\n"
+        code_pythran += f"\ndef {name_block}({str_variables}):\n"
 
         code_block = code_blocks[name_block]
 
@@ -295,11 +342,11 @@ imports: {imports}\n"""
 
     if arguments_blocks:
         code_pythran += "# pythran export arguments_blocks\n"
-        code_pythran += "arguments_blocks = " + str(arguments_blocks)
+        code_pythran += "arguments_blocks = " + str(arguments_blocks) + "\n"
 
     if code_pythran:
         code_pythran += (
-            "# pythran export __fluidpythran__\n"
+            "\n# pythran export __fluidpythran__\n"
             f"__fluidpythran__ = ('{fluidpythran.__version__}',)"
         )
 

@@ -1,3 +1,5 @@
+import itertools
+
 import ast
 import astunparse
 
@@ -205,6 +207,59 @@ class ArrayMeta(type):
 
 class Array(metaclass=ArrayMeta):
     pass
+
+
+def compute_pythran_types_from_types(types, **kwargs):
+    pythran_types = []
+    for type_ in types:
+        try:
+            pythran_type = type_.get_pythran_type(**kwargs)
+        except AttributeError:
+            pythran_type = type_.__name__
+
+        pythran_types.append(pythran_type)
+
+    return pythran_types
+
+
+def compute_pythran_types_from_valued_types(types):
+    template_parameters = []
+
+    for type_ in types:
+        if hasattr(type_, "get_template_parameters"):
+            template_parameters.extend(type_.get_template_parameters())
+
+    template_parameters = set(template_parameters)
+
+    if not template_parameters:
+        str_types = []
+        for type_ in types:
+            if isinstance(type_, type):
+                str_type = type_.__name__
+            else:
+                str_type = type_
+            str_types.append(str_type)
+        return (str_types,)
+
+    if not all(param.values for param in template_parameters):
+        raise ValueError
+
+    values_template_parameters = {}
+    for param in template_parameters:
+        values_template_parameters[param.__name__] = param.values
+
+    pythran_types = []
+    names = values_template_parameters.keys()
+    for set_types in itertools.product(*values_template_parameters.values()):
+        template_variables = {
+            name: value for name, value in zip(names, set_types)
+        }
+
+        pythran_types.append(
+            compute_pythran_types_from_types(types, **template_variables)
+        )
+
+    return pythran_types
 
 
 class TypeHintRemover(ast.NodeTransformer):

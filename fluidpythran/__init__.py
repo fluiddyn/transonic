@@ -23,14 +23,14 @@ def _get_fluidpythran_object(index_frame=2):
     if module_name in _modules:
         fp = _modules[module_name]
         if fp._created_while_compiling != is_compiling:
-            fp = FluidPythran(frame=frame)
+            fp = FluidPythran(frame=frame, reuse=False)
     else:
-        fp = FluidPythran(frame=frame)
+        fp = FluidPythran(frame=frame, reuse=False)
 
     return fp
 
 
-from .annotation import Array, NDim, Type, Shape
+from .annotation import Array, NDim, Type, Shape, compute_pythran_types_from_types
 
 __all__ = [
     "__version__",
@@ -71,7 +71,7 @@ def get_module_name(frame):
 
 
 class FluidPythran:
-    def __init__(self, use_pythran=True, frame=None):
+    def __init__(self, use_pythran=True, frame=None, reuse=True):
 
         if frame is None:
             frame = inspect.stack()[1]
@@ -79,6 +79,12 @@ class FluidPythran:
         module = inspect.getmodule(frame[0])
 
         module_name = get_module_name(frame)
+
+        if reuse and module_name in _modules:
+            fp = _modules[module_name]
+            for key, value in fp.__dict__.items():
+                self.__dict__[key] = value
+            return
 
         self.names_template_variables = {}
 
@@ -143,14 +149,10 @@ class FluidPythran:
             _signature = inspect.signature(func)
 
         signature = f"{func.__name__}("
-        pythran_types = []
-        for k, p in _signature.parameters.items():
-            try:
-                pythran_type = p.annotation.get_pythran_type(**kwargs)
-            except AttributeError:
-                pythran_type = p.annotation.__name__
 
-            pythran_types.append(pythran_type)
+        types = [param.annotation for param in _signature.parameters.values()]
+
+        pythran_types = compute_pythran_types_from_types(types, **kwargs)
 
         signature += ", ".join(pythran_types) + ")"
 
@@ -168,17 +170,17 @@ class FluidPythran:
             if not annotations:
                 continue
 
-            _signature = inspect.signature(func)
+            types = annotations.values()
 
             template_parameters = []
 
-            for annotation in annotations.values():
-                if hasattr(annotation, "get_template_parameters"):
-                    template_parameters.extend(
-                        annotation.get_template_parameters()
-                    )
+            for type_ in types:
+                if hasattr(type_, "get_template_parameters"):
+                    template_parameters.extend(type_.get_template_parameters())
 
             template_parameters = set(template_parameters)
+
+            _signature = inspect.signature(func)
 
             if not template_parameters:
                 self.make_signature(func, _signature=_signature)
@@ -187,14 +189,16 @@ class FluidPythran:
             if not all(param.values for param in template_parameters):
                 continue
 
-            values = {}
+            values_template_parameters = {}
             for param in template_parameters:
-                values[param.__name__] = param.values
+                values_template_parameters[param.__name__] = param.values
 
-            names = values.keys()
-            for set_values in itertools.product(*values.values()):
+            names = values_template_parameters.keys()
+            for set_types in itertools.product(
+                *values_template_parameters.values()
+            ):
                 template_variables = {
-                    name: value for name, value in zip(names, set_values)
+                    name: value for name, value in zip(names, set_types)
                 }
                 self.make_signature(
                     func, _signature=_signature, **template_variables

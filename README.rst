@@ -263,6 +263,37 @@ export`.
     implemented, see `issue #2
     <https://bitbucket.org/fluiddyn/fluidpythran/issues/2/implement-keyword-or-in-block-annotation>`_).
 
+Blocks can now be defined with type hints!
+
+.. code :: python
+
+    from fluidpythran import FluidPythran, Type, NDim, Array
+
+    fp = FluidPythran()
+
+    T = Type(float, complex)
+    N = NDim(1, 2, 3)
+    A = Array[T, N]
+
+    class MyClass:
+
+        ...
+
+        def func(self, n):
+            a, b = self.something_that_cannot_be_pythranized()
+
+            if fp.is_pythranized:
+                result = fp.use_pythranized_block("name_block")
+            else:
+                # pythran block (
+                #     A a, b;
+                #     int n
+                # ) -> result
+
+                result = a**n + b**n
+
+            return self.another_func_that_cannot_be_pythranized(result)
+
 Command :code:`# pythran class`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
