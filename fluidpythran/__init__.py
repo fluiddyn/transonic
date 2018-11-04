@@ -64,8 +64,12 @@ def make_signature(func, **kwargs):
 
 
 def get_module_name(frame):
-    module_name = inspect.getmodule(frame[0]).__name__
-    if module_name in ("__main__", "<run_path>"):
+    module = inspect.getmodule(frame[0])
+    if module is not None:
+        module_name = module.__name__
+        if module_name in ("__main__", "<run_path>"):
+            module_name = inspect.getmodulename(frame.filename)
+    else:
         module_name = inspect.getmodulename(frame.filename)
     return module_name
 

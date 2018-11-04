@@ -7,7 +7,7 @@ from logging import DEBUG
 from token import tok_name
 from io import BytesIO
 from pathlib import Path
-from runpy import run_path
+from runpy import run_module, run_path
 import inspect
 
 try:
@@ -203,7 +203,13 @@ def make_pythran_code(path_py):
     if "# FLUIDPYTHRAN_NO_IMPORT" not in code:
         # we have to import the module!
         fluidpythran.is_compiling = True
-        namespace = run_path(str(path_py))
+        try:
+            namespace = run_path(str(path_py))
+        except ImportError:
+            name_mod = ".".join(
+                path_py.relative_to(os.getcwd()).with_suffix("").parts
+            )
+            namespace = run_module(name_mod)
         fluidpythran.is_compiling = False
 
     (
@@ -291,7 +297,9 @@ imports: {imports}\n"""
     for name_block, list_types_variables in tuple(types_variables_blocks.items()):
         new_list_types_variables = []
         for types_variables in list_types_variables:
-            sequence_types = compute_pythran_types_from_valued_types(types_variables.keys())
+            sequence_types = compute_pythran_types_from_valued_types(
+                types_variables.keys()
+            )
             variables = types_variables.values()
             for types in sequence_types:
                 new_types_variables = {}
