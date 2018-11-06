@@ -207,7 +207,7 @@ def make_pythran_code(path_py):
             namespace = run_path(str(path_py))
         except ImportError:
             name_mod = ".".join(
-                path_py.relative_to(os.getcwd()).with_suffix("").parts
+                path_py.absolute().relative_to(os.getcwd()).with_suffix("").parts
             )
             namespace = run_module(name_mod)
         fluidpythran.is_compiling = False
@@ -300,14 +300,20 @@ imports: {imports}\n"""
             sequence_types = compute_pythran_types_from_valued_types(
                 types_variables.keys()
             )
-            variables = types_variables.values()
+            variabless = types_variables.values()
+            # print("variabless", variabless)
             for types in sequence_types:
                 new_types_variables = {}
-                for type_, variable in zip(types, variables):
-                    new_types_variables[type_] = variable
+                for type_, variables in zip(types, variabless):
+                    if type_ not in new_types_variables:
+                        new_types_variables[type_] = variables
+                    else:
+                        new_types_variables[type_] = new_types_variables[type_] + variables
                 new_list_types_variables.append(new_types_variables)
 
         types_variables_blocks[name_block] = new_list_types_variables
+
+    # print("types_variables_blocks", types_variables_blocks)
 
     variables_types_block = {}
     for name_block, list_types_variables in types_variables_blocks.items():
@@ -321,14 +327,21 @@ imports: {imports}\n"""
 
             variables_types_block[name_block].append(variables_types)
 
-    print("variables_types_block", variables_types_block)
+    # print("variables_types_block", variables_types_block)
 
     arguments_blocks = {}
 
     for name_block, list_variables_types in variables_types_block.items():
         # add "pythran export" for blocks
-        print(list_variables_types)
+
+        # print("list_variables_types", list_variables_types)
+
+        tmp = []
+
         for variables_types in list_variables_types:
+            if variables_types in tmp:
+                continue
+            tmp.append(variables_types)
             str_types = variables_types.values()
             str_variables = ", ".join(str_types)
             code_pythran += f"# pythran export {name_block}({str_variables})\n"
