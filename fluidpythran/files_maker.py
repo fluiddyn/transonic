@@ -209,7 +209,17 @@ def make_pythran_code(path_py):
             name_mod = ".".join(
                 path_py.absolute().relative_to(os.getcwd()).with_suffix("").parts
             )
-            namespace = run_module(name_mod)
+            try:
+                namespace = run_module(name_mod)
+            except ImportError:
+                logger.warning(
+                    f"fluidpythran was unable to import module {name_mod}: "
+                    "no Pythran file created. "
+                    "You may need to rerun the install command or "
+                    "you could add '# FLUIDPYTHRAN_NO_IMPORT' "
+                    "in the module is needed..."
+                )
+                return
         fluidpythran.is_compiling = False
 
     (
@@ -308,7 +318,9 @@ imports: {imports}\n"""
                     if type_ not in new_types_variables:
                         new_types_variables[type_] = variables
                     else:
-                        new_types_variables[type_] = new_types_variables[type_] + variables
+                        new_types_variables[type_] = (
+                            new_types_variables[type_] + variables
+                        )
                 new_list_types_variables.append(new_types_variables)
 
         types_variables_blocks[name_block] = new_list_types_variables
