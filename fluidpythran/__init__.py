@@ -1,7 +1,10 @@
 import inspect
 import importlib.util
 import itertools
+
 from ._version import __version__
+from .util import get_module_name
+from .cachedjit import cachedjit, used_by_cachedjit
 
 try:
     from ._path_data_tests import path_data_tests
@@ -40,6 +43,8 @@ __all__ = [
     "NDim",
     "Type",
     "Shape",
+    "cachedjit",
+    "used_by_cachedjit",
 ]
 
 is_compiling = False
@@ -63,24 +68,11 @@ def make_signature(func, **kwargs):
     fp.make_signature(func, **kwargs)
 
 
-def get_module_name(frame):
-    module = inspect.getmodule(frame[0])
-    if module is not None:
-        module_name = module.__name__
-        if module_name in ("__main__", "<run_path>"):
-            module_name = inspect.getmodulename(frame.filename)
-    else:
-        module_name = inspect.getmodulename(frame.filename)
-    return module_name
-
-
 class FluidPythran:
     def __init__(self, use_pythran=True, frame=None, reuse=True):
 
         if frame is None:
             frame = inspect.stack()[1]
-
-        module = inspect.getmodule(frame[0])
 
         module_name = get_module_name(frame)
 
