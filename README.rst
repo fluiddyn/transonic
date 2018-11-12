@@ -1,11 +1,15 @@
 FluidPythran: use Pythran in non-pythranizable code
 ===================================================
 
-|release| |coverage|
+|release| |docs| |coverage|
 
 .. |release| image:: https://img.shields.io/pypi/v/fluidpythran.svg
    :target: https://pypi.python.org/pypi/fluidpythran/
    :alt: Latest version
+
+.. |docs| image:: https://readthedocs.org/projects/fluidpythran/badge/?version=latest
+   :target: http://fluidpythran.readthedocs.org
+   :alt: Documentation status
 
 .. |coverage| image:: https://codecov.io/bb/fluiddyn/fluidpythran/branch/default/graph/badge.svg
    :target: https://codecov.io/bb/fluiddyn/fluidpythran/branch/default/
@@ -298,7 +302,7 @@ Cached Just-In-Time compilation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Using Just-In-Time compilation with the Ahead-Of-Time compiler Pythran is
-possible with FluidPythran! It is really "work in progress" so (i) it's buggy
+possible with FluidPythran! It is really a "work in progress" so (i) it's buggy
 and (ii) the API is not great, but it is a good start!
 
 .. code :: python
