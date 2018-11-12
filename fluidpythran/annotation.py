@@ -1,10 +1,12 @@
+"""Create Pythran signatures from type hints
+============================================
+
+"""
+
 import itertools
-
 import ast
+
 import astunparse
-
-
-from . import _get_fluidpythran_object
 
 
 class TemplateVar:
@@ -286,3 +288,7 @@ def strip_typehints(source):
     transformed = TypeHintRemover().visit(parsed_source)
     # convert the AST back to source code
     return astunparse.unparse(transformed)
+
+
+# we need to put this import here
+from .aheadoftime import _get_fluidpythran_object

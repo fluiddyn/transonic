@@ -1,3 +1,8 @@
+"""logging
+==========
+
+"""
+
 import logging
 
 logger = logging.getLogger("fluidpythran")

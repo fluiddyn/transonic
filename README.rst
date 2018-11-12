@@ -19,7 +19,7 @@ FluidPythran: use Pythran in non-pythranizable code
 
    FluidPythran just starts to be used in `FluidSim
    <https://bitbucket.org/fluiddyn/fluidsim>`_ (for example in `this file
-   <https://bitbucket.org/fluiddyn/fluidsim/src/c0e170ea7c68f2abc4b0f7749b1c89df79db6573/fluidsim/base/time_stepping/pseudo_spect.py>`_).
+   <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_).
 
    See also `this blog post
    <http://www.legi.grenoble-inp.fr/people/Pierre.Augier/broadcasting-numpy-abstraction-cython-pythran-fluidpythran.html>`_
@@ -293,6 +293,30 @@ Blocks can now be defined with type hints!
                 result = a**n + b**n
 
             return self.another_func_that_cannot_be_pythranized(result)
+
+Cached Just-In-Time compilation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using Just-In-Time compilation with the Ahead-Of-Time compiler Pythran is
+possible with FluidPythran! It is really "work in progress" so (i) it's buggy
+and (ii) the API is not great, but it is a good start!
+
+.. code :: python
+
+    import numpy as np
+
+    # pythran import numpy as numpy
+
+    from fluidpythran import cachedjit, used_by_cachedjit
+
+    @used_by_cachedjit("func1")
+    def func0(a, b):
+        return a + b
+
+    @cachedjit()
+    def func1(a, b):
+        return np.exp(a) * b * func0(a, b)
+
 
 Command :code:`# pythran class`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

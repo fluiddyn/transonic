@@ -1,9 +1,14 @@
+"""Utilities for the setup.py files
+===================================
+
+"""
+
 import os
 from datetime import datetime
 from pathlib import Path
 from distutils.command.build_ext import build_ext
 
-from .files_maker import make_pythran_files
+from .transpiler import make_pythran_files
 
 try:
     from pythran.dist import PythranBuildExt, PythranExtension

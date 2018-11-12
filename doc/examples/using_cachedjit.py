@@ -3,7 +3,7 @@ Serge talked about @cachedjit (see https://gist.github.com/serge-sans-paille/28c
 
 It's indeed a good idea.
 
-With "# pythran import" and @used_by_cachedjit the implementation should not be
+With "# pythran import" and @used_by_cachedjit the implementation isn't
 too complicated.
 
 - At import time, we create one .py file per cachedjit function.
@@ -19,33 +19,33 @@ too complicated.
   * then, try to call the pythran function and if it fails with
     a Pythran TypeError, correct the .pythran file and recompile.
 
-Note: it's going to be very slow the first time and each time there is a
-Pythran type error. During the compilation, the Python function is used.
+Note: During the compilation (the "warmup" of the JIT), the Python function is
+used.
 
 Note (NotImplemented): it should also be possible to use type hints to get at
 the first compilation more than one signature.
 
 """
 
-import numpy as np
+    import numpy as np
 
-# pythran import numpy as numpy
-
-
-from fluidpythran import cachedjit, used_by_cachedjit
-
-""" We could of course avoid this by analyzing the code of the cachedjit
-function. For a first implementation, it is simpler to have thus decorator."""
+    # pythran import numpy as numpy
 
 
-@used_by_cachedjit("func1")
-def func0(a, b):
-    return a + b
+    from fluidpythran import cachedjit, used_by_cachedjit
+
+    """ We could of course avoid this by analyzing the code of the cachedjit
+    function. For a first implementation, it is simpler to have thus decorator."""
 
 
-@cachedjit()
-def func1(a, b):
-    return np.exp(a) * b * func0(a, b)
+    @used_by_cachedjit("func1")
+    def func0(a, b):
+        return a + b
+
+
+    @cachedjit()
+    def func1(a, b):
+        return np.exp(a) * b * func0(a, b)
 
 
 if __name__ == "__main__":

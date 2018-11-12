@@ -2,7 +2,7 @@ from pathlib import Path
 import importlib
 import unittest
 
-from .files_maker import make_pythran_file
+from .transpiler import make_pythran_file
 
 
 class TestsInit(unittest.TestCase):

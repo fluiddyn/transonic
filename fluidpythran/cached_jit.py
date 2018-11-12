@@ -1,11 +1,11 @@
-"""
+"""Cached JIT compilation
+=========================
 
 Inspired by https://gist.github.com/serge-sans-paille/28c86d2b33cd561ba5e50081716b2cf4
 
 """
 
 import inspect
-import re
 import itertools
 from pathlib import Path
 import sys
@@ -17,9 +17,9 @@ try:
 except ImportError:
     pythran = False
 
-from .util import get_module_name, has_to_build
+from .util import get_module_name, has_to_build, get_source_without_decorator
 
-_modules = {}
+modules = {}
 
 
 path_root = Path.home() / ".fluidpythran"
@@ -35,11 +35,12 @@ class ModuleCachedJIT:
 
         self.filename = frame.filename
         self.module_name = get_module_name(frame)
-        _modules[self.module_name] = self
+        modules[self.module_name] = self
         self.used_functions = {}
+        self.cachedjit_functions = {}
 
     def record_used_function(self, func, names):
-        # FIXME: very buggy!
+        # FIXME: quick, dirty and buggy!
         if isinstance(names, str):
             names = (names,)
 
@@ -58,8 +59,8 @@ def _get_module_cachedjit(index_frame=2):
 
     module_name = get_module_name(frame)
 
-    if module_name in _modules:
-        return _modules[module_name]
+    if module_name in modules:
+        return modules[module_name]
     else:
         return ModuleCachedJIT(frame=frame)
 
@@ -85,11 +86,6 @@ def make_pythran_type_name(obj):
     return name
 
 
-def get_source_without_decorator(func):
-    src = inspect.getsource(func)
-    return re.sub("@.*?\sdef\s", "def ", src)
-
-
 def cachedjit(func=None, native=True, xsimd=True):
     decor = CachedJIT(native=native, xsimd=xsimd)
     if callable(func):
@@ -110,6 +106,8 @@ class CachedJIT:
 
     def __call__(self, func):
 
+        # FIXME: MPI?
+
         if not pythran:
             return func
 
@@ -121,6 +119,7 @@ class CachedJIT:
             index_frame = 2
 
         mod = _get_module_cachedjit(index_frame)
+        mod.cachedjit_functions[func_name] = self
         module_name = mod.module_name
         print(f"Make new function to replace {func_name} ({module_name})")
 
@@ -203,6 +202,8 @@ class CachedJIT:
             with open(path_pythran_header, "w") as file:
                 file.write(header)
 
+            # FIXME: we have to limit the number of compilations occuring at
+            #        the same time
             self.compiling = True
             self.process = subprocess.Popen(
                 ["pythran", "-v", str(path_pythran)], cwd=str(path_pythran.parent)

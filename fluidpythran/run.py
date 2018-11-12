@@ -8,7 +8,7 @@ from pathlib import Path
 from glob import glob
 
 from . import __version__
-from .files_maker import make_pythran_files
+from .transpiler import make_pythran_files
 from .log import logger, set_log_level
 
 doc = """

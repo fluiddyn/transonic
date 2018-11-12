@@ -1,7 +1,13 @@
+"""Internal utilities
+=====================
+
+
+"""
 
 import os
 import inspect
 from datetime import datetime
+import re
 
 
 def get_module_name(frame):
@@ -29,3 +35,8 @@ def has_to_build(output_file, input_file):
     if mod_date_output < modification_date(input_file):
         return True
     return False
+
+
+def get_source_without_decorator(func):
+    src = inspect.getsource(func)
+    return re.sub(r"@.*?\sdef\s", "def ", src)

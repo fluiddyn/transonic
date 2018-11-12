@@ -1,3 +1,8 @@
+"""Ahead-of-time transpiler
+===========================
+
+"""
+
 from tokenize import tokenize, untokenize, COMMENT, INDENT, DEDENT, STRING, NAME
 
 import os
@@ -202,7 +207,7 @@ def make_pythran_code(path_py):
     namespace = None
     if "# FLUIDPYTHRAN_NO_IMPORT" not in code:
         # we have to import the module!
-        fluidpythran.is_compiling = True
+        fluidpythran.aheadoftime.is_compiling = True
         try:
             namespace = run_path(str(path_py))
         except ImportError:
@@ -220,7 +225,7 @@ def make_pythran_code(path_py):
                     "in the module is needed..."
                 )
                 return
-        fluidpythran.is_compiling = False
+        fluidpythran.aheadoftime.is_compiling = False
 
     (
         blocks,
@@ -247,8 +252,8 @@ imports: {imports}\n"""
         code_pythran += "\n" + "\n".join(imports) + "\n"
 
     module_name = Path(path_py).with_suffix("").name
-    if module_name in fluidpythran._modules:
-        fp = fluidpythran._modules[module_name]
+    if module_name in fluidpythran.aheadoftime._modules:
+        fp = fluidpythran.aheadoftime._modules[module_name]
         fp._make_signatures_from_annotations()
         functions = fp.functions.keys()
         signatures_func_annot = fp.signatures_func

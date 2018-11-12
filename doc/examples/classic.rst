@@ -1,0 +1,4 @@
+Classic
+=======
+
+.. literalinclude:: classic.py

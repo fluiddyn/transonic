@@ -2,6 +2,7 @@ syntax: glob
 
 __pycache__
 .vscode/
+*~
 
 doc/_build/*
 doc/**generated/*
