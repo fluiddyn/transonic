@@ -63,21 +63,30 @@ nature of Pythran with modern Python syntax** (in particular **type
 annotations**).
 
 With FluidPythran, we try to overcome these limitations. FluidPythran provides
-few supplementary Pythran commands and a tiny Python API to define Pythran
+few supplementary Pythran commands and a small Python API to define Pythran
 functions without writing the Pythran modules. The code of the numerical
 kernels can stay in the modules and in the classes where they were written. The
 Pythran files (i.e. the files compiled by Pythran), which are usually written
 by the user, are produced automatically by FluidPythran.
 
-**Implementation detail:** For each Python file using FluidPythran, an
-associated Pythran file is created in a directory :code:`_pythran`. For
-example, for a Python file :code:`foo.py`, the associated file would be
-:code:`_pythran/_foo.py`.
+There are FluidPythran syntaxes for both ahead-of-time and just-in-time
+compilations.
 
-At run time, FluidPythran replaces the Python functions (and blocks) by their
-versions in the Pythran files.
+At run time, FluidPythran uses when possible the pythranized functions.
 
 Let's stress again that codes using FluidPythran work fine without Pythran!
+
+**Implementation details for ahead-of-time compilation:** For each Python file
+using FluidPythran, an associated Pythran file is created in a directory
+:code:`_pythran`. For example, for a Python file :code:`foo.py`, the associated
+file would be :code:`_pythran/_foo.py`.
+
+**Implementation details for just-in-time compilation:** A Pythran file is
+produced for each "cachedjited" function (function decorated with
+:code:`@cachedjit`). The file is compiled at the first call of the function and
+the compiled version is used as soon as it is ready. The warmup can be quite
+long but the compiled version is saved and can be reused (without warmup!) by
+another process.
 
 Installation
 ------------
@@ -327,30 +336,34 @@ Command :code:`# pythran class`
 
 Just a NotImplemented idea! See https://bitbucket.org/fluiddyn/fluidpythran/issues/3/pythran-class
 
-For simple methods only using simple attributes, if could be simple and useful
-to support this:
+For simple methods only using simple attributes, if could be simple and *very*
+useful to support this:
 
 .. code :: python
 
-    from fluidpythran import pythran_class
+    from fluidpythran import Type, NDim, Array, pythran_def
 
     import numpy as np
 
-    @pythran_class
+    T = Type(int, np.float64)
+    N = NDim(1)
+
+    A1 = Array[T, N]
+    A2 = Array[float, N+1]
+
     class MyClass:
-        # pythran class (
-        #     int[] or float[]: arr0, arr1;
-        #     float[][]: arr2
-        # )
+
+        arr0: A1
+        arr1: A1
+        arr2: A2
 
         def __init__(self, n, dtype=int):
             self.arr0 = np.zeros(n, dtype=dtype)
             self.arr1 = np.zeros(n, dtype=dtype)
             self.arr2 = np.zeros(n)
 
-        # pythran def compute(object, float)
-
-        def compute(self, alpha):
+        @pythran_def
+        def compute(self, alpha: int):
             tmp = (self.arr0 + self.arr1).mean()
             return tmp ** alpha * self.arr2
 
