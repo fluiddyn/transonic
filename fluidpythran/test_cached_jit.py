@@ -1,7 +1,12 @@
-
 import sys
 
 import numpy as np
+
+try:
+    import pythran
+except ImportError:
+    pythran = None
+
 
 from .cached_jit import path_cachedjit, modules
 
@@ -39,6 +44,9 @@ def test_cachedjit_simple():
 
     func2(1)
 
+    if not pythran:
+        return
+
     mod = modules[module_name]
     cjit = mod.cachedjit_functions["func2"]
 
@@ -54,4 +62,5 @@ def test_cachedjit_simple():
     del modules[module_name]
 
     from .for_test_cached_jit import func2
+
     func2(1)
