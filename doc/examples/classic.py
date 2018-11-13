@@ -1,6 +1,6 @@
-
 import numpy as np
 
+# don't import any random modules in a Pythran file. Here, no problem!
 from fluiddyn.util import mpi
 
 from fluidpythran import pythran_def

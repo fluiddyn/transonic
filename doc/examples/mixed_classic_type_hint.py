@@ -1,6 +1,7 @@
 import numpy as np
 
-from fluiddyn.util import mpi
+# don't import skimage in a Pythran file. Here, no problem!
+from skimage.filters import sobel
 
 from fluidpythran import pythran_def
 

@@ -1,13 +1,11 @@
-
 import numpy as np
-
 # pythran import numpy as np
-
 
 from fluidpythran import FluidPythran
 
 fp = FluidPythran()
 
+# don't define classes in Pythran file! Here, no problem...
 
 class MyClass:
     def __init__(self, a, b):

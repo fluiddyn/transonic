@@ -1,5 +1,5 @@
-FluidPythran: use Pythran in non-pythranizable code
-===================================================
+FluidPythran: easily speedup your Python code with Pythran
+==========================================================
 
 |release| |docs| |coverage|
 
@@ -18,16 +18,12 @@ FluidPythran: use Pythran in non-pythranizable code
 
 .. warning ::
 
-   FluidPythran is still just a prototype. Remarks and suggestions are very
+   FluidPythran is in a very early stage. Remarks and suggestions are very
    welcome.
 
    FluidPythran just starts to be used in `FluidSim
    <https://bitbucket.org/fluiddyn/fluidsim>`_ (for example in `this file
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_).
-
-   See also `this blog post
-   <http://www.legi.grenoble-inp.fr/people/Pierre.Augier/broadcasting-numpy-abstraction-cython-pythran-fluidpythran.html>`_
-   for an explanation of my motivations.
 
 FluidPythran is a pure Python package (requiring Python >= 3.6 or Pypy3) to
 help to write Python code that can use `Pythran
@@ -69,12 +65,11 @@ kernels can stay in the modules and in the classes where they were written. The
 Pythran files (i.e. the files compiled by Pythran), which are usually written
 by the user, are produced automatically by FluidPythran.
 
-There are FluidPythran syntaxes for both ahead-of-time and just-in-time
-compilations.
+Bonus: There are FluidPythran syntaxes for both ahead-of-time and just-in-time
+compilations!
 
-At run time, FluidPythran uses when possible the pythranized functions.
-
-Let's stress again that codes using FluidPythran work fine without Pythran!
+At run time, FluidPythran uses when possible the pythranized functions, but
+let's stress again that codes using FluidPythran work fine without Pythran!
 
 **Implementation details for ahead-of-time compilation:** For each Python file
 using FluidPythran, an associated Pythran file is created in a directory
@@ -95,8 +90,8 @@ Installation
 
    pip install fluidpythran
 
-Using Pythran in Python files
------------------------------
+A short tour of FluidPythran syntaxes
+-------------------------------------
 
 Command :code:`# pythran def`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -147,60 +142,14 @@ The previous example can be rewritten without Pythran commands:
     ...
 
 Nice but very limited... So it possible to mix type hints and :code:`# pythran
-def` commands.
-
-Moreover, if you like C++11 :code:`template`, you can write (see `issue #5
-<https://bitbucket.org/fluiddyn/fluidpythran/issues/5>`_):
-
-.. code :: python
-
-    import numpy as np
-    import fluidpythran as fp
-    from fluidpythran import Type, NDim, Array
-
-    T = Type("T")
-    N = NDim("N")
-
-    A = Array[T, N]
-    A1 = Array[np.float32, N + 1]
-
-    @fp.pythran_def
-    def compute(a: A, b: A, c: T, d: A1, e: str):
-        print(e)
-        tmp = a + b
-        return tmp
-
-    for dtype in [int, np.complex128]:
-        for ndim in [1, 3]:
-            fp.make_signature(compute, T=dtype, N=ndim)
-
-
-If you don't like generic templating, you can also just write
-
-.. code :: python
-
-    import numpy as np
-    import fluidpythran as fp
-    from fluidpythran import Type, NDim, Array
-
-    T = Type(int, np.complex128)
-    N = NDim(1, 3)
-
-    A = Array[T, N]
-    A1 = Array[np.float32, N + 1]
-
-    @fp.pythran_def
-    def compute(a: A, b: A, c: T, d: A1, e: str):
-        print(e)
-        tmp = a + b
-        return tmp
-
+def` commands. There are also `other nice ways to define Pythran functions with
+more types <https://fluidpythran.readthedocs.io/en/latest/examples/type_hints.html>`_.
 
 Command :code:`# pythran block`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-One of the most evident application of :code:`# pythran block` is code in
-classes:
+FluidPythran blocks can be used with classes and more generally in functions
+with lines that cannot be compiled by Pythran.
 
 .. code :: python
 
@@ -247,65 +196,8 @@ Note that the annotations in the command :code:`# pythran block` are different
 (and somehow easier to write) than in the standard command :code:`# pythran
 export`.
 
-.. note ::
-
-    Moreover, for the time being, one needs to explicitly write the "returned"
-    variables (after :code:`->`). However, it is a redundant information so we
-    could avoid this in future (see `issue #1
-    <https://bitbucket.org/fluiddyn/fluidpythran/issues/1/no-need-for-explicit-return-values-in>`_).
-
-.. warning ::
-
-    The two branches of the :code:`if fp.is_pythranized` are not equivalent! The
-    user has to be careful because it is not difficult to write such buggy code:
-
-    .. code :: python
-
-        c = 0
-        if fp.is_pythranized:
-            a, b = fp.use_pythranized_block("buggy_block")
-        else:
-            # pythran block () -> (a, b)
-            a = b = c = 1
-
-        assert c == 1
-
-.. note ::
-
-    The Pythran keyword :code:`or` cannot be used in block annotations (not yet
-    implemented, see `issue #2
-    <https://bitbucket.org/fluiddyn/fluidpythran/issues/2/implement-keyword-or-in-block-annotation>`_).
-
-Blocks can now be defined with type hints!
-
-.. code :: python
-
-    from fluidpythran import FluidPythran, Type, NDim, Array
-
-    fp = FluidPythran()
-
-    T = Type(float, complex)
-    N = NDim(1, 2, 3)
-    A = Array[T, N]
-
-    class MyClass:
-
-        ...
-
-        def func(self, n):
-            a, b = self.something_that_cannot_be_pythranized()
-
-            if fp.is_pythranized:
-                result = fp.use_pythranized_block("name_block")
-            else:
-                # pythran block (
-                #     A a, b;
-                #     int n
-                # ) -> result
-
-                result = a**n + b**n
-
-            return self.another_func_that_cannot_be_pythranized(result)
+`Blocks can now also be defined with type hints!
+<https://fluidpythran.readthedocs.io/en/latest/examples/blocks.html>`_
 
 Cached Just-In-Time compilation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -331,10 +223,10 @@ and (ii) the API is not great, but it is a good start!
         return np.exp(a) * b * func0(a, b)
 
 
-Command :code:`# pythran class`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Python classes: :code:`@pythran_def` for methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Just a NotImplemented idea! See https://bitbucket.org/fluiddyn/fluidpythran/issues/3/pythran-class
+Just a NotImplemented idea! See https://bitbucket.org/fluiddyn/fluidpythran/issues/3
 
 For simple methods only using simple attributes, if could be simple and *very*
 useful to support this:

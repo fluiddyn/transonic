@@ -1,7 +1,31 @@
 """Cached JIT compilation
 =========================
 
-Inspired by https://gist.github.com/serge-sans-paille/28c86d2b33cd561ba5e50081716b2cf4
+Serge talked about @cachedjit (see https://gist.github.com/serge-sans-paille/28c86d2b33cd561ba5e50081716b2cf4)
+
+It's indeed a good idea!
+
+With "# pythran import" and @used_by_cachedjit the implementation isn't
+too complicated.
+
+- At import time, we create one .py file per cachedjit function.
+
+- At run time, we create (and complete when needed) a corresponding
+  .pythran file with signature(s).
+
+  The cachedjit decorator:
+
+  * at the first call, get the types, create the .pythran file and call
+    Pythran.
+
+  * then, try to call the pythran function and if it fails with
+    a Pythran TypeError, correct the .pythran file and recompile.
+
+Note: During the compilation (the "warmup" of the JIT), the Python function is
+used.
+
+Note (NotImplemented): it should also be possible to use type hints to get at
+the first compilation more than one signature.
 
 """
 

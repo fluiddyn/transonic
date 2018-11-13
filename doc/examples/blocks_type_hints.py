@@ -1,10 +1,5 @@
-
-
-
 import numpy as np
-
 # pythran import numpy as np
-
 
 from fluidpythran import FluidPythran, Type, NDim, Array
 

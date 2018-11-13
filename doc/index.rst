@@ -2,13 +2,16 @@
 
 .. include:: ../README.rst
 
-User Guide
-----------
+Examples
+--------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   examples
+   examples/classic
+   examples/using_cachedjit
+   examples/type_hints
+   examples/blocks
 
 Modules Reference
 -----------------
