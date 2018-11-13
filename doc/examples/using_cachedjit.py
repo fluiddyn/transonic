@@ -27,25 +27,25 @@ the first compilation more than one signature.
 
 """
 
-    import numpy as np
+import numpy as np
 
-    # pythran import numpy as numpy
-
-
-    from fluidpythran import cachedjit, used_by_cachedjit
-
-    """ We could of course avoid this by analyzing the code of the cachedjit
-    function. For a first implementation, it is simpler to have thus decorator."""
+# pythran import numpy as np
 
 
-    @used_by_cachedjit("func1")
-    def func0(a, b):
-        return a + b
+from fluidpythran import cachedjit, used_by_cachedjit
+
+""" We could of course avoid this by analyzing the code of the cachedjit
+function. For a first implementation, it is simpler to have thus decorator."""
 
 
-    @cachedjit()
-    def func1(a, b):
-        return np.exp(a) * b * func0(a, b)
+@used_by_cachedjit("func1")
+def func0(a, b):
+    return a + b
+
+
+@cachedjit()
+def func1(a, b):
+    return np.exp(a) * b * func0(a, b)
 
 
 if __name__ == "__main__":

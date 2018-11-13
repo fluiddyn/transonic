@@ -47,6 +47,16 @@ class ModuleCachedJIT:
         for name in names:
             self.used_functions[name] = [func]
 
+    def get_source(self):
+        try:
+            mod = sys.modules[self.module_name]
+        except KeyError:
+            print("in get_source", self.filename)
+            with open(self.filename) as file:
+                return file.read()
+        else:
+            return inspect.getsource(mod)
+
 
 def _get_module_cachedjit(index_frame=2):
 
@@ -137,9 +147,12 @@ class CachedJIT:
             has_to_write = True
 
         if has_to_write:
-
-            # FIXME: awful!
-            src = "import numpy as np\n\n"
+            import_lines = [
+                line.split("# pythran ")[1]
+                for line in mod.get_source().split("\n")
+                if line.startswith("# pythran ") and "import" in line
+            ]
+            src = "\n".join(import_lines) + "\n"
 
             src += get_source_without_decorator(func)
 
