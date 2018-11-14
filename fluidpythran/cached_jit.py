@@ -93,12 +93,14 @@ class ModuleCachedJIT:
         self.cachedjit_functions = {}
 
     def record_used_function(self, func, names):
-        # FIXME: quick, dirty and buggy!
         if isinstance(names, str):
             names = (names,)
 
         for name in names:
-            self.used_functions[name] = [func]
+            if name in self.used_functions:
+                self.used_functions[name].append(func)
+            else:
+                self.used_functions[name] = [func]
 
     def get_source(self):
         try:
@@ -156,6 +158,15 @@ def make_pythran_type_name(obj: object):
         name = obj.dtype.name
         if obj.ndim != 0:
             name += "[" + ",".join([":"] * obj.ndim) + "]"
+
+    if name == "list":
+        if not obj:
+            raise ValueError(
+                "cannot determine the Pythran type from an empty list"
+            )
+        item_type = type(obj[0])
+        # FIXME: we could check if the list is homogeneous...
+        name = item_type.__name__ + " list"
 
     return name
 
@@ -313,5 +324,6 @@ class CachedJIT:
             self.process = subprocess.Popen(
                 words_command, cwd=str(path_pythran.parent)
             )
+            return func(*args, **kwargs)
 
         return type_collector
