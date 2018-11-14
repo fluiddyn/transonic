@@ -1,5 +1,7 @@
-"""logging
+"""Logging
 ==========
+
+Defines the fluidpythran logger (variable :code:`logger`).
 
 """
 

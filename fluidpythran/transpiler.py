@@ -1,5 +1,25 @@
-"""Ahead-of-time transpiler
-===========================
+"""Make the Pythran files for ahead-of-time compilation
+=======================================================
+
+User API
+--------
+
+.. autofunction:: make_pythran_files
+
+Internal API
+------------
+
+.. autofunction:: parse_py_code
+
+.. autofunction:: get_code_functions
+
+.. autofunction:: get_codes_from_functions
+
+.. autofunction:: make_pythran_code_functions
+
+.. autofunction:: make_pythran_code
+
+.. autofunction:: make_pythran_file
 
 """
 
@@ -12,7 +32,8 @@ from token import tok_name
 from io import BytesIO
 from pathlib import Path
 from runpy import run_module, run_path
-import inspect
+
+from typing import Iterable
 
 try:
     import black
@@ -21,12 +42,12 @@ except ImportError:
 
 from .log import logger, set_log_level
 from .annotation import strip_typehints, compute_pythran_types_from_valued_types
-from .util import has_to_build
+from .util import has_to_build, get_source_without_decorator
 import fluidpythran
 
 
-def parse_py_code(code):
-    """Parse a .py file and return data"""
+def parse_py_code(code: str):
+    """Parse the code of a .py file and return data"""
 
     blocks = []
     signatures_blocks = {}
@@ -126,7 +147,7 @@ def parse_py_code(code):
     )
 
 
-def get_code_functions(code, func_names):
+def get_code_functions(code: str, func_names: Iterable[str]):
     """Get the code of function from a path and function names"""
 
     indent = 0
@@ -162,22 +183,35 @@ def get_code_functions(code, func_names):
     return codes
 
 
-def get_codes_from_functions(functions):
+def get_codes_from_functions(functions: dict):
+    """create a dict {name: code} from {name: function}
 
+    """
     codes = {}
 
     for name, func in functions.items():
-        code = inspect.getsource(func)
-        # remove the first line (should be the pythran_def decorator)
-        code = code.split("\n", 1)[1]
+        code = get_source_without_decorator(func)
         code = strip_typehints(code)
         codes[name] = code
 
     return codes
 
 
-def make_pythran_code_functions(functions, signatures_func, codes_functions):
+def make_pythran_code_functions(
+    functions: Iterable[str], signatures_func: dict, codes_functions: dict
+):
+    """Create the pythran code for all functions
 
+    Parameters
+    ----------
+
+    functions : list
+
+    signatures_func : dict
+
+    codes_functions: dict
+
+    """
     code_pythran = ""
 
     for name_func in functions:
@@ -198,7 +232,7 @@ def make_pythran_code_functions(functions, signatures_func, codes_functions):
     return code_pythran
 
 
-def make_pythran_code(path_py):
+def make_pythran_code(path_py: Path):
     """Create a pythran code from a Python file"""
 
     with open(path_py) as file:
@@ -394,7 +428,7 @@ imports: {imports}\n"""
     return code_pythran
 
 
-def make_pythran_file(path_py, force=False, log_level=None):
+def make_pythran_file(path_py: Path, force=False, log_level=None):
     """Create a Python file from a Python file (if necessary)"""
     if log_level is not None:
         set_log_level(log_level)
@@ -441,7 +475,7 @@ def make_pythran_file(path_py, force=False, log_level=None):
     return path_pythran
 
 
-def make_pythran_files(paths, force=False, log_level=None):
+def make_pythran_files(paths: Iterable[Path], force=False, log_level=None):
     """Create Pythran files from a list of Python files"""
 
     if log_level is not None:

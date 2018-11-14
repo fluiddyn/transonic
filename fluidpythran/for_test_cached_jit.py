@@ -11,7 +11,7 @@ def func0(a, b):
     return a + b
 
 
-@cachedjit()
+@cachedjit
 def func1(a, b):
     return np.exp(a) * b * func0(a, b)
 

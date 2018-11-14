@@ -3,19 +3,13 @@ import numpy as np
 
 from fluidpythran import cachedjit, used_by_cachedjit
 
-""" We could of course avoid this by analyzing the code of the cachedjit
-function. For a first implementation, it is simpler to have this decorator."""
-
-
 @used_by_cachedjit("func1")
 def func0(a, b):
     return a + b
 
-
 @cachedjit()
 def func1(a, b):
     return np.exp(a) * b * func0(a, b)
-
 
 if __name__ == "__main__":
 

@@ -1,6 +1,46 @@
 """Create Pythran signatures from type hints
 ============================================
 
+User API
+--------
+
+.. autoclass:: Type
+   :members:
+   :private-members:
+
+.. autoclass:: NDim
+   :members:
+   :private-members:
+
+.. autoclass:: Shape
+   :members:
+   :private-members:
+
+.. autoclass:: Array
+   :members:
+   :private-members:
+
+Internal API
+------------
+
+.. autoclass:: TemplateVar
+   :members:
+   :private-members:
+
+.. autoclass:: ArrayMeta
+   :members:
+   :private-members:
+
+.. autofunction:: compute_pythran_types_from_types
+
+.. autofunction:: compute_pythran_types_from_valued_types
+
+.. autoclass:: TypeHintRemover
+   :members:
+   :private-members:
+
+.. autofunction:: strip_typehints
+
 """
 
 import itertools
@@ -10,7 +50,7 @@ import astunparse
 
 
 class TemplateVar:
-    """
+    """Base class for template variables
 
     T = TemplateVar("T")
     T = TemplateVar("T", int, float)
@@ -32,7 +72,7 @@ class TemplateVar:
             raise ValueError
 
         if _fp is None:
-            fp = _get_fluidpythran_object()
+            fp = _get_fluidpythran_calling_module()
         else:
             fp = _fp
 
@@ -67,6 +107,8 @@ class TemplateVar:
 
 
 class Type(TemplateVar):
+    """Template variable representing the dtype of an array"""
+
     def __repr__(self):
         return self.__name__
 
@@ -86,13 +128,15 @@ class Type(TemplateVar):
 
 
 class NDim(TemplateVar):
+    """Template variable representing the number of dimension of an array"""
+
     _type_values = int
     _letter = "N"
 
     def __init__(self, *args, shift=0, _fp=None):
 
         if _fp is None:
-            _fp = _get_fluidpythran_object()
+            _fp = _get_fluidpythran_calling_module()
 
         super().__init__(*args, _fp=_fp)
         self.shift = shift
@@ -109,15 +153,21 @@ class NDim(TemplateVar):
         return name
 
     def __add__(self, number):
-        fp = _get_fluidpythran_object()
+        fp = _get_fluidpythran_calling_module()
         return type(self)(self.__name__, *self.values, shift=number, _fp=fp)
 
     def __sub__(self, number):
-        fp = _get_fluidpythran_object()
+        fp = _get_fluidpythran_calling_module()
         return type(self)(self.__name__, *self.values, shift=-number, _fp=fp)
 
 
 class Shape(TemplateVar):
+    """Shape template variable
+
+    NotImplemented!
+
+    """
+
     _letter = "S"
     _type_values = str, list, tuple
 
@@ -127,6 +177,8 @@ class Shape(TemplateVar):
 
 
 class ArrayMeta(type):
+    """Metaclass for the Array class used for type hints"""
+
     def __getitem__(self, parameters):
 
         dtype = None
@@ -208,10 +260,15 @@ class ArrayMeta(type):
 
 
 class Array(metaclass=ArrayMeta):
+    """Represent a Numpy array in type hints"""
+
     pass
 
 
 def compute_pythran_types_from_types(types, **kwargs):
+    """Compute a list of pythran types
+
+    """
     pythran_types = []
     for type_ in types:
         try:
@@ -225,6 +282,9 @@ def compute_pythran_types_from_types(types, **kwargs):
 
 
 def compute_pythran_types_from_valued_types(types):
+    """Compute a list of pythran types
+
+    """
     template_parameters = []
 
     for type_ in types:
@@ -265,7 +325,7 @@ def compute_pythran_types_from_valued_types(types):
 
 
 class TypeHintRemover(ast.NodeTransformer):
-    """
+    """Strip the type hints
 
     from https://stackoverflow.com/a/42734810/1779806
     """
@@ -281,6 +341,7 @@ class TypeHintRemover(ast.NodeTransformer):
 
 
 def strip_typehints(source):
+    """Strip the type hints from a function"""
     # parse the source code into an AST
     parsed_source = ast.parse(source)
     # remove all type annotations, function return type definitions
@@ -291,4 +352,4 @@ def strip_typehints(source):
 
 
 # we need to put this import here
-from .aheadoftime import _get_fluidpythran_object
+from .aheadoftime import _get_fluidpythran_calling_module

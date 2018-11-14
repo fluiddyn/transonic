@@ -1,6 +1,36 @@
 """Cached JIT compilation
 =========================
 
+User API
+--------
+
+.. autofunction:: cachedjit
+
+.. autofunction:: used_by_cachedjit
+
+.. todo::
+
+   It should also be possible to use type hints to get at the first compilation
+   more than one signature.
+
+Internal API
+------------
+
+.. autoclass:: ModuleCachedJIT
+   :members:
+   :private-members:
+
+.. autofunction:: _get_module_cachedjit
+
+.. autoclass:: CachedJIT
+   :members:
+   :private-members:
+
+.. autofunction:: make_pythran_type_name
+
+Notes
+-----
+
 Serge talked about @cachedjit (see https://gist.github.com/serge-sans-paille/28c86d2b33cd561ba5e50081716b2cf4)
 
 It's indeed a good idea!
@@ -23,9 +53,6 @@ too complicated.
 
 Note: During the compilation (the "warmup" of the JIT), the Python function is
 used.
-
-Note (NotImplemented): it should also be possible to use type hints to get at
-the first compilation more than one signature.
 
 """
 
@@ -52,6 +79,8 @@ path_cachedjit.mkdir(parents=True, exist_ok=True)
 
 
 class ModuleCachedJIT:
+    """Representation of a module using cachedjit"""
+
     def __init__(self, frame=None):
 
         if frame is None:
@@ -75,15 +104,23 @@ class ModuleCachedJIT:
         try:
             mod = sys.modules[self.module_name]
         except KeyError:
-            print("in get_source", self.filename)
             with open(self.filename) as file:
                 return file.read()
         else:
             return inspect.getsource(mod)
 
 
-def _get_module_cachedjit(index_frame=2):
+def _get_module_cachedjit(index_frame: int = 2):
+    """Get the ModuleCachedJIT instance corresponding to the calling module
 
+    Parameters
+    ----------
+
+    index_frame : int
+
+      Index (in :code:`inspect.stack()`) of the frame to be selected
+
+    """
     try:
         frame = inspect.stack()[index_frame]
     except IndexError:
@@ -100,6 +137,8 @@ def _get_module_cachedjit(index_frame=2):
 
 
 class used_by_cachedjit:
+    """Decorator to record that the function is used by a cachedjited function"""
+
     def __init__(self, names):
         self.names = names
 
@@ -109,7 +148,8 @@ class used_by_cachedjit:
         return func
 
 
-def make_pythran_type_name(obj):
+def make_pythran_type_name(obj: object):
+    """return the Pythran type name"""
     name = type(obj).__name__
 
     if name == "ndarray":
@@ -120,19 +160,27 @@ def make_pythran_type_name(obj):
     return name
 
 
-def cachedjit(func=None, native=True, xsimd=True):
-    decor = CachedJIT(native=native, xsimd=xsimd)
+def cachedjit(func=None, native=True, xsimd=True, openmp=False):
+    """Decorator to record that the function has to be cachedjit compiled
+
+    """
+    decor = CachedJIT(native=native, xsimd=xsimd, openmp=openmp)
     if callable(func):
+        decor._decorator_no_arg = True
         return decor(func)
     else:
         return decor
 
 
 class CachedJIT:
-    def __init__(self, native=True, xsimd=True, _decorator_no_arg=False):
+    """Decorator used internally by the public cachedjit decorator
+    """
+
+    def __init__(self, native=True, xsimd=True, openmp=False):
         self.native = native
         self.xsimd = xsimd
-        self._decorator_no_arg = _decorator_no_arg
+        self.openmp = openmp
+        self._decorator_no_arg = False
 
         self.pythran_func = None
         self.compiling = False
@@ -148,7 +196,7 @@ class CachedJIT:
         func_name = func.__name__
 
         if self._decorator_no_arg:
-            index_frame = 4
+            index_frame = 3
         else:
             index_frame = 2
 
@@ -185,9 +233,16 @@ class CachedJIT:
                 for function in functions:
                     src += "\n" + get_source_without_decorator(function)
 
-            print(f"write code in file {path_pythran}")
-            with open(path_pythran, "w") as file:
-                file.write(src)
+            if path_pythran.exists():
+                with open(path_pythran) as file:
+                    src_old = file.read()
+                if src_old == src:
+                    has_to_write = False
+
+            if has_to_write:
+                print(f"write code in file {path_pythran}")
+                with open(path_pythran, "w") as file:
+                    file.write(src)
 
         name_mod = ".".join(
             path_pythran.absolute().relative_to(path_root).with_suffix("").parts
@@ -198,8 +253,11 @@ class CachedJIT:
         sys.path.pop(0)
 
         if hasattr(module_pythran, "__pythran__"):
-            print("module already pythranized")
+            print(f"module {module_pythran.__name__} already pythranized")
             self.pythran_func = getattr(module_pythran, func_name)
+
+        if has_to_build(module_pythran.__file__, path_pythran):
+            self.pythran_func = None
 
         path_pythran_header = path_pythran.with_suffix(".pythran")
 
@@ -242,8 +300,18 @@ class CachedJIT:
             # FIXME: we have to limit the number of compilations occuring at
             #        the same time
             self.compiling = True
+            words_command = ["pythran", "-v", str(path_pythran)]
+            if self.native:
+                words_command.append("-march=native")
+
+            if self.xsimd:
+                words_command.append("-DUSE_XSIMD")
+
+            if self.openmp:
+                words_command.append("-fopenmp")
+
             self.process = subprocess.Popen(
-                ["pythran", "-v", str(path_pythran)], cwd=str(path_pythran.parent)
+                words_command, cwd=str(path_pythran.parent)
             )
 
         return type_collector

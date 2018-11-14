@@ -1,5 +1,5 @@
-Classic
-=======
+Nearly as with Pythran
+======================
 
 This example shows how to use FluidPythran nearly `how you would use Pythran
 <https://pythran.readthedocs.io>`_.

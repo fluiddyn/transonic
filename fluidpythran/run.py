@@ -1,6 +1,13 @@
 """Command line fluidpythran
 ============================
 
+Internal API
+------------
+
+.. autofunction:: run
+
+.. autofunction:: parse_args
+
 """
 
 import argparse
@@ -12,34 +19,16 @@ from .transpiler import make_pythran_files
 from .log import logger, set_log_level
 
 doc = """
-fluidpythran: Pythran code in Python files
+fluidpythran: easily speedup your Python code with Pythran
 
 """
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description=doc, formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument("path", help="Path file or directory.", nargs="*")
-
-    parser.add_argument(
-        "-f",
-        "--force",
-        help="write the file even if it is up-to-date",
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "-V", "--version", help="print version and exit", action="store_true"
-    )
-
-    parser.add_argument("-v", "--verbose", help="verbose mode", action="count")
-
-    return parser.parse_args()
-
-
 def run():
+    """Run the fluidpythran commandline
+
+    See :code:`fluidpythran -h`
+    """
     args = parse_args()
 
     if args.version:
@@ -69,3 +58,26 @@ def run():
             paths = glob(str(path))
 
     make_pythran_files(paths, force=args.force)
+
+
+def parse_args():
+    """Parse the arguments"""
+    parser = argparse.ArgumentParser(
+        description=doc, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("path", help="Path file or directory.", nargs="*")
+
+    parser.add_argument(
+        "-f",
+        "--force",
+        help="write the file even if it is up-to-date",
+        action="store_true",
+    )
+
+    parser.add_argument(
+        "-V", "--version", help="print version and exit", action="store_true"
+    )
+
+    parser.add_argument("-v", "--verbose", help="verbose mode", action="count")
+
+    return parser.parse_args()

@@ -1,5 +1,22 @@
-"""Ahead-of-time compilation
-============================
+"""User runtime API for the ahead-of-time compilation
+=====================================================
+
+User API
+--------
+
+.. autofunction:: pythran_def
+
+.. autofunction:: make_signature
+
+.. autoclass:: FluidPythran
+   :members:
+   :private-members:
+
+Internal API
+------------
+
+.. autofunction:: _get_fluidpythran_calling_module
+
 
 
 """
@@ -13,8 +30,21 @@ from .util import get_module_name
 
 from .annotation import compute_pythran_types_from_types
 
+is_compiling = False
+_modules = {}
 
-def _get_fluidpythran_object(index_frame=2):
+
+def _get_fluidpythran_calling_module(index_frame: int = 2):
+    """Get the FluidPythran instance corresponding to the calling module
+
+    Parameters
+    ----------
+
+    index_frame : int
+
+      Index (in :code:`inspect.stack()`) of the frame to be selected
+
+    """
 
     try:
         frame = inspect.stack()[index_frame]
@@ -35,28 +65,62 @@ def _get_fluidpythran_object(index_frame=2):
     return fp
 
 
-is_compiling = False
-
-
-_modules = {}
-
-
 def pythran_def(func):
+    """Decorator to declare that a pythranized version of the function has to
+    be used
 
-    fp = _get_fluidpythran_object()
+    Parameters
+    ----------
+
+    func: a function
+
+    """
+
+    fp = _get_fluidpythran_calling_module()
     return fp.pythran_def(func)
 
 
 def make_signature(func, **kwargs):
+    """Create signature for a function with values for the template types
 
+    Parameters
+    ----------
+
+    func: a function
+
+    kwargs : dict
+
+      The template types and their value
+
+    """
     if not is_compiling:
         return
 
-    fp = _get_fluidpythran_object()
+    fp = _get_fluidpythran_calling_module()
     fp.make_signature(func, **kwargs)
 
 
 class FluidPythran:
+    """
+    Representation of a module using ahead-of-time fluidpythran commands
+
+    Parameters
+    ----------
+
+    use_pythran : bool (optional, default True)
+
+      If False, don't use the pythranized versions at run time
+
+    frame : int (optional)
+
+      (Internal) Index (in :code:`inspect.stack()`) of the frame to be selected
+
+    reuse : bool (optional, default True)
+
+      (Internal) If True, do not recreate an instance.
+
+    """
+
     def __init__(self, use_pythran=True, frame=None, reuse=True):
 
         if frame is None:
@@ -113,7 +177,14 @@ class FluidPythran:
         _modules[module_name] = self
 
     def pythran_def(self, func):
-        """Decorator used for functions"""
+        """Decorator used for functions
+
+        Parameters
+        ----------
+
+        func: a function
+
+        """
 
         if is_compiling:
             self.functions[func.__name__] = func
@@ -128,7 +199,18 @@ class FluidPythran:
             return func
 
     def make_signature(self, func, _signature=None, **kwargs):
+        """Create signature for a function with values for the template types
 
+        Parameters
+        ----------
+
+        func: a function
+
+        kwargs : dict
+
+          The template types and their value
+
+        """
         if _signature is None:
             _signature = inspect.signature(func)
 
@@ -145,8 +227,41 @@ class FluidPythran:
 
         self.signatures_func[func.__name__].append(signature)
 
-    def _make_signatures_from_annotations(self):
+    def use_pythranized_block(self, name):
+        """Use the pythranized version of a code block
 
+        Parameters
+        ----------
+
+        name : str
+
+          The name of the block.
+
+        """
+        if not self.is_pythranized:
+            raise ValueError(
+                "`use_pythranized_block` has to be used protected "
+                "by `if fp.is_pythranized`"
+            )
+
+        func = getattr(self.module_pythran, name)
+        argument_names = self.arguments_blocks[name]
+
+        frame = inspect.currentframe()
+        try:
+            locals_caller = frame.f_back.f_locals
+        finally:
+            del frame
+
+        arguments = [locals_caller[name] for name in argument_names]
+        return func(*arguments)
+
+    def _make_signatures_from_annotations(self):
+        """Make the signatures from annotations if it is possible
+
+        Useful when there are only "not templated" types.
+
+        """
         for func in self.functions.values():
 
             annotations = func.__annotations__
@@ -187,23 +302,3 @@ class FluidPythran:
                 self.make_signature(
                     func, _signature=_signature, **template_variables
                 )
-
-    def use_pythranized_block(self, name):
-
-        if not self.is_pythranized:
-            raise ValueError(
-                "`use_pythranized_block` has to be used protected "
-                "by `if fp.is_pythranized`"
-            )
-
-        func = getattr(self.module_pythran, name)
-        argument_names = self.arguments_blocks[name]
-
-        frame = inspect.currentframe()
-        try:
-            locals_caller = frame.f_back.f_locals
-        finally:
-            del frame
-
-        arguments = [locals_caller[name] for name in argument_names]
-        return func(*arguments)
