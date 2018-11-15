@@ -166,14 +166,22 @@ def make_pythran_type_name(obj: object):
         if obj.ndim != 0:
             name += "[" + ",".join([":"] * obj.ndim) + "]"
 
-    if name == "list":
+    if name in ("list", "set", "dict"):
         if not obj:
             raise ValueError(
-                "cannot determine the Pythran type from an empty list"
+                f"cannot determine the Pythran type from an empty {name}"
             )
+
+    if name in ("list", "set"):
         item_type = type(obj[0])
-        # FIXME: we could check if the list is homogeneous...
-        name = item_type.__name__ + " list"
+        # FIXME: we could check if the iterable is homogeneous...
+        name = item_type.__name__ + " " + name
+
+    if name == "dict":
+        for key, value in obj.items():
+            break
+        # FIXME: we could check if the dict is homogeneous...
+        name = type(key).__name__ + ": " + type(value).__name__ + " dict"
 
     return name
 

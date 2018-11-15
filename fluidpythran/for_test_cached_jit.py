@@ -36,3 +36,8 @@ Path(__file__).touch()
 @cachedjit()
 def func2(a):
     return a
+
+
+@cachedjit()
+def func_dict(d):
+    return d.popitem()

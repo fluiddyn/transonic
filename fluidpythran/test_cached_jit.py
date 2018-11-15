@@ -10,7 +10,7 @@ except ImportError:
 
 from .cached_jit import path_cachedjit, modules, scheduler
 
-scheduler.nb_cpus = 1
+scheduler.nb_cpus = 2
 
 module_name = "fluidpythran.for_test_cached_jit"
 
@@ -25,6 +25,7 @@ def delete_pythran_files(func_name):
 
 delete_pythran_files("func1")
 delete_pythran_files("func2")
+delete_pythran_files("func_dict")
 
 
 def test_cachedjit():
@@ -67,3 +68,26 @@ def test_cachedjit_simple():
     from .for_test_cached_jit import func2
 
     func2(1)
+
+
+def test_cachedjit_dict():
+    from time import sleep
+    from .for_test_cached_jit import func_dict
+
+    d = dict(a=1, b=2)
+    func_dict(d)
+
+    if not pythran:
+        return
+
+    mod = modules[module_name]
+    cjit = mod.cachedjit_functions["func_dict"]
+
+    for _ in range(100):
+        d = dict(a=1, b=2)
+        func_dict(d)
+        sleep(0.1)
+        if not cjit.compiling:
+            sleep(0.1)
+            func_dict(d)
+            break
