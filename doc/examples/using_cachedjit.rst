@@ -1,9 +1,10 @@
 Cached Just-In-Time compilation
 ===============================
 
-Using Just-In-Time compilation with the Ahead-Of-Time compiler Pythran is
-possible with FluidPythran! It is really a "work in progress" so (i) it can be
-buggy and (ii) the API is not great, but it is a good start!
+With FluidPythran, one can use the Ahead-Of-Time compiler Pythran in a
+Just-In-Time mode. It is really the **easiest way to speedup a function with
+Pythran**, just by adding a decorator! It is a "work in progress" so (i) it
+can be buggy and (ii) the API is not great, but it is a good start!
 
 .. literalinclude:: using_cachedjit.py
 
