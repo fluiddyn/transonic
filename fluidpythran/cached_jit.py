@@ -74,7 +74,8 @@ modules = {}
 
 
 path_root = Path.home() / ".fluidpythran"
-path_cachedjit = path_root / "cachedjit"
+# weird name to avoid name collision
+path_cachedjit = path_root / "_fp_cachedjit"
 path_cachedjit.mkdir(parents=True, exist_ok=True)
 
 
@@ -183,6 +184,16 @@ def cachedjit(func=None, native=True, xsimd=True, openmp=False):
         return decor
 
 
+def reimport_module(name_mod):
+    sys.path.insert(0, str(path_root))
+    print(f"(re)import module {name_mod}")
+    if name_mod in sys.modules:
+        del sys.modules[name_mod]
+    module_pythran = importlib.import_module(name_mod)
+    sys.path.pop(0)
+    return module_pythran
+
+
 class CachedJIT:
     """Decorator used internally by the public cachedjit decorator
     """
@@ -259,9 +270,7 @@ class CachedJIT:
             path_pythran.absolute().relative_to(path_root).with_suffix("").parts
         )
 
-        sys.path.insert(0, str(path_root))
-        module_pythran = importlib.import_module(name_mod)
-        sys.path.pop(0)
+        module_pythran = reimport_module(name_mod)
 
         if hasattr(module_pythran, "__pythran__"):
             print(f"module {module_pythran.__name__} already pythranized")
@@ -277,11 +286,7 @@ class CachedJIT:
             if self.compiling:
                 if self.process.poll() is not None:
                     self.compiling = False
-                    sys.path.insert(0, str(path_root))
-                    print(f"reimport module {name_mod}")
-                    del sys.modules[name_mod]
-                    module_pythran = importlib.import_module(name_mod)
-                    sys.path.pop(0)
+                    module_pythran = reimport_module(name_mod)
                     assert hasattr(module_pythran, "__pythran__")
                     self.pythran_func = getattr(module_pythran, func_name)
 
