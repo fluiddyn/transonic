@@ -65,11 +65,12 @@ kernels can stay in the modules and in the classes where they were written. The
 Pythran files (i.e. the files compiled by Pythran), which are usually written
 by the user, are produced automatically by FluidPythran.
 
-Bonus: There are FluidPythran syntaxes for both ahead-of-time and just-in-time
-compilations!
+Bonus: There are FluidPythran syntaxes for both **ahead-of-time** and
+**just-in-time** compilations!
 
 At run time, FluidPythran uses when possible the pythranized functions, but
-let's stress again that codes using FluidPythran work fine without Pythran!
+let's stress again that codes using FluidPythran work fine without Pythran (of
+course without speedup)!
 
 **Implementation details for ahead-of-time compilation:** For each Python file
 using FluidPythran, an associated Pythran file is created in a directory
@@ -141,9 +142,11 @@ The previous example can be rewritten without Pythran commands:
 
     ...
 
-Nice but very limited... So it possible to mix type hints and :code:`# pythran
-def` commands. There are also `other nice ways to define Pythran functions with
-more types <https://fluidpythran.readthedocs.io/en/latest/examples/type_hints.html>`_.
+Nice but very limited... So it is possible to mix type hints and :code:`#
+pythran def` commands. Moreover, one can also elegantly define many Pythran
+signatures with type variables (see `these examples in the documentation
+<https://fluidpythran.readthedocs.io/en/latest/examples/type_hints.html>`_).
+
 
 Command :code:`# pythran block`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
