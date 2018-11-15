@@ -41,7 +41,7 @@ except ImportError:
     black = False
 
 from .log import logger, set_log_level
-from .annotation import strip_typehints, compute_pythran_types_from_valued_types
+from .annotation import compute_pythran_types_from_valued_types
 from .util import has_to_build, get_source_without_decorator
 import fluidpythran
 
@@ -191,7 +191,6 @@ def get_codes_from_functions(functions: dict):
 
     for name, func in functions.items():
         code = get_source_without_decorator(func)
-        code = strip_typehints(code)
         codes[name] = code
 
     return codes

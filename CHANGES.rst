@@ -1,8 +1,8 @@
 
-0.0.7 (?)
----------
+0.0.7 (2018-11-15)
+------------------
 
-- :code:`cachedjit` decorator
+- :code:`cachedjit` decorator (supports also type hints)
 
 0.0.6 (2018-11-05)
 ------------------

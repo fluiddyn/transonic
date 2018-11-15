@@ -23,12 +23,14 @@ Internal API
 
 import inspect
 import importlib.util
-import itertools
 
 
 from .util import get_module_name
 
-from .annotation import compute_pythran_types_from_types
+from .annotation import (
+    make_signature_from_template_variables,
+    make_signatures_from_typehinted_func,
+)
 
 is_compiling = False
 _modules = {}
@@ -211,16 +213,9 @@ class FluidPythran:
           The template types and their value
 
         """
-        if _signature is None:
-            _signature = inspect.signature(func)
-
-        signature = f"{func.__name__}("
-
-        types = [param.annotation for param in _signature.parameters.values()]
-
-        pythran_types = compute_pythran_types_from_types(types, **kwargs)
-
-        signature += ", ".join(pythran_types) + ")"
+        signature = make_signature_from_template_variables(
+            func, _signature=_signature, **kwargs
+        )
 
         if func.__name__ not in self.signatures_func:
             self.signatures_func[func.__name__] = []
@@ -263,42 +258,7 @@ class FluidPythran:
 
         """
         for func in self.functions.values():
-
-            annotations = func.__annotations__
-
-            if not annotations:
-                continue
-
-            types = annotations.values()
-
-            template_parameters = []
-
-            for type_ in types:
-                if hasattr(type_, "get_template_parameters"):
-                    template_parameters.extend(type_.get_template_parameters())
-
-            template_parameters = set(template_parameters)
-
-            _signature = inspect.signature(func)
-
-            if not template_parameters:
-                self.make_signature(func, _signature=_signature)
-                continue
-
-            if not all(param.values for param in template_parameters):
-                continue
-
-            values_template_parameters = {}
-            for param in template_parameters:
-                values_template_parameters[param.__name__] = param.values
-
-            names = values_template_parameters.keys()
-            for set_types in itertools.product(
-                *values_template_parameters.values()
-            ):
-                template_variables = {
-                    name: value for name, value in zip(names, set_types)
-                }
-                self.make_signature(
-                    func, _signature=_signature, **template_variables
-                )
+            signatures = make_signatures_from_typehinted_func(func)
+            if func.__name__ not in self.signatures_func:
+                self.signatures_func[func.__name__] = []
+            self.signatures_func[func.__name__].extend(signatures)

@@ -12,6 +12,12 @@ Internal API
 
 .. autofunction:: get_source_without_decorator
 
+.. autoclass:: TypeHintRemover
+   :members:
+   :private-members:
+
+.. autofunction:: strip_typehints
+
 """
 
 import os
@@ -19,8 +25,11 @@ import inspect
 from datetime import datetime
 import re
 from pathlib import Path
+import ast
 
 from typing import Callable
+
+import astunparse
 
 
 def get_module_name(frame):
@@ -54,4 +63,31 @@ def has_to_build(output_file: Path, input_file: Path):
 def get_source_without_decorator(func: Callable):
     """Get the source of a function without its decorator"""
     src = inspect.getsource(func)
-    return re.sub(r"@.*?\sdef\s", "def ", src)
+    return strip_typehints(re.sub(r"@.*?\sdef\s", "def ", src))
+
+
+class TypeHintRemover(ast.NodeTransformer):
+    """Strip the type hints
+
+    from https://stackoverflow.com/a/42734810/1779806
+    """
+
+    def visit_FunctionDef(self, node):
+        # remove the return type defintion
+        node.returns = None
+        # remove all argument annotations
+        if node.args.args:
+            for arg in node.args.args:
+                arg.annotation = None
+        return node
+
+
+def strip_typehints(source):
+    """Strip the type hints from a function"""
+    # parse the source code into an AST
+    parsed_source = ast.parse(source)
+    # remove all type annotations, function return type definitions
+    # and import statements from 'typing'
+    transformed = TypeHintRemover().visit(parsed_source)
+    # convert the AST back to source code
+    return astunparse.unparse(transformed)

@@ -11,6 +11,12 @@ can be buggy and (ii) the API is not great, but it is a good start!
 In the long terms, we won't need the :code:`#pythran import ...` and
 :code:`@used_by_cachedjit`...
 
+Note that it can be very convenient to use type hints **and**
+:code:`@cachedjit` in order to avoid multiple warmup periods:
+
+.. literalinclude:: using_cachedjit_diff_types.py
+
+
 Comparison Numba vs FluidPythran
 --------------------------------
 

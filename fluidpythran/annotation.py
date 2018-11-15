@@ -35,18 +35,14 @@ Internal API
 
 .. autofunction:: compute_pythran_types_from_valued_types
 
-.. autoclass:: TypeHintRemover
-   :members:
-   :private-members:
+.. autofunction:: make_signature_from_template_variables
 
-.. autofunction:: strip_typehints
+.. autofunction:: make_signatures_from_typehinted_func
 
 """
 
 import itertools
-import ast
-
-import astunparse
+import inspect
 
 
 class TemplateVar:
@@ -324,31 +320,81 @@ def compute_pythran_types_from_valued_types(types):
     return pythran_types
 
 
-class TypeHintRemover(ast.NodeTransformer):
-    """Strip the type hints
+def make_signature_from_template_variables(func, _signature=None, **kwargs):
+    """Create signature for a function with values for the template types
 
-    from https://stackoverflow.com/a/42734810/1779806
+    Parameters
+    ----------
+
+    func: a function
+
+    kwargs : dict
+
+        The template types and their value
+
     """
+    if _signature is None:
+        _signature = inspect.signature(func)
 
-    def visit_FunctionDef(self, node):
-        # remove the return type defintion
-        node.returns = None
-        # remove all argument annotations
-        if node.args.args:
-            for arg in node.args.args:
-                arg.annotation = None
-        return node
+    signature = f"{func.__name__}("
+
+    types = [param.annotation for param in _signature.parameters.values()]
+
+    pythran_types = compute_pythran_types_from_types(types, **kwargs)
+
+    signature += ", ".join(pythran_types) + ")"
+
+    return signature
 
 
-def strip_typehints(source):
-    """Strip the type hints from a function"""
-    # parse the source code into an AST
-    parsed_source = ast.parse(source)
-    # remove all type annotations, function return type definitions
-    # and import statements from 'typing'
-    transformed = TypeHintRemover().visit(parsed_source)
-    # convert the AST back to source code
-    return astunparse.unparse(transformed)
+def make_signatures_from_typehinted_func(func):
+    """Make the signatures from annotations if it is possible
+
+    Useful when there are only "not templated" types.
+
+    """
+    annotations = func.__annotations__
+
+    if not annotations:
+        return tuple()
+
+    types = annotations.values()
+
+    template_parameters = []
+
+    for type_ in types:
+        if hasattr(type_, "get_template_parameters"):
+            template_parameters.extend(type_.get_template_parameters())
+
+    template_parameters = set(template_parameters)
+
+    _signature = inspect.signature(func)
+
+    if not template_parameters:
+        signature = make_signature_from_template_variables(
+            func, _signature=_signature
+        )
+        return (signature,)
+
+    if not all(param.values for param in template_parameters):
+        return tuple()
+
+    values_template_parameters = {}
+    for param in template_parameters:
+        values_template_parameters[param.__name__] = param.values
+
+    names = values_template_parameters.keys()
+    signatures = []
+    for set_types in itertools.product(*values_template_parameters.values()):
+        template_variables = {
+            name: value for name, value in zip(names, set_types)
+        }
+        signatures.append(
+            make_signature_from_template_variables(
+                func, _signature=_signature, **template_variables
+            )
+        )
+    return signatures
 
 
 # we need to put this import here

@@ -29,10 +29,10 @@ FluidPythran is a pure Python package (requiring Python >= 3.6 or Pypy3) to
 help to write Python code that *can* use `Pythran
 <https://github.com/serge-sans-paille/pythran>`_ if it is available.
 
-Let's recall that "Pythran is an ahead-of-time compiler for a subset of the
-Python language, with a focus on scientific computing. It takes a Python module
-annotated with a few interface description and turns it into a native Python
-module with the same interface, but (hopefully) faster."
+Let's recall that "Pythran is an ahead-of-time (AOT) compiler for a subset of
+the Python language, with a focus on scientific computing. It takes a Python
+module annotated with a few interface description and turns it into a native
+Python module with the same interface, but (hopefully) faster."
 
 Pythran is able to produce **very efficient C++ code and binaries from high
 level Numpy code**. If the algorithm is easier to express without loops, don't
@@ -65,7 +65,7 @@ can not be automated. Pythran uses C++ templates but Pythran users can not
 think with this concept. We would like to be able to **express the templated
 nature of Pythran with modern Python syntax** (in particular **type
 annotations**). Finally, another limitation is that it is not possible to use
-Pythran for **just-in-time** (JIT) compilation so one need to manually write
+Pythran for **just-in-time** (JIT) compilation so one needs to manually write
 all argument types.
 
 With FluidPythran, we try to overcome these limitations. FluidPythran provides
@@ -239,6 +239,11 @@ be buggy and (ii) the API is not great, but it is a good start!
     @cachedjit
     def func1(a, b):
         return np.exp(a) * b * func0(a, b)
+
+Note that the :code:`@cachedjit` decorator takes into account type hints (see
+`the example in the documentation
+<https://fluidpythran.readthedocs.io/en/latest/examples/using_cachedjit.html>`_).
+
 
 **Implementation details for just-in-time compilation:** A Pythran file is
 produced for each "cachedjited" function (function decorated with

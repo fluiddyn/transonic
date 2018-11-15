@@ -75,6 +75,7 @@ except ImportError:
     pythran = False
 
 from .util import get_module_name, has_to_build, get_source_without_decorator
+from .annotation import make_signatures_from_typehinted_func
 
 modules = {}
 
@@ -198,11 +199,22 @@ def cachedjit(func=None, native=True, xsimd=True, openmp=False):
         return decor
 
 
-def reimport_module(name_mod):
+def reimport_module(name_mod, avoid_extension=True):
     sys.path.insert(0, str(path_root))
-    print(f"(re)import module {name_mod}")
     if name_mod in sys.modules:
+        mod = sys.modules[name_mod]
+        if avoid_extension and hasattr(mod, "__pythran__"):
+            raise NotImplementedError(
+                "It seems complicated and hacky to reload a C-extension! "
+                "You should be able to use type hints to avoid this bug..."
+            )
+            # If we don't do that, we get a segfault!
+            # see https://stackoverflow.com/questions/8295555/how-to-reload-a-python3-c-extension-module
+            # https://gist.github.com/TheWaWaR/d3c630f72dd631a0f336
+
         del sys.modules[name_mod]
+
+    print(f"(re)import module {name_mod}")
     importlib.invalidate_caches()
     module_pythran = importlib.import_module(name_mod)
     sys.path.pop(0)
@@ -286,7 +298,7 @@ class CachedJIT:
             path_pythran.absolute().relative_to(path_root).with_suffix("").parts
         )
 
-        module_pythran = reimport_module(name_mod)
+        module_pythran = reimport_module(name_mod, avoid_extension=False)
 
         if hasattr(module_pythran, "__pythran__"):
             print(f"module {module_pythran.__name__} already pythranized")
@@ -302,6 +314,7 @@ class CachedJIT:
             if self.compiling:
                 if self.process.poll() is not None:
                     self.compiling = False
+                    time.sleep(0.1)
                     module_pythran = reimport_module(name_mod)
                     assert hasattr(module_pythran, "__pythran__")
                     self.pythran_func = getattr(module_pythran, func_name)
@@ -320,12 +333,27 @@ class CachedJIT:
                 for arg in itertools.chain(args, kwargs.values())
             ]
 
-            # FIXME: more than one header!
-            # FIXME: also use the type hints!
+            # Include signature comming from type hints
+            signatures = make_signatures_from_typehinted_func(func)
+            exports = set("export " + signature for signature in signatures)
 
-            header = "export {}({})\n".format(func_name, ", ".join(arg_types))
+            export_new = "export {}({})".format(func_name, ", ".join(arg_types))
+            if export_new not in exports:
+                exports.add(export_new)
 
-            print(f"write Pythran signature in file {path_pythran_header}")
+            if path_pythran_header.exists():
+                # get the old signature(s)
+                with open(path_pythran_header) as file:
+                    exports_old = [export.strip() for export in file.readlines()]
+
+                # FIXME: what do we do with the old signatures?
+                exports.update(exports_old)
+
+            header = "\n".join(exports) + "\n"
+
+            print(
+                f"write Pythran signature in file {path_pythran_header} with types\n{arg_types}"
+            )
             with open(path_pythran_header, "w") as file:
                 file.write(header)
                 file.flush()
@@ -354,6 +382,7 @@ class SchedulerPopen:
     """Limit the number of Pythran compilations performed in parallel
 
     """
+
     deltat = 0.2
     nb_cpus = multiprocessing.cpu_count()
 
