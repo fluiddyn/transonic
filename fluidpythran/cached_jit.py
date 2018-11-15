@@ -28,6 +28,10 @@ Internal API
 
 .. autofunction:: make_pythran_type_name
 
+.. autoclass:: SchedulerPopen
+   :members:
+   :private-members:
+
 Notes
 -----
 
@@ -62,6 +66,8 @@ from pathlib import Path
 import sys
 import importlib
 import subprocess
+import multiprocessing
+import time
 
 try:
     import pythran
@@ -189,6 +195,7 @@ def reimport_module(name_mod):
     print(f"(re)import module {name_mod}")
     if name_mod in sys.modules:
         del sys.modules[name_mod]
+    importlib.invalidate_caches()
     module_pythran = importlib.import_module(name_mod)
     sys.path.pop(0)
     return module_pythran
@@ -246,7 +253,7 @@ class CachedJIT:
                 for line in mod.get_source().split("\n")
                 if line.startswith("# pythran ") and "import" in line
             ]
-            src = "\n".join(import_lines) + "\n"
+            src = "\n".join(import_lines) + "\n\n"
 
             src += get_source_without_decorator(func)
 
@@ -265,6 +272,7 @@ class CachedJIT:
                 print(f"write code in file {path_pythran}")
                 with open(path_pythran, "w") as file:
                     file.write(src)
+                    file.flush()
 
         name_mod = ".".join(
             path_pythran.absolute().relative_to(path_root).with_suffix("").parts
@@ -312,9 +320,8 @@ class CachedJIT:
             print(f"write Pythran signature in file {path_pythran_header}")
             with open(path_pythran_header, "w") as file:
                 file.write(header)
+                file.flush()
 
-            # FIXME: we have to limit the number of compilations occuring at
-            #        the same time
             self.compiling = True
             words_command = ["pythran", "-v", str(path_pythran)]
             if self.native:
@@ -326,9 +333,36 @@ class CachedJIT:
             if self.openmp:
                 words_command.append("-fopenmp")
 
-            self.process = subprocess.Popen(
+            self.process = scheduler.launch_popen(
                 words_command, cwd=str(path_pythran.parent)
             )
+
             return func(*args, **kwargs)
 
         return type_collector
+
+
+class SchedulerPopen:
+    """Limit the number of Pythran compilations performed in parallel
+
+    """
+    deltat = 0.2
+    nb_cpus = multiprocessing.cpu_count()
+
+    def __init__(self):
+        self.processes = []
+
+    def launch_popen(self, words_command, cwd=None):
+        """Launch a program (blocking if too many processes launched)"""
+        while len(self.processes) >= self.nb_cpus:
+            time.sleep(self.deltat)
+            self.processes = [
+                process for process in self.processes if process.poll() is None
+            ]
+
+        process = subprocess.Popen(words_command, cwd=cwd)
+        self.processes.append(process)
+        return process
+
+
+scheduler = SchedulerPopen()

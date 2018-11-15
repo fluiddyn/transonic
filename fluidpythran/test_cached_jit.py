@@ -8,7 +8,9 @@ except ImportError:
     pythran = None
 
 
-from .cached_jit import path_cachedjit, modules
+from .cached_jit import path_cachedjit, modules, scheduler
+
+scheduler.nb_cpus = 1
 
 module_name = "fluidpythran.for_test_cached_jit"
 
@@ -30,7 +32,8 @@ def test_cachedjit():
     from time import sleep
     from .for_test_cached_jit import func1
 
-    a = b = np.arange(2)
+    a = np.arange(2)
+    b = [1, 2]
 
     for _ in range(2):
         func1(a, b)
