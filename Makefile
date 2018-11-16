@@ -6,7 +6,10 @@ black:
 	black -l 82 fluidpythran
 
 tests:
-	pytest fluidpythran
+	pytest fluidpythran data_tests/ipynb
+
+tests_nbval:
+	pytest --nbval data_tests/ipynb
 
 tests_coverage:
 	mkdir -p .coverage

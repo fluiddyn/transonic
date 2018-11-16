@@ -73,14 +73,20 @@ import multiprocessing
 import time
 import sysconfig
 import importlib.util
-import hashlib
 
 try:
     import pythran
 except ImportError:
     pythran = False
 
-from .util import get_module_name, has_to_build, get_source_without_decorator
+from .util import (
+    get_module_name,
+    has_to_build,
+    get_source_without_decorator,
+    path_root,
+    get_info_from_ipython,
+    make_hex,
+)
 from .annotation import make_signatures_from_typehinted_func
 
 modules = {}
@@ -92,7 +98,7 @@ if pythran and pythran.__version__ <= "0.9.0":
     # it is bad because then we do not support using many Python versions
     ext_suffix = "." + ext_suffix.rsplit(".", 1)[-1]
 
-path_root = Path.home() / ".fluidpythran"
+
 path_cachedjit = path_root / "__cachedjit__"
 path_cachedjit.mkdir(parents=True, exist_ok=True)
 
@@ -106,7 +112,13 @@ class ModuleCachedJIT:
             frame = inspect.stack()[1]
 
         self.filename = frame.filename
-        self.module_name = get_module_name(frame)
+        if self.filename.startswith("<ipython-"):
+            self.is_dummy_file = True
+            self._ipython_src, self.filename = get_info_from_ipython()
+            self.module_name = self.filename
+        else:
+            self.is_dummy_file = False
+            self.module_name = get_module_name(frame)
         modules[self.module_name] = self
         self.used_functions = {}
         self.cachedjit_functions = {}
@@ -122,6 +134,8 @@ class ModuleCachedJIT:
                 self.used_functions[name] = [func]
 
     def get_source(self):
+        if self.is_dummy_file:
+            return self._ipython_src
         try:
             mod = sys.modules[self.module_name]
         except KeyError:
@@ -270,7 +284,7 @@ class CachedJIT:
         path_pythran = (path_pythran / func_name).with_suffix(".py")
 
         if path_pythran.exists():
-            if has_to_build(path_pythran, mod.filename):
+            if not mod.is_dummy_file and has_to_build(path_pythran, mod.filename):
                 has_to_write = True
             else:
                 has_to_write = False
@@ -311,7 +325,7 @@ class CachedJIT:
                 src = file.read()
 
         # hash from src (to produce the extension name)
-        hex_src = hashlib.md5(src.encode("utf8")).hexdigest()
+        hex_src = make_hex(src)
 
         name_mod = ".".join(
             path_pythran.absolute().relative_to(path_root).with_suffix("").parts
@@ -381,7 +395,7 @@ class CachedJIT:
                 file.flush()
 
             # compute the new path of the extension
-            hex_header = hashlib.md5(header.encode("utf8")).hexdigest()
+            hex_header = make_hex(header)
             name_ext_file = (
                 func_name + "_" + hex_src + "_" + hex_header + ext_suffix
             )

@@ -8,6 +8,8 @@ doc/_build/*
 doc/**generated/*
 doc/**.zip
 
+**/.ipynb_checkpoints/*
+
 build/*
 dist/*.tar.gz
 dist*

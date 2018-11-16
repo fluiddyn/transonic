@@ -18,6 +18,12 @@ Internal API
 
 .. autofunction:: strip_typehints
 
+.. autofunction:: make_hex
+
+.. autofunction:: get_ipython_input
+
+.. autofunction:: get_info_from_ipython
+
 """
 
 import os
@@ -26,10 +32,18 @@ from datetime import datetime
 import re
 from pathlib import Path
 import ast
+import hashlib
 
 from typing import Callable
 
 import astunparse
+
+try:
+    from IPython.core.getipython import get_ipython
+except ImportError:
+    pass
+
+path_root = Path.home() / ".fluidpythran"
 
 
 def get_module_name(frame):
@@ -41,6 +55,11 @@ def get_module_name(frame):
             module_name = inspect.getmodulename(frame.filename)
     else:
         module_name = inspect.getmodulename(frame.filename)
+
+    if module_name is None:
+        # ipython ?
+        src, module_name = get_info_from_ipython()
+
     return module_name
 
 
@@ -91,3 +110,27 @@ def strip_typehints(source):
     transformed = TypeHintRemover().visit(parsed_source)
     # convert the AST back to source code
     return astunparse.unparse(transformed)
+
+
+def make_hex(src):
+    """Produce a hash from a sting"""
+    return hashlib.md5(src.encode("utf8")).hexdigest()
+
+
+def get_ipython_input(last=True):
+    """Get the input code when called from IPython"""
+    ip = get_ipython()
+
+    hist_raw = ip.history_manager.input_hist_raw
+    if last:
+        return hist_raw[-1]
+    else:
+        return "\n".join(hist_raw)
+
+
+def get_info_from_ipython():
+    """Get the input code and a "filename" when called from IPython"""
+    src = get_ipython_input()
+    hex_input = make_hex(src)
+    dummy_filename = "__ipython__" + hex_input
+    return src, dummy_filename

@@ -221,8 +221,10 @@ Cached Just-In-Time compilation
 
 With FluidPythran, one can use the Ahead-Of-Time compiler Pythran in a
 Just-In-Time mode. It is really the **easiest way to speedup a function with
-Pythran**, just by adding a decorator! It is a "work in progress" so (i) it can
-be buggy and (ii) the API is not great, but it is a good start!
+Pythran**, just by adding a decorator! And it works also in notebooks!
+
+It is a "work in progress" so (i) it can be buggy and (ii) the API is not
+great, but it is a good start!
 
 .. code :: python
 
@@ -243,7 +245,6 @@ be buggy and (ii) the API is not great, but it is a good start!
 Note that the :code:`@cachedjit` decorator takes into account type hints (see
 `the example in the documentation
 <https://fluidpythran.readthedocs.io/en/latest/examples/using_cachedjit.html>`_).
-
 
 **Implementation details for just-in-time compilation:** A Pythran file is
 produced for each "cachedjited" function (function decorated with

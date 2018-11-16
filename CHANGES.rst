@@ -2,6 +2,7 @@
 ---------
 
 - Fix cachedjit when calling with new types
+- :code:`cachedjit` in IPython / Jupyter
 
 0.0.7 (2018-11-15)
 ------------------

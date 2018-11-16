@@ -17,13 +17,10 @@ Internal API
 
 .. autofunction:: _get_fluidpythran_calling_module
 
-
-
 """
 
 import inspect
 import importlib.util
-
 
 from .util import get_module_name
 
