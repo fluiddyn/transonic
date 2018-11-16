@@ -87,7 +87,7 @@ modules = {}
 
 ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 
-if pythran and pythran.__version__ <= "0.9":
+if pythran and pythran.__version__ <= "0.9.0":
     # avoid a Pythran bug with -o option
     # it is bad because then we do not support using many Python versions
     ext_suffix = "." + ext_suffix.rsplit(".", 1)[-1]
@@ -210,10 +210,16 @@ def cachedjit(func=None, native=True, xsimd=True, openmp=False):
         return decor
 
 
-def import_from_path(path, module_name):
+def import_from_path(path: Path, module_name: str):
     """Import a .py file or an extension from its path
 
     """
+    if not path.exists():
+        raise ImportError(
+            f"File {path} does not exist. "
+            f"path.parent.glob('*'): {list(path.parent.glob('*'))}\n"
+        )
+
     package_name, mod_name = module_name.rsplit(".", 1)
     name_file = path.name.split(".", 1)[0]
     if mod_name != name_file:
