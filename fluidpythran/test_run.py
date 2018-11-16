@@ -7,7 +7,7 @@ from .run import run
 
 
 def test_create_pythran_files():
-    path_dir_out = path_data_tests / "_pythran"
+    path_dir_out = path_data_tests / "__pythran__"
     if path_dir_out.exists():
         rmtree(path_dir_out)
 
@@ -28,7 +28,7 @@ def test_create_pythran_files():
     path_file.touch()
     run()
 
-    path_file = path_data_tests / "_pythran/_classic.py"
+    path_file = path_data_tests / "__pythran__/_classic.py"
     path_file.unlink()
     run()
 

@@ -18,6 +18,6 @@ dist*
 
 *.egg-info/*
 
-**/_pythran/_*
+**/__pythran__/_*
 
 fluidpythran/_path_data_tests.py

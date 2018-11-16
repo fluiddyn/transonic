@@ -1,4 +1,5 @@
 import sys
+import os
 
 import numpy as np
 
@@ -14,11 +15,11 @@ scheduler.nb_cpus = 2
 
 module_name = "fluidpythran.for_test_cached_jit"
 
-path_pythran_dir = path_cachedjit / module_name.replace(".", "__")
+path_pythran_dir = path_cachedjit / module_name.replace(".", os.path.sep)
 
 
 def delete_pythran_files(func_name):
-    for path_pythran_file in path_pythran_dir.glob(func_name + ".*"):
+    for path_pythran_file in path_pythran_dir.glob(func_name + "*"):
         if path_pythran_file.exists():
             path_pythran_file.unlink()
 

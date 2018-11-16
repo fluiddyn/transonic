@@ -9,7 +9,7 @@ def test_not_fluidpythranized():
 
     path_for_test = Path(__file__).parent / "for_test_init.py"
 
-    path_output = path_for_test.parent / "_pythran"
+    path_output = path_for_test.parent / "__pythran__"
 
     if path_output.exists():
         shutil.rmtree(path_output)

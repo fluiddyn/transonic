@@ -11,7 +11,7 @@ class TestsInit(unittest.TestCase):
 
     assert path_for_test.exists()
 
-    path_output = path_for_test.parent / ("_pythran/_" + path_for_test.name)
+    path_output = path_for_test.parent / ("__pythran__/_" + path_for_test.name)
 
     @classmethod
     def tearDownClass(cls):

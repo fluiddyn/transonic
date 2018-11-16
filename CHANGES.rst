@@ -1,3 +1,7 @@
+0.0.8 (?)
+---------
+
+- Fix cachedjit when calling with new types
 
 0.0.7 (2018-11-15)
 ------------------

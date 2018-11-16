@@ -32,6 +32,8 @@ Internal API
    :members:
    :private-members:
 
+.. autofunction:: import_from_path
+
 Notes
 -----
 
@@ -63,11 +65,15 @@ used.
 import inspect
 import itertools
 from pathlib import Path
+import os
 import sys
 import importlib
 import subprocess
 import multiprocessing
 import time
+import sysconfig
+import importlib.util
+import hashlib
 
 try:
     import pythran
@@ -79,10 +85,15 @@ from .annotation import make_signatures_from_typehinted_func
 
 modules = {}
 
+ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
+
+if pythran and pythran.__version__ <= "0.9":
+    # avoid a Pythran bug with -o option
+    # it is bad because then we do not support using many Python versions
+    ext_suffix = "." + ext_suffix.rsplit(".", 1)[-1]
 
 path_root = Path.home() / ".fluidpythran"
-# weird name to avoid name collision
-path_cachedjit = path_root / "_fp_cachedjit"
+path_cachedjit = path_root / "__cachedjit__"
 path_cachedjit.mkdir(parents=True, exist_ok=True)
 
 
@@ -199,26 +210,19 @@ def cachedjit(func=None, native=True, xsimd=True, openmp=False):
         return decor
 
 
-def reimport_module(name_mod, avoid_extension=True):
-    sys.path.insert(0, str(path_root))
-    if name_mod in sys.modules:
-        mod = sys.modules[name_mod]
-        if avoid_extension and hasattr(mod, "__pythran__"):
-            raise NotImplementedError(
-                "It seems complicated and hacky to reload a C-extension! "
-                "You should be able to use type hints to avoid this bug..."
-            )
-            # If we don't do that, we get a segfault!
-            # see https://stackoverflow.com/questions/8295555/how-to-reload-a-python3-c-extension-module
-            # https://gist.github.com/TheWaWaR/d3c630f72dd631a0f336
+def import_from_path(path, module_name):
+    """Import a .py file or an extension from its path
 
-        del sys.modules[name_mod]
+    """
+    package_name, mod_name = module_name.rsplit(".", 1)
+    name_file = path.name.split(".", 1)[0]
+    if mod_name != name_file:
+        module_name = ".".join((package_name, name_file))
 
-    print(f"(re)import module {name_mod}")
-    importlib.invalidate_caches()
-    module_pythran = importlib.import_module(name_mod)
-    sys.path.pop(0)
-    return module_pythran
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 class CachedJIT:
@@ -254,8 +258,8 @@ class CachedJIT:
         module_name = mod.module_name
         print(f"Make new function to replace {func_name} ({module_name})")
 
-        path_pythran = path_cachedjit / module_name.replace(".", "__")
-        path_pythran.mkdir(exist_ok=True)
+        path_pythran = path_cachedjit / module_name.replace(".", os.path.sep)
+        path_pythran.mkdir(parents=True, exist_ok=True)
 
         path_pythran = (path_pythran / func_name).with_suffix(".py")
 
@@ -266,6 +270,8 @@ class CachedJIT:
                 has_to_write = False
         else:
             has_to_write = True
+
+        src = None
 
         if has_to_write:
             import_lines = [
@@ -294,18 +300,26 @@ class CachedJIT:
                     file.write(src)
                     file.flush()
 
+        if src is None:
+            with open(path_pythran) as file:
+                src = file.read()
+
+        # hash from src (to produce the extension name)
+        hex_src = hashlib.md5(src.encode("utf8")).hexdigest()
+
         name_mod = ".".join(
             path_pythran.absolute().relative_to(path_root).with_suffix("").parts
         )
 
-        module_pythran = reimport_module(name_mod, avoid_extension=False)
+        glob_name_ext_file = func_name + "_" + hex_src + "_*" + ext_suffix
+        ext_files = list(path_pythran.parent.glob(glob_name_ext_file))
 
-        if hasattr(module_pythran, "__pythran__"):
-            print(f"module {module_pythran.__name__} already pythranized")
-            self.pythran_func = getattr(module_pythran, func_name)
-
-        if has_to_build(module_pythran.__file__, path_pythran):
+        if not ext_files:
             self.pythran_func = None
+        else:
+            path_ext = max(ext_files, key=lambda p: p.stat().st_ctime)
+            module_pythran = import_from_path(path_ext, name_mod)
+            self.pythran_func = getattr(module_pythran, func_name)
 
         path_pythran_header = path_pythran.with_suffix(".pythran")
 
@@ -315,7 +329,9 @@ class CachedJIT:
                 if self.process.poll() is not None:
                     self.compiling = False
                     time.sleep(0.1)
-                    module_pythran = reimport_module(name_mod)
+                    module_pythran = import_from_path(
+                        self.path_extension, name_mod
+                    )
                     assert hasattr(module_pythran, "__pythran__")
                     self.pythran_func = getattr(module_pythran, func_name)
 
@@ -358,8 +374,21 @@ class CachedJIT:
                 file.write(header)
                 file.flush()
 
+            # compute the new path of the extension
+            hex_header = hashlib.md5(header.encode("utf8")).hexdigest()
+            name_ext_file = (
+                func_name + "_" + hex_src + "_" + hex_header + ext_suffix
+            )
+            self.path_extension = path_pythran.with_name(name_ext_file)
+
             self.compiling = True
-            words_command = ["pythran", "-v", str(path_pythran)]
+            words_command = [
+                "pythran",
+                "-v",
+                str(path_pythran),
+                "-o",
+                name_ext_file,
+            ]
             if self.native:
                 words_command.append("-march=native")
 

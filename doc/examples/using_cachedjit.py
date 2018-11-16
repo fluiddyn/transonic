@@ -17,7 +17,9 @@ if __name__ == "__main__":
 
     a = b = np.zeros([2, 3])
 
-    for _ in range(40):
-        print(_)
+    for i in range(40):
+        print(f"{i}, call with arrays", end=", ")
         func1(a, b)
+        print("call with numbers")
+        func1(1, 1.)
         sleep(1)

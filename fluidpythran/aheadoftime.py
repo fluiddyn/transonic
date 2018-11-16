@@ -153,9 +153,9 @@ class FluidPythran:
 
         if "." in module_name:
             package, module = module_name.rsplit(".", 1)
-            module_pythran = package + "._pythran._" + module
+            module_pythran = package + ".__pythran__._" + module
         else:
-            module_pythran = "_pythran._" + module_name
+            module_pythran = "__pythran__._" + module_name
 
         try:
             self.module_pythran = importlib.import_module(module_pythran)

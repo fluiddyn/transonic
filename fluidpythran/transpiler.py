@@ -434,7 +434,7 @@ def make_pythran_file(path_py: Path, force=False, log_level=None):
 
     path_py = Path(path_py)
 
-    if path_py.absolute().parent.name == "_pythran":
+    if path_py.absolute().parent.name == "__pythran__":
         logger.debug(f"skip file {path_py}")
         return
     if not path_py.name.endswith(".py"):
@@ -442,7 +442,7 @@ def make_pythran_file(path_py: Path, force=False, log_level=None):
             "fluidpythran only processes Python file. Cannot process {path_py}"
         )
 
-    path_dir = path_py.parent / "_pythran"
+    path_dir = path_py.parent / "__pythran__"
     path_pythran = path_dir / ("_" + path_py.name)
 
     if not has_to_build(path_pythran, path_py) and not force:
