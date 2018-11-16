@@ -1,5 +1,5 @@
-0.0.8 (?)
----------
+0.0.8 (2018-11-16)
+------------------
 
 - Fix cachedjit when calling with new types
 - :code:`cachedjit` in IPython / Jupyter
