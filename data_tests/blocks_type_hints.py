@@ -9,7 +9,7 @@ import numpy as np
 from fluidpythran import FluidPythran, Type, NDim, Array
 
 T = Type(float, complex)
-N = NDim(2, 3)
+N = NDim(1, 2)
 A = Array[T, N]
 A1 = Array[T, N + 1]
 
@@ -30,18 +30,16 @@ class MyClass:
             result = fp.use_pythranized_block("block0")
         else:
             # pythran block (
-            #     A a, b; A1 c;
+            #     A a; A1 b;
             #     int n
             # ) -> result
 
             # pythran block (
-            #     int a, b, c;
+            #     int[:] a, b;
             #     float n
             # ) -> result
 
-            result = np.zeros_like(a)
-            for _ in range(n):
-                result += a ** 2 + b ** 3
+            result = a ** 2 + b.mean() ** 3 + n
 
         return result
 

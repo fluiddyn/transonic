@@ -98,7 +98,9 @@ def parse_py_code(code: str):
 
         if in_def:
             if toknum == COMMENT:
-                signature_func += tokval
+                if "# pythran def " in tokval:
+                    tokval = tokval.split("(", 1)[1]
+                signature_func += tokval.replace("#", "").strip()
                 if ")" in tokval:
                     in_def = False
                     signatures_func[name_func].append(signature_func)
@@ -327,7 +329,7 @@ imports: {imports}\n"""
                 else:
                     try:
                         type_ = eval(type_)
-                    except SyntaxError:
+                    except (SyntaxError, TypeError):
                         pass
 
                 variables = [
@@ -497,3 +499,5 @@ def make_pythran_files(paths: Iterable[Path], force=False, log_level=None):
             f"{nb_files} files created or updated need{conjug}"
             " to be pythranized"
         )
+
+    return paths_out

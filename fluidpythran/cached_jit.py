@@ -28,10 +28,6 @@ Internal API
 
 .. autofunction:: make_pythran_type_name
 
-.. autoclass:: SchedulerPopen
-   :members:
-   :private-members:
-
 .. autofunction:: import_from_path
 
 Notes
@@ -68,10 +64,7 @@ from pathlib import Path
 import os
 import sys
 import importlib
-import subprocess
-import multiprocessing
 import time
-import sysconfig
 import importlib.util
 
 try:
@@ -84,14 +77,15 @@ from .util import (
     has_to_build,
     get_source_without_decorator,
     path_root,
+    ext_suffix,
     get_info_from_ipython,
     make_hex,
+    SchedulerPopen,
 )
 from .annotation import make_signatures_from_typehinted_func
 
 modules = {}
 
-ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 
 if pythran and pythran.__version__ <= "0.9.0":
     # avoid a Pythran bug with -o option
@@ -425,30 +419,6 @@ class CachedJIT:
             return func(*args, **kwargs)
 
         return type_collector
-
-
-class SchedulerPopen:
-    """Limit the number of Pythran compilations performed in parallel
-
-    """
-
-    deltat = 0.2
-    nb_cpus = multiprocessing.cpu_count()
-
-    def __init__(self):
-        self.processes = []
-
-    def launch_popen(self, words_command, cwd=None):
-        """Launch a program (blocking if too many processes launched)"""
-        while len(self.processes) >= self.nb_cpus:
-            time.sleep(self.deltat)
-            self.processes = [
-                process for process in self.processes if process.poll() is None
-            ]
-
-        process = subprocess.Popen(words_command, cwd=cwd)
-        self.processes.append(process)
-        return process
 
 
 scheduler = SchedulerPopen()

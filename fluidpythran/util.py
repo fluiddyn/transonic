@@ -24,6 +24,10 @@ Internal API
 
 .. autofunction:: get_info_from_ipython
 
+.. autoclass:: SchedulerPopen
+   :members:
+   :private-members:
+
 """
 
 import os
@@ -33,6 +37,12 @@ import re
 from pathlib import Path
 import ast
 import hashlib
+import sysconfig
+
+# for SchedulerPopen
+import subprocess
+import multiprocessing
+import time
 
 from typing import Callable
 
@@ -44,6 +54,7 @@ except ImportError:
     pass
 
 path_root = Path.home() / ".fluidpythran"
+ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 
 
 def get_module_name(frame):
@@ -134,3 +145,41 @@ def get_info_from_ipython():
     hex_input = make_hex(src)
     dummy_filename = "__ipython__" + hex_input
     return src, dummy_filename
+
+
+class SchedulerPopen:
+    """Limit the number of Pythran compilations performed in parallel
+
+    """
+    deltat = 0.2
+
+    def __init__(self, parallel=True):
+        self.processes = []
+        if parallel:
+            self.nb_cpus = multiprocessing.cpu_count()
+        else:
+            self.nb_cpus = 1
+
+    def launch_popen(self, words_command, cwd=None):
+        """Launch a program (blocking if too many processes launched)"""
+        while len(self.processes) >= self.nb_cpus:
+            time.sleep(self.deltat)
+            self.processes = [
+                process for process in self.processes if process.poll() is None
+            ]
+
+        process = subprocess.Popen(words_command, cwd=cwd)
+        self.processes.append(process)
+        return process
+
+
+def compile_pythran_files(paths, str_pythran_flags, parallel=True):
+
+    pythran_flags = str_pythran_flags.strip().split()
+    scheduler = SchedulerPopen()
+
+    for path in paths:
+        words_command = ["pythran", path.name]
+        words_command.extend(pythran_flags)
+        print("pythranize file", path)
+        scheduler.launch_popen(words_command, cwd=str(path.parent))

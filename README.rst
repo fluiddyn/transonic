@@ -293,7 +293,8 @@ Make the Pythran files
 ----------------------
 
 There is a command-line tool :code:`fluidpythran` which makes the associated
-Pythran files from Python files with annotations and fluidpythran code.
+Pythran files from Python files with annotations and fluidpythran code. By
+default and if Pythran is available, the Pythran files are compiled.
 
 There is also a function :code:`make_pythran_files` that can be used in a
 setup.py like this:
