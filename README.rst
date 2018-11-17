@@ -309,9 +309,9 @@ setup.py like this:
     paths = ["fluidsim/base/time_stepping/pseudo_spect.py"]
     make_pythran_files([here / path for path in paths])
 
-Note that FluidPythran never uses Pythran. Compiling the associated Pythran
-file can be done if wanted (see for example how it is done in the example
-package `example_package_fluidpythran
+Note that the function :code:`make_pythran_files` does not use Pythran.
+Compiling the associated Pythran file can be done if wanted (see for example
+how it is done in the example package `example_package_fluidpythran
 <https://bitbucket.org/fluiddyn/example_package_fluidpythran>`_ or in
 `fluidsim's setup.py
 <https://bitbucket.org/fluiddyn/fluidsim/src/default/setup.py>`_).

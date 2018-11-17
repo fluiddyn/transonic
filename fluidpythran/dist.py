@@ -47,7 +47,7 @@ def detect_pythran_extensions(name_package):
         for name in files:
             if (
                 name.endswith("_pythran.py")
-                or path_dir.name == "_pythran"
+                or path_dir.name == "__pythran__"
                 and name.endswith(".py")
             ):
                 path = path_dir / name
