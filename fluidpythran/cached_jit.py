@@ -81,6 +81,7 @@ from .util import (
     get_info_from_ipython,
     make_hex,
     SchedulerPopen,
+    has_to_pythranize_at_import,
 )
 from .annotation import make_signatures_from_typehinted_func
 
@@ -276,6 +277,7 @@ class CachedJIT:
         path_pythran.mkdir(parents=True, exist_ok=True)
 
         path_pythran = (path_pythran / func_name).with_suffix(".py")
+        path_pythran_header = path_pythran.with_suffix(".pythran")
 
         if path_pythran.exists():
             if not mod.is_dummy_file and has_to_build(path_pythran, mod.filename):
@@ -325,51 +327,19 @@ class CachedJIT:
             path_pythran.absolute().relative_to(path_root).with_suffix("").parts
         )
 
-        glob_name_ext_file = func_name + "_" + hex_src + "_*" + ext_suffix
-        ext_files = list(path_pythran.parent.glob(glob_name_ext_file))
-
-        if not ext_files:
-            self.pythran_func = None
-        else:
-            path_ext = max(ext_files, key=lambda p: p.stat().st_ctime)
-            module_pythran = import_from_path(path_ext, name_mod)
-            self.pythran_func = getattr(module_pythran, func_name)
-
-        path_pythran_header = path_pythran.with_suffix(".pythran")
-
-        def type_collector(*args, **kwargs):
-
-            if self.compiling:
-                if self.process.poll() is not None:
-                    self.compiling = False
-                    time.sleep(0.1)
-                    module_pythran = import_from_path(
-                        self.path_extension, name_mod
-                    )
-                    assert hasattr(module_pythran, "__pythran__")
-                    self.pythran_func = getattr(module_pythran, func_name)
-
-            try:
-                return self.pythran_func(*args, **kwargs)
-            except TypeError:
-                # need to compiled or recompile
-                pass
-
-            if self.compiling:
-                return func(*args, **kwargs)
-
-            arg_types = [
-                make_pythran_type_name(arg)
-                for arg in itertools.chain(args, kwargs.values())
-            ]
+        def pythranize_with_new_header(arg_types="no types"):
 
             # Include signature comming from type hints
             signatures = make_signatures_from_typehinted_func(func)
             exports = set("export " + signature for signature in signatures)
 
-            export_new = "export {}({})".format(func_name, ", ".join(arg_types))
-            if export_new not in exports:
-                exports.add(export_new)
+            if arg_types != "no types":
+                export_new = "export {}({})".format(func_name, ", ".join(arg_types))
+                if export_new not in exports:
+                    exports.add(export_new)
+
+            if not exports:
+                return
 
             if path_pythran_header.exists():
                 # get the old signature(s)
@@ -415,6 +385,48 @@ class CachedJIT:
             self.process = scheduler.launch_popen(
                 words_command, cwd=str(path_pythran.parent)
             )
+
+        glob_name_ext_file = func_name + "_" + hex_src + "_*" + ext_suffix
+        ext_files = list(path_pythran.parent.glob(glob_name_ext_file))
+
+        if not ext_files:
+            # FIXME: PYTHRANIZE_AT_IMPORT...
+            if has_to_pythranize_at_import():
+                pythranize_with_new_header()
+            self.pythran_func = None
+        else:
+            path_ext = max(ext_files, key=lambda p: p.stat().st_ctime)
+            module_pythran = import_from_path(path_ext, name_mod)
+            self.pythran_func = getattr(module_pythran, func_name)
+
+
+        def type_collector(*args, **kwargs):
+
+            if self.compiling:
+                if self.process.poll() is not None:
+                    self.compiling = False
+                    time.sleep(0.1)
+                    module_pythran = import_from_path(
+                        self.path_extension, name_mod
+                    )
+                    assert hasattr(module_pythran, "__pythran__")
+                    self.pythran_func = getattr(module_pythran, func_name)
+
+            try:
+                return self.pythran_func(*args, **kwargs)
+            except TypeError:
+                # need to compiled or recompile
+                pass
+
+            if self.compiling:
+                return func(*args, **kwargs)
+
+            arg_types = [
+                make_pythran_type_name(arg)
+                for arg in itertools.chain(args, kwargs.values())
+            ]
+
+            pythranize_with_new_header(arg_types)
 
             return func(*args, **kwargs)
 

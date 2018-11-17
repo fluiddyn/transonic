@@ -267,10 +267,12 @@ def compute_pythran_types_from_types(types, **kwargs):
     """
     pythran_types = []
     for type_ in types:
-        try:
+        if hasattr(type_, "get_pythran_type"):
             pythran_type = type_.get_pythran_type(**kwargs)
-        except AttributeError:
+        elif hasattr(type_, "__name__"):
             pythran_type = type_.__name__
+        else:
+            pythran_type = str(type_)
 
         pythran_types.append(pythran_type)
 

@@ -18,6 +18,8 @@ Note that it can be very convenient to use type hints **and**
 
 .. literalinclude:: using_cachedjit_diff_types.py
 
+If the environment variable :code:`PYTHRANIZE_AT_IMPORT` is set, fluidpythran
+compiles at import time the functions with type hints.
 
 Comparison Numba vs FluidPythran
 --------------------------------

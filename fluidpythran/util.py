@@ -28,6 +28,8 @@ Internal API
    :members:
    :private-members:
 
+.. autofunction:: has_to_pythranize_at_import
+
 """
 
 import os
@@ -183,3 +185,8 @@ def compile_pythran_files(paths, str_pythran_flags, parallel=True):
         words_command.extend(pythran_flags)
         print("pythranize file", path)
         scheduler.launch_popen(words_command, cwd=str(path.parent))
+
+
+def has_to_pythranize_at_import():
+    """Check if fluidpythran has to pythranize at import time"""
+    return "PYTHRANIZE_AT_IMPORT" in os.environ

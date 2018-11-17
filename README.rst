@@ -246,6 +246,9 @@ Note that the :code:`@cachedjit` decorator takes into account type hints (see
 `the example in the documentation
 <https://fluidpythran.readthedocs.io/en/latest/examples/using_cachedjit.html>`_).
 
+If the environment variable :code:`PYTHRANIZE_AT_IMPORT` is set, fluidpythran
+compiles at import time the functions with type hints.
+
 **Implementation details for just-in-time compilation:** A Pythran file is
 produced for each "cachedjited" function (function decorated with
 :code:`@cachedjit`). The file is compiled at the first call of the function and

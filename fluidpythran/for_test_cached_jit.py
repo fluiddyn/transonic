@@ -39,5 +39,5 @@ def func2(a):
 
 
 @cachedjit()
-def func_dict(d):
+def func_dict(d: "str: float dict"):
     return d.popitem()
