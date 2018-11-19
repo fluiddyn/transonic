@@ -17,19 +17,34 @@ Internal API
 
 .. autofunction:: _get_fluidpythran_calling_module
 
+.. autoclass:: CheckCompiling
+   :members:
+   :private-members:
+
 """
 
 import inspect
 import importlib.util
+import time
+from pathlib import Path
 
-from .util import get_module_name
+from .util import (
+    get_module_name,
+    compile_pythran_file,
+    has_to_pythranize_at_import,
+    import_from_path,
+    ext_suffix,
+    has_to_build,
+)
 
 from .annotation import (
     make_signature_from_template_variables,
     make_signatures_from_typehinted_func,
 )
 
-is_compiling = False
+from .log import logger
+
+is_transpiling = False
 _modules = {}
 
 
@@ -56,7 +71,7 @@ def _get_fluidpythran_calling_module(index_frame: int = 2):
 
     if module_name in _modules:
         fp = _modules[module_name]
-        if fp._created_while_compiling != is_compiling:
+        if fp._created_while_transpiling != is_transpiling:
             fp = FluidPythran(frame=frame, reuse=False)
     else:
         fp = FluidPythran(frame=frame, reuse=False)
@@ -92,11 +107,41 @@ def make_signature(func, **kwargs):
       The template types and their value
 
     """
-    if not is_compiling:
+    if not is_transpiling:
         return
 
     fp = _get_fluidpythran_calling_module()
     fp.make_signature(func, **kwargs)
+
+
+class CheckCompiling:
+    """Check if the module is been compiled and replace the module and the function"""
+
+    def __init__(self, fp, func):
+        self.has_been_replaced = False
+        self.fp = fp
+        self.func = func
+
+    def __call__(self, *args, **kwargs):
+
+        if self.has_been_replaced:
+            return self.func(*args, **kwargs)
+
+        fp = self.fp
+        if fp.is_compiling and fp.process.poll() is not None:
+            fp.is_compiling = False
+            time.sleep(0.1)
+            fp.module_pythran = import_from_path(
+                fp.path_extension, fp.module_pythran.__name__
+            )
+            assert hasattr(self.fp.module_pythran, "__pythran__")
+            fp.is_compiled = True
+
+        if not fp.is_compiling:
+            self.func = getattr(fp.module_pythran, self.func.__name__)
+            self.has_been_replaced = True
+
+        return self.func(*args, **kwargs)
 
 
 class FluidPythran:
@@ -135,9 +180,9 @@ class FluidPythran:
 
         self.names_template_variables = {}
 
-        self._created_while_compiling = is_compiling
+        self._created_while_transpiling = is_transpiling
 
-        if is_compiling:
+        if is_transpiling:
             self.functions = {}
             self.signatures_func = {}
             _modules[module_name] = self
@@ -148,6 +193,8 @@ class FluidPythran:
             self.is_pythranized = False
             return
 
+        self.is_compiling = False
+
         if "." in module_name:
             package, module = module_name.rsplit(".", 1)
             module_pythran = package + ".__pythran__._" + module
@@ -157,6 +204,20 @@ class FluidPythran:
         try:
             self.module_pythran = importlib.import_module(module_pythran)
             self.is_pythranized = True
+
+            self.is_compiled = hasattr(self.module_pythran, "__pythran__")
+            self.is_compiling = False
+
+            if has_to_pythranize_at_import():
+                path_pythran_file = self.module_pythran.__file__
+                self.path_extension = Path(path_pythran_file).with_suffix(
+                    ext_suffix
+                )
+                if has_to_build(self.path_extension, path_pythran_file):
+                    self.process = compile_pythran_file(path_pythran_file)
+                    self.is_compiling = True
+                    self.is_compiled = False
+
             try:
                 module.__pythran__ = self.module_pythran.__pythran__
             except AttributeError:
@@ -167,6 +228,7 @@ class FluidPythran:
                 pass
         except ModuleNotFoundError:
             self.is_pythranized = False
+            self.is_compiled = False
         else:
             if hasattr(self.module_pythran, "arguments_blocks"):
                 self.arguments_blocks = getattr(
@@ -185,17 +247,23 @@ class FluidPythran:
 
         """
 
-        if is_compiling:
+        if is_transpiling:
             self.functions[func.__name__] = func
             return func
 
-        if self.is_pythranized:
-            try:
-                return getattr(self.module_pythran, func.__name__)
-            except AttributeError:
-                return func
-        else:
+        if not self.is_pythranized:
             return func
+
+        try:
+            func_tmp = getattr(self.module_pythran, func.__name__)
+        except AttributeError:
+            logger.warning("Pythran file does not seem to be up-to-date.")
+            func_tmp = func
+
+        if self.is_compiling:
+            return CheckCompiling(self, func_tmp)
+
+        return func_tmp
 
     def make_signature(self, func, _signature=None, **kwargs):
         """Create signature for a function with values for the template types
@@ -235,6 +303,15 @@ class FluidPythran:
                 "`use_pythranized_block` has to be used protected "
                 "by `if fp.is_pythranized`"
             )
+
+        if self.is_compiling and self.process.poll() is not None:
+            self.is_compiling = False
+            time.sleep(0.1)
+            self.module_pythran = import_from_path(
+                self.path_extension, self.module_pythran.__name__
+            )
+            assert hasattr(self.module_pythran, "__pythran__")
+            self.is_compiled = True
 
         func = getattr(self.module_pythran, name)
         argument_names = self.arguments_blocks[name]

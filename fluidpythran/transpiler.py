@@ -174,6 +174,9 @@ def get_code_functions(code: str, func_names: Iterable[str]):
 
         if in_def and in_def != "def":
 
+            if toknum == COMMENT and tokval.startswith("# pythran"):
+                continue
+
             if indent == 0 and toknum == DEDENT:
                 codes[in_def] = untokenize(codes[in_def])
                 in_def = False
@@ -242,7 +245,7 @@ def make_pythran_code(path_py: Path):
     namespace = None
     if "# FLUIDPYTHRAN_NO_IMPORT" not in code:
         # we have to import the module!
-        fluidpythran.aheadoftime.is_compiling = True
+        fluidpythran.aheadoftime.is_transpiling = True
         try:
             namespace = run_path(str(path_py))
         except ImportError:
@@ -260,7 +263,7 @@ def make_pythran_code(path_py: Path):
                     "in the module is needed..."
                 )
                 return
-        fluidpythran.aheadoftime.is_compiling = False
+        fluidpythran.aheadoftime.is_transpiling = False
 
     (
         blocks,

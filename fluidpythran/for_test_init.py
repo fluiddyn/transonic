@@ -36,6 +36,6 @@ def func1(a, b):
         # ) -> (result, a)
         # blabla
 
-        result = np.zeros_like(a)
+        result = 0.
         for _ in range(n):
             result += a ** 2 + b ** 3

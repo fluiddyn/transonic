@@ -9,7 +9,8 @@ except ImportError:
     pythran = None
 
 
-from .cached_jit import path_cachedjit, modules, scheduler
+from .cached_jit import path_cachedjit, modules
+from .util import scheduler
 
 scheduler.nb_cpus = 2
 

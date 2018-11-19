@@ -3,7 +3,7 @@
 ---------
 
 - By default, the fluidpythran commandline uses Pythran
-- (NotImplemented) :code:`PYTHRANIZE_AT_IMPORT` mode
+- :code:`PYTHRANIZE_AT_IMPORT` mode
 
 0.0.8 (2018-11-16)
 ------------------

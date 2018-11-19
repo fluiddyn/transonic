@@ -138,6 +138,7 @@ Most of this code looks familiar to Pythran users. The differences:
   Python function by the pythranized function if FluidPythran has been used to
   produced the associated Pythran file.
 
+
 Pythran using type annotations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -160,6 +161,47 @@ Nice but very limited... So it is possible to mix type hints and :code:`#
 pythran def` commands. Moreover, one can also elegantly define many Pythran
 signatures with type variables (see `these examples in the documentation
 <https://fluidpythran.readthedocs.io/en/latest/examples/type_hints.html>`_).
+
+
+Cached Just-In-Time compilation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+With FluidPythran, one can use the Ahead-Of-Time compiler Pythran in a
+Just-In-Time mode. It is really the **easiest way to speedup a function with
+Pythran**, just by adding a decorator! And it works also in notebooks!
+
+It is a "work in progress" so (i) it can be buggy and (ii) the API is not
+great, but it is a good start!
+
+.. code :: python
+
+    import numpy as np
+
+    # pythran import numpy as numpy
+
+    from fluidpythran import cachedjit, used_by_cachedjit
+
+    @used_by_cachedjit("func1")
+    def func0(a, b):
+        return a + b
+
+    @cachedjit
+    def func1(a, b):
+        return np.exp(a) * b * func0(a, b)
+
+Note that the :code:`@cachedjit` decorator takes into account type hints (see
+`the example in the documentation
+<https://fluidpythran.readthedocs.io/en/latest/examples/using_cachedjit.html>`_).
+
+If the environment variable :code:`PYTHRANIZE_AT_IMPORT` is set, fluidpythran
+compiles at import time the functions with type hints.
+
+**Implementation details for just-in-time compilation:** A Pythran file is
+produced for each "cachedjited" function (function decorated with
+:code:`@cachedjit`). The file is compiled at the first call of the function and
+the compiled version is used as soon as it is ready. The warmup can be quite
+long but the compiled version is saved and can be reused (without warmup!) by
+another process.
 
 
 Command :code:`# pythran block`
@@ -216,45 +258,6 @@ export`.
 `Blocks can now also be defined with type hints!
 <https://fluidpythran.readthedocs.io/en/latest/examples/blocks.html>`_
 
-Cached Just-In-Time compilation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-With FluidPythran, one can use the Ahead-Of-Time compiler Pythran in a
-Just-In-Time mode. It is really the **easiest way to speedup a function with
-Pythran**, just by adding a decorator! And it works also in notebooks!
-
-It is a "work in progress" so (i) it can be buggy and (ii) the API is not
-great, but it is a good start!
-
-.. code :: python
-
-    import numpy as np
-
-    # pythran import numpy as numpy
-
-    from fluidpythran import cachedjit, used_by_cachedjit
-
-    @used_by_cachedjit("func1")
-    def func0(a, b):
-        return a + b
-
-    @cachedjit
-    def func1(a, b):
-        return np.exp(a) * b * func0(a, b)
-
-Note that the :code:`@cachedjit` decorator takes into account type hints (see
-`the example in the documentation
-<https://fluidpythran.readthedocs.io/en/latest/examples/using_cachedjit.html>`_).
-
-If the environment variable :code:`PYTHRANIZE_AT_IMPORT` is set, fluidpythran
-compiles at import time the functions with type hints.
-
-**Implementation details for just-in-time compilation:** A Pythran file is
-produced for each "cachedjited" function (function decorated with
-:code:`@cachedjit`). The file is compiled at the first call of the function and
-the compiled version is used as soon as it is ready. The warmup can be quite
-long but the compiled version is saved and can be reused (without warmup!) by
-another process.
 
 Python classes: :code:`@pythran_def` for methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -319,6 +322,10 @@ how it is done in the example package `example_package_fluidpythran
 <https://bitbucket.org/fluiddyn/example_package_fluidpythran>`_ or in
 `fluidsim's setup.py
 <https://bitbucket.org/fluiddyn/fluidsim/src/default/setup.py>`_).
+
+If the environment variable :code:`PYTHRANIZE_AT_IMPORT` is set, FluidPythran
+compiles at import time (i.e. only when needed) the Pythran file associated
+with the imported module.
 
 License
 -------

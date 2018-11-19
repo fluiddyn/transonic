@@ -9,8 +9,8 @@ Examples
    :maxdepth: 2
 
    examples/classic
-   examples/using_cachedjit
    examples/type_hints
+   examples/using_cachedjit
    examples/blocks
 
 Modules Reference

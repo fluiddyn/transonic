@@ -28,8 +28,6 @@ Internal API
 
 .. autofunction:: make_pythran_type_name
 
-.. autofunction:: import_from_path
-
 Notes
 -----
 
@@ -60,12 +58,9 @@ used.
 
 import inspect
 import itertools
-from pathlib import Path
 import os
 import sys
-import importlib
 import time
-import importlib.util
 
 try:
     import pythran
@@ -80,8 +75,9 @@ from .util import (
     ext_suffix,
     get_info_from_ipython,
     make_hex,
-    SchedulerPopen,
+    compile_pythran_file,
     has_to_pythranize_at_import,
+    import_from_path,
 )
 from .annotation import make_signatures_from_typehinted_func
 
@@ -219,27 +215,6 @@ def cachedjit(func=None, native=True, xsimd=True, openmp=False):
         return decor
 
 
-def import_from_path(path: Path, module_name: str):
-    """Import a .py file or an extension from its path
-
-    """
-    if not path.exists():
-        raise ImportError(
-            f"File {path} does not exist. "
-            f"path.parent.glob('*'): {list(path.parent.glob('*'))}\n"
-        )
-
-    package_name, mod_name = module_name.rsplit(".", 1)
-    name_file = path.name.split(".", 1)[0]
-    if mod_name != name_file:
-        module_name = ".".join((package_name, name_file))
-
-    spec = importlib.util.spec_from_file_location(module_name, path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
 class CachedJIT:
     """Decorator used internally by the public cachedjit decorator
     """
@@ -334,7 +309,9 @@ class CachedJIT:
             exports = set("export " + signature for signature in signatures)
 
             if arg_types != "no types":
-                export_new = "export {}({})".format(func_name, ", ".join(arg_types))
+                export_new = "export {}({})".format(
+                    func_name, ", ".join(arg_types)
+                )
                 if export_new not in exports:
                     exports.add(export_new)
 
@@ -366,24 +343,13 @@ class CachedJIT:
             self.path_extension = path_pythran.with_name(name_ext_file)
 
             self.compiling = True
-            words_command = [
-                "pythran",
-                "-v",
-                str(path_pythran),
-                "-o",
+
+            self.process = compile_pythran_file(
+                path_pythran,
                 name_ext_file,
-            ]
-            if self.native:
-                words_command.append("-march=native")
-
-            if self.xsimd:
-                words_command.append("-DUSE_XSIMD")
-
-            if self.openmp:
-                words_command.append("-fopenmp")
-
-            self.process = scheduler.launch_popen(
-                words_command, cwd=str(path_pythran.parent)
+                native=self.native,
+                xsimd=self.xsimd,
+                openmp=self.openmp,
             )
 
         glob_name_ext_file = func_name + "_" + hex_src + "_*" + ext_suffix
@@ -398,7 +364,6 @@ class CachedJIT:
             path_ext = max(ext_files, key=lambda p: p.stat().st_ctime)
             module_pythran = import_from_path(path_ext, name_mod)
             self.pythran_func = getattr(module_pythran, func_name)
-
 
         def type_collector(*args, **kwargs):
 
@@ -431,6 +396,3 @@ class CachedJIT:
             return func(*args, **kwargs)
 
         return type_collector
-
-
-scheduler = SchedulerPopen()

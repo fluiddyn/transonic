@@ -28,7 +28,13 @@ Internal API
    :members:
    :private-members:
 
+.. autofunction:: compile_pythran_files
+
+.. autofunction:: compile_pythran_file
+
 .. autofunction:: has_to_pythranize_at_import
+
+.. autofunction:: import_from_path
 
 """
 
@@ -40,13 +46,14 @@ from pathlib import Path
 import ast
 import hashlib
 import sysconfig
+import importlib.util
 
 # for SchedulerPopen
 import subprocess
 import multiprocessing
 import time
 
-from typing import Callable
+from typing import Callable, Iterable, Union, Optional
 
 import astunparse
 
@@ -162,9 +169,15 @@ class SchedulerPopen:
         else:
             self.nb_cpus = 1
 
-    def launch_popen(self, words_command, cwd=None):
+    def launch_popen(self, words_command, cwd=None, parallel=True):
         """Launch a program (blocking if too many processes launched)"""
-        while len(self.processes) >= self.nb_cpus:
+
+        if parallel:
+            limit = self.nb_cpus
+        else:
+            limit = 1
+
+        while len(self.processes) >= limit:
             time.sleep(self.deltat)
             self.processes = [
                 process for process in self.processes if process.poll() is None
@@ -175,18 +188,74 @@ class SchedulerPopen:
         return process
 
 
-def compile_pythran_files(paths, str_pythran_flags, parallel=True):
+scheduler = SchedulerPopen()
+
+
+def compile_pythran_files(
+    paths: Iterable[Path], str_pythran_flags: str, parallel=True
+):
 
     pythran_flags = str_pythran_flags.strip().split()
-    scheduler = SchedulerPopen()
 
     for path in paths:
         words_command = ["pythran", path.name]
         words_command.extend(pythran_flags)
         print("pythranize file", path)
-        scheduler.launch_popen(words_command, cwd=str(path.parent))
+        scheduler.launch_popen(
+            words_command, cwd=str(path.parent), parallel=parallel
+        )
+
+
+def compile_pythran_file(
+    path: Union[Path, str],
+    name_ext_file: Optional[str] = None,
+    native=True,
+    xsimd=True,
+    openmp=False,
+):
+
+    if not isinstance(path, Path):
+        path = Path(path)
+
+    words_command = ["pythran", "-v", str(path)]
+
+    if name_ext_file is not None:
+        words_command.extend(("-o", name_ext_file))
+
+    if native:
+        words_command.append("-march=native")
+
+    if xsimd:
+        words_command.append("-DUSE_XSIMD")
+
+    if openmp:
+        words_command.append("-fopenmp")
+
+    # return the process
+    return scheduler.launch_popen(words_command, cwd=str(path.parent))
 
 
 def has_to_pythranize_at_import():
     """Check if fluidpythran has to pythranize at import time"""
     return "PYTHRANIZE_AT_IMPORT" in os.environ
+
+
+def import_from_path(path: Path, module_name: str):
+    """Import a .py file or an extension from its path
+
+    """
+    if not path.exists():
+        raise ImportError(
+            f"File {path} does not exist. "
+            f"path.parent.glob('*'): {list(path.parent.glob('*'))}\n"
+        )
+
+    package_name, mod_name = module_name.rsplit(".", 1)
+    name_file = path.name.split(".", 1)[0]
+    if mod_name != name_file:
+        module_name = ".".join((package_name, name_file))
+
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
