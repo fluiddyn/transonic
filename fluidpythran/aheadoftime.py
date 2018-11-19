@@ -27,6 +27,7 @@ import inspect
 import importlib.util
 import time
 from pathlib import Path
+import subprocess
 
 from .util import (
     get_module_name,
@@ -35,6 +36,7 @@ from .util import (
     import_from_path,
     ext_suffix,
     has_to_build,
+    modification_date,
 )
 
 from .annotation import (
@@ -196,28 +198,55 @@ class FluidPythran:
         self.is_compiling = False
 
         if "." in module_name:
-            package, module = module_name.rsplit(".", 1)
-            module_pythran = package + ".__pythran__._" + module
+            package, module_short_name = module_name.rsplit(".", 1)
+            module_pythran = package + ".__pythran__._" + module_short_name
         else:
+            module_short_name = module_name
             module_pythran = "__pythran__._" + module_name
+
+        path_mod = Path(frame.filename)
+        path_pythran = path_mod.parent / "__pythran__" / ("_" + module_short_name + ".py")
+        self.path_extension = path_ext = Path(path_pythran).with_suffix(ext_suffix)
+
+        if has_to_pythranize_at_import() and path_mod.exists():
+            if has_to_build(path_pythran, path_mod):
+                if path_pythran.exists():
+                    time_pythran = modification_date(path_pythran)
+                else:
+                    time_pythran = 0
+                print(f"running fluidpythran on file {path_mod}... ", end="")
+                # better to do this in another process because the file is already run...
+                subprocess.call(["fluidpythran", "-np", str(path_mod)])
+                print("Done!")
+
+                time_pythran_after = modification_date(path_pythran)
+                # We have to touch the files to signal that they are up-to-date
+                if time_pythran_after == time_pythran:
+                    if not has_to_build(path_ext, path_pythran):
+                        path_pythran.touch()
+                        if path_ext.exists():
+                            path_ext.touch()
+                    else:
+                        path_pythran.touch()
 
         try:
             self.module_pythran = importlib.import_module(module_pythran)
+        except ModuleNotFoundError:
+            self.is_pythranized = False
+            self.is_compiled = False
+        else:
             self.is_pythranized = True
 
             self.is_compiled = hasattr(self.module_pythran, "__pythran__")
             self.is_compiling = False
 
             if has_to_pythranize_at_import():
-                path_pythran_file = self.module_pythran.__file__
-                self.path_extension = Path(path_pythran_file).with_suffix(
-                    ext_suffix
-                )
-                if has_to_build(self.path_extension, path_pythran_file):
-                    self.process = compile_pythran_file(path_pythran_file)
+                if has_to_build(self.path_extension, path_pythran):
+                    self.process = compile_pythran_file(path_pythran)
                     self.is_compiling = True
                     self.is_compiled = False
 
+            module = inspect.getmodule(frame[0])
             try:
                 module.__pythran__ = self.module_pythran.__pythran__
             except AttributeError:
@@ -226,10 +255,7 @@ class FluidPythran:
                 module.__fluidpythran__ = self.module_pythran.__fluidpythran__
             except AttributeError:
                 pass
-        except ModuleNotFoundError:
-            self.is_pythranized = False
-            self.is_compiled = False
-        else:
+
             if hasattr(self.module_pythran, "arguments_blocks"):
                 self.arguments_blocks = getattr(
                     self.module_pythran, "arguments_blocks"

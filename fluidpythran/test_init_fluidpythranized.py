@@ -29,6 +29,8 @@ class TestsInit(unittest.TestCase):
         if cls.path_ext.exists():
             cls.path_ext.unlink()
 
+        os.environ.pop("PYTHRANIZE_AT_IMPORT")
+
     def __test_fluidpythranized(self):
 
         os.environ.pop("PYTHRANIZE_AT_IMPORT")

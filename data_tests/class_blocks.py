@@ -46,7 +46,7 @@ class MyClass:
             # pythran block (
             #     float[][] a, b;
             #     int n
-            # ) -> (result, a)
+            # ) -> (result)
             # blabla
 
             # blibli
@@ -54,7 +54,7 @@ class MyClass:
             # pythran block (
             #     float[][][] a, b;
             #     int n
-            # ) -> (result, a)
+            # ) -> (result)
             result = np.zeros_like(a)
             for _ in range(n):
                 result += a ** 2 + b ** 3
@@ -64,18 +64,21 @@ class MyClass:
 
 if __name__ == "__main__":
 
-    shape = 100, 100
+    shape = 2, 2
     a = np.random.rand(*shape)
     b = np.random.rand(*shape)
 
     obj = MyClass(a, b)
 
-    obj.compute(10)
+    ret0 = obj.compute(10)
+
+    print("(is_pythranized, is_compiling, is_compiled)", (fp.is_pythranized, fp.is_compiling, fp.is_compiled))
 
     if fp.is_pythranized:
         ret = obj.compute(10)
+        assert np.allclose(ret, ret0), (ret - ret0)
         fp.is_pythranized = False
         ret1 = obj.compute(10)
         fp.is_pythranized = True
-        assert np.allclose(ret, ret1)
+        assert np.allclose(ret, ret1), (ret - ret1)
         print("allclose OK")

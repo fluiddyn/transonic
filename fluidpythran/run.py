@@ -38,12 +38,12 @@ def run():
     """
     args = parse_args()
 
-    if not args.path:
-        print("No python files given. Nothing to do! ✨ 🍰 ✨.")
-        return
-
     if args.version:
         print(__version__)
+        return
+
+    if not args.path:
+        print("No python files given. Nothing to do! ✨ 🍰 ✨.")
         return
 
     if args.verbose is None:
