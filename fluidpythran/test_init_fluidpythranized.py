@@ -29,7 +29,10 @@ class TestsInit(unittest.TestCase):
         if cls.path_ext.exists():
             cls.path_ext.unlink()
 
-        os.environ.pop("PYTHRANIZE_AT_IMPORT")
+        try:
+            os.environ.pop("PYTHRANIZE_AT_IMPORT")
+        except KeyError:
+            pass
 
     def __test_fluidpythranized(self):
 
