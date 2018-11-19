@@ -12,6 +12,9 @@ except ImportError:
 
 from .transpiler import make_pythran_file
 from .util import has_to_pythranize_at_import, ext_suffix
+from .aheadoftime import _modules
+
+module_name = "fluidpythran.for_test_init"
 
 
 class TestsInit(unittest.TestCase):
@@ -34,9 +37,17 @@ class TestsInit(unittest.TestCase):
         except KeyError:
             pass
 
-    def __test_fluidpythranized(self):
+    def test_fluidpythranized(self):
 
-        os.environ.pop("PYTHRANIZE_AT_IMPORT")
+        try:
+            os.environ.pop("PYTHRANIZE_AT_IMPORT")
+        except KeyError:
+            pass
+
+        try:
+            del _modules[module_name]
+        except KeyError:
+            pass
 
         assert not has_to_pythranize_at_import()
 
@@ -60,19 +71,24 @@ class TestsInit(unittest.TestCase):
 
         os.environ["PYTHRANIZE_AT_IMPORT"] = "1"
 
+        try:
+            del _modules[module_name]
+        except KeyError:
+            pass
+
         assert has_to_pythranize_at_import()
 
         if self.path_pythran.exists():
             self.path_pythran.unlink()
 
-        make_pythran_file(self.path_for_test, log_level=None)
 
-        assert self.path_pythran.exists()
 
         from . import for_test_init
 
         if not for_test_init.fp.is_compiling:
             importlib.reload(for_test_init)
+
+        assert self.path_pythran.exists()
 
         fp = for_test_init.fp
 
