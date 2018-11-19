@@ -81,8 +81,6 @@ class TestsInit(unittest.TestCase):
         if self.path_pythran.exists():
             self.path_pythran.unlink()
 
-
-
         from . import for_test_init
 
         if not for_test_init.fp.is_compiling:

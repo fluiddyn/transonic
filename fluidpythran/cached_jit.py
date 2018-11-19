@@ -62,32 +62,23 @@ import os
 import sys
 import time
 
-try:
-    import pythran
-except ImportError:
-    pythran = False
 
 from .util import (
     get_module_name,
     has_to_build,
     get_source_without_decorator,
     path_root,
-    ext_suffix,
+    ext_suffix_short,
     get_info_from_ipython,
     make_hex,
     compile_pythran_file,
     has_to_pythranize_at_import,
     import_from_path,
+    pythran,
 )
 from .annotation import make_signatures_from_typehinted_func
 
 modules = {}
-
-
-if pythran and pythran.__version__ <= "0.9.0":
-    # avoid a Pythran bug with -o option
-    # it is bad because then we do not support using many Python versions
-    ext_suffix = "." + ext_suffix.rsplit(".", 1)[-1]
 
 
 path_cachedjit = path_root / "__cachedjit__"
@@ -338,7 +329,7 @@ class CachedJIT:
             # compute the new path of the extension
             hex_header = make_hex(header)
             name_ext_file = (
-                func_name + "_" + hex_src + "_" + hex_header + ext_suffix
+                func_name + "_" + hex_src + "_" + hex_header + ext_suffix_short
             )
             self.path_extension = path_pythran.with_name(name_ext_file)
 
@@ -352,11 +343,10 @@ class CachedJIT:
                 openmp=self.openmp,
             )
 
-        glob_name_ext_file = func_name + "_" + hex_src + "_*" + ext_suffix
+        glob_name_ext_file = func_name + "_" + hex_src + "_*" + ext_suffix_short
         ext_files = list(path_pythran.parent.glob(glob_name_ext_file))
 
         if not ext_files:
-            # FIXME: PYTHRANIZE_AT_IMPORT...
             if has_to_pythranize_at_import():
                 pythranize_with_new_header()
             self.pythran_func = None

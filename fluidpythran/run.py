@@ -17,7 +17,7 @@ from glob import glob
 from . import __version__
 from .transpiler import make_pythran_files
 from .log import logger, set_log_level
-from .util import compile_pythran_files, ext_suffix, has_to_build
+from .util import compile_pythran_files, ext_suffix_short, has_to_build
 
 try:
     import pythran
@@ -78,7 +78,7 @@ def run():
     for path in paths:
         path = Path(path)
         pythran_path = path.parent / "__pythran__" / ("_" + path.name)
-        ext_path = pythran_path.with_suffix(ext_suffix)
+        ext_path = pythran_path.with_suffix(ext_suffix_short)
         if has_to_build(ext_path, pythran_path):
             pythran_paths.append(pythran_path)
 

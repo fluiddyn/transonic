@@ -24,7 +24,6 @@ Internal API
 """
 
 import inspect
-import importlib.util
 import time
 from pathlib import Path
 import subprocess
@@ -34,9 +33,9 @@ from .util import (
     compile_pythran_file,
     has_to_pythranize_at_import,
     import_from_path,
-    ext_suffix,
     has_to_build,
     modification_date,
+    name_ext_from_path_pythran,
 )
 
 from .annotation import (
@@ -199,14 +198,17 @@ class FluidPythran:
 
         if "." in module_name:
             package, module_short_name = module_name.rsplit(".", 1)
-            module_pythran = package + ".__pythran__._" + module_short_name
         else:
             module_short_name = module_name
-            module_pythran = "__pythran__._" + module_name
 
         path_mod = Path(frame.filename)
-        path_pythran = path_mod.parent / "__pythran__" / ("_" + module_short_name + ".py")
-        self.path_extension = path_ext = Path(path_pythran).with_suffix(ext_suffix)
+        path_pythran = (
+            path_mod.parent / "__pythran__" / ("_" + module_short_name + ".py")
+        )
+
+        self.path_extension = path_ext = path_pythran.with_name(
+            name_ext_from_path_pythran(path_pythran)
+        )
 
         if has_to_pythranize_at_import() and path_mod.exists():
             if has_to_build(path_pythran, path_mod):
@@ -229,32 +231,31 @@ class FluidPythran:
                     else:
                         path_pythran.touch()
 
-        try:
-            self.module_pythran = importlib.import_module(module_pythran)
-        except ModuleNotFoundError:
+        if has_to_pythranize_at_import() and path_mod.exists():
+            if has_to_build(self.path_extension, path_pythran):
+                self.process = compile_pythran_file(
+                    path_pythran, name_ext_file=self.path_extension
+                )
+                self.is_compiling = True
+                self.is_compiled = False
+
+        self.is_pythranized = True
+        if path_ext.exists() and not self.is_compiling:
+            self.module_pythran = import_from_path(
+                self.path_extension, module_name
+            )
+        elif path_pythran.exists():
+            self.module_pythran = import_from_path(path_pythran, module_name)
+        else:
             self.is_pythranized = False
             self.is_compiled = False
-        else:
-            self.is_pythranized = True
 
+        if self.is_pythranized:
             self.is_compiled = hasattr(self.module_pythran, "__pythran__")
-            self.is_compiling = False
-
-            if has_to_pythranize_at_import():
-                if has_to_build(self.path_extension, path_pythran):
-                    self.process = compile_pythran_file(path_pythran)
-                    self.is_compiling = True
-                    self.is_compiled = False
-
-            module = inspect.getmodule(frame[0])
-            try:
+            if self.is_compiled:
+                module = inspect.getmodule(frame[0])
                 module.__pythran__ = self.module_pythran.__pythran__
-            except AttributeError:
-                pass
-            try:
                 module.__fluidpythran__ = self.module_pythran.__fluidpythran__
-            except AttributeError:
-                pass
 
             if hasattr(self.module_pythran, "arguments_blocks"):
                 self.arguments_blocks = getattr(

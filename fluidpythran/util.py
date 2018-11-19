@@ -28,6 +28,8 @@ Internal API
    :members:
    :private-members:
 
+.. autofunction:: name_ext_from_path_pythran
+
 .. autofunction:: compile_pythran_files
 
 .. autofunction:: compile_pythran_file
@@ -39,6 +41,7 @@ Internal API
 """
 
 import os
+import sys
 import inspect
 from datetime import datetime
 import re
@@ -58,12 +61,23 @@ from typing import Callable, Iterable, Union, Optional
 import astunparse
 
 try:
+    import pythran
+except ImportError:
+    pythran = False
+
+try:
     from IPython.core.getipython import get_ipython
 except ImportError:
     pass
 
 path_root = Path.home() / ".fluidpythran"
 ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
+
+
+if pythran and pythran.__version__ <= "0.9.0":
+    # avoid a Pythran bug with -o option
+    # it is bad because then we do not support using many Python versions
+    ext_suffix_short = "." + ext_suffix.rsplit(".", 1)[-1]
 
 
 def get_module_name(frame):
@@ -160,6 +174,7 @@ class SchedulerPopen:
     """Limit the number of Pythran compilations performed in parallel
 
     """
+
     deltat = 0.2
 
     def __init__(self, parallel=True):
@@ -191,6 +206,17 @@ class SchedulerPopen:
 scheduler = SchedulerPopen()
 
 
+def name_ext_from_path_pythran(path_pythran):
+
+    if path_pythran.exists():
+        with open(path_pythran) as file:
+            src = file.read()
+    else:
+        src = ""
+
+    return path_pythran.stem + "_" + make_hex(src) + ext_suffix_short
+
+
 def compile_pythran_files(
     paths: Iterable[Path], str_pythran_flags: str, parallel=True
 ):
@@ -198,7 +224,8 @@ def compile_pythran_files(
     pythran_flags = str_pythran_flags.strip().split()
 
     for path in paths:
-        words_command = ["pythran", path.name]
+        name_ext = name_ext_from_path_pythran(path)
+        words_command = ["pythran", path.name, "-o", name_ext]
         words_command.extend(pythran_flags)
         print("pythranize file", path)
         scheduler.launch_popen(
@@ -247,13 +274,21 @@ def import_from_path(path: Path, module_name: str):
     if not path.exists():
         raise ImportError(
             f"File {path} does not exist. "
-            f"path.parent.glob('*'): {list(path.parent.glob('*'))}\n"
+            f"[path.name for path in path.parent.glob('*')]:\n{[path.name for path in path.parent.glob('*')]}\n"
         )
 
-    package_name, mod_name = module_name.rsplit(".", 1)
-    name_file = path.name.split(".", 1)[0]
-    if mod_name != name_file:
-        module_name = ".".join((package_name, name_file))
+    if module_name in sys.modules:
+        module = sys.modules[module_name]
+        if module.__file__.endswith(ext_suffix_short) and Path(module.__file__) == path:
+            return module
+
+    if "." in module_name:
+        package_name, mod_name = module_name.rsplit(".", 1)
+        name_file = path.name.split(".", 1)[0]
+        if mod_name != name_file:
+            module_name = ".".join((package_name, name_file))
+    else:
+        module_name = path.stem
 
     spec = importlib.util.spec_from_file_location(module_name, path)
     module = importlib.util.module_from_spec(spec)
