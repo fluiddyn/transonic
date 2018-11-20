@@ -290,8 +290,8 @@ imports: {imports}\n"""
         code_pythran += "\n" + "\n".join(imports) + "\n"
 
     module_name = Path(path_py).with_suffix("").name
-    if module_name in fluidpythran.aheadoftime._modules:
-        fp = fluidpythran.aheadoftime._modules[module_name]
+    if module_name in fluidpythran.aheadoftime.modules:
+        fp = fluidpythran.aheadoftime.modules[module_name]
         fp._make_signatures_from_annotations()
         functions = fp.functions.keys()
         signatures_func_annot = fp.signatures_func

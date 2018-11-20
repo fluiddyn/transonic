@@ -46,7 +46,7 @@ from .annotation import (
 from .log import logger
 
 is_transpiling = False
-_modules = {}
+modules = {}
 
 
 def _get_fluidpythran_calling_module(index_frame: int = 2):
@@ -70,8 +70,8 @@ def _get_fluidpythran_calling_module(index_frame: int = 2):
 
     module_name = get_module_name(frame)
 
-    if module_name in _modules:
-        fp = _modules[module_name]
+    if module_name in modules:
+        fp = modules[module_name]
         if fp._created_while_transpiling != is_transpiling:
             fp = FluidPythran(frame=frame, reuse=False)
     else:
@@ -173,8 +173,8 @@ class FluidPythran:
 
         module_name = get_module_name(frame)
 
-        if reuse and module_name in _modules:
-            fp = _modules[module_name]
+        if reuse and module_name in modules:
+            fp = modules[module_name]
             for key, value in fp.__dict__.items():
                 self.__dict__[key] = value
             return
@@ -186,7 +186,7 @@ class FluidPythran:
         if is_transpiling:
             self.functions = {}
             self.signatures_func = {}
-            _modules[module_name] = self
+            modules[module_name] = self
             self.is_transpiled = False
             return
 
@@ -262,7 +262,7 @@ class FluidPythran:
                     self.module_pythran, "arguments_blocks"
                 )
 
-        _modules[module_name] = self
+        modules[module_name] = self
 
     def pythran_def(self, func):
         """Decorator used for functions

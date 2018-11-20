@@ -12,7 +12,7 @@ except ImportError:
 
 from .transpiler import make_pythran_file
 from .util import has_to_pythranize_at_import, ext_suffix
-from .aheadoftime import _modules
+from .aheadoftime import modules
 
 module_name = "fluidpythran.for_test_init"
 
@@ -45,7 +45,7 @@ class TestsInit(unittest.TestCase):
             pass
 
         try:
-            del _modules[module_name]
+            del modules[module_name]
         except KeyError:
             pass
 
@@ -72,7 +72,7 @@ class TestsInit(unittest.TestCase):
         os.environ["PYTHRANIZE_AT_IMPORT"] = "1"
 
         try:
-            del _modules[module_name]
+            del modules[module_name]
         except KeyError:
             pass
 
