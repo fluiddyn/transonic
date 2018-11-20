@@ -12,6 +12,8 @@ Examples
    examples/type_hints
    examples/using_cachedjit
    examples/blocks
+   ipynb/executed/demo_pythranize_at_import
+   ipynb/executed/demo_cachedjit
 
 Modules Reference
 -----------------

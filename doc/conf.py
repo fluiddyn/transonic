@@ -11,8 +11,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
-import os
+# import sys
+# import os
 
 # to be able to build the doc without h5py with Read the docs
 
@@ -24,8 +24,9 @@ import os
 
 import fluidpythran
 
-# from fluiddoc.ipynb_maker import ipynb_to_rst
+from fluiddoc.ipynb_maker import ipynb_to_rst
 # ipynb_to_rst()
+ipynb_to_rst('ipynb/executed', executed=True)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

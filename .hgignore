@@ -16,6 +16,11 @@ dist*
 .tox/*
 .coverage/*
 
+**/tmp*.py
+
+doc/ipynb/executed/*.rst
+doc/ipynb/*.rst
+
 .pytest_cache
 
 *.egg-info/*
