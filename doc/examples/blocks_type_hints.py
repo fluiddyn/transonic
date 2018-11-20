@@ -21,7 +21,7 @@ class MyClass:
         a = self.a
         b = self.b
 
-        if fp.is_pythranized:
+        if fp.is_transpiled:
             result = fp.use_pythranized_block("block0")
         else:
             # pythran block (
@@ -51,10 +51,10 @@ if __name__ == "__main__":
 
     obj.compute(10)
 
-    if fp.is_pythranized:
+    if fp.is_transpiled:
         ret = obj.compute(10)
-        fp.is_pythranized = False
+        fp.is_transpiled = False
         ret1 = obj.compute(10)
-        fp.is_pythranized = True
+        fp.is_transpiled = True
         assert np.allclose(ret, ret1)
         print("allclose OK")

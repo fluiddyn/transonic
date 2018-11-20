@@ -19,7 +19,7 @@ class MyClass:
         a = self.a
         b = self.b
 
-        if fp.is_pythranized:
+        if fp.is_transpiled:
             result = fp.use_pythranized_block("block0")
         else:
             # pythran block (
@@ -40,7 +40,7 @@ class MyClass:
 
         a = result
 
-        if fp.is_pythranized:
+        if fp.is_transpiled:
             result = fp.use_pythranized_block("block1")
         else:
             # pythran block (
@@ -72,13 +72,13 @@ if __name__ == "__main__":
 
     ret0 = obj.compute(10)
 
-    print("(is_pythranized, is_compiling, is_compiled)", (fp.is_pythranized, fp.is_compiling, fp.is_compiled))
+    print("(is_transpiled, is_compiling, is_compiled)", (fp.is_transpiled, fp.is_compiling, fp.is_compiled))
 
-    if fp.is_pythranized:
+    if fp.is_transpiled:
         ret = obj.compute(10)
         assert np.allclose(ret, ret0), (ret - ret0)
-        fp.is_pythranized = False
+        fp.is_transpiled = False
         ret1 = obj.compute(10)
-        fp.is_pythranized = True
+        fp.is_transpiled = True
         assert np.allclose(ret, ret1), (ret - ret1)
         print("allclose OK")

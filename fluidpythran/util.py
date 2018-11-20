@@ -263,8 +263,18 @@ def compile_pythran_file(
     return scheduler.launch_popen(words_command, cwd=str(path.parent))
 
 
+_PYTHRANIZE_AT_IMPORT = None
+
+
+def set_pythranize_at_import(value=True):
+    global _PYTHRANIZE_AT_IMPORT
+    _PYTHRANIZE_AT_IMPORT = value
+
+
 def has_to_pythranize_at_import():
     """Check if fluidpythran has to pythranize at import time"""
+    if _PYTHRANIZE_AT_IMPORT is not None:
+        return _PYTHRANIZE_AT_IMPORT
     return "PYTHRANIZE_AT_IMPORT" in os.environ
 
 
@@ -280,7 +290,10 @@ def import_from_path(path: Path, module_name: str):
 
     if module_name in sys.modules:
         module = sys.modules[module_name]
-        if module.__file__.endswith(ext_suffix_short) and Path(module.__file__) == path:
+        if (
+            module.__file__.endswith(ext_suffix_short)
+            and Path(module.__file__) == path
+        ):
             return module
 
     if "." in module_name:

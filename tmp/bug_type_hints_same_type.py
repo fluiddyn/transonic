@@ -15,7 +15,7 @@ A1 = Array[T, N]
 
 def func(a, b):
 
-    if fp.is_pythranized:
+    if fp.is_transpiled:
         fp.use_pythranized_block("rk2_step0")
     else:
         # pythran block (

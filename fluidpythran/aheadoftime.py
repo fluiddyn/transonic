@@ -187,11 +187,11 @@ class FluidPythran:
             self.functions = {}
             self.signatures_func = {}
             _modules[module_name] = self
-            self.is_pythranized = False
+            self.is_transpiled = False
             return
 
         if not use_pythran:
-            self.is_pythranized = False
+            self.is_transpiled = False
             return
 
         self.is_compiling = False
@@ -239,7 +239,7 @@ class FluidPythran:
                 self.is_compiling = True
                 self.is_compiled = False
 
-        self.is_pythranized = True
+        self.is_transpiled = True
         if path_ext.exists() and not self.is_compiling:
             self.module_pythran = import_from_path(
                 self.path_extension, module_name
@@ -247,10 +247,10 @@ class FluidPythran:
         elif path_pythran.exists():
             self.module_pythran = import_from_path(path_pythran, module_name)
         else:
-            self.is_pythranized = False
+            self.is_transpiled = False
             self.is_compiled = False
 
-        if self.is_pythranized:
+        if self.is_transpiled:
             self.is_compiled = hasattr(self.module_pythran, "__pythran__")
             if self.is_compiled:
                 module = inspect.getmodule(frame[0])
@@ -278,7 +278,7 @@ class FluidPythran:
             self.functions[func.__name__] = func
             return func
 
-        if not self.is_pythranized:
+        if not self.is_transpiled:
             return func
 
         try:
@@ -325,10 +325,10 @@ class FluidPythran:
           The name of the block.
 
         """
-        if not self.is_pythranized:
+        if not self.is_transpiled:
             raise ValueError(
                 "`use_pythranized_block` has to be used protected "
-                "by `if fp.is_pythranized`"
+                "by `if fp.is_transpiled`"
             )
 
         if self.is_compiling and self.process.poll() is not None:

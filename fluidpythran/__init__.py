@@ -10,6 +10,8 @@ from .annotation import Array, NDim, Type, Shape
 
 from .aheadoftime import FluidPythran, pythran_def, make_signature
 
+from .util import set_pythranize_at_import
+
 __all__ = [
     "__version__",
     "FluidPythran",
@@ -22,4 +24,5 @@ __all__ = [
     "Shape",
     "cachedjit",
     "used_by_cachedjit",
+    "set_pythranize_at_import",
 ]

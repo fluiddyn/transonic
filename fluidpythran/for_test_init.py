@@ -27,7 +27,7 @@ fp = FluidPythran()
 def func1(a, b):
     n = 10
 
-    if fp.is_pythranized:
+    if fp.is_transpiled:
         result = fp.use_pythranized_block("block0")
     else:
         # pythran block (

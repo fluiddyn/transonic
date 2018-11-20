@@ -14,7 +14,7 @@ For blocks, we need a little bit more of Python.
 
 - In the function, we define a block with three lines of Python and special
   Pythran annotations (:code:`# pythran block`). The 3 lines of Python are used
-  (i) at run time to choose between the two branches (:code:`is_pythranized` or
+  (i) at run time to choose between the two branches (:code:`is_transpiled` or
   not) and (ii) at compile time to detect the blocks.
 
 Note that the annotations in the command :code:`# pythran block` are different
@@ -30,13 +30,13 @@ export`.
 
 .. warning ::
 
-    The two branches of the :code:`if fp.is_pythranized` are not equivalent! The
+    The two branches of the :code:`if fp.is_transpiled` are not equivalent! The
     user has to be careful because it is not difficult to write such buggy code:
 
     .. code :: python
 
         c = 0
-        if fp.is_pythranized:
+        if fp.is_transpiled:
             a, b = fp.use_pythranized_block("buggy_block")
         else:
             # pythran block () -> (a, b)

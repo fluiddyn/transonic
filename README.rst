@@ -223,7 +223,7 @@ with lines that cannot be compiled by Pythran.
         def func(self, n):
             a, b = self.something_that_cannot_be_pythranized()
 
-            if fp.is_pythranized:
+            if fp.is_transpiled:
                 result = fp.use_pythranized_block("name_block")
             else:
                 # pythran block (
@@ -248,7 +248,7 @@ For blocks, we need a little bit more of Python.
 
 - In the function, we define a block with three lines of Python and special
   Pythran annotations (:code:`# pythran block`). The 3 lines of Python are used
-  (i) at run time to choose between the two branches (:code:`is_pythranized` or
+  (i) at run time to choose between the two branches (:code:`is_transpiled` or
   not) and (ii) at compile time to detect the blocks.
 
 Note that the annotations in the command :code:`# pythran block` are different

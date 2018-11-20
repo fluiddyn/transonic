@@ -61,7 +61,7 @@ class TestsInit(unittest.TestCase):
         importlib.reload(for_test_init)
 
         assert self.path_pythran.exists()
-        assert for_test_init.fp.is_pythranized
+        assert for_test_init.fp.is_transpiled
 
         for_test_init.func(1, 3.14)
         for_test_init.func1(1.1, 2.2)
@@ -90,7 +90,7 @@ class TestsInit(unittest.TestCase):
 
         fp = for_test_init.fp
 
-        assert fp.is_pythranized
+        assert fp.is_transpiled
         assert fp.is_compiling
         assert not fp.is_compiled
 
