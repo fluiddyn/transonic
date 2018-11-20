@@ -1,9 +1,10 @@
 
-0.0.9 (?)
----------
+0.0.9 (2018-11-20)
+------------------
 
+- :code:`PYTHRANIZE_AT_IMPORT` mode for ahead-of-time and just-in-time
+  compilation (works also in IPython)
 - By default, the fluidpythran commandline uses Pythran
-- :code:`PYTHRANIZE_AT_IMPORT` mode
 
 0.0.8 (2018-11-16)
 ------------------
