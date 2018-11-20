@@ -73,11 +73,12 @@ except ImportError:
 path_root = Path.home() / ".fluidpythran"
 ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 
+# if pythran and pythran.__version__ <= "0.9.0":
 
-if pythran and pythran.__version__ <= "0.9.0":
-    # avoid a Pythran bug with -o option
-    # it is bad because then we do not support using many Python versions
-    ext_suffix_short = "." + ext_suffix.rsplit(".", 1)[-1]
+# avoid a Pythran bug with -o option
+# it is bad because then we do not support using many Python versions
+
+ext_suffix_short = "." + ext_suffix.rsplit(".", 1)[-1]
 
 
 def get_module_name(frame):
