@@ -8,11 +8,6 @@ User API
 
 .. autofunction:: used_by_cachedjit
 
-.. todo::
-
-   It should also be possible to use type hints to get at the first compilation
-   more than one signature.
-
 Internal API
 ------------
 

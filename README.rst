@@ -18,10 +18,10 @@ FluidPythran: easily speedup your Python code with Pythran
 
 .. warning ::
 
-   FluidPythran is in a very early stage. Remarks and suggestions are very
+   FluidPythran is in an early stage. Remarks and suggestions are very
    welcome.
 
-   FluidPythran just starts to be used in `FluidSim
+   FluidPythran starts to be used in `FluidSim
    <https://bitbucket.org/fluiddyn/fluidsim>`_ (for example in `this file
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_).
 
@@ -168,9 +168,10 @@ Cached Just-In-Time compilation
 
 With FluidPythran, one can use the Ahead-Of-Time compiler Pythran in a
 Just-In-Time mode. It is really the **easiest way to speedup a function with
-Pythran**, just by adding a decorator! And it works also in notebooks!
+Pythran**, just by adding a decorator! And it also works `in notebooks
+<https://fluidpythran.readthedocs.io/en/latest/ipynb/executed/demo_cachedjit.html>`_!
 
-It is a "work in progress" so (i) it can be buggy and (ii) the API is not
+It is a "work in progress" so (i) it could be buggy and (ii) the API is not
 great, but it is a good start!
 
 .. code :: python
