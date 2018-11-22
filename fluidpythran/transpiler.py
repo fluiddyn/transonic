@@ -44,6 +44,7 @@ except ImportError:
 from .log import logger, set_log_level
 from .annotation import compute_pythran_types_from_valued_types
 from .util import has_to_build, get_source_without_decorator
+from .compat import open
 import fluidpythran
 
 

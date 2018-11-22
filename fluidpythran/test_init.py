@@ -1,8 +1,10 @@
 from pathlib import Path
-import shutil
+
 import importlib
 
 from . import FluidPythran
+
+from .compat import rmtree
 
 
 def test_not_fluidpythranized():
@@ -12,7 +14,7 @@ def test_not_fluidpythranized():
     path_output = path_for_test.parent / "__pythran__"
 
     if path_output.exists():
-        shutil.rmtree(path_output)
+        rmtree(path_output)
 
     from . import for_test_init
 

@@ -42,7 +42,7 @@ def detect_pythran_extensions(name_package):
     if not can_import_pythran:
         return []
     ext_names = []
-    for root, dirs, files in os.walk(name_package):
+    for root, dirs, files in os.walk(str(name_package)):
         path_dir = Path(root)
         for name in files:
             if (

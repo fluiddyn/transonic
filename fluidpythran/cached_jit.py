@@ -73,6 +73,8 @@ from .util import (
 )
 from .annotation import make_signatures_from_typehinted_func
 
+from .compat import open
+
 modules = {}
 
 

@@ -63,6 +63,8 @@ import time
 
 from typing import Callable, Iterable, Union, Optional
 
+from .compat import open, implementation
+
 import astunparse
 
 try:
@@ -105,7 +107,7 @@ def get_module_name(frame):
 
 def modification_date(filename):
     """Get the modification date of a file"""
-    return datetime.fromtimestamp(os.path.getmtime(filename))
+    return datetime.fromtimestamp(os.path.getmtime(str(filename)))
 
 
 def has_to_build(output_file: Path, input_file: Path):
@@ -204,6 +206,10 @@ class SchedulerPopen:
                 process for process in self.processes if process.poll() is None
             ]
 
+        if implementation == "PyPy":
+            cwd = str(cwd)
+            words_command = [str(word) for word in words_command]
+
         process = subprocess.Popen(words_command, cwd=cwd)
         self.processes.append(process)
         return process
@@ -293,11 +299,21 @@ def import_from_path(path: Path, module_name: str):
             f"[path.name for path in path.parent.glob('*')]:\n{[path.name for path in path.parent.glob('*')]}\n"
         )
 
+    if implementation == "PyPy" and path.suffix == ext_suffix_short:
+        new_path = path.with_suffix(ext_suffix)
+        shutil.copy(str(path), str(new_path))
+        path = new_path
+
     if module_name in sys.modules:
         module = sys.modules[module_name]
+
+        # print("module.__file__", module.__file__)
+        # print("path", path, flush=True)
+
         if (
             module.__file__.endswith(ext_suffix_short)
             and Path(module.__file__) == path
+            or Path(module.__file__).with_suffix(ext_suffix_short) == path
         ):
             return module
 
@@ -309,7 +325,9 @@ def import_from_path(path: Path, module_name: str):
     else:
         module_name = path.stem
 
-    spec = importlib.util.spec_from_file_location(module_name, path)
+    # print("in util", module_name, str(path))
+
+    spec = importlib.util.spec_from_file_location(module_name, str(path))
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

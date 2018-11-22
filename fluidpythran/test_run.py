@@ -1,11 +1,13 @@
 import sys
-from shutil import rmtree
+
 import time
 
 from . import path_data_tests
 
 from .run import run
 from . import util
+
+from .compat import rmtree
 
 
 path_dir_out = path_data_tests / "__pythran__"
