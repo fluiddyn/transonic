@@ -1,4 +1,10 @@
 
+0.0.10 (?)
+----------
+
+- Fix bug script importing local script
+- Command line option "clear-cache"
+
 0.0.9 (2018-11-20)
 ------------------
 

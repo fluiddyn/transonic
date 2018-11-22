@@ -5,6 +5,8 @@ import time
 from . import path_data_tests
 
 from .run import run
+from . import util
+
 
 path_dir_out = path_data_tests / "__pythran__"
 
@@ -34,6 +36,9 @@ def test_create_pythran_simple():
 
 
 def test_create_pythran_classic():
+
+    util.input = lambda : 'y'
+
     if path_dir_out.exists():
         rmtree(path_dir_out)
 
@@ -54,6 +59,9 @@ def test_create_pythran_classic():
     path_file_pythran.unlink()
 
     print("after unlink")
+    run()
+
+    sys.argv = f"fluidpythran -cc {path_file}".split()
     run()
 
     sys.argv = f"fluidpythran {path_file}".split()

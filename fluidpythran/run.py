@@ -17,7 +17,12 @@ from glob import glob
 from . import __version__
 from .transpiler import make_pythran_files
 from .log import logger, set_log_level
-from .util import compile_pythran_files, ext_suffix_short, has_to_build
+from .util import (
+    compile_pythran_files,
+    ext_suffix_short,
+    has_to_build,
+    clear_cached_extensions,
+)
 
 try:
     import pythran
@@ -37,13 +42,18 @@ def run():
     See :code:`fluidpythran -h`
     """
     args = parse_args()
+    # print(args)
 
     if args.version:
         print(__version__)
         return
 
-    if not args.path:
+    if not args.path and not args.clear_cache:
         print("No python files given. Nothing to do! ✨ 🍰 ✨.")
+        return
+
+    if args.clear_cache:
+        clear_cached_extensions(args.clear_cache, force=args.force)
         return
 
     if args.verbose is None:
@@ -123,6 +133,14 @@ def parse_args():
         ),
         type=str,
         default="",
+    )
+
+    parser.add_argument(
+        "-cc",
+        "--clear-cache",
+        help=("Clear the cached extensions for a module"),
+        type=str,
+        # default="",
     )
 
     return parser.parse_args()

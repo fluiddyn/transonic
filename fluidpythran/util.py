@@ -38,6 +38,9 @@ Internal API
 
 .. autofunction:: import_from_path
 
+.. autofunction:: query_yes_no
+
+.. autofunction:: clear_cached_extensions
 """
 
 import os
@@ -50,6 +53,8 @@ import ast
 import hashlib
 import sysconfig
 import importlib.util
+from distutils.util import strtobool
+import shutil
 
 # for SchedulerPopen
 import subprocess
@@ -308,3 +313,78 @@ def import_from_path(path: Path, module_name: str):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def query_yes_no(question: str, default: str = None, force: bool = False):
+    """User yes or no query"""
+    if force:
+        return True
+
+    if default is None:
+        end = "(y/n)"
+        default = ""
+    elif default == "y":
+        end = "([y]/n)"
+    elif default == "n":
+        end = "(y/[n])"
+
+    print(f"{question} {end}")
+    while True:
+        answer = input()
+        if answer == "":
+            answer = default
+        try:
+            return strtobool(answer)
+        except ValueError:
+            print('Please respond with "y" or "n".')
+
+
+def clear_cached_extensions(module_name: str, force: bool = False):
+    """Delete the cached extensions related to a module
+
+    """
+
+    from .cached_jit import path_cachedjit
+
+    if module_name.endswith(".py"):
+        module_name = module_name[:-3]
+
+    if os.path.sep not in module_name:
+        relative_path = module_name.replace(".", os.path.sep)
+    else:
+        relative_path = module_name
+
+    path_pythran_dir_jit = path_cachedjit / relative_path
+
+    relative_path = Path(relative_path)
+
+    path_pythran = relative_path.parent / (
+        "__pythran__/_" + relative_path.name + ".py"
+    )
+    path_ext = path_pythran.with_name(name_ext_from_path_pythran(path_pythran))
+
+    if not path_pythran_dir_jit.exists() and not (
+        path_pythran.exists() or path_ext.exists()
+    ):
+        print(
+            f"Not able to find cached extensions corresponding to {module_name}"
+        )
+        print("Nothing to do! ✨ 🍰 ✨.")
+        return
+
+    if path_pythran_dir_jit.exists() and query_yes_no(
+        f"Do you confirm that you want to delete the JIT cache for {module_name}",
+        default="y",
+        force=force,
+    ):
+        shutil.rmtree(path_pythran_dir_jit)
+
+    if path_pythran.exists() or path_ext.exists():
+        if query_yes_no(
+            f"Do you confirm that you want to delete the AOT cache for {module_name}",
+            default="y",
+            force=force,
+        ):
+            for path in (path_pythran, path_ext):
+                if path.exists():
+                    path.unlink()

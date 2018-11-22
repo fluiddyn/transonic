@@ -32,6 +32,7 @@ from token import tok_name
 from io import BytesIO
 from pathlib import Path
 from runpy import run_module, run_path
+import sys
 
 from typing import Iterable
 
@@ -252,9 +253,10 @@ def make_pythran_code(path_py: Path):
             name_mod = ".".join(
                 path_py.absolute().relative_to(os.getcwd()).with_suffix("").parts
             )
+            sys.path.insert(0, "")
             try:
                 namespace = run_module(name_mod)
-            except ImportError:
+            except ImportError as error:
                 logger.warning(
                     f"fluidpythran was unable to import module {name_mod}: "
                     "no Pythran file created. "
@@ -262,7 +264,11 @@ def make_pythran_code(path_py: Path):
                     "you could add '# FLUIDPYTHRAN_NO_IMPORT' "
                     "in the module is needed..."
                 )
+                print(error)
+                raise
                 return
+            finally:
+                del sys.path[0]
         fluidpythran.aheadoftime.is_transpiling = False
 
     (
