@@ -266,7 +266,6 @@ def make_pythran_code(path_py: Path):
                     "in the module is needed..."
                 )
                 print(error)
-                raise
                 return
             finally:
                 del sys.path[0]
