@@ -11,7 +11,11 @@ except ImportError:
 
 
 from .transpiler import make_pythran_file
-from .util import has_to_pythranize_at_import, ext_suffix
+from .util import (
+    has_to_pythranize_at_import,
+    ext_suffix,
+    name_ext_from_path_pythran,
+)
 from .aheadoftime import modules
 
 module_name = "fluidpythran.for_test_init"
@@ -24,13 +28,17 @@ class TestsInit(unittest.TestCase):
     assert path_for_test.exists()
 
     path_pythran = path_for_test.parent / ("__pythran__/_" + path_for_test.name)
-    path_ext = path_pythran.with_suffix(ext_suffix)
+    path_ext = path_pythran.with_name(name_ext_from_path_pythran(path_pythran))
 
     @classmethod
     def tearDownClass(cls):
         # cls.path_pythran.unlink()
         if cls.path_ext.exists():
             cls.path_ext.unlink()
+
+        path_ext = cls.path_ext.with_suffix(ext_suffix)
+        if path_ext.exists():
+            path_ext.unlink()
 
         try:
             os.environ.pop("PYTHRANIZE_AT_IMPORT")
@@ -80,6 +88,13 @@ class TestsInit(unittest.TestCase):
 
         if self.path_pythran.exists():
             self.path_pythran.unlink()
+
+        if self.path_ext.exists():
+            self.path_ext.unlink()
+
+        path_ext = self.path_ext.with_suffix(ext_suffix)
+        if path_ext.exists():
+            path_ext.unlink()
 
         from . import for_test_init
 

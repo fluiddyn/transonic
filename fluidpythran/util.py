@@ -301,21 +301,9 @@ def import_from_path(path: Path, module_name: str):
 
     if implementation == "PyPy" and path.suffix == ext_suffix_short:
         new_path = path.with_suffix(ext_suffix)
-        shutil.copy(str(path), str(new_path))
+        if has_to_build(new_path, path):
+            shutil.copy(str(path), str(new_path))
         path = new_path
-
-    if module_name in sys.modules:
-        module = sys.modules[module_name]
-
-        # print("module.__file__", module.__file__)
-        # print("path", path, flush=True)
-
-        if (
-            module.__file__.endswith(ext_suffix_short)
-            and Path(module.__file__) == path
-            or Path(module.__file__).with_suffix(ext_suffix_short) == path
-        ):
-            return module
 
     if "." in module_name:
         package_name, mod_name = module_name.rsplit(".", 1)
@@ -325,7 +313,14 @@ def import_from_path(path: Path, module_name: str):
     else:
         module_name = path.stem
 
-    # print("in util", module_name, str(path))
+    if module_name in sys.modules:
+        module = sys.modules[module_name]
+
+        if (
+            module.__file__.endswith(ext_suffix_short)
+            and Path(module.__file__) == path
+        ):
+            return module
 
     spec = importlib.util.spec_from_file_location(module_name, str(path))
     module = importlib.util.module_from_spec(spec)

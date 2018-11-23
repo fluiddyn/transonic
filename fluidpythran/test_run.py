@@ -39,7 +39,7 @@ def test_create_pythran_simple():
 
 def test_create_pythran_classic():
 
-    util.input = lambda : 'y'
+    util.input = lambda: "y"
 
     if path_dir_out.exists():
         rmtree(path_dir_out)

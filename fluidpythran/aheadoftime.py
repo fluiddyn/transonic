@@ -207,8 +207,12 @@ class FluidPythran:
 
         if "." in module_name:
             package, module_short_name = module_name.rsplit(".", 1)
+            module_pythran_name = package + "."
         else:
             module_short_name = module_name
+            module_pythran_name = ""
+
+        module_pythran_name += "__pythran__._" + module_short_name
 
         self.path_mod = path_mod = Path(frame.filename)
         self.path_pythran = path_pythran = (
@@ -263,10 +267,12 @@ class FluidPythran:
         self.is_transpiled = True
         if path_ext.exists() and not self.is_compiling:
             self.module_pythran = import_from_path(
-                self.path_extension, module_name
+                self.path_extension, module_pythran_name
             )
         elif path_pythran.exists():
-            self.module_pythran = import_from_path(path_pythran, module_name)
+            self.module_pythran = import_from_path(
+                path_pythran, module_pythran_name
+            )
         else:
             self.is_transpiled = False
             self.is_compiled = False
