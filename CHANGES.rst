@@ -1,7 +1,8 @@
 
-0.0.10 (?)
-----------
+0.1.0 (2018-11-23)
+------------------
 
+- Compatibility PyPy3.5
 - Fix bug script importing local script
 - Command line option "clear-cache"
 

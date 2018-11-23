@@ -1,6 +1,6 @@
 
 develop:
-	python setup.py develop
+	pip install -e .[test]
 
 black:
 	black -l 82 fluidpythran
