@@ -228,6 +228,9 @@ def make_pythran_code_functions(
             logger.warning("No Pythran signature for function " + name_func)
             continue
 
+        if not signatures:
+            raise RuntimeError("No Pythran signature for function " + name_func)
+
         for signature in signatures:
             code_pythran += f"# pythran export {signature}\n"
 

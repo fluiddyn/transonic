@@ -57,16 +57,15 @@ import os
 import sys
 import time
 
+from .pythranizer import compile_pythran_file, ext_suffix_short
 
 from .util import (
     get_module_name,
     has_to_build,
     get_source_without_decorator,
     path_root,
-    ext_suffix_short,
     get_info_from_ipython,
     make_hex,
-    compile_pythran_file,
     has_to_pythranize_at_import,
     import_from_path,
     pythran,

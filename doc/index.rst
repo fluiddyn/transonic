@@ -28,6 +28,7 @@ of the modules, classes and functions.
     fluidpythran.transpiler
     fluidpythran.annotation
     fluidpythran.cached_jit
+    fluidpythran.pythranizer
     fluidpythran.dist
     fluidpythran.run
     fluidpythran.log

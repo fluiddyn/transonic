@@ -11,6 +11,7 @@ from .annotation import Array, NDim, Type, Shape
 from .aheadoftime import FluidPythran, pythran_def, make_signature
 
 from .util import set_pythranize_at_import
+from .pythranizer import wait_for_all_extensions
 
 __all__ = [
     "__version__",
@@ -25,4 +26,5 @@ __all__ = [
     "cachedjit",
     "used_by_cachedjit",
     "set_pythranize_at_import",
+    "wait_for_all_extensions",
 ]

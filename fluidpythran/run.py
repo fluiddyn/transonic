@@ -17,12 +17,8 @@ from glob import glob
 from . import __version__
 from .transpiler import make_pythran_files
 from .log import logger, set_log_level
-from .util import (
-    compile_pythran_files,
-    ext_suffix_short,
-    has_to_build,
-    clear_cached_extensions,
-)
+from .pythranizer import compile_pythran_files, ext_suffix_short
+from .util import has_to_build, clear_cached_extensions
 
 try:
     import pythran

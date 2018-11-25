@@ -30,13 +30,13 @@ import subprocess
 
 from .util import (
     get_module_name,
-    compile_pythran_file,
     has_to_pythranize_at_import,
     import_from_path,
     has_to_build,
     modification_date,
-    name_ext_from_path_pythran,
 )
+
+from .pythranizer import compile_pythran_file, name_ext_from_path_pythran
 
 from .annotation import (
     make_signature_from_template_variables,
@@ -229,7 +229,15 @@ class FluidPythran:
                     time_pythran = 0
                 print(f"Running fluidpythran on file {path_mod}... ", end="")
                 # better to do this in another process because the file is already run...
-                subprocess.call(["fluidpythran", "-np", str(path_mod)])
+                returncode = subprocess.call(
+                    ["fluidpythran", "-np", str(path_mod)]
+                )
+                if returncode != 0:
+                    raise RuntimeError(
+                        "fluidpythran does not manage to produce the Pythran "
+                        f"file for {path_mod}"
+                    )
+
                 print("Done!")
 
                 path_ext = path_pythran.with_name(
@@ -259,7 +267,7 @@ class FluidPythran:
         ):
             print("Launching Pythran to compile a new extension...")
             self.process = compile_pythran_file(
-                path_pythran, name_ext_file=self.path_extension
+                path_pythran, name_ext_file=self.path_extension.name
             )
             self.is_compiling = True
             self.is_compiled = False

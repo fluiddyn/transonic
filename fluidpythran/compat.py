@@ -25,6 +25,7 @@ if implementation == "PyPy":
     def rmtree(path):
         shutil.rmtree(str(path))
 
+
 else:
 
     from builtins import open

@@ -8,9 +8,8 @@ try:
 except ImportError:
     pythran = None
 
-
 from .cached_jit import path_cachedjit, modules
-from .util import scheduler
+from .pythranizer import scheduler, wait_for_all_extensions
 
 scheduler.nb_cpus = 2
 
@@ -84,6 +83,11 @@ def test_cachedjit_dict():
 
     mod = modules[module_name]
     cjit = mod.cachedjit_functions["func_dict"]
+
+    d = dict(a=1, b=2)
+    func_dict(d)
+
+    wait_for_all_extensions()
 
     for _ in range(100):
         d = dict(a=1, b=2)
