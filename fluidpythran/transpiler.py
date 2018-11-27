@@ -21,6 +21,8 @@ Internal API
 
 .. autofunction:: make_pythran_file
 
+.. autofunction:: mock_modules
+
 """
 
 from tokenize import tokenize, untokenize, COMMENT, INDENT, DEDENT, STRING, NAME
@@ -33,8 +35,10 @@ from io import BytesIO
 from pathlib import Path
 from runpy import run_module, run_path
 import sys
+from unittest.mock import MagicMock as Mock
+from contextlib import contextmanager
 
-from typing import Iterable
+from typing import Iterable, Optional
 
 try:
     import black
@@ -260,16 +264,16 @@ def make_pythran_code(path_py: Path):
             sys.path.insert(0, "")
             try:
                 namespace = run_module(name_mod)
-            except ImportError as error:
-                logger.warning(
+            except ImportError:
+                logger.error(
                     f"fluidpythran was unable to import module {name_mod}: "
                     "no Pythran file created. "
-                    "You may need to rerun the install command or "
-                    "you could add '# FLUIDPYTHRAN_NO_IMPORT' "
-                    "in the module is needed..."
+                    "You could add '# FLUIDPYTHRAN_NO_IMPORT' "
+                    "in the module if needed..."
+                    "You could mock modules by using the argument mocked_modules to "
+                    "the function make_pythran_files."
                 )
-                print(error)
-                return
+                raise
             finally:
                 del sys.path[0]
         fluidpythran.aheadoftime.is_transpiling = False
@@ -441,7 +445,12 @@ imports: {imports}\n"""
     return code_pythran
 
 
-def make_pythran_file(path_py: Path, force=False, log_level=None):
+def make_pythran_file(
+    path_py: Path,
+    force=False,
+    log_level=None,
+    mocked_modules: Optional[Iterable] = None,
+):
     """Create a Python file from a Python file (if necessary)"""
     if log_level is not None:
         set_log_level(log_level)
@@ -463,7 +472,8 @@ def make_pythran_file(path_py: Path, force=False, log_level=None):
         logger.info(f"File {path_pythran} already up-to-date.")
         return
 
-    code_pythran = make_pythran_code(path_py)
+    with mock_modules(mocked_modules):
+        code_pythran = make_pythran_code(path_py)
 
     if not code_pythran:
         return
@@ -488,7 +498,12 @@ def make_pythran_file(path_py: Path, force=False, log_level=None):
     return path_pythran
 
 
-def make_pythran_files(paths: Iterable[Path], force=False, log_level=None):
+def make_pythran_files(
+    paths: Iterable[Path],
+    force=False,
+    log_level=None,
+    mocked_modules: Optional[Iterable] = None,
+):
     """Create Pythran files from a list of Python files"""
 
     if log_level is not None:
@@ -496,7 +511,9 @@ def make_pythran_files(paths: Iterable[Path], force=False, log_level=None):
 
     paths_out = []
     for path in paths:
-        path_out = make_pythran_file(path, force=force)
+        path_out = make_pythran_file(
+            path, force=force, mocked_modules=mocked_modules
+        )
         if path_out:
             paths_out.append(path_out)
 
@@ -513,3 +530,35 @@ def make_pythran_files(paths: Iterable[Path], force=False, log_level=None):
         )
 
     return paths_out
+
+
+class _MyMock(Mock):
+    @classmethod
+    def __getattr__(cls, name):
+        return Mock()
+
+
+@contextmanager
+def mock_modules(modules):
+    """Context manager to mock modules
+
+    Examples
+    --------
+
+    .. code::
+
+        with mock_modules(("h5py", "reikna.fft", "reikna.transformations")):
+            code_pythran = make_pythran_code(path_py)
+
+    """
+    if modules is not None:
+        modules = set(modules)
+        modules.difference_update(set(sys.modules.keys()))
+        sys.modules.update((mod_name, _MyMock()) for mod_name in modules)
+
+    try:
+        yield None
+    finally:
+        if modules is not None:
+            for mod_name in modules:
+                sys.modules.pop(mod_name)

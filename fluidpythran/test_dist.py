@@ -1,4 +1,3 @@
-
 import shutil
 
 from . import dist
@@ -24,7 +23,10 @@ def test_detect_pythran_extensions():
         "type_hint.py",
     ]
 
-    make_pythran_files(path_data_tests / name for name in names)
+    make_pythran_files(
+        (path_data_tests / name for name in names),
+        mocked_modules=("toto.titi", "numpy"),
+    )
     ext_names = detect_pythran_extensions(path_data_tests)
     assert len(ext_names) == len(names) - 1
 

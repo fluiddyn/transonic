@@ -3,6 +3,7 @@
 
 - :code:`wait_for_all_extensions`
 - Bug fixes
+- :code:`mocked_modules` argument for functions making AOT Pythran files
 
 0.1.0 (2018-11-23)
 ------------------
