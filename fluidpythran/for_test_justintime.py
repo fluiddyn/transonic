@@ -18,7 +18,7 @@ def func():
 
 
 @cachedjit
-def func1(a, l):
+def func1(a: "int[][] or float[]", l: list):
     tmp = np.exp(sum(l))
     result = tmp * a * func0(a) + func()
     return result

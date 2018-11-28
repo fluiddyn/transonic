@@ -271,10 +271,10 @@ class ArrayMeta(type):
         if dtype is None or ndim is None:
             raise ValueError
 
+        base = f"{dtype.__name__}"
         if ndim == 0:
-            raise NotImplementedError
-
-        return f"{dtype.__name__}[{', '.join([':']*ndim)}]"
+            return base
+        return base + f"[{', '.join([':']*ndim)}]"
 
 
 class Array(metaclass=ArrayMeta):
@@ -295,6 +295,20 @@ def compute_pythran_types_from_types(types, **kwargs):
             pythran_type = type_.__name__
         else:
             pythran_type = str(type_)
+            types = pythran_type.split(" or ")
+            new_types = []
+            for _type in types:
+                if "][" in _type:
+                    # C style: we try to rewrite it in Cython style
+                    base, dims = _type.split("[", 1)
+                    dims = ", ".join(
+                        [_ or ":" for _ in dims[:-1].split("][")]
+                    )
+                    _type = base + "[" + dims + "]"
+                elif _type.endswith("[]"):
+                    _type = _type[:-2] + "[:]"
+                new_types.append(_type)
+            pythran_type = " or ".join(new_types)
 
         pythran_types.append(pythran_type)
 

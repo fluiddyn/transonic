@@ -8,6 +8,7 @@ N = NDim(1, 3)
 A = Array[T, N]
 A1 = Array[np.float32, N + 1]
 
+A3d = Array[np.float32, "3d"]
 N1 = NDim(4, 5)
 N1 = NDim(4, 5)
 
