@@ -27,7 +27,7 @@ of the modules, classes and functions.
     fluidpythran.aheadoftime
     fluidpythran.transpiler
     fluidpythran.annotation
-    fluidpythran.cached_jit
+    fluidpythran.justintime
     fluidpythran.pythranizer
     fluidpythran.dist
     fluidpythran.run

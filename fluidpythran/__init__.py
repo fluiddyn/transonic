@@ -1,5 +1,5 @@
 from ._version import __version__
-from .cached_jit import cachedjit, used_by_cachedjit
+from .justintime import cachedjit, used_by_cachedjit
 
 try:
     from ._path_data_tests import path_data_tests

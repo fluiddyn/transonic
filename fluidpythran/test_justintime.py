@@ -8,12 +8,12 @@ try:
 except ImportError:
     pythran = None
 
-from .cached_jit import path_cachedjit, modules
+from .justintime import path_cachedjit, modules
 from .pythranizer import scheduler, wait_for_all_extensions
 
 scheduler.nb_cpus = 2
 
-module_name = "fluidpythran.for_test_cached_jit"
+module_name = "fluidpythran.for_test_justintime"
 
 path_pythran_dir = path_cachedjit / module_name.replace(".", os.path.sep)
 
@@ -32,7 +32,7 @@ delete_pythran_files("func_dict")
 def test_cachedjit():
 
     from time import sleep
-    from .for_test_cached_jit import func1
+    from .for_test_justintime import func1
 
     a = np.arange(2)
     b = [1, 2]
@@ -45,7 +45,7 @@ def test_cachedjit():
 def test_cachedjit_simple():
 
     from time import sleep
-    from .for_test_cached_jit import func2
+    from .for_test_justintime import func2
 
     func2(1)
 
@@ -66,14 +66,14 @@ def test_cachedjit_simple():
     del sys.modules[module_name]
     del modules[module_name]
 
-    from .for_test_cached_jit import func2
+    from .for_test_justintime import func2
 
     func2(1)
 
 
 def test_cachedjit_dict():
     from time import sleep
-    from .for_test_cached_jit import func_dict
+    from .for_test_justintime import func_dict
 
     d = dict(a=1, b=2)
     func_dict(d)

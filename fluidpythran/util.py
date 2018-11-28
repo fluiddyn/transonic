@@ -42,9 +42,7 @@ import importlib.util
 from distutils.util import strtobool
 import shutil
 
-
 from typing import Callable
-
 
 import astunparse
 
@@ -237,7 +235,7 @@ def clear_cached_extensions(module_name: str, force: bool = False):
 
     """
 
-    from .cached_jit import path_cachedjit
+    from .justintime import path_cachedjit
 
     if module_name.endswith(".py"):
         module_name = module_name[:-3]

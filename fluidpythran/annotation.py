@@ -179,18 +179,40 @@ class ArrayMeta(type):
 
         dtype = None
         ndim = None
+        params_filtered = []
         for param in parameters:
-            if isinstance(param, Type):
+            if isinstance(param, (Type, type)):
                 if dtype is not None:
                     raise ValueError
-            dtype = param
+                dtype = param
 
             if isinstance(param, NDim):
                 if ndim is not None:
                     raise ValueError
                 ndim = param
 
-        parameters = {p.__name__: p for p in parameters}
+            if (
+                isinstance(param, str)
+                and param[-1] == "d"
+                and param[0].isnumeric()
+            ):
+                try:
+                    tmp = int(param[:-1])
+                except ValueError:
+                    pass
+                else:
+                    if ndim is not None:
+                        raise ValueError
+                    param = ndim = NDim(
+                        tmp, _fp=_get_fluidpythran_calling_module()
+                    )
+
+            if isinstance(param, str):
+                raise ValueError(f"{param} cannot be interpretted...")
+
+            params_filtered.append(param)
+
+        parameters = {p.__name__: p for p in params_filtered}
 
         ArrayBis = type(
             "ArrayBis",

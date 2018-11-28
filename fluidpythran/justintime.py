@@ -57,6 +57,11 @@ import os
 import sys
 import time
 
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
 from .pythranizer import compile_pythran_file, ext_suffix_short
 
 from .util import (
@@ -165,10 +170,10 @@ def make_pythran_type_name(obj: object):
     """return the Pythran type name"""
     name = type(obj).__name__
 
-    if name == "ndarray":
+    if np and isinstance(obj, np.ndarray):
         name = obj.dtype.name
         if obj.ndim != 0:
-            name += "[" + ",".join([":"] * obj.ndim) + "]"
+            name += "[" + ", ".join([":"] * obj.ndim) + "]"
 
     if name in ("list", "set", "dict"):
         if not obj:
