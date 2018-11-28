@@ -58,15 +58,15 @@ class SchedulerPopen:
     def __init__(self, parallel=True):
         self.processes = []
         if parallel:
-            self.nb_cpus = multiprocessing.cpu_count()
+            self.limit_nb_processes = max(1, multiprocessing.cpu_count() // 2)
         else:
-            self.nb_cpus = 1
+            self.limit_nb_processes = 1
 
     def launch_popen(self, words_command, cwd=None, parallel=True):
         """Launch a program (blocking if too many processes launched)"""
 
         if parallel:
-            limit = self.nb_cpus
+            limit = self.limit_nb_processes
         else:
             limit = 1
 

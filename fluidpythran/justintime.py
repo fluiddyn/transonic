@@ -23,6 +23,8 @@ Internal API
 
 .. autofunction:: make_pythran_type_name
 
+.. autofunction:: set_compile_cachedjit
+
 Notes
 -----
 
@@ -56,6 +58,7 @@ import itertools
 import os
 import sys
 import time
+from distutils.util import strtobool
 
 try:
     import numpy as np
@@ -84,6 +87,14 @@ modules = {}
 
 path_cachedjit = path_root / "__cachedjit__"
 path_cachedjit.mkdir(parents=True, exist_ok=True)
+
+
+_COMPILE_CACHEDJIT = strtobool(os.environ.get("FLUID_COMPILE_CACHEDJIT", "True"))
+
+
+def set_compile_cachedjit(value):
+    global _COMPILE_CACHEDJIT
+    _COMPILE_CACHEDJIT = value
 
 
 class ModuleCachedJIT:
@@ -348,7 +359,7 @@ class CachedJIT:
         ext_files = list(path_pythran.parent.glob(glob_name_ext_file))
 
         if not ext_files:
-            if has_to_pythranize_at_import():
+            if has_to_pythranize_at_import() and _COMPILE_CACHEDJIT:
                 pythranize_with_new_header()
             self.pythran_func = None
         else:
@@ -374,7 +385,7 @@ class CachedJIT:
                 # need to compiled or recompile
                 pass
 
-            if self.compiling:
+            if self.compiling or not _COMPILE_CACHEDJIT:
                 return func(*args, **kwargs)
 
             arg_types = [

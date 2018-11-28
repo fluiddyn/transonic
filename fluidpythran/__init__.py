@@ -1,5 +1,5 @@
 from ._version import __version__
-from .justintime import cachedjit, used_by_cachedjit
+from .justintime import cachedjit, used_by_cachedjit, set_compile_cachedjit
 
 try:
     from ._path_data_tests import path_data_tests
@@ -25,6 +25,7 @@ __all__ = [
     "Shape",
     "cachedjit",
     "used_by_cachedjit",
+    "set_compile_cachedjit",
     "set_pythranize_at_import",
     "wait_for_all_extensions",
 ]
