@@ -1,11 +1,15 @@
-FluidPythran: use Pythran in non-pythranizable code
-===================================================
+FluidPythran: easily speedup your Python code with Pythran
+==========================================================
 
-|release| |coverage|
+|release| |docs| |coverage|
 
 .. |release| image:: https://img.shields.io/pypi/v/fluidpythran.svg
    :target: https://pypi.python.org/pypi/fluidpythran/
    :alt: Latest version
+
+.. |docs| image:: https://readthedocs.org/projects/fluidpythran/badge/?version=latest
+   :target: http://fluidpythran.readthedocs.org
+   :alt: Documentation status
 
 .. |coverage| image:: https://codecov.io/bb/fluiddyn/fluidpythran/branch/default/graph/badge.svg
    :target: https://codecov.io/bb/fluiddyn/fluidpythran/branch/default/
@@ -14,27 +18,31 @@ FluidPythran: use Pythran in non-pythranizable code
 
 .. warning ::
 
-   FluidPythran is still just a prototype. Remarks and suggestions are very
+   FluidPythran is in an early stage. Remarks and suggestions are very
    welcome.
 
-   FluidPythran just starts to be used in `FluidSim
+   FluidPythran starts to be used in `FluidSim
    <https://bitbucket.org/fluiddyn/fluidsim>`_ (for example in `this file
-   <https://bitbucket.org/fluiddyn/fluidsim/src/c0e170ea7c68f2abc4b0f7749b1c89df79db6573/fluidsim/base/time_stepping/pseudo_spect.py>`_).
-
-   See also `this blog post
-   <http://www.legi.grenoble-inp.fr/people/Pierre.Augier/broadcasting-numpy-abstraction-cython-pythran-fluidpythran.html>`_
-   for an explanation of my motivations.
+   <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_).
 
 FluidPythran is a pure Python package (requiring Python >= 3.6 or Pypy3) to
-help to write Python code that can use `Pythran
-<https://github.com/serge-sans-paille/pythran>`_.
+help to write Python code that *can* use `Pythran
+<https://github.com/serge-sans-paille/pythran>`_ if it is available.
 
-Let's recall that "Pythran is an ahead of time compiler for a subset of the
-Python language, with a focus on scientific computing. It takes a Python module
-annotated with a few interface description and turns it into a native Python
-module with the same interface, but (hopefully) faster."
+Let's recall that "Pythran is an ahead-of-time (AOT) compiler for a subset of
+the Python language, with a focus on scientific computing. It takes a Python
+module annotated with a few interface description and turns it into a native
+Python module with the same interface, but (hopefully) faster."
 
-**FluidPythran does not depend on Pythran.**
+Pythran is able to produce **very efficient C++ code and binaries from high
+level Numpy code**. If the algorithm is easier to express without loops, don't
+write loops!
+
+Pythran always releases the GIL and can use SIMD instructions and OpenMP!
+
+**Pythran is not a hard dependency of FluidPythran:** Python code using
+FluidPythran run fine without Pythran and without compilation (and of course
+without speedup)!
 
 Overview
 --------
@@ -44,29 +52,51 @@ scientific programs and libraries.
 
 To use Pythran, one needs to isolate the numerical kernels functions in modules
 that are compiled by Pythran. The C++ code produced by Pythran never uses the
-Python interpretor. It means that only a subset of what is doable in Python can
+Python interpreter. It means that only a subset of what is doable in Python can
 be done in Pythran files. Some `language features
 <https://pythran.readthedocs.io/en/latest/MANUAL.html#disclaimer>`_ are not
 supported by Pythran (for example no classes) and most of the extension
 packages cannot be used in Pythran files (basically `only Numpy and some Scipy
 functions <https://pythran.readthedocs.io/en/latest/SUPPORT.html>`_).
 
+Another cause of frustration for Python developers when using Pythran is
+related to manual writting of Pythran function signatures in comments, which
+can not be automated. Pythran uses C++ templates but Pythran users can not
+think with this concept. We would like to be able to **express the templated
+nature of Pythran with modern Python syntax** (in particular **type
+annotations**). Finally, another limitation is that it is not possible to use
+Pythran for **just-in-time** (JIT) compilation so one needs to manually write
+all argument types.
+
 With FluidPythran, we try to overcome these limitations. FluidPythran provides
-few supplementary Pythran commands and a tiny Python API to define Pythran
+few supplementary Pythran commands and a small Python API to define Pythran
 functions without writing the Pythran modules. The code of the numerical
 kernels can stay in the modules and in the classes where they were written. The
 Pythran files (i.e. the files compiled by Pythran), which are usually written
 by the user, are produced automatically by FluidPythran.
 
-**Implementation detail:** For each Python file using FluidPythran, an
-associated Pythran file is created in a directory :code:`_pythran`. For
-example, for a Python file :code:`foo.py`, the associated file would be
-:code:`_pythran/_foo.py`.
+Bonus: There are FluidPythran syntaxes for both **ahead-of-time** and
+**just-in-time** compilations!
 
-At run time, FluidPythran replaces the Python functions (and blocks) by their
-versions in the Pythran files.
+At run time, FluidPythran uses when possible the pythranized functions, but
+let's stress again that codes using FluidPythran work fine without Pythran (of
+course without speedup)!
 
-Let's stress again that codes using FluidPythran work fine without Pythran!
+To summarize, a **strategy to quickly develop a very efficient scientific
+application/library** with Python could be:
+
+- Use modern Python coding, standard Numpy/Scipy for the computations and all
+  the cool libraries you want.
+
+- Profile your applications on real cases, detect the bottlenecks and apply
+  standard optimizations with Numpy.
+
+- Add few lines of FluidPythran to compile the hot spots.
+
+**Implementation details:** Under the hood, FluidPythran creates Pythran files
+(one per module for AOT compilation and one per function for JIT compilation)
+that can be compiled at build, import or run times depending of the cases. Note
+that the developers can still read the Pythran files if needed.
 
 Installation
 ------------
@@ -75,8 +105,8 @@ Installation
 
    pip install fluidpythran
 
-Using Pythran in Python files
------------------------------
+A short tour of FluidPythran syntaxes
+-------------------------------------
 
 Command :code:`# pythran def`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -108,11 +138,78 @@ Most of this code looks familiar to Pythran users. The differences:
   Python function by the pythranized function if FluidPythran has been used to
   produced the associated Pythran file.
 
+
+Pythran using type annotations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The previous example can be rewritten without Pythran commands:
+
+.. code :: python
+
+    import h5py
+    import mpi4py
+
+    from fluidpythran import pythran_def
+
+    @pythran_def
+    def myfunc(a: int, b: float):
+        return a * b
+
+    ...
+
+Nice but very limited... So it is possible to mix type hints and :code:`#
+pythran def` commands. Moreover, one can also elegantly define many Pythran
+signatures with type variables (see `these examples in the documentation
+<https://fluidpythran.readthedocs.io/en/latest/examples/type_hints.html>`_).
+
+
+Cached Just-In-Time compilation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+With FluidPythran, one can use the Ahead-Of-Time compiler Pythran in a
+Just-In-Time mode. It is really the **easiest way to speedup a function with
+Pythran**, just by adding a decorator! And it also works `in notebooks
+<https://fluidpythran.readthedocs.io/en/latest/ipynb/executed/demo_cachedjit.html>`_!
+
+It is a "work in progress" so (i) it could be buggy and (ii) the API is not
+great, but it is a good start!
+
+.. code :: python
+
+    import numpy as np
+
+    # pythran import numpy as numpy
+
+    from fluidpythran import cachedjit, used_by_cachedjit
+
+    @used_by_cachedjit("func1")
+    def func0(a, b):
+        return a + b
+
+    @cachedjit
+    def func1(a, b):
+        return np.exp(a) * b * func0(a, b)
+
+Note that the :code:`@cachedjit` decorator takes into account type hints (see
+`the example in the documentation
+<https://fluidpythran.readthedocs.io/en/latest/examples/using_cachedjit.html>`_).
+
+If the environment variable :code:`PYTHRANIZE_AT_IMPORT` is set, fluidpythran
+compiles at import time the functions with type hints.
+
+**Implementation details for just-in-time compilation:** A Pythran file is
+produced for each "cachedjited" function (function decorated with
+:code:`@cachedjit`). The file is compiled at the first call of the function and
+the compiled version is used as soon as it is ready. The warmup can be quite
+long but the compiled version is saved and can be reused (without warmup!) by
+another process.
+
+
 Command :code:`# pythran block`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-One of the most evident application of :code:`# pythran block` is code in
-classes:
+FluidPythran blocks can be used with classes and more generally in functions
+with lines that cannot be compiled by Pythran.
 
 .. code :: python
 
@@ -127,7 +224,7 @@ classes:
         def func(self, n):
             a, b = self.something_that_cannot_be_pythranized()
 
-            if fp.is_pythranized:
+            if fp.is_transpiled:
                 result = fp.use_pythranized_block("name_block")
             else:
                 # pythran block (
@@ -152,71 +249,50 @@ For blocks, we need a little bit more of Python.
 
 - In the function, we define a block with three lines of Python and special
   Pythran annotations (:code:`# pythran block`). The 3 lines of Python are used
-  (i) at run time to choose between the two branches (:code:`is_pythranized` or
+  (i) at run time to choose between the two branches (:code:`is_transpiled` or
   not) and (ii) at compile time to detect the blocks.
 
 Note that the annotations in the command :code:`# pythran block` are different
 (and somehow easier to write) than in the standard command :code:`# pythran
 export`.
 
-.. note ::
+`Blocks can now also be defined with type hints!
+<https://fluidpythran.readthedocs.io/en/latest/examples/blocks.html>`_
 
-    Moreover, for the time being, one needs to explicitly write the "returned"
-    variables (after :code:`->`). However, it is a redundant information so we
-    could avoid this in future (see `issue #1
-    <https://bitbucket.org/fluiddyn/fluidpythran/issues/1/no-need-for-explicit-return-values-in>`_).
 
-.. warning ::
+Python classes: :code:`@pythran_def` for methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    The two branches of the :code:`if fp.is_pythranized` are not equivalent! The
-    user has to be careful because it is not difficult to write such buggy code:
+Just a NotImplemented idea! See https://bitbucket.org/fluiddyn/fluidpythran/issues/3
 
-    .. code :: python
-
-        c = 0
-        if fp.is_pythranized:
-            a, b = fp.use_pythranized_block("buggy_block")
-        else:
-            # pythran block () -> (a, b)
-            a = b = c = 1
-
-        assert c == 1
-
-.. note ::
-
-    The Pythran keyword :code:`or` cannot be used in block annotations (not yet
-    implemented, see `issue #2
-    <https://bitbucket.org/fluiddyn/fluidpythran/issues/2/implement-keyword-or-in-block-annotation>`_).
-
-Command :code:`# pythran class`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Just a NotImplemented idea! See https://bitbucket.org/fluiddyn/fluidpythran/issues/3/pythran-class
-
-For simple methods only using simple attributes, if could be simple and useful
-to support this:
+For simple methods only using simple attributes, if could be simple and *very*
+useful to support this:
 
 .. code :: python
 
-    from fluidpythran import pythran_class
+    from fluidpythran import Type, NDim, Array, pythran_def
 
     import numpy as np
 
-    @pythran_class
+    T = Type(int, np.float64)
+    N = NDim(1)
+
+    A1 = Array[T, N]
+    A2 = Array[float, N+1]
+
     class MyClass:
-        # pythran class (
-        #     int[] or float[]: arr0, arr1;
-        #     float[][]: arr2
-        # )
+
+        arr0: A1
+        arr1: A1
+        arr2: A2
 
         def __init__(self, n, dtype=int):
             self.arr0 = np.zeros(n, dtype=dtype)
             self.arr1 = np.zeros(n, dtype=dtype)
             self.arr2 = np.zeros(n)
 
-        # pythran def compute(object, float)
-
-        def compute(self, alpha):
+        @pythran_def
+        def compute(self, alpha: int):
             tmp = (self.arr0 + self.arr1).mean()
             return tmp ** alpha * self.arr2
 
@@ -224,7 +300,8 @@ Make the Pythran files
 ----------------------
 
 There is a command-line tool :code:`fluidpythran` which makes the associated
-Pythran files from Python files with annotations and fluidpythran code.
+Pythran files from Python files with annotations and fluidpythran code. By
+default and if Pythran is available, the Pythran files are compiled.
 
 There is also a function :code:`make_pythran_files` that can be used in a
 setup.py like this:
@@ -240,12 +317,16 @@ setup.py like this:
     paths = ["fluidsim/base/time_stepping/pseudo_spect.py"]
     make_pythran_files([here / path for path in paths])
 
-Note that FluidPythran never uses Pythran. Compiling the associated Pythran
-file can be done if wanted (see for example how it is done in the example
-package `example_package_fluidpythran
+Note that the function :code:`make_pythran_files` does not use Pythran.
+Compiling the associated Pythran file can be done if wanted (see for example
+how it is done in the example package `example_package_fluidpythran
 <https://bitbucket.org/fluiddyn/example_package_fluidpythran>`_ or in
 `fluidsim's setup.py
 <https://bitbucket.org/fluiddyn/fluidsim/src/default/setup.py>`_).
+
+If the environment variable :code:`PYTHRANIZE_AT_IMPORT` is set, FluidPythran
+compiles at import time (i.e. only when needed) the Pythran file associated
+with the imported module.
 
 License
 -------

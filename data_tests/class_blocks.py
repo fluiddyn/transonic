@@ -19,7 +19,7 @@ class MyClass:
         a = self.a
         b = self.b
 
-        if fp.is_pythranized:
+        if fp.is_transpiled:
             result = fp.use_pythranized_block("block0")
         else:
             # pythran block (
@@ -40,13 +40,13 @@ class MyClass:
 
         a = result
 
-        if fp.is_pythranized:
+        if fp.is_transpiled:
             result = fp.use_pythranized_block("block1")
         else:
             # pythran block (
             #     float[][] a, b;
             #     int n
-            # ) -> (result, a)
+            # ) -> (result)
             # blabla
 
             # blibli
@@ -54,7 +54,7 @@ class MyClass:
             # pythran block (
             #     float[][][] a, b;
             #     int n
-            # ) -> (result, a)
+            # ) -> (result)
             result = np.zeros_like(a)
             for _ in range(n):
                 result += a ** 2 + b ** 3
@@ -64,18 +64,21 @@ class MyClass:
 
 if __name__ == "__main__":
 
-    shape = 100, 100
+    shape = 2, 2
     a = np.random.rand(*shape)
     b = np.random.rand(*shape)
 
     obj = MyClass(a, b)
 
-    obj.compute(10)
+    ret0 = obj.compute(10)
 
-    if fp.is_pythranized:
+    print("(is_transpiled, is_compiling, is_compiled)", (fp.is_transpiled, fp.is_compiling, fp.is_compiled))
+
+    if fp.is_transpiled:
         ret = obj.compute(10)
-        fp.is_pythranized = False
+        assert np.allclose(ret, ret0), (ret - ret0)
+        fp.is_transpiled = False
         ret1 = obj.compute(10)
-        fp.is_pythranized = True
-        assert np.allclose(ret, ret1)
+        fp.is_transpiled = True
+        assert np.allclose(ret, ret1), (ret - ret1)
         print("allclose OK")

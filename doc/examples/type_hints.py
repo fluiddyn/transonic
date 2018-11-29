@@ -1,12 +1,12 @@
 import numpy as np
 import fluidpythran as fp
+from fluidpythran import Type, NDim, Array
 
-T = fp.TypeVar("T")
-T1 = fp.TypeVar("T1")
-N = fp.NDimVar("N")
+T = Type("T")
+N = NDim("N")
 
-A = fp.Array[T, N]
-A1 = fp.Array[T1, N + 1]
+A = Array[T, N]
+A1 = Array[np.int8, N + 1]
 
 
 @fp.pythran_def
@@ -18,7 +18,7 @@ def compute(a: A, b: A, c: T, d: A1, e: str):
 
 for dtype in [int, np.complex128]:
     for ndim in [1, 3]:
-        fp.make_signature(compute, T=dtype, N=ndim, T1=float)
+        fp.make_signature(compute, T=dtype, N=ndim)
 
 
 if __name__ == "__main__":
@@ -27,6 +27,6 @@ if __name__ == "__main__":
     shape = [2]
 
     a = b = np.zeros(shape, dtype=int)
-    d = np.zeros(shape + [2], dtype=float)
+    d = np.zeros(shape + [2], dtype=np.int8)
 
     compute(a, b, 5, d, "hello")

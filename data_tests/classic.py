@@ -3,6 +3,8 @@ import numpy as np
 
 from fluidpythran import pythran_def
 
+# FLUIDPYTHRAN_NO_IMPORT
+
 # pythran import numpy as np
 
 # pythran def func(

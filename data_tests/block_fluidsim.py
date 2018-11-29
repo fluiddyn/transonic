@@ -17,7 +17,7 @@ class MyClass:
 
         state_spect_n12 = self._state_spect_tmp
 
-        if fp.is_pythranized:
+        if fp.is_transpiled:
             fp.use_pythranized_block("rk2_step0")
         else:
             # pythran block (

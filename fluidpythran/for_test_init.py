@@ -27,7 +27,7 @@ fp = FluidPythran()
 def func1(a, b):
     n = 10
 
-    if fp.is_pythranized:
+    if fp.is_transpiled:
         result = fp.use_pythranized_block("block0")
     else:
         # pythran block (
@@ -36,6 +36,6 @@ def func1(a, b):
         # ) -> (result, a)
         # blabla
 
-        result = np.zeros_like(a)
+        result = 0.0
         for _ in range(n):
             result += a ** 2 + b ** 3

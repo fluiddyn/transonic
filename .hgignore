@@ -2,10 +2,13 @@ syntax: glob
 
 __pycache__
 .vscode/
+*~
 
 doc/_build/*
 doc/**generated/*
 doc/**.zip
+
+**/.ipynb_checkpoints/*
 
 build/*
 dist/*.tar.gz
@@ -13,10 +16,15 @@ dist*
 .tox/*
 .coverage/*
 
+**/tmp*.py
+
+doc/ipynb/executed/*.rst
+doc/ipynb/*.rst
+
 .pytest_cache
 
 *.egg-info/*
 
-**/_pythran/_*
+**/__pythran__/_*
 
 fluidpythran/_path_data_tests.py

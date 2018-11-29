@@ -1,12 +1,13 @@
 import numpy as np
 import fluidpythran as fp
+from fluidpythran import Type, NDim, Array
 
-T = fp.TypeVar("T")
-T1 = fp.TypeVar("T1")
-N = fp.NDimVar("N")
+T = Type("T")
+T1 = Type("T1")
+N = NDim("N")
 
-A = fp.Array[T, N]
-A1 = fp.Array[T1, N + 1]
+A = Array[T, N]
+A1 = Array[T1, N + 1]
 
 # for coverage
 assert repr(N - 1) == "N - 1"

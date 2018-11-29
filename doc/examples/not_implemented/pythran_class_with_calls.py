@@ -1,5 +1,4 @@
 """
-
 With classes, we have a problem with heritage. Note that for standard functions
 (like sum_arrays), we actually also have the problem with monkey patching.
 
@@ -16,41 +15,47 @@ case in `pythran_class.py` and more complicated than what is needed for
 
 """
 
-from fluidpythran import pythran_class
+from fluidpythran import Type, NDim, Array, pythran_def
 
 import numpy as np
+
+
+T = Type(int, np.float64)
+N = NDim(1)
+
+A1 = Array[T, N]
+A2 = Array[float, N + 1]
+
 
 def sum_arrays(arr0, arr1):
     return arr0 + arr1
 
-@pythran_class
+
 class MyClass:
-    # pythran class (
-    #     int[] or float[]: arr0, arr1;
-    #     float[][]: arr2
-    # )
+
+    arr0: A1
+    arr1: A1
+    arr2: A2
 
     def __init__(self, n, dtype=int):
         self.arr0 = np.zeros(n, dtype=dtype)
         self.arr1 = np.zeros(n, dtype=dtype)
         self.arr2 = np.zeros(n)
 
-    # pythran def compute(object, float)
-
-    def compute(self, alpha):
+    @pythran_def
+    def compute(self, alpha: float):
         tmp = self.sum_arrays().mean()
         return tmp ** alpha * self.arr2
 
     def sum_arrays(self):
         return self.arr0 + self.arr1
 
-    # pythran def compute1(object, float)
-
-    def compute1(self, alpha):
+    @pythran_def
+    def compute1(self, alpha: float):
         tmp = sum_arrays(self.arr0, self.arr1).mean()
         return tmp ** alpha * self.arr2
 
 
 class MyClassChild(MyClass):
     def sum_arrays(self):
-        return 2*self.arr0 + self.arr1
+        return 2 * self.arr0 + self.arr1

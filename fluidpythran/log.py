@@ -1,3 +1,10 @@
+"""Logging
+==========
+
+Defines the fluidpythran logger (variable :code:`logger`).
+
+"""
+
 import logging
 
 logger = logging.getLogger("fluidpythran")
