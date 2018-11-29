@@ -32,6 +32,7 @@ import sysconfig
 import hashlib
 
 from .compat import open, implementation
+from . import mpi
 
 ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 
@@ -56,6 +57,8 @@ class SchedulerPopen:
     deltat = 0.2
 
     def __init__(self, parallel=True):
+        if mpi.rank > 0:
+            return
         self.processes = []
         if parallel:
             self.limit_nb_processes = max(1, multiprocessing.cpu_count() // 2)
@@ -64,6 +67,8 @@ class SchedulerPopen:
 
     def launch_popen(self, words_command, cwd=None, parallel=True):
         """Launch a program (blocking if too many processes launched)"""
+        if mpi.rank > 0:
+            return
 
         if parallel:
             limit = self.limit_nb_processes
@@ -86,11 +91,14 @@ class SchedulerPopen:
 
     def wait_for_all_extensions(self):
         """Wait until all compilation processes are done"""
-        while self.processes:
-            time.sleep(self.deltat)
-            self.processes = [
-                process for process in self.processes if process.poll() is None
-            ]
+        if mpi.rank == 0:
+            while self.processes:
+                time.sleep(self.deltat)
+                self.processes = [
+                    process for process in self.processes if process.poll() is None
+                ]
+
+        mpi.barrier()
 
 
 scheduler = SchedulerPopen()
@@ -103,18 +111,28 @@ def wait_for_all_extensions():
 
 def name_ext_from_path_pythran(path_pythran):
     """Return an extension name given the path of a Pythran file"""
-    if path_pythran.exists():
-        with open(path_pythran) as file:
-            src = file.read()
-    else:
-        src = ""
+    if mpi.rank == 0:
+        if path_pythran.exists():
+            with open(path_pythran) as file:
+                src = file.read()
+        else:
+            src = ""
 
-    return path_pythran.stem + "_" + make_hex(src) + ext_suffix_short
+        name = path_pythran.stem + "_" + make_hex(src) + ext_suffix_short
+    else:
+        name = None
+
+    if mpi.nb_proc > 1:
+        name = mpi.comm.bcast(name, root=0)
+
+    return name
 
 
 def compile_pythran_files(
     paths: Iterable[Path], str_pythran_flags: str, parallel=True
 ):
+    if mpi.rank > 0:
+        return
 
     pythran_flags = str_pythran_flags.strip().split()
 
@@ -135,6 +153,8 @@ def compile_pythran_file(
     xsimd=True,
     openmp=False,
 ):
+    if mpi.rank > 0:
+        return
 
     if not isinstance(path, Path):
         path = Path(path)

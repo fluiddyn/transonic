@@ -81,6 +81,7 @@ from .util import (
 from .annotation import make_signatures_from_typehinted_func
 
 from .compat import open
+from . import mpi
 
 modules = {}
 
@@ -249,10 +250,10 @@ class CachedJIT:
         mod = _get_module_cachedjit(index_frame)
         mod.cachedjit_functions[func_name] = self
         module_name = mod.module_name
-        print(f"Make new function to replace {func_name} ({module_name})")
 
         path_pythran = path_cachedjit / module_name.replace(".", os.path.sep)
-        path_pythran.mkdir(parents=True, exist_ok=True)
+        if mpi.rank == 0:
+            path_pythran.mkdir(parents=True, exist_ok=True)
 
         path_pythran = (path_pythran / func_name).with_suffix(".py")
         path_pythran_header = path_pythran.with_suffix(".pythran")
@@ -267,7 +268,7 @@ class CachedJIT:
 
         src = None
 
-        if has_to_write:
+        if has_to_write and mpi.rank == 0:
             import_lines = [
                 line.split("# pythran ")[1]
                 for line in mod.get_source().split("\n")
@@ -297,6 +298,8 @@ class CachedJIT:
         if src is None:
             with open(path_pythran) as file:
                 src = file.read()
+
+        # FIXME MPI all processes have to get these 2 variables
 
         # hash from src (to produce the extension name)
         hex_src = make_hex(src)
