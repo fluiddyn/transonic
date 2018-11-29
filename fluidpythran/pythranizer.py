@@ -24,6 +24,7 @@ Internal API
 """
 
 import multiprocessing
+import threading
 import subprocess
 import time
 from pathlib import Path
@@ -59,46 +60,112 @@ class SchedulerPopen:
     def __init__(self, parallel=True):
         if mpi.rank > 0:
             return
-        self.processes = []
+        self.threads = []
         if parallel:
             self.limit_nb_processes = max(1, multiprocessing.cpu_count() // 2)
         else:
             self.limit_nb_processes = 1
 
-    def launch_popen(self, words_command, cwd=None, parallel=True):
-        """Launch a program (blocking if too many processes launched)"""
-        if mpi.rank > 0:
-            return
+    def block_until_avail(self, parallel=True):
 
         if parallel:
             limit = self.limit_nb_processes
         else:
             limit = 1
 
-        while len(self.processes) >= limit:
+        while len(self.threads) >= limit:
             time.sleep(self.deltat)
-            self.processes = [
-                process for process in self.processes if process.poll() is None
+            self.threads = [
+                thread for thread in self.threads if thread.is_alive()
             ]
 
-        if implementation == "PyPy":
-            cwd = str(cwd)
-            words_command = [str(word) for word in words_command]
+    # def launch_popen(self, words_command, cwd=None, parallel=True):
+    #     """Launch a program (blocking if too many processes launched)"""
 
-        process = subprocess.Popen(words_command, cwd=cwd)
-        self.processes.append(process)
-        return process
+    #     if parallel:
+    #         limit = self.limit_nb_processes
+    #     else:
+    #         limit = 1
+
+    #     while len(self.processes) >= limit:
+    #         time.sleep(self.deltat)
+    #         self.processes = [
+    #             process for process in self.processes if process.poll() is None
+    #         ]
+
+    #     if implementation == "PyPy":
+    #         cwd = str(cwd)
+    #         words_command = [str(word) for word in words_command]
+
+    #     process = subprocess.Popen(words_command, cwd=cwd)
+    #     self.processes.append(process)
+    #     return process
 
     def wait_for_all_extensions(self):
         """Wait until all compilation processes are done"""
         if mpi.rank == 0:
-            while self.processes:
+            while self.threads:
                 time.sleep(self.deltat)
-                self.processes = [
-                    process for process in self.processes if process.poll() is None
+                self.threads = [
+                    thread
+                    for thread in self.threads
+                    if thread.is_alive()
                 ]
 
         mpi.barrier()
+
+    def compile_with_pythran(
+        self,
+        path: Path,
+        native=True,
+        xsimd=True,
+        openmp=False,
+        str_pythran_flags: Optional[str] = None,
+    ):
+        if str_pythran_flags is not None:
+            flags = str_pythran_flags.split()
+        else:
+            flags = []
+
+        def update_flags(flag):
+            if flag not in flags:
+                flags.append(flag)
+
+        if native:
+            update_flags("-march=native")
+
+        if xsimd:
+            update_flags("-DUSE_XSIMD")
+
+        if openmp:
+            update_flags("-fopenmp")
+
+        def create_extension():
+
+            words_command = [".pythran-fluid", path.name]
+            words_command.extend(flags)
+
+            cwd = path.parent
+            if implementation == "PyPy":
+                cwd = str(cwd)
+                words_command = [str(word) for word in words_command]
+
+            # we don't use subprocess.call on purpose
+            process = subprocess.Popen(words_command, cwd=cwd)
+
+            while process.poll() is None:
+                time.sleep(0.2)
+
+        # FIXME lock file...
+
+        thread = None
+        if mpi.rank == 0:
+            thread = threading.Thread(target=create_extension, daemon=True)
+
+        if mpi.nb_proc > 1:
+            thread = mpi.ShellThreadMPI(thread)
+
+        self.threads.append(thread)
 
 
 scheduler = SchedulerPopen()
@@ -111,6 +178,8 @@ def wait_for_all_extensions():
 
 def name_ext_from_path_pythran(path_pythran):
     """Return an extension name given the path of a Pythran file"""
+
+    name = None
     if mpi.rank == 0:
         if path_pythran.exists():
             with open(path_pythran) as file:
@@ -119,21 +188,13 @@ def name_ext_from_path_pythran(path_pythran):
             src = ""
 
         name = path_pythran.stem + "_" + make_hex(src) + ext_suffix_short
-    else:
-        name = None
 
-    if mpi.nb_proc > 1:
-        name = mpi.comm.bcast(name, root=0)
-
-    return name
+    return mpi.bcast(name)
 
 
 def compile_pythran_files(
     paths: Iterable[Path], str_pythran_flags: str, parallel=True
 ):
-    if mpi.rank > 0:
-        return
-
     pythran_flags = str_pythran_flags.strip().split()
 
     for path in paths:
