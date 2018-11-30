@@ -136,7 +136,7 @@ class CheckCompiling:
             return self.func(*args, **kwargs)
 
         fp = self.fp
-        if fp.is_compiling and fp.process.poll() is not None:
+        if fp.is_compiling and not fp.process.is_alive():
             fp.is_compiling = False
             time.sleep(0.1)
             fp.module_pythran = import_from_path(
@@ -366,7 +366,7 @@ class FluidPythran:
                 "by `if fp.is_transpiled`"
             )
 
-        if self.is_compiling and self.process.poll() is not None:
+        if self.is_compiling and not self.process.is_alive():
             self.is_compiling = False
             time.sleep(0.1)
             self.module_pythran = import_from_path(

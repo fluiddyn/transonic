@@ -1,3 +1,21 @@
+
+Future
+------
+
+- :code:`pythran_def` for simple methods (without assignation to attributes
+  and call of other methods)
+
+0.1.2 (?)
+---------
+
+- Private command line :code:`.pythran-fluid` to call Pythran
+- MPI aware (only process rank == 0 doing IO and compilation)
+- Fix bug C-style `[][]`
+- :code:`Array[float, "2d"]` supported
+- :code:`NDim(0)` supported
+- Function :code:`set_compile_cachedjit()` to disable compilation of
+  cachedjit functions
+
 0.1.1 (2018-11-28)
 ------------------
 

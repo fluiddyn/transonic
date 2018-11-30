@@ -33,18 +33,21 @@ def bcast(value, root=0):
     return value
 
 
-class ShellThreadMPI:
-    def __init__(self, thread, root=0):
+class ShellProcessMPI:
+    def __init__(self, process, root=0):
 
         if rank != root:
-            assert thread is None
+            assert process is None
 
-        self.thread = thread
+        self.process = process
         self.root = root
 
     def is_alive(self):
         if rank == self.root:
-            is_alive = self.thread.is_alive()
+            is_alive = self.is_alive_root()
         else:
             is_alive = None
         return bcast(is_alive, self.root)
+
+    def is_alive_root(self):
+        return self.process.poll() is None

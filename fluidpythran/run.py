@@ -8,16 +8,20 @@ Internal API
 
 .. autofunction:: parse_args
 
+.. autofunction:: pythran_fluid
+
 """
 
 import argparse
 from pathlib import Path
 from glob import glob
+import subprocess
+import sys
 
 from . import __version__
 from .transpiler import make_pythran_files
 from .log import logger, set_log_level
-from .pythranizer import compile_pythran_files, ext_suffix_short
+from .pythranizer import compile_pythran_files, ext_suffix
 from .util import has_to_build, clear_cached_extensions
 
 try:
@@ -84,7 +88,7 @@ def run():
     for path in paths:
         path = Path(path)
         pythran_path = path.parent / "__pythran__" / ("_" + path.name)
-        ext_path = pythran_path.with_suffix(ext_suffix_short)
+        ext_path = pythran_path.with_suffix(ext_suffix)
         if has_to_build(ext_path, pythran_path):
             pythran_paths.append(pythran_path)
 
@@ -140,3 +144,35 @@ def parse_args():
     )
 
     return parser.parse_args()
+
+
+def pythran_fluid():
+    """Minimal layer above the Pythran commandline"""
+
+    if not pythran:
+        logger.error("Pythran does not seem to be importable")
+
+    assert sys.argv[0].endswith("_pythran-fluid")
+
+    args = sys.argv[1:]
+
+    path = Path.cwd() / args[0]
+    logger.info(f"Pythranize {path}")
+
+    if "-o" in args:
+        index_output = args.index("-o") + 1
+        name_out = args[index_output]
+        name_out_base = name_out.split(".", 1)[0]
+        name_tmp = name_out_base + ".tmp"
+        args[index_output] = name_tmp
+
+    args.insert(0, "pythran")
+    subprocess.call(args)
+
+    path_tmp = Path(name_tmp)
+    if path_tmp.exists():
+        path_out = path_tmp.with_suffix(ext_suffix)
+        path_tmp.rename(path_out)
+        logger.info(f"file {Path.cwd() / path_out.name} created")
+    else:
+        logger.error(f"file {Path.cwd() / path_tmp.name} has not been created by Pythran")

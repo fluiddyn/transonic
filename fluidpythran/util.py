@@ -59,7 +59,6 @@ except ImportError:
 from .compat import implementation
 from .pythranizer import (
     ext_suffix,
-    ext_suffix_short,
     name_ext_from_path_pythran,
     make_hex,
 )
@@ -177,12 +176,6 @@ def import_from_path(path: Path, module_name: str):
             f"[path.name for path in path.parent.glob('*')]:\n{[path.name for path in path.parent.glob('*')]}\n"
         )
 
-    if implementation == "PyPy" and path.suffix == ext_suffix_short:
-        new_path = path.with_suffix(ext_suffix)
-        if has_to_build(new_path, path):
-            shutil.copy(str(path), str(new_path))
-        path = new_path
-
     if "." in module_name:
         package_name, mod_name = module_name.rsplit(".", 1)
         name_file = path.name.split(".", 1)[0]
@@ -195,7 +188,7 @@ def import_from_path(path: Path, module_name: str):
         module = sys.modules[module_name]
 
         if (
-            module.__file__.endswith(ext_suffix_short)
+            module.__file__.endswith(ext_suffix)
             and Path(module.__file__) == path
         ):
             return module

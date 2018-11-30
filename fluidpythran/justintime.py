@@ -65,7 +65,7 @@ try:
 except ImportError:
     np = None
 
-from .pythranizer import compile_pythran_file, ext_suffix_short
+from .pythranizer import compile_pythran_file, ext_suffix
 
 from .util import (
     get_module_name,
@@ -82,13 +82,15 @@ from .annotation import make_signatures_from_typehinted_func
 
 from .compat import open
 from . import mpi
+from .log import logger
 
 modules = {}
 
 
 path_cachedjit = path_root / "__cachedjit__"
-path_cachedjit.mkdir(parents=True, exist_ok=True)
-
+if mpi.rank == 0:
+    path_cachedjit.mkdir(parents=True, exist_ok=True)
+mpi.barrier()
 
 _COMPILE_CACHEDJIT = strtobool(os.environ.get("FLUID_COMPILE_CACHEDJIT", "True"))
 
@@ -154,8 +156,10 @@ def _get_module_cachedjit(index_frame: int = 2):
     try:
         frame = inspect.stack()[index_frame]
     except IndexError:
-        print("index_frame", index_frame)
-        print([frame[1] for frame in inspect.stack()])
+        logger.error(
+            f"index_frame {index_frame}"
+            f"{[frame[1] for frame in inspect.stack()]}"
+        )
         raise
 
     module_name = get_module_name(frame)
@@ -268,7 +272,7 @@ class CachedJIT:
 
         src = None
 
-        if has_to_write and mpi.rank == 0:
+        if has_to_write:
             import_lines = [
                 line.split("# pythran ")[1]
                 for line in mod.get_source().split("\n")
@@ -289,24 +293,30 @@ class CachedJIT:
                 if src_old == src:
                     has_to_write = False
 
-            if has_to_write:
-                print(f"write code in file {path_pythran}")
+            if has_to_write and mpi.rank == 0:
+                logger.info(f"write code in file {path_pythran}")
                 with open(path_pythran, "w") as file:
                     file.write(src)
                     file.flush()
 
-        if src is None:
+        if src is None and mpi.rank == 0:
             with open(path_pythran) as file:
                 src = file.read()
 
-        # FIXME MPI all processes have to get these 2 variables
+        hex_src = None
+        name_mod = None
+        if mpi.rank == 0:
+            # hash from src (to produce the extension name)
+            hex_src = make_hex(src)
+            name_mod = ".".join(
+                path_pythran.absolute()
+                .relative_to(path_root)
+                .with_suffix("")
+                .parts
+            )
 
-        # hash from src (to produce the extension name)
-        hex_src = make_hex(src)
-
-        name_mod = ".".join(
-            path_pythran.absolute().relative_to(path_root).with_suffix("").parts
-        )
+        hex_src = mpi.bcast(hex_src)
+        name_mod = mpi.bcast(name_mod)
 
         def pythranize_with_new_header(arg_types="no types"):
 
@@ -334,17 +344,18 @@ class CachedJIT:
 
             header = "\n".join(exports) + "\n"
 
-            print(
-                f"write Pythran signature in file {path_pythran_header} with types\n{arg_types}"
-            )
-            with open(path_pythran_header, "w") as file:
-                file.write(header)
-                file.flush()
+            if mpi.rank == 0:
+                logger.info(
+                    f"write Pythran signature in file {path_pythran_header} with types\n{arg_types}"
+                )
+                with open(path_pythran_header, "w") as file:
+                    file.write(header)
+                    file.flush()
 
             # compute the new path of the extension
             hex_header = make_hex(header)
             name_ext_file = (
-                func_name + "_" + hex_src + "_" + hex_header + ext_suffix_short
+                func_name + "_" + hex_src + "_" + hex_header + ext_suffix
             )
             self.path_extension = path_pythran.with_name(name_ext_file)
 
@@ -358,7 +369,7 @@ class CachedJIT:
                 openmp=self.openmp,
             )
 
-        glob_name_ext_file = func_name + "_" + hex_src + "_*" + ext_suffix_short
+        glob_name_ext_file = func_name + "_" + hex_src + "_*" + ext_suffix
         ext_files = list(path_pythran.parent.glob(glob_name_ext_file))
 
         if not ext_files:
@@ -373,7 +384,7 @@ class CachedJIT:
         def type_collector(*args, **kwargs):
 
             if self.compiling:
-                if self.process.poll() is not None:
+                if not self.process.is_alive():
                     self.compiling = False
                     time.sleep(0.1)
                     module_pythran = import_from_path(
