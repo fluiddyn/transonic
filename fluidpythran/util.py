@@ -56,7 +56,6 @@ try:
 except ImportError:
     pass
 
-from .compat import implementation
 from .pythranizer import (
     ext_suffix,
     name_ext_from_path_pythran,
@@ -257,10 +256,11 @@ def clear_cached_extensions(module_name: str, force: bool = False):
         return
 
     if path_pythran_dir_jit.exists() and query_yes_no(
-        f"Do you confirm that you want to delete the JIT cache for {module_name}",
+        f"Do you confirm that you want to delete the cached files for {module_name}",
         default="y",
         force=force,
     ):
+        print(f"Remove directory {path_pythran_dir_jit}")
         shutil.rmtree(path_pythran_dir_jit)
 
     if path_pythran.exists() or path_ext.exists():

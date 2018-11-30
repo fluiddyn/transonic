@@ -3,23 +3,31 @@
 
 """
 
-try:
-    from fluiddyn.util import mpi as _mpi
-except ImportError:
-    try:
-        from mpi4py import MPI
-    except ImportError:
-        nb_proc = 1
-        rank = 0
-    else:
-        comm = MPI.COMM_WORLD
-        nb_proc = comm.size
-        rank = comm.Get_rank()
+import os
+
+if "__FLUIDPYTHRAN_NO_MPI" in os.environ:
+    nb_proc = 1
+    rank = 0
 else:
-    rank = _mpi.rank
-    nb_proc = _mpi.nb_proc
-    if nb_proc > 1:
-        comm = _mpi.comm
+    try:
+        from fluiddyn.util import mpi as _mpi
+    except ImportError:
+        try:
+            from mpi4py import MPI
+        except ImportError:
+            nb_proc = 1
+            rank = 0
+        else:
+            comm = MPI.COMM_WORLD
+            nb_proc = comm.size
+            rank = comm.Get_rank()
+    else:
+        rank = _mpi.rank
+        nb_proc = _mpi.nb_proc
+        if nb_proc > 1:
+            comm = _mpi.comm
+
+from .log import logger
 
 
 def barrier():

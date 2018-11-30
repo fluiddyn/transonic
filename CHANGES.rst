@@ -8,7 +8,7 @@ Future
 0.1.2 (?)
 ---------
 
-- Private command line :code:`.pythran-fluid` to call Pythran
+- Private command line :code:`_pythran-fluid` to call Pythran
 - MPI aware (only process rank == 0 doing IO and compilation)
 - Fix bug C-style `[][]`
 - :code:`Array[float, "2d"]` supported

@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Union, Iterable, Optional
 import sysconfig
 import hashlib
+import os
 
 from .compat import open, implementation
 from . import mpi
@@ -134,10 +135,13 @@ class SchedulerPopen:
 
         process = None
         if mpi.rank == 0:
+            os.environ["__FLUIDPYTHRAN_NO_MPI"] = "1"
             process = subprocess.Popen(words_command, cwd=cwd)
 
         process = mpi.ShellProcessMPI(process)
-        self.processes.append(process)
+
+        if mpi.rank == 0:
+            self.processes.append(process)
         return process
 
 

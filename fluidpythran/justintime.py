@@ -336,8 +336,12 @@ class CachedJIT:
 
             if path_pythran_header.exists():
                 # get the old signature(s)
-                with open(path_pythran_header) as file:
-                    exports_old = [export.strip() for export in file.readlines()]
+
+                exports_old = None
+                if mpi.rank == 0:
+                    with open(path_pythran_header) as file:
+                        exports_old = [export.strip() for export in file.readlines()]
+                exports_old = mpi.bcast(exports_old)
 
                 # FIXME: what do we do with the old signatures?
                 exports.update(exports_old)
@@ -369,8 +373,11 @@ class CachedJIT:
                 openmp=self.openmp,
             )
 
-        glob_name_ext_file = func_name + "_" + hex_src + "_*" + ext_suffix
-        ext_files = list(path_pythran.parent.glob(glob_name_ext_file))
+        ext_files = None
+        if mpi.rank == 0:
+            glob_name_ext_file = func_name + "_" + hex_src + "_*" + ext_suffix
+            ext_files = list(path_pythran.parent.glob(glob_name_ext_file))
+        ext_files = mpi.bcast(ext_files)
 
         if not ext_files:
             if has_to_pythranize_at_import() and _COMPILE_CACHEDJIT:
