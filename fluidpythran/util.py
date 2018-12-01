@@ -56,11 +56,7 @@ try:
 except ImportError:
     pass
 
-from .pythranizer import (
-    ext_suffix,
-    name_ext_from_path_pythran,
-    make_hex,
-)
+from .pythranizer import ext_suffix, name_ext_from_path_pythran, make_hex
 
 path_root = Path.home() / ".fluidpythran"
 
@@ -186,10 +182,7 @@ def import_from_path(path: Path, module_name: str):
     if module_name in sys.modules:
         module = sys.modules[module_name]
 
-        if (
-            module.__file__.endswith(ext_suffix)
-            and Path(module.__file__) == path
-        ):
+        if module.__file__.endswith(ext_suffix) and Path(module.__file__) == path:
             return module
 
     spec = importlib.util.spec_from_file_location(module_name, str(path))

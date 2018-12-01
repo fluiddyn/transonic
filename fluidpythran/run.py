@@ -175,4 +175,6 @@ def pythran_fluid():
         path_tmp.rename(path_out)
         logger.info(f"file {Path.cwd() / path_out.name} created")
     else:
-        logger.error(f"file {Path.cwd() / path_tmp.name} has not been created by Pythran")
+        logger.error(
+            f"file {Path.cwd() / path_tmp.name} has not been created by Pythran"
+        )

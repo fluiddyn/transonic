@@ -13,6 +13,7 @@ dist.can_import_pythran = True
 
 shutil.rmtree(path_data_tests / "__pythran__", ignore_errors=True)
 
+
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
 def test_detect_pythran_extensions():
 
@@ -33,6 +34,7 @@ def test_detect_pythran_extensions():
     )
     ext_names = detect_pythran_extensions(path_data_tests)
     assert len(ext_names) == len(names) - 1
+
 
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
 def test_modification_date():

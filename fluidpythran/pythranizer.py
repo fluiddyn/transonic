@@ -70,7 +70,9 @@ class SchedulerPopen:
             while len(self.processes) >= limit:
                 time.sleep(self.deltat)
                 self.processes = [
-                    process for process in self.processes if process.is_alive_root()
+                    process
+                    for process in self.processes
+                    if process.is_alive_root()
                 ]
 
         mpi.barrier()
@@ -135,7 +137,6 @@ class SchedulerPopen:
 
         process = None
         if mpi.rank == 0:
-            os.environ["__FLUIDPYTHRAN_NO_MPI"] = "1"
             process = subprocess.Popen(words_command, cwd=cwd)
 
         process = mpi.ShellProcessMPI(process)

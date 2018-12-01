@@ -3,7 +3,7 @@ develop:
 	pip install -e .[test]
 
 black:
-	black -l 82 fluidpythran
+	black -l 82 fluidpythran fluidpythran_cl
 
 tests:
 	pytest fluidpythran data_tests/ipynb

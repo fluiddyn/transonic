@@ -334,13 +334,16 @@ class CachedJIT:
             if not exports:
                 return
 
+            mpi.barrier()
             if path_pythran_header.exists():
                 # get the old signature(s)
 
                 exports_old = None
                 if mpi.rank == 0:
                     with open(path_pythran_header) as file:
-                        exports_old = [export.strip() for export in file.readlines()]
+                        exports_old = [
+                            export.strip() for export in file.readlines()
+                        ]
                 exports_old = mpi.bcast(exports_old)
 
                 # FIXME: what do we do with the old signatures?
@@ -358,6 +361,8 @@ class CachedJIT:
 
             # compute the new path of the extension
             hex_header = make_hex(header)
+            # to be sure (possible bug...)
+            hex_header = mpi.bcast(hex_header)
             name_ext_file = (
                 func_name + "_" + hex_src + "_" + hex_header + ext_suffix
             )

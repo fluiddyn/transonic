@@ -5,7 +5,7 @@
 
 import os
 
-if "__FLUIDPYTHRAN_NO_MPI" in os.environ:
+if "FLUIDPYTHRAN_NO_MPI" in os.environ:
     nb_proc = 1
     rank = 0
 else:
@@ -26,8 +26,6 @@ else:
         nb_proc = _mpi.nb_proc
         if nb_proc > 1:
             comm = _mpi.comm
-
-from .log import logger
 
 
 def barrier():
