@@ -87,10 +87,8 @@ from .log import logger
 modules = {}
 
 
-path_cachedjit = path_root / "__cachedjit__"
-if mpi.rank == 0:
-    path_cachedjit.mkdir(parents=True, exist_ok=True)
-mpi.barrier()
+path_cachedjit = mpi.Path(path_root) / "__cachedjit__"
+path_cachedjit.mkdir(parents=True, exist_ok=True)
 
 _COMPILE_CACHEDJIT = strtobool(os.environ.get("FLUID_COMPILE_CACHEDJIT", "True"))
 
@@ -239,8 +237,6 @@ class CachedJIT:
 
     def __call__(self, func):
 
-        # FIXME: MPI?
-
         if not pythran:
             return func
 
@@ -256,8 +252,7 @@ class CachedJIT:
         module_name = mod.module_name
 
         path_pythran = path_cachedjit / module_name.replace(".", os.path.sep)
-        if mpi.rank == 0:
-            path_pythran.mkdir(parents=True, exist_ok=True)
+        path_pythran.mkdir(parents=True, exist_ok=True)
 
         path_pythran = (path_pythran / func_name).with_suffix(".py")
         path_pythran_header = path_pythran.with_suffix(".pythran")
@@ -287,7 +282,7 @@ class CachedJIT:
                 for function in functions:
                     src += "\n" + get_source_without_decorator(function)
 
-            if path_pythran.exists():
+            if path_pythran.exists() and mpi.rank == 0:
                 with open(path_pythran) as file:
                     src_old = file.read()
                 if src_old == src:
@@ -334,7 +329,6 @@ class CachedJIT:
             if not exports:
                 return
 
-            mpi.barrier()
             if path_pythran_header.exists():
                 # get the old signature(s)
 
@@ -349,8 +343,9 @@ class CachedJIT:
                 # FIXME: what do we do with the old signatures?
                 exports.update(exports_old)
 
-            header = "\n".join(exports) + "\n"
+            header = "\n".join(sorted(exports)) + "\n"
 
+            mpi.barrier()
             if mpi.rank == 0:
                 logger.info(
                     f"write Pythran signature in file {path_pythran_header} with types\n{arg_types}"
@@ -361,8 +356,9 @@ class CachedJIT:
 
             # compute the new path of the extension
             hex_header = make_hex(header)
-            # to be sure (possible bug...)
-            hex_header = mpi.bcast(hex_header)
+            # if mpi.nb_proc > 1:
+            #     hex_header0 = mpi.bcast(hex_header)
+            #     assert hex_header0 == hex_header
             name_ext_file = (
                 func_name + "_" + hex_src + "_" + hex_header + ext_suffix
             )

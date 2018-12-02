@@ -8,12 +8,16 @@ black:
 tests:
 	pytest fluidpythran data_tests/ipynb
 
+tests_mpi:
+	mpirun -np 2 pytest fluidpythran
+
 tests_nbval:
 	pytest --nbval data_tests/ipynb
 
 tests_coverage:
 	mkdir -p .coverage
 	coverage run -p -m pytest
+	mpirun -np 2 coverage run -p -m pytest fluidpythran
 
 report_coverage:
 	coverage combine

@@ -4,6 +4,7 @@
 """
 
 import os
+from pathlib import Path
 
 if "FLUIDPYTHRAN_NO_MPI" in os.environ:
     nb_proc = 1
@@ -57,3 +58,47 @@ class ShellProcessMPI:
 
     def is_alive_root(self):
         return self.process.poll() is None
+
+PathSeq = Path
+
+if nb_proc > 1:
+    class PathMPI(type(Path())):
+        def exists(self):
+            respons = None
+            if rank == 0:
+                respons = super().exists()
+            return comm.bcast(respons)
+
+        def unlink(self):
+            if rank == 0:
+                super().unlink()
+            comm.barrier()
+
+        def mkdir(self, *args, **kwargs):
+            if rank == 0:
+                super().mkdir(*args, **kwargs)
+            comm.barrier()
+
+
+    Path = PathMPI
+
+    def has_to_build(output_file: Path, input_file: Path):
+        from . import util
+        ret = None
+        if rank == 0:
+            ret = util.has_to_build(output_file, input_file)
+        return comm.bcast(ret)
+
+    def modification_date(filename):
+        from . import util
+        ret = None
+        if rank == 0:
+            ret = util.modification_date(filename)
+        return comm.bcast(ret)
+
+
+if __name__ == "__main__":
+    p = Path.home() / "Dev"
+    print(p.exists(), type(p))
+    p = PathSeq(p)
+    print(p, type(p))

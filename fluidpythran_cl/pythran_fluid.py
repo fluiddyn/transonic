@@ -25,8 +25,6 @@ def main():
 
     assert sys.argv[0].endswith("_pythran-fluid")
 
-    print("NEW")
-
     args = sys.argv[1:]
 
     path = Path.cwd() / args[0]

@@ -26,14 +26,14 @@ Internal API
 import multiprocessing
 import subprocess
 import time
-from pathlib import Path
 from typing import Union, Iterable, Optional
 import sysconfig
 import hashlib
-import os
 
 from .compat import open, implementation
 from . import mpi
+from .mpi import Path, PathSeq
+
 
 ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 
@@ -41,6 +41,23 @@ ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 def make_hex(src):
     """Produce a hash from a sting"""
     return hashlib.md5(src.encode("utf8")).hexdigest()
+
+
+def name_ext_from_path_pythran(path_pythran):
+    """Return an extension name given the path of a Pythran file"""
+
+    name = None
+    if mpi.rank == 0:
+        path_pythran = PathSeq(path_pythran)
+        if path_pythran.exists():
+            with open(path_pythran) as file:
+                src = file.read()
+        else:
+            src = ""
+
+        name = path_pythran.stem + "_" + make_hex(src) + ext_suffix
+
+    return mpi.bcast(name)
 
 
 class SchedulerPopen:
@@ -152,22 +169,6 @@ scheduler = SchedulerPopen()
 def wait_for_all_extensions():
     """Wait until all compilation processes are done"""
     scheduler.wait_for_all_extensions()
-
-
-def name_ext_from_path_pythran(path_pythran):
-    """Return an extension name given the path of a Pythran file"""
-
-    name = None
-    if mpi.rank == 0:
-        if path_pythran.exists():
-            with open(path_pythran) as file:
-                src = file.read()
-        else:
-            src = ""
-
-        name = path_pythran.stem + "_" + make_hex(src) + ext_suffix
-
-    return mpi.bcast(name)
 
 
 def compile_pythran_files(

@@ -2,17 +2,18 @@ import sys
 
 import time
 
-from . import path_data_tests
+import pytest
 
+from . import path_data_tests
 from .run import run
 from . import util
-
 from .compat import rmtree
-
+from .mpi import nb_proc
 
 path_dir_out = path_data_tests / "__pythran__"
 
 
+@pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
 def test_create_pythran_files():
     if path_dir_out.exists():
         rmtree(path_dir_out)
@@ -28,6 +29,7 @@ def test_create_pythran_files():
     run()
 
 
+@pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
 def test_create_pythran_simple():
 
     sys.argv = "fluidpythran --version".split()
@@ -37,6 +39,7 @@ def test_create_pythran_simple():
     run()
 
 
+@pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
 def test_create_pythran_classic():
 
     util.input = lambda: "y"
