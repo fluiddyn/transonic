@@ -1,4 +1,4 @@
-from pathlib import Path
+
 import importlib
 import unittest
 import os
@@ -17,6 +17,7 @@ from .util import (
     name_ext_from_path_pythran,
 )
 from .aheadoftime import modules
+from .mpi import Path
 
 module_name = "fluidpythran.for_test_init"
 

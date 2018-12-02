@@ -301,9 +301,7 @@ def compute_pythran_types_from_types(types, **kwargs):
                 if "][" in _type:
                     # C style: we try to rewrite it in Cython style
                     base, dims = _type.split("[", 1)
-                    dims = ", ".join(
-                        [_ or ":" for _ in dims[:-1].split("][")]
-                    )
+                    dims = ", ".join([_ or ":" for _ in dims[:-1].split("][")])
                     _type = base + "[" + dims + "]"
                 elif _type.endswith("[]"):
                     _type = _type[:-2] + "[:]"

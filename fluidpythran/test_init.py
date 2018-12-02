@@ -1,10 +1,10 @@
-from pathlib import Path
 
 import importlib
 
-from . import FluidPythran
+from . import FluidPythran, mpi
 
 from .compat import rmtree
+from .mpi import Path
 
 
 def test_not_fluidpythranized():
@@ -13,8 +13,9 @@ def test_not_fluidpythranized():
 
     path_output = path_for_test.parent / "__pythran__"
 
-    if path_output.exists():
+    if path_output.exists() and mpi.rank == 0:
         rmtree(path_output)
+    mpi.barrier()
 
     from . import for_test_init
 

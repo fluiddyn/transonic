@@ -8,16 +8,20 @@ Internal API
 
 .. autofunction:: parse_args
 
+.. autofunction:: pythran_fluid
+
 """
 
 import argparse
 from pathlib import Path
 from glob import glob
+import subprocess
+import sys
 
 from . import __version__
 from .transpiler import make_pythran_files
 from .log import logger, set_log_level
-from .pythranizer import compile_pythran_files, ext_suffix_short
+from .pythranizer import compile_pythran_files, ext_suffix
 from .util import has_to_build, clear_cached_extensions
 
 try:
@@ -84,7 +88,7 @@ def run():
     for path in paths:
         path = Path(path)
         pythran_path = path.parent / "__pythran__" / ("_" + path.name)
-        ext_path = pythran_path.with_suffix(ext_suffix_short)
+        ext_path = pythran_path.with_suffix(ext_suffix)
         if has_to_build(ext_path, pythran_path):
             pythran_paths.append(pythran_path)
 

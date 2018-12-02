@@ -10,12 +10,15 @@ except ImportError:
 
 from .justintime import path_cachedjit, modules
 from .pythranizer import scheduler, wait_for_all_extensions
+from . import mpi
 
 scheduler.nb_cpus = 2
 
 module_name = "fluidpythran.for_test_justintime"
 
-path_pythran_dir = path_cachedjit / module_name.replace(".", os.path.sep)
+path_pythran_dir = mpi.PathSeq(path_cachedjit) / module_name.replace(
+    ".", os.path.sep
+)
 
 
 def delete_pythran_files(func_name):
@@ -24,9 +27,12 @@ def delete_pythran_files(func_name):
             path_pythran_file.unlink()
 
 
-delete_pythran_files("func1")
-delete_pythran_files("func2")
-delete_pythran_files("func_dict")
+if mpi.rank == 0:
+    delete_pythran_files("func1")
+    delete_pythran_files("func2")
+    delete_pythran_files("func_dict")
+
+mpi.barrier()
 
 
 def test_cachedjit():

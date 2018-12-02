@@ -26,27 +26,38 @@ Internal API
 import multiprocessing
 import subprocess
 import time
-from pathlib import Path
 from typing import Union, Iterable, Optional
 import sysconfig
 import hashlib
 
 from .compat import open, implementation
 from . import mpi
+from .mpi import Path, PathSeq
+
 
 ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
-
-# if pythran and pythran.__version__ <= "0.9.0":
-
-# avoid a Pythran bug with -o option
-# it is bad because then we do not support using many Python versions
-
-ext_suffix_short = "." + ext_suffix.rsplit(".", 1)[-1]
 
 
 def make_hex(src):
     """Produce a hash from a sting"""
     return hashlib.md5(src.encode("utf8")).hexdigest()
+
+
+def name_ext_from_path_pythran(path_pythran):
+    """Return an extension name given the path of a Pythran file"""
+
+    name = None
+    if mpi.rank == 0:
+        path_pythran = PathSeq(path_pythran)
+        if path_pythran.exists():
+            with open(path_pythran) as file:
+                src = file.read()
+        else:
+            src = ""
+
+        name = path_pythran.stem + "_" + make_hex(src) + ext_suffix
+
+    return mpi.bcast(name)
 
 
 class SchedulerPopen:
@@ -65,29 +76,23 @@ class SchedulerPopen:
         else:
             self.limit_nb_processes = 1
 
-    def launch_popen(self, words_command, cwd=None, parallel=True):
-        """Launch a program (blocking if too many processes launched)"""
-        if mpi.rank > 0:
-            return
+    def block_until_avail(self, parallel=True):
 
-        if parallel:
-            limit = self.limit_nb_processes
-        else:
-            limit = 1
+        if mpi.rank == 0:
+            if parallel:
+                limit = self.limit_nb_processes
+            else:
+                limit = 1
 
-        while len(self.processes) >= limit:
-            time.sleep(self.deltat)
-            self.processes = [
-                process for process in self.processes if process.poll() is None
-            ]
+            while len(self.processes) >= limit:
+                time.sleep(self.deltat)
+                self.processes = [
+                    process
+                    for process in self.processes
+                    if process.is_alive_root()
+                ]
 
-        if implementation == "PyPy":
-            cwd = str(cwd)
-            words_command = [str(word) for word in words_command]
-
-        process = subprocess.Popen(words_command, cwd=cwd)
-        self.processes.append(process)
-        return process
+        mpi.barrier()
 
     def wait_for_all_extensions(self):
         """Wait until all compilation processes are done"""
@@ -95,10 +100,67 @@ class SchedulerPopen:
             while self.processes:
                 time.sleep(self.deltat)
                 self.processes = [
-                    process for process in self.processes if process.poll() is None
+                    process
+                    for process in self.processes
+                    if process.is_alive_root()
                 ]
 
         mpi.barrier()
+
+    def compile_with_pythran(
+        self,
+        path: Path,
+        name_ext_file: Optional[str] = None,
+        native=True,
+        xsimd=True,
+        openmp=False,
+        str_pythran_flags: Optional[str] = None,
+        parallel=True,
+    ):
+        if str_pythran_flags is not None:
+            flags = str_pythran_flags.strip().split()
+        else:
+            flags = []
+
+        def update_flags(flag):
+            if flag not in flags:
+                flags.append(flag)
+
+        if native:
+            update_flags("-march=native")
+
+        if xsimd:
+            update_flags("-DUSE_XSIMD")
+
+        if openmp:
+            update_flags("-fopenmp")
+
+        words_command = ["_pythran-fluid", path.name]
+
+        if name_ext_file is None:
+            name_ext_file = name_ext_from_path_pythran(path)
+        words_command.extend(("-o", name_ext_file))
+
+        words_command.extend(flags)
+
+        cwd = path.parent
+        if implementation == "PyPy":
+            cwd = str(cwd)
+            words_command = [str(word) for word in words_command]
+
+        # FIXME lock file ?
+
+        self.block_until_avail(parallel)
+
+        process = None
+        if mpi.rank == 0:
+            process = subprocess.Popen(words_command, cwd=cwd)
+
+        process = mpi.ShellProcessMPI(process)
+
+        if mpi.rank == 0:
+            self.processes.append(process)
+        return process
 
 
 scheduler = SchedulerPopen()
@@ -109,40 +171,13 @@ def wait_for_all_extensions():
     scheduler.wait_for_all_extensions()
 
 
-def name_ext_from_path_pythran(path_pythran):
-    """Return an extension name given the path of a Pythran file"""
-    if mpi.rank == 0:
-        if path_pythran.exists():
-            with open(path_pythran) as file:
-                src = file.read()
-        else:
-            src = ""
-
-        name = path_pythran.stem + "_" + make_hex(src) + ext_suffix_short
-    else:
-        name = None
-
-    if mpi.nb_proc > 1:
-        name = mpi.comm.bcast(name, root=0)
-
-    return name
-
-
 def compile_pythran_files(
     paths: Iterable[Path], str_pythran_flags: str, parallel=True
 ):
-    if mpi.rank > 0:
-        return
-
-    pythran_flags = str_pythran_flags.strip().split()
-
     for path in paths:
-        name_ext = name_ext_from_path_pythran(path)
-        words_command = ["pythran", path.name, "-o", name_ext]
-        words_command.extend(pythran_flags)
         print("pythranize file", path)
-        scheduler.launch_popen(
-            words_command, cwd=str(path.parent), parallel=parallel
+        scheduler.compile_with_pythran(
+            path, str_pythran_flags=str_pythran_flags, parallel=parallel
         )
 
 
@@ -153,25 +188,10 @@ def compile_pythran_file(
     xsimd=True,
     openmp=False,
 ):
-    if mpi.rank > 0:
-        return
-
     if not isinstance(path, Path):
         path = Path(path)
 
-    words_command = ["pythran", "-v", path.name]
-
-    if name_ext_file is not None:
-        words_command.extend(("-o", name_ext_file))
-
-    if native:
-        words_command.append("-march=native")
-
-    if xsimd:
-        words_command.append("-DUSE_XSIMD")
-
-    if openmp:
-        words_command.append("-fopenmp")
-
     # return the process
-    return scheduler.launch_popen(words_command, cwd=str(path.parent))
+    return scheduler.compile_with_pythran(
+        path, name_ext_file, native=native, xsimd=xsimd, openmp=openmp
+    )

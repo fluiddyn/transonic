@@ -1,10 +1,10 @@
-from pathlib import Path
 
 import numpy as np
 
 # pythran import numpy as np
 
 from fluidpythran import cachedjit, used_by_cachedjit
+from .mpi import Path
 
 
 @used_by_cachedjit("func1")
@@ -18,7 +18,7 @@ def func():
 
 
 @cachedjit
-def func1(a: "int[][] or float[]", l: list):
+def func1(a: "int[][] or float[]", l: "int list"):
     tmp = np.exp(sum(l))
     result = tmp * a * func0(a) + func()
     return result

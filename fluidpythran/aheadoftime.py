@@ -25,8 +25,8 @@ Internal API
 
 import inspect
 import time
-from pathlib import Path
 import subprocess
+import os
 
 from .util import (
     get_module_name,
@@ -44,6 +44,12 @@ from .annotation import (
 )
 
 from .log import logger
+from . import mpi
+from .mpi import Path
+
+if mpi.nb_proc == 1:
+    mpi.has_to_build = has_to_build
+    mpi.modification_date = modification_date
 
 is_transpiling = False
 modules = {}
@@ -78,7 +84,7 @@ def _get_fluidpythran_calling_module(index_frame: int = 2):
             != has_to_pythranize_at_import()
             or hasattr(fp, "path_mod")
             and fp.path_mod.exists()
-            and has_to_build(fp.path_pythran, fp.path_mod)
+            and mpi.has_to_build(fp.path_pythran, fp.path_mod)
         ):
             fp = FluidPythran(frame=frame, reuse=False)
     else:
@@ -136,7 +142,7 @@ class CheckCompiling:
             return self.func(*args, **kwargs)
 
         fp = self.fp
-        if fp.is_compiling and fp.process.poll() is not None:
+        if fp.is_compiling and not fp.process.is_alive():
             fp.is_compiling = False
             time.sleep(0.1)
             fp.module_pythran = import_from_path(
@@ -222,31 +228,39 @@ class FluidPythran:
         path_ext = None
 
         if has_to_pythranize_at_import() and path_mod.exists():
-            if has_to_build(path_pythran, path_mod):
+            if mpi.has_to_build(path_pythran, path_mod):
                 if path_pythran.exists():
-                    time_pythran = modification_date(path_pythran)
+                    time_pythran = mpi.modification_date(path_pythran)
                 else:
                     time_pythran = 0
-                print(f"Running fluidpythran on file {path_mod}... ", end="")
-                # better to do this in another process because the file is already run...
-                returncode = subprocess.call(
-                    ["fluidpythran", "-np", str(path_mod)]
-                )
+
+                returncode = None
+                if mpi.rank == 0:
+                    print(f"Running fluidpythran on file {path_mod}... ", end="")
+                    # better to do this in another process because the file is already run...
+                    os.environ["FLUIDPYTHRAN_NO_MPI"] = "1"
+                    returncode = subprocess.call(
+                        ["fluidpythran", "-np", str(path_mod)]
+                    )
+                    del os.environ["FLUIDPYTHRAN_NO_MPI"]
+                returncode = mpi.bcast(returncode)
+
                 if returncode != 0:
                     raise RuntimeError(
                         "fluidpythran does not manage to produce the Pythran "
                         f"file for {path_mod}"
                     )
 
-                print("Done!")
+                if mpi.rank == 0:
+                    print("Done!")
 
                 path_ext = path_pythran.with_name(
                     name_ext_from_path_pythran(path_pythran)
                 )
 
-                time_pythran_after = modification_date(path_pythran)
+                time_pythran_after = mpi.modification_date(path_pythran)
                 # We have to touch the files to signal that they are up-to-date
-                if time_pythran_after == time_pythran:
+                if time_pythran_after == time_pythran and mpi.rank == 0:
                     if not has_to_build(path_ext, path_pythran):
                         path_pythran.touch()
                         if path_ext.exists():
@@ -265,7 +279,8 @@ class FluidPythran:
             and path_mod.exists()
             and not self.path_extension.exists()
         ):
-            print("Launching Pythran to compile a new extension...")
+            if mpi.rank == 0:
+                print("Launching Pythran to compile a new extension...")
             self.process = compile_pythran_file(
                 path_pythran, name_ext_file=self.path_extension.name
             )
@@ -366,7 +381,7 @@ class FluidPythran:
                 "by `if fp.is_transpiled`"
             )
 
-        if self.is_compiling and self.process.poll() is not None:
+        if self.is_compiling and not self.process.is_alive():
             self.is_compiling = False
             time.sleep(0.1)
             self.module_pythran = import_from_path(

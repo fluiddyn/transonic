@@ -32,7 +32,6 @@ from logging import DEBUG
 
 from token import tok_name
 from io import BytesIO
-from pathlib import Path
 from runpy import run_module, run_path
 import sys
 from unittest.mock import MagicMock as Mock
@@ -49,6 +48,7 @@ from .log import logger, set_log_level
 from .annotation import compute_pythran_types_from_valued_types
 from .util import has_to_build, get_source_without_decorator
 from .compat import open
+from .mpi import Path
 import fluidpythran
 
 

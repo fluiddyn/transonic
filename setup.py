@@ -31,6 +31,7 @@ setup(
     version=__version__,
     packages=find_packages(exclude=["doc"]),
     entry_points={
-        "console_scripts": ["fluidpythran = fluidpythran.run:run"]
+        "console_scripts": ["fluidpythran = fluidpythran.run:run",
+        "_pythran-fluid = fluidpythran_cl.pythran_fluid:main"]
     },
 )

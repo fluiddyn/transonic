@@ -56,13 +56,7 @@ try:
 except ImportError:
     pass
 
-from .compat import implementation
-from .pythranizer import (
-    ext_suffix,
-    ext_suffix_short,
-    name_ext_from_path_pythran,
-    make_hex,
-)
+from .pythranizer import ext_suffix, name_ext_from_path_pythran, make_hex
 
 path_root = Path.home() / ".fluidpythran"
 
@@ -177,12 +171,6 @@ def import_from_path(path: Path, module_name: str):
             f"[path.name for path in path.parent.glob('*')]:\n{[path.name for path in path.parent.glob('*')]}\n"
         )
 
-    if implementation == "PyPy" and path.suffix == ext_suffix_short:
-        new_path = path.with_suffix(ext_suffix)
-        if has_to_build(new_path, path):
-            shutil.copy(str(path), str(new_path))
-        path = new_path
-
     if "." in module_name:
         package_name, mod_name = module_name.rsplit(".", 1)
         name_file = path.name.split(".", 1)[0]
@@ -194,10 +182,7 @@ def import_from_path(path: Path, module_name: str):
     if module_name in sys.modules:
         module = sys.modules[module_name]
 
-        if (
-            module.__file__.endswith(ext_suffix_short)
-            and Path(module.__file__) == path
-        ):
+        if module.__file__.endswith(ext_suffix) and Path(module.__file__) == path:
             return module
 
     spec = importlib.util.spec_from_file_location(module_name, str(path))
@@ -264,10 +249,11 @@ def clear_cached_extensions(module_name: str, force: bool = False):
         return
 
     if path_pythran_dir_jit.exists() and query_yes_no(
-        f"Do you confirm that you want to delete the JIT cache for {module_name}",
+        f"Do you confirm that you want to delete the cached files for {module_name}",
         default="y",
         force=force,
     ):
+        print(f"Remove directory {path_pythran_dir_jit}")
         shutil.rmtree(path_pythran_dir_jit)
 
     if path_pythran.exists() or path_ext.exists():
