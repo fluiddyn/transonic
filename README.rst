@@ -21,9 +21,13 @@ FluidPythran: easily speedup your Python code with Pythran
    FluidPythran is in an early stage. Remarks and suggestions are very
    welcome.
 
-   FluidPythran starts to be used in `FluidSim
-   <https://bitbucket.org/fluiddyn/fluidsim>`_ (for example in `this file
-   <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_).
+   FluidPythran is used in `FluidSim
+   <https://bitbucket.org/fluiddyn/fluidsim>`_ (see examples for `blocks
+   <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_,
+   `@pythran_def
+   <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/operators/operators3d.py>`_
+   and `@cachedjit
+   <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/solvers/plate2d/output/correlations_freq.py>`_).
 
 FluidPythran is a pure Python package (requiring Python >= 3.6 or Pypy3) to
 help to write Python code that *can* use `Pythran
