@@ -254,7 +254,7 @@ def clear_cached_extensions(module_name: str, force: bool = False):
         force=force,
     ):
         print(f"Remove directory {path_pythran_dir_jit}")
-        shutil.rmtree(path_pythran_dir_jit)
+        shutil.rmtree(str(path_pythran_dir_jit))
 
     if path_pythran.exists() or path_ext.exists():
         if query_yes_no(
