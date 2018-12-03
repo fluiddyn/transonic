@@ -235,7 +235,7 @@ def clear_cached_extensions(module_name: str, force: bool = False):
     relative_path = Path(relative_path)
 
     path_pythran = relative_path.parent / (
-        "__pythran__/_" + relative_path.name + ".py"
+        "__pythran__/" + relative_path.name + ".py"
     )
     path_ext = path_pythran.with_name(name_ext_from_path_pythran(path_pythran))
 

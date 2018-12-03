@@ -25,6 +25,6 @@ doc/ipynb/*.rst
 
 *.egg-info/*
 
-**/__pythran__/_*
+**/__pythran__/*
 
 fluidpythran/_path_data_tests.py

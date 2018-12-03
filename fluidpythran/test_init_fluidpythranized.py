@@ -1,4 +1,3 @@
-
 import importlib
 import unittest
 import os
@@ -28,7 +27,7 @@ class TestsInit(unittest.TestCase):
 
     assert path_for_test.exists()
 
-    path_pythran = path_for_test.parent / ("__pythran__/_" + path_for_test.name)
+    path_pythran = path_for_test.parent / "__pythran__" / path_for_test.name
     path_ext = path_pythran.with_name(name_ext_from_path_pythran(path_pythran))
 
     @classmethod

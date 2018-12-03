@@ -175,7 +175,7 @@ def compile_pythran_files(
     paths: Iterable[Path], str_pythran_flags: str, parallel=True
 ):
     for path in paths:
-        print("pythranize file", path)
+        print("Schedule pythranization of file", path)
         scheduler.compile_with_pythran(
             path, str_pythran_flags=str_pythran_flags, parallel=parallel
         )

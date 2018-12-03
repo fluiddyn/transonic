@@ -59,9 +59,11 @@ class ShellProcessMPI:
     def is_alive_root(self):
         return self.process.poll() is None
 
+
 PathSeq = Path
 
 if nb_proc > 1:
+
     class PathMPI(type(Path())):
         def exists(self):
             respons = None
@@ -74,16 +76,11 @@ if nb_proc > 1:
                 super().unlink()
             comm.barrier()
 
-        def mkdir(self, *args, **kwargs):
-            if rank == 0:
-                super().mkdir(*args, **kwargs)
-            comm.barrier()
-
-
     Path = PathMPI
 
     def has_to_build(output_file: Path, input_file: Path):
         from . import util
+
         ret = None
         if rank == 0:
             ret = util.has_to_build(output_file, input_file)
@@ -91,6 +88,7 @@ if nb_proc > 1:
 
     def modification_date(filename):
         from . import util
+
         ret = None
         if rank == 0:
             ret = util.modification_date(filename)

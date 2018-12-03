@@ -36,7 +36,11 @@ from .util import (
     modification_date,
 )
 
-from .pythranizer import compile_pythran_file, name_ext_from_path_pythran
+from .pythranizer import (
+    compile_pythran_file,
+    name_ext_from_path_pythran,
+    ext_suffix,
+)
 
 from .annotation import (
     make_signature_from_template_variables,
@@ -79,7 +83,7 @@ def _get_fluidpythran_calling_module(index_frame: int = 2):
     if module_name in modules:
         fp = modules[module_name]
         if (
-            fp._created_while_transpiling != is_transpiling
+            fp.is_transpiling != is_transpiling
             or fp._pythranize_at_import_at_creation
             != has_to_pythranize_at_import()
             or hasattr(fp, "path_mod")
@@ -196,7 +200,7 @@ class FluidPythran:
 
         self.names_template_variables = {}
 
-        self._created_while_transpiling = is_transpiling
+        self.is_transpiling = is_transpiling
 
         if is_transpiling:
             self.functions = {}
@@ -218,11 +222,11 @@ class FluidPythran:
             module_short_name = module_name
             module_pythran_name = ""
 
-        module_pythran_name += "__pythran__._" + module_short_name
+        module_pythran_name += "__pythran__." + module_short_name
 
         self.path_mod = path_mod = Path(frame.filename)
         self.path_pythran = path_pythran = (
-            path_mod.parent / "__pythran__" / ("_" + module_short_name + ".py")
+            path_mod.parent / "__pythran__" / (module_short_name + ".py")
         )
 
         path_ext = None
@@ -288,6 +292,12 @@ class FluidPythran:
             self.is_compiled = False
 
         self.is_transpiled = True
+
+        if not path_ext.exists() and not self.is_compiling:
+            path_ext_alt = path_pythran.with_suffix(ext_suffix)
+            if path_ext_alt.exists():
+                self.path_extension = path_ext = path_ext_alt
+
         if path_ext.exists() and not self.is_compiling:
             self.module_pythran = import_from_path(
                 self.path_extension, module_pythran_name

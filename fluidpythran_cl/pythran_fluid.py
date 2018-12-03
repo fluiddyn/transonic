@@ -28,7 +28,7 @@ def main():
     args = sys.argv[1:]
 
     path = Path.cwd() / args[0]
-    logger.info(f"Pythranize {path}")
+    print(f"Pythranize {path}")
 
     if "-o" in args:
         index_output = args.index("-o") + 1
@@ -44,7 +44,7 @@ def main():
     if path_tmp.exists():
         path_out = path_tmp.with_suffix(ext_suffix)
         path_tmp.rename(path_out)
-        logger.info(f"file {Path.cwd() / path_out.name} created")
+        print(f"file {Path.cwd() / path_out.name} created")
     else:
         logger.error(
             f"file {Path.cwd() / path_tmp.name} has not been created by Pythran"

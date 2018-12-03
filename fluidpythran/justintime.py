@@ -88,7 +88,9 @@ modules = {}
 
 
 path_cachedjit = mpi.Path(path_root) / "__cachedjit__"
-path_cachedjit.mkdir(parents=True, exist_ok=True)
+if mpi.rank == 0:
+    path_cachedjit.mkdir(parents=True, exist_ok=True)
+mpi.barrier()
 
 _COMPILE_CACHEDJIT = strtobool(os.environ.get("FLUID_COMPILE_CACHEDJIT", "True"))
 
@@ -252,7 +254,10 @@ class CachedJIT:
         module_name = mod.module_name
 
         path_pythran = path_cachedjit / module_name.replace(".", os.path.sep)
-        path_pythran.mkdir(parents=True, exist_ok=True)
+
+        if mpi.rank == 0:
+            path_pythran.mkdir(parents=True, exist_ok=True)
+        mpi.barrier()
 
         path_pythran = (path_pythran / func_name).with_suffix(".py")
         path_pythran_header = path_pythran.with_suffix(".pythran")
