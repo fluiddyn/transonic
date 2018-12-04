@@ -27,9 +27,13 @@ Note that one can also just write Pythran type-string in type annotations::
     def myfunc(a: "float[3, :]", b: float):
         ...
 
-Note that if you only need one dimension, array types can be defined like
-this::
+Finally, array types with only one number of dimension can simply be 
+defined like this::
 
-    from fluidpythran import array
+    from fluidpythran import Array
 
-    A = Array[float, "2d"]
+    A = Array[float, "3d"]
+
+Which has actually the same effect as::
+
+    A = "float[:, :, :]"
