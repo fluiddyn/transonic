@@ -59,6 +59,7 @@ import os
 import sys
 import time
 from distutils.util import strtobool
+from functools import wraps
 
 try:
     import numpy as np
@@ -394,6 +395,7 @@ class CachedJIT:
             module_pythran = import_from_path(path_ext, name_mod)
             self.pythran_func = getattr(module_pythran, func_name)
 
+        @wraps(func)
         def type_collector(*args, **kwargs):
 
             if self.compiling:

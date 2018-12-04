@@ -27,6 +27,7 @@ import inspect
 import time
 import subprocess
 import os
+import functools
 
 from .util import (
     get_module_name,
@@ -348,7 +349,7 @@ class FluidPythran:
             func_tmp = func
 
         if self.is_compiling:
-            return CheckCompiling(self, func_tmp)
+            return functools.wraps(func)(CheckCompiling(self, func_tmp))
 
         return func_tmp
 
