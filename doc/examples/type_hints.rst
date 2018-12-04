@@ -20,3 +20,16 @@ If you don't like generic templating, you can also just write
 .. literalinclude:: type_hints_notemplate.py
 
 Yes, this one is neat!
+
+Note that one can also just write Pythran type-string in type annotations::
+
+    @pythran_def
+    def myfunc(a: "float[3, :]", b: float):
+        ...
+
+Note that if you only need one dimension, array types can be defined like
+this::
+
+    from fluidpythran import array
+
+    A = Array[float, "2d"]
