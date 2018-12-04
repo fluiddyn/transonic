@@ -58,7 +58,10 @@ except ImportError:
 
 from .pythranizer import ext_suffix, name_ext_from_path_pythran, make_hex
 
-path_root = Path.home() / ".fluidpythran"
+
+path_root = Path(
+    os.environ.get("FLUIDPYTHRAN_DIR", Path.home() / ".fluidpythran")
+)
 
 
 def get_module_name(frame):

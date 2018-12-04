@@ -15,6 +15,7 @@ FluidPythran: easily speedup your Python code with Pythran
    :target: https://codecov.io/bb/fluiddyn/fluidpythran/branch/default/
    :alt: Code coverage
 
+**Documentation**: https://fluidpythran.readthedocs.io
 
 .. warning ::
 
@@ -108,6 +109,9 @@ Installation
 .. code ::
 
    pip install fluidpythran
+
+The environment variable :code:`FLUIDPYTHRAN_DIR` can be set to control where
+the cached files are saved.
 
 A short tour of FluidPythran syntaxes
 -------------------------------------
@@ -319,7 +323,7 @@ setup.py like this:
     here = Path(__file__).parent.absolute()
 
     paths = ["fluidsim/base/time_stepping/pseudo_spect.py"]
-    make_pythran_files([here / path for path in paths])
+    make_pythran_files([here / path for path in paths], mocked_modules=["h5py"])
 
 Note that the function :code:`make_pythran_files` does not use Pythran.
 Compiling the associated Pythran file can be done if wanted (see for example
