@@ -5,8 +5,14 @@ Future
 - :code:`pythran_def` for simple methods (without assignation to attributes
   and call of other methods)
 
-0.1.2 (?)
----------
+0.1.3 (2018-12-04)
+------------------
+
+- Lock file during Pythran compilation
+- :code:`__name__` and :code:`__doc__` preserved by decorators
+
+0.1.2 (2018-12-03)
+------------------
 
 - Private command line :code:`_pythran-fluid` to call Pythran
 - MPI aware (only process rank == 0 doing IO and compilation)

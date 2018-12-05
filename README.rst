@@ -15,15 +15,20 @@ FluidPythran: easily speedup your Python code with Pythran
    :target: https://codecov.io/bb/fluiddyn/fluidpythran/branch/default/
    :alt: Code coverage
 
+**Documentation**: https://fluidpythran.readthedocs.io
 
 .. warning ::
 
    FluidPythran is in an early stage. Remarks and suggestions are very
    welcome.
 
-   FluidPythran starts to be used in `FluidSim
-   <https://bitbucket.org/fluiddyn/fluidsim>`_ (for example in `this file
-   <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_).
+   FluidPythran is used in `FluidSim
+   <https://bitbucket.org/fluiddyn/fluidsim>`_ (see examples for `blocks
+   <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_,
+   `@pythran_def
+   <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/operators/operators3d.py>`_
+   and `@cachedjit
+   <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/solvers/plate2d/output/correlations_freq.py>`_).
 
 FluidPythran is a pure Python package (requiring Python >= 3.6 or Pypy3) to
 help to write Python code that *can* use `Pythran
@@ -104,6 +109,9 @@ Installation
 .. code ::
 
    pip install fluidpythran
+
+The environment variable :code:`FLUIDPYTHRAN_DIR` can be set to control where
+the cached files are saved.
 
 A short tour of FluidPythran syntaxes
 -------------------------------------
@@ -315,7 +323,7 @@ setup.py like this:
     here = Path(__file__).parent.absolute()
 
     paths = ["fluidsim/base/time_stepping/pseudo_spect.py"]
-    make_pythran_files([here / path for path in paths])
+    make_pythran_files([here / path for path in paths], mocked_modules=["h5py"])
 
 Note that the function :code:`make_pythran_files` does not use Pythran.
 Compiling the associated Pythran file can be done if wanted (see for example

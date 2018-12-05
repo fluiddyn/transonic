@@ -466,7 +466,7 @@ def make_pythran_file(
         )
 
     path_dir = path_py.parent / "__pythran__"
-    path_pythran = path_dir / ("_" + path_py.name)
+    path_pythran = path_dir / path_py.name
 
     if not has_to_build(path_pythran, path_py) and not force:
         logger.info(f"File {path_pythran} already up-to-date.")

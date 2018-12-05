@@ -10,6 +10,8 @@ doc/**.zip
 
 **/.ipynb_checkpoints/*
 
+*.so
+
 build/*
 dist/*.tar.gz
 dist*
@@ -25,6 +27,6 @@ doc/ipynb/*.rst
 
 *.egg-info/*
 
-**/__pythran__/_*
+**/__pythran__/*
 
 fluidpythran/_path_data_tests.py

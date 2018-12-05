@@ -60,7 +60,7 @@ def test_create_pythran_classic():
 
     run()
 
-    path_file_pythran = path_data_tests / "__pythran__/_classic.py"
+    path_file_pythran = path_data_tests / "__pythran__/classic.py"
     path_file_pythran.unlink()
 
     print("after unlink")

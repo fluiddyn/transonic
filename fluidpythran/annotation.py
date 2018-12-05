@@ -177,24 +177,35 @@ class ArrayMeta(type):
 
     def __getitem__(self, parameters):
 
+        if not isinstance(parameters, tuple):
+            parameters = (parameters,)
+
         dtype = None
         ndim = None
         params_filtered = []
         for param in parameters:
             if isinstance(param, (Type, type)):
                 if dtype is not None:
-                    raise ValueError
+                    raise ValueError(
+                        "Array should be defined with only one variable defining "
+                        "the types. For more than one type, use "
+                        "for example Type(float, int)"
+                    )
                 dtype = param
 
             if isinstance(param, NDim):
                 if ndim is not None:
-                    raise ValueError
+                    raise ValueError(
+                        "Array should be defined with only "
+                        "one NDim. For more than one dimension, use "
+                        "for example NDim(2, 3)."
+                    )
                 ndim = param
 
             if (
                 isinstance(param, str)
                 and param[-1] == "d"
-                and param[0].isnumeric()
+                and param[:-1].isnumeric()
             ):
                 try:
                     tmp = int(param[:-1])
@@ -202,7 +213,11 @@ class ArrayMeta(type):
                     pass
                 else:
                     if ndim is not None:
-                        raise ValueError
+                        raise ValueError(
+                            "Array should be defined with only "
+                            "one string fixing the number of dimension. "
+                            "Use for example NDim(2, 3)."
+                        )
                     param = ndim = NDim(
                         tmp, _fp=_get_fluidpythran_calling_module()
                     )
@@ -211,6 +226,12 @@ class ArrayMeta(type):
                 raise ValueError(f"{param} cannot be interpretted...")
 
             params_filtered.append(param)
+
+        if dtype is None:
+            raise ValueError("No way to determine the dtype of the array")
+
+        if ndim is None:
+            raise ValueError("No way to determine the ndim of the array")
 
         parameters = {p.__name__: p for p in params_filtered}
 

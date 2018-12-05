@@ -58,7 +58,10 @@ except ImportError:
 
 from .pythranizer import ext_suffix, name_ext_from_path_pythran, make_hex
 
-path_root = Path.home() / ".fluidpythran"
+
+path_root = Path(
+    os.environ.get("FLUIDPYTHRAN_DIR", Path.home() / ".fluidpythran")
+)
 
 
 def get_module_name(frame):
@@ -97,6 +100,18 @@ def has_to_build(output_file: Path, input_file: Path):
 def get_source_without_decorator(func: Callable):
     """Get the source of a function without its decorator"""
     src = inspect.getsource(func)
+
+    # de-indent the code
+    nb_spaces = 0
+    for c in src:
+        if not c.isspace():
+            break
+        nb_spaces += 1
+
+    if nb_spaces > 0:
+        lines = [line[nb_spaces:] for line in src.split("\n")]
+        src = "\n".join(lines)
+
     return strip_typehints(re.sub(r"@.*?\sdef\s", "def ", src))
 
 
@@ -235,7 +250,7 @@ def clear_cached_extensions(module_name: str, force: bool = False):
     relative_path = Path(relative_path)
 
     path_pythran = relative_path.parent / (
-        "__pythran__/_" + relative_path.name + ".py"
+        "__pythran__/" + relative_path.name + ".py"
     )
     path_ext = path_pythran.with_name(name_ext_from_path_pythran(path_pythran))
 
@@ -254,7 +269,7 @@ def clear_cached_extensions(module_name: str, force: bool = False):
         force=force,
     ):
         print(f"Remove directory {path_pythran_dir_jit}")
-        shutil.rmtree(path_pythran_dir_jit)
+        shutil.rmtree(str(path_pythran_dir_jit))
 
     if path_pythran.exists() or path_ext.exists():
         if query_yes_no(
