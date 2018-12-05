@@ -4,13 +4,6 @@ import numpy as np
 
 import pythran_manual
 
-code = """
-
-def new_method(self, inp):
-    return pythran_func(self.freq, inp)
-
-"""
-
 
 class FluidPythranTemporaryMethod:
     def __init__(self, func):
@@ -37,8 +30,11 @@ def pythran_class(cls):
         name_pythran_func = f"__for_method__{cls_name}__{func_name}"
         pythran_func = pythran_manual.__dict__[name_pythran_func]
 
+        name_var_code_new_method = f"__code_new_method__{cls_name}__{func_name}"
+        code_new_method = pythran_manual.__dict__[name_var_code_new_method]
+
         namespace = {"pythran_func": pythran_func}
-        exec(code, namespace)
+        exec(code_new_method, namespace)
         setattr(cls, key, wraps(func)(namespace["new_method"]))
 
     return cls
@@ -56,3 +52,9 @@ class Transmitter:
     def __call__(self, inp: "float[]"):
         """My docstring"""
         return inp * np.exp(np.arange(len(inp)) * self.freq * 1j)
+
+
+if __name__ == "__main__":
+    inp = np.ones(2)
+    trans = Transmitter(1.)
+    trans(inp)

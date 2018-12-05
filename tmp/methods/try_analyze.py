@@ -43,11 +43,8 @@ def produce_pythran_code_class(cls, func_name):
 
     signature = inspect.signature(func)
     types_func = [param.annotation for param in signature.parameters.values()][1:]
-    # args_func = list(signature.parameters.keys())[1:]
+    args_func = list(signature.parameters.keys())[1:]
 
-    return func
-
-    # bug IndentationError (util.strip_typehints)
     src = get_source_without_decorator(func)
 
     tokens = []
@@ -88,12 +85,12 @@ def produce_pythran_code_class(cls, func_name):
 
     types_attrs = [cls_annotations[attr] for attr in attributes]
 
-    attributes = ["self_" + attr for attr in attributes]
+    attributes_self = ["self_" + attr for attr in attributes]
 
     index_self = tokens.index((NAME, "self"))
 
     tokens_attr = []
-    for ind, attr in enumerate(attributes):
+    for ind, attr in enumerate(attributes_self):
         tokens_attr.append((NAME, attr))
         tokens_attr.append((OP, ","))
 
@@ -123,6 +120,20 @@ def produce_pythran_code_class(cls, func_name):
         )
 
     pythran_code = pythran_signatures + "\n" + new_code
+
+    name_var_code_new_method = f"__code_new_method__{cls_name}__{func_name}"
+
+    str_self_dot_attributes = ", ".join("self." + attr for attr in attributes)
+    str_args_func = ", ".join(args_func)
+
+    pythran_code += (
+        f"\n# pythran export {name_var_code_new_method}\n"
+        f'\n{name_var_code_new_method} = """\n\n'
+        f"def new_method(self, {str_args_func}):\n"
+        f"    return pythran_func({str_self_dot_attributes}, {str_args_func})"
+        '\n\n"""'
+    )
+
     return pythran_code
 
 

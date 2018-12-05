@@ -10,6 +10,8 @@ doc/**.zip
 
 **/.ipynb_checkpoints/*
 
+*.so
+
 build/*
 dist/*.tar.gz
 dist*
