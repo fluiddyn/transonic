@@ -1,5 +1,5 @@
-"""Command line _pythran-fluid
-==============================
+"""Command line
+===============
 
 Internal API
 ------------
@@ -24,7 +24,7 @@ ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 def main():
     """Minimal layer above the Pythran commandline"""
 
-    assert sys.argv[0].endswith("_pythran-fluid")
+    assert sys.argv[0].endswith("fluidpythran_cl/run_pythran.py")
 
     args = sys.argv[1:]
 
@@ -90,3 +90,7 @@ def main():
         logger.error(
             f"file {path_out.absolute()} has not been created by Pythran"
         )
+
+
+if __name__ == "__main__":
+    main()

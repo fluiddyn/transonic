@@ -29,6 +29,7 @@ import time
 from typing import Union, Iterable, Optional
 import sysconfig
 import hashlib
+import sys
 
 from .compat import open, implementation
 from . import mpi
@@ -135,7 +136,12 @@ class SchedulerPopen:
         if openmp:
             update_flags("-fopenmp")
 
-        words_command = ["_pythran-fluid", path.name]
+        words_command = [
+            sys.executable,
+            "-m",
+            "fluidpythran_cl.run_pythran",
+            path.name,
+        ]
 
         if name_ext_file is None:
             name_ext_file = name_ext_from_path_pythran(path)

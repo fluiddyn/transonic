@@ -28,6 +28,7 @@ import time
 import subprocess
 import os
 import functools
+import sys
 
 from .util import (
     get_module_name,
@@ -245,7 +246,13 @@ class FluidPythran:
                     # better to do this in another process because the file is already run...
                     os.environ["FLUIDPYTHRAN_NO_MPI"] = "1"
                     returncode = subprocess.call(
-                        ["fluidpythran", "-np", str(path_mod)]
+                        [
+                            sys.executable,
+                            "-m",
+                            "fluidpythran.run",
+                            "-np",
+                            str(path_mod),
+                        ]
                     )
                     del os.environ["FLUIDPYTHRAN_NO_MPI"]
                 returncode = mpi.bcast(returncode)
