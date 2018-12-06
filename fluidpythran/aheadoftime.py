@@ -221,6 +221,7 @@ class FluidPythran:
 
         if is_transpiling:
             self.functions = {}
+            self.classes = {}
             self.signatures_func = {}
             modules[module_name] = self
             self.is_transpiled = False
@@ -357,7 +358,14 @@ class FluidPythran:
 
         """
 
-        # FIXME methods?
+        signature = inspect.signature(func)
+        try:
+            is_method = next(iter(signature.parameters.keys())) == "self"
+        except StopIteration:
+            is_method = False
+
+        if is_method:
+            return self.pythran_def_method(func)
 
         if is_transpiling:
             self.functions[func.__name__] = func
@@ -377,6 +385,25 @@ class FluidPythran:
 
         return func_tmp
 
+    def pythran_def_method(self, func):
+        """Decorator used for methods
+
+        Parameters
+        ----------
+
+        func: a function
+
+        """
+
+        if is_transpiling:
+            func.__fluidpythran__ = "pythran_def_method"
+            return func
+
+        if not self.is_transpiled:
+            return func
+
+        return FluidPythranTemporaryMethod(func)
+
     def pythran_class(self, cls: type):
         """Decorator used for classes
 
@@ -394,7 +421,26 @@ class FluidPythran:
         if not self.is_transpiled:
             return cls
 
-        # FIXME
+        cls_name = cls.__name__
+
+        for key, value in cls.__dict__.items():
+            if not isinstance(value, FluidPythranTemporaryMethod):
+                continue
+            func = value.func
+            func_name = func.__name__
+
+            name_pythran_func = f"__for_method__{cls_name}__{func_name}"
+            name_var_code_new_method = f"__code_new_method__{cls_name}__{func_name}"
+
+            try:
+                pythran_func = getattr(self.module_pythran, name_pythran_func)
+                code_new_method = getattr(self.module_pythran, name_var_code_new_method)
+            except AttributeError:
+                logger.warning("Pythran file does not seem to be up-to-date.")
+            else:
+                namespace = {"pythran_func": pythran_func}
+                exec(code_new_method, namespace)
+                setattr(cls, key, functools.wraps(func)(namespace["new_method"]))
 
         return cls
 
@@ -469,3 +515,11 @@ class FluidPythran:
             if func.__name__ not in self.signatures_func:
                 self.signatures_func[func.__name__] = []
             self.signatures_func[func.__name__].extend(signatures)
+
+
+class FluidPythranTemporaryMethod:
+    def __init__(self, func):
+        self.func = func
+
+    def __call__(self, self_bis, *args, **kwargs):
+        raise RuntimeError("Do not call this function!")
