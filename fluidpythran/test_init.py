@@ -20,10 +20,11 @@ def test_not_fluidpythranized():
 
     importlib.reload(for_test_init)
 
-    from .for_test_init import func, func1
+    from .for_test_init import func, func1, check_class
 
     func(1, 3.14)
     func1(1.1, 2.2)
+    check_class()
 
 
 def test_use_pythran_false():

@@ -339,8 +339,10 @@ class FluidPythran:
             self.is_compiled = hasattr(self.module_pythran, "__pythran__")
             if self.is_compiled:
                 module = inspect.getmodule(frame[0])
-                module.__pythran__ = self.module_pythran.__pythran__
-                module.__fluidpythran__ = self.module_pythran.__fluidpythran__
+                # module can be None if (at least) it has been run with runpy
+                if module is not None:
+                    module.__pythran__ = self.module_pythran.__pythran__
+                    module.__fluidpythran__ = self.module_pythran.__fluidpythran__
 
             if hasattr(self.module_pythran, "arguments_blocks"):
                 self.arguments_blocks = getattr(
@@ -348,6 +350,19 @@ class FluidPythran:
                 )
 
         modules[module_name] = self
+
+    def reload_module_pythran(self):
+        if self.path_extension.exists() and not self.is_compiling:
+            self.module_pythran = import_from_path(
+                self.path_extension, self.module_pythran.__name__
+            )
+        elif self.path_pythran.exists():
+            self.module_pythran = import_from_path(
+                self.path_pythran, self.module_pythran.__name__
+            )
+        else:
+            self.is_transpiled = False
+            self.is_compiled = False
 
     def pythran_def(self, func):
         """Decorator used for functions
@@ -379,7 +394,11 @@ class FluidPythran:
             func_tmp = getattr(self.module_pythran, func.__name__)
         except AttributeError:
             logger.warning("Pythran file does not seem to be up-to-date.")
-            func_tmp = func
+            self.reload_module_pythran()
+            try:
+                func_tmp = getattr(self.module_pythran, func.__name__)
+            except AttributeError:
+                func_tmp = func
 
         if self.is_compiling:
             return functools.wraps(func)(CheckCompiling(self, func_tmp))
@@ -395,6 +414,8 @@ class FluidPythran:
         func: a function
 
         """
+
+        print("pythran_def_method", func, is_transpiling, self.is_transpiled)
 
         if is_transpiling:
             func.__fluidpythran__ = "pythran_def_method"
@@ -414,7 +435,6 @@ class FluidPythran:
         cls: a class
 
         """
-
         if is_transpiling:
             self.classes[cls.__name__] = cls
             return cls
@@ -435,6 +455,13 @@ class FluidPythran:
                 f"__code_new_method__{cls_name}__{func_name}"
             )
 
+            if not hasattr(self.module_pythran, name_pythran_func):
+                print("self.module_pythran", self.module_pythran)
+                self.reload_module_pythran()
+                print("self.module_pythran", self.module_pythran)
+                with open(self.module_pythran.__file__, "r") as file:
+                    print(file.read())
+
             try:
                 pythran_func = getattr(self.module_pythran, name_pythran_func)
                 code_new_method = getattr(
@@ -442,6 +469,7 @@ class FluidPythran:
                 )
             except AttributeError:
                 logger.warning("Pythran file does not seem to be up-to-date.")
+                # setattr(cls, key, func)
             else:
                 namespace = {"pythran_func": pythran_func}
                 exec(code_new_method, namespace)
@@ -524,7 +552,11 @@ class FluidPythran:
 
 class FluidPythranTemporaryMethod:
     def __init__(self, func):
+        print("init FluidPythranTemporaryMethod", func)
         self.func = func
 
     def __call__(self, self_bis, *args, **kwargs):
-        raise RuntimeError("Do not call this function!")
+        raise RuntimeError(
+            "Did you forget to decorate a class using methods decorated "
+            "with fluidpythran? Please decorate it with @pythran_class."
+        )

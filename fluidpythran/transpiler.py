@@ -25,7 +25,16 @@ Internal API
 
 """
 
-from tokenize import tokenize, untokenize, COMMENT, INDENT, DEDENT, STRING, NAME, OP
+from tokenize import (
+    tokenize,
+    untokenize,
+    COMMENT,
+    INDENT,
+    DEDENT,
+    STRING,
+    NAME,
+    OP,
+)
 
 import os
 from logging import DEBUG
@@ -286,7 +295,9 @@ def produce_pythran_code_class_func(cls, func_name):
                 tokens.append((NAME, "self"))
                 using_self = False
             else:
-                raise RuntimeError
+                raise NotImplementedError(
+                    f"self{tokval} not supported by FluidPythran"
+                )
 
         if using_self == ".":
             if toknum == NAME and tokval in cls_annotations:
@@ -295,7 +306,9 @@ def produce_pythran_code_class_func(cls, func_name):
                 attributes.add(tokval)
                 continue
             else:
-                raise RuntimeError
+                raise NotImplementedError(
+                    f"self.{tokval} used but {tokval} not in class annotations"
+                )
 
         if toknum == NAME and tokval == "self":
             using_self = tokval
@@ -366,21 +379,22 @@ def make_pythran_code(path_py: Path):
         code = file.read()
 
     namespace = None
+    module_name = ".".join(
+        path_py.absolute().relative_to(os.getcwd()).with_suffix("").parts
+    )
+
     if "# FLUIDPYTHRAN_NO_IMPORT" not in code:
         # we have to import the module!
         fluidpythran.aheadoftime.is_transpiling = True
         try:
             namespace = run_path(str(path_py))
         except ImportError:
-            name_mod = ".".join(
-                path_py.absolute().relative_to(os.getcwd()).with_suffix("").parts
-            )
             sys.path.insert(0, "")
             try:
-                namespace = run_module(name_mod)
+                namespace = run_module(module_name)
             except ImportError:
                 logger.error(
-                    f"fluidpythran was unable to import module {name_mod}: "
+                    f"fluidpythran was unable to import module {module_name}: "
                     "no Pythran file created. "
                     "You could add '# FLUIDPYTHRAN_NO_IMPORT' "
                     "in the module if needed..."
@@ -416,7 +430,13 @@ imports: {imports}\n"""
     if imports:
         code_pythran += "\n" + "\n".join(imports) + "\n"
 
-    module_name = Path(path_py).with_suffix("").name
+    print(f"\n\n {path_py} \n {module_name} \n\n")
+
+    print(
+        "if module_name in fluidpythran.aheadoftime.modules:",
+        module_name in fluidpythran.aheadoftime.modules,
+    )
+    print(module_name, fluidpythran.aheadoftime.modules)
     if module_name in fluidpythran.aheadoftime.modules:
         fp = fluidpythran.aheadoftime.modules[module_name]
         fp._make_signatures_from_annotations()
@@ -431,6 +451,7 @@ imports: {imports}\n"""
                 signatures_func_all[name_func] = []
             signatures_func_all[name_func].extend(signatures)
 
+        print("for cls in fp.classes.values():")
         for cls in fp.classes.values():
             code_pythran += produce_pythran_code_class(cls)
 
