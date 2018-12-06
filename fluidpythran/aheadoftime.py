@@ -114,6 +114,21 @@ def pythran_def(func):
     return fp.pythran_def(func)
 
 
+def pythran_class(cls):
+    """Decorator to declare that a class contains pythran_def
+
+    Parameters
+    ----------
+
+    cls: a class
+
+    """
+
+    fp = _get_fluidpythran_calling_module()
+    return fp.pythran_class(cls)
+
+
+
 def make_signature(func, **kwargs):
     """Create signature for a function with values for the template types
 
@@ -342,6 +357,8 @@ class FluidPythran:
 
         """
 
+        # FIXME methods?
+
         if is_transpiling:
             self.functions[func.__name__] = func
             return func
@@ -359,6 +376,27 @@ class FluidPythran:
             return functools.wraps(func)(CheckCompiling(self, func_tmp))
 
         return func_tmp
+
+    def pythran_class(self, cls: type):
+        """Decorator used for classes
+
+        Parameters
+        ----------
+
+        cls: a class
+
+        """
+
+        if is_transpiling:
+            self.classes[cls.__name__] = cls
+            return cls
+
+        if not self.is_transpiled:
+            return cls
+
+        # FIXME
+
+        return cls
 
     def make_signature(self, func, _signature=None, **kwargs):
         """Create signature for a function with values for the template types

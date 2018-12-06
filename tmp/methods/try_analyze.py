@@ -11,15 +11,17 @@ from fluidpythran.log import logger, set_log_level
 from fluidpythran.util import get_source_without_decorator
 from fluidpythran.annotation import compute_pythran_types_from_valued_types
 
-from fluidpythran import Array, Type, NDim
-
-# set_log_level("debug")
-
-A = Array[Type(float, int), NDim(1, 2)]
-
 
 def pythran_def_method(func):
     return func
+
+
+# set_log_level("debug")
+
+
+from fluidpythran import Array, Type, NDim
+
+A = Array[Type(float, int), NDim(1, 2)]
 
 
 class Transmitter:
