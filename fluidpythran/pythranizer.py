@@ -154,8 +154,6 @@ class SchedulerPopen:
             cwd = str(cwd)
             words_command = [str(word) for word in words_command]
 
-        # FIXME lock file ?
-
         self.block_until_avail(parallel)
 
         process = None

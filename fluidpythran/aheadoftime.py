@@ -6,6 +6,8 @@ User API
 
 .. autofunction:: pythran_def
 
+.. autofunction:: pythran_class
+
 .. autofunction:: make_signature
 
 .. autoclass:: FluidPythran
@@ -126,7 +128,6 @@ def pythran_class(cls):
 
     fp = _get_fluidpythran_calling_module()
     return fp.pythran_class(cls)
-
 
 
 def make_signature(func, **kwargs):
@@ -430,11 +431,15 @@ class FluidPythran:
             func_name = func.__name__
 
             name_pythran_func = f"__for_method__{cls_name}__{func_name}"
-            name_var_code_new_method = f"__code_new_method__{cls_name}__{func_name}"
+            name_var_code_new_method = (
+                f"__code_new_method__{cls_name}__{func_name}"
+            )
 
             try:
                 pythran_func = getattr(self.module_pythran, name_pythran_func)
-                code_new_method = getattr(self.module_pythran, name_var_code_new_method)
+                code_new_method = getattr(
+                    self.module_pythran, name_var_code_new_method
+                )
             except AttributeError:
                 logger.warning("Pythran file does not seem to be up-to-date.")
             else:
