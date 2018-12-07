@@ -1,6 +1,6 @@
 import numpy as np
 
-from fluidpythran import pythran_def
+from fluidpythran import boost
 
 # pythran import numpy as np
 
@@ -8,11 +8,11 @@ from fluidpythran import pythran_def
 # pythran def func(int[][], float[][])
 
 
-@pythran_def
+@boost
 def func(a: float, b: float):
     return (a * np.log(b)).max()
 
 
-@pythran_def
+@boost
 def func1(a: int, b: float):
     return a * np.cos(b)

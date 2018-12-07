@@ -2,10 +2,10 @@ import numpy as np
 
 # pythran import numpy as np
 
-from fluidpythran import pythran_class, pythran_def
+from fluidpythran import boost
 
 
-@pythran_class
+@boost
 class Transmitter:
 
     freq: float
@@ -13,7 +13,7 @@ class Transmitter:
     def __init__(self, freq):
         self.freq = float(freq)
 
-    @pythran_def
+    @boost
     def __call__(self, inp: "float[]"):
         """My docstring"""
         return inp * np.exp(np.arange(len(inp)) * self.freq * 1j)

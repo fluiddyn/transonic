@@ -1,4 +1,4 @@
-from fluidpythran import Type, NDim, Array, pythran_def
+from fluidpythran import Type, NDim, Array, boost
 
 import numpy as np
 
@@ -9,7 +9,7 @@ N = NDim(1)
 A1 = Array[T, N]
 A2 = Array[float, N+1]
 
-
+@boost
 class MyClass:
 
     arr0: A1
@@ -21,7 +21,7 @@ class MyClass:
         self.arr1 = np.zeros(n, dtype=dtype)
         self.arr2 = np.zeros(n)
 
-    @pythran_def
+    @boost
     def compute(self, alpha: int):
         tmp = (self.arr0 + self.arr1).mean()
         return tmp ** alpha * self.arr2

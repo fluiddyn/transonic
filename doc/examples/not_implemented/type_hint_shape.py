@@ -9,7 +9,7 @@ We could also express these concepts in strings, mainly following Pythran...
 
 """
 
-from fluidpythran import pythran_def, Type, NDim, Shape, Array
+from fluidpythran import boost, Type, NDim, Shape, Array
 
 T = Type(int, float)
 
@@ -17,7 +17,7 @@ T = Type(int, float)
 A = Array[T, Shape("[3, :]", "[3, :, :]", "[::, ::]", "[::, ::, ::]")]
 
 
-@pythran_def
+@boost
 def compute(a: A, b: A, c: T):
     return a + b
 
@@ -26,6 +26,6 @@ def compute(a: A, b: A, c: T):
 A1 = Array[T, NDim(1, 3), Shape("[3, ...]", "[::, ...]")]
 
 
-@pythran_def
+@boost
 def compute1(a: A1, b: A1, c: T):
     return c * (a + b)

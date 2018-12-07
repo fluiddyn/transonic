@@ -17,7 +17,7 @@ def pythran_def_method(func):
     return FluidPythranTemporaryMethod(func)
 
 
-def pythran_class(cls):
+def boost(cls):
 
     cls_name = cls.__name__
 
@@ -40,7 +40,7 @@ def pythran_class(cls):
     return cls
 
 
-@pythran_class
+@boost
 class Transmitter:
 
     freq: float

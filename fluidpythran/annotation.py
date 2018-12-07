@@ -331,6 +331,12 @@ def compute_pythran_types_from_types(types, **kwargs):
 
         pythran_types.append(pythran_type)
 
+        if "_empty" in pythran_types:
+            raise ValueError(
+                "At least one annotation type lacking in a signature.\n"
+                f"types = {types}"
+            )
+
     return pythran_types
 
 
@@ -354,6 +360,13 @@ def compute_pythran_types_from_valued_types(types):
             else:
                 str_type = type_
             str_types.append(str_type)
+
+        if "_empty" in str_types:
+            raise ValueError(
+                "At least one annotation type lacking in a signature.\n"
+                f"types = {types}"
+            )
+
         return (str_types,)
 
     if not all(param.values for param in template_parameters):

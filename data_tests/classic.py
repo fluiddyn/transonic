@@ -1,7 +1,7 @@
 
 import numpy as np
 
-from fluidpythran import pythran_def
+from fluidpythran import boost
 
 # FLUIDPYTHRAN_NO_IMPORT
 
@@ -14,6 +14,6 @@ from fluidpythran import pythran_def
 # pythran def func(int[][], float[][])
 
 
-@pythran_def
+@boost
 def func(a, b):
     return (a * np.log(b)).max()
