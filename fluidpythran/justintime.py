@@ -383,7 +383,9 @@ class CachedJIT:
         ext_files = None
         if mpi.rank == 0:
             glob_name_ext_file = func_name + "_" + hex_src + "_*" + ext_suffix
-            ext_files = list(path_pythran.parent.glob(glob_name_ext_file))
+            ext_files = list(
+                mpi.PathSeq(path_pythran).parent.glob(glob_name_ext_file)
+            )
         ext_files = mpi.bcast(ext_files)
 
         if not ext_files:

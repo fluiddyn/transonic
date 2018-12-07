@@ -25,7 +25,7 @@ FluidPythran: easily speedup your Python code with Pythran
    FluidPythran is used in `FluidSim
    <https://bitbucket.org/fluiddyn/fluidsim>`_ (see examples for `blocks
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_,
-   `@pythran_def
+   `@boost
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/operators/operators3d.py>`_
    and `@cachedjit
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/solvers/plate2d/output/correlations_freq.py>`_).
@@ -124,11 +124,11 @@ Command :code:`# pythran def`
     import h5py
     import mpi4py
 
-    from fluidpythran import pythran_def
+    from fluidpythran import boost
 
     # pythran def myfunc(int, float)
 
-    @pythran_def
+    @boost
     def myfunc(a, b):
         return a * b
 
@@ -142,7 +142,7 @@ Most of this code looks familiar to Pythran users. The differences:
 - :code:`# pythran def` instead of :code:`# pythran export` (to stress that it
   is not the same command).
 
-- A tiny bit of Python... The decorator :code:`@pythran_def` replaces the
+- A tiny bit of Python... The decorator :code:`@boost` replaces the
   Python function by the pythranized function if FluidPythran has been used to
   produced the associated Pythran file.
 
@@ -157,9 +157,9 @@ The previous example can be rewritten without Pythran commands:
     import h5py
     import mpi4py
 
-    from fluidpythran import pythran_def
+    from fluidpythran import boost
 
-    @pythran_def
+    @boost
     def myfunc(a: int, b: float):
         return a * b
 
@@ -268,8 +268,8 @@ export`.
 <https://fluidpythran.readthedocs.io/en/latest/examples/blocks.html>`_
 
 
-Python classes: :code:`@pythran_def` for methods
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Python classes: :code:`@boost` for methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For simple methods **only using attributes**, we can write:
 
@@ -277,11 +277,11 @@ For simple methods **only using attributes**, we can write:
 
     import numpy as np
 
-    from fluidpythran import pythran_def, pythran_class
+    from fluidpythran import boost
 
     A = "float[:]"
 
-    @pythran_class
+    @boost
     class MyClass:
 
         arr0: A
@@ -291,7 +291,7 @@ For simple methods **only using attributes**, we can write:
             self.arr0 = np.zeros(n)
             self.arr1 = np.zeros(n)
 
-        @pythran_def
+        @boost
         def compute(self, alpha: float):
             return (self.arr0 + self.arr1).mean() ** alpha
 

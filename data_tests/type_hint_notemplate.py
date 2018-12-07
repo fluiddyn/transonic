@@ -15,7 +15,7 @@ N1 = NDim(4, 5)
 T = Type(int, np.complex128)
 
 
-@fp.pythran_def
+@fp.boost
 def compute(a: A, b: A, c: T, d: A1, e: str):
     print(e)
     tmp = a + b

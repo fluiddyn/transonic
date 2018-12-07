@@ -2,8 +2,8 @@
 import h5py
 import mpi4py
 
-from fluidpythran import pythran_def
+from fluidpythran import boost
 
-@pythran_def
+@boost
 def myfunc(a: int, b: float):
     return a * b

@@ -15,7 +15,7 @@ case in `pythran_class.py` and more complicated than what is needed for
 
 """
 
-from fluidpythran import Type, NDim, Array, pythran_def
+from fluidpythran import Type, NDim, Array, boost
 
 import numpy as np
 
@@ -42,7 +42,7 @@ class MyClass:
         self.arr1 = np.zeros(n, dtype=dtype)
         self.arr2 = np.zeros(n)
 
-    @pythran_def
+    @boost
     def compute(self, alpha: float):
         tmp = self.sum_arrays().mean()
         return tmp ** alpha * self.arr2
@@ -50,7 +50,7 @@ class MyClass:
     def sum_arrays(self):
         return self.arr0 + self.arr1
 
-    @pythran_def
+    @boost
     def compute1(self, alpha: float):
         tmp = sum_arrays(self.arr0, self.arr1).mean()
         return tmp ** alpha * self.arr2

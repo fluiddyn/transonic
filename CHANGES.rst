@@ -8,8 +8,8 @@ Future
 0.1.4 (2018-12-06)
 ------------------
 
-- :code:`pythran_def` for simple methods (without assignation to attributes
-  and call of other methods)
+- :code:`boost` decorator for functions, simple methods (without assignation to
+  attributes and call of other methods) and classes
 - Bugfixes
 - :code:`FLUIDPYTHRAN_DIR`
 

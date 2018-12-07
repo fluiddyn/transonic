@@ -9,7 +9,7 @@ A = Array[T, N]
 A1 = Array[np.int8, N + 1]
 
 
-@fp.pythran_def
+@fp.boost
 def compute(a: A, b: A, c: T, d: A1, e: str):
     print(e)
     tmp = a + b

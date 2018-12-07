@@ -23,11 +23,11 @@ Yes, this one is neat!
 
 Note that one can also just write Pythran type-string in type annotations::
 
-    @pythran_def
+    @boost
     def myfunc(a: "float[3, :]", b: float):
         ...
 
-Finally, array types with only one number of dimension can simply be 
+Finally, array types with only one number of dimension can simply be
 defined like this::
 
     from fluidpythran import Array

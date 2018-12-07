@@ -2,13 +2,13 @@ import numpy as np
 
 # pythran import numpy as np
 
-from fluidpythran import FluidPythran, pythran_def, pythran_class
+from fluidpythran import FluidPythran, boost
 
 
 # pythran def func(int, float)
 
 
-@pythran_def
+@boost
 def func(a, b):
     return a + b
 
@@ -16,7 +16,7 @@ def func(a, b):
 # pythran def func2(int, float)
 
 
-@pythran_def
+@boost
 def func2(a, b):
     return a - b
 
@@ -41,7 +41,7 @@ def func1(a, b):
             result += a ** 2 + b ** 3
 
 
-@pythran_class
+@boost
 class Transmitter:
 
     freq: float
@@ -49,7 +49,7 @@ class Transmitter:
     def __init__(self, freq):
         self.freq = float(freq)
 
-    @pythran_def
+    @boost
     def __call__(self, inp: "float[]"):
         """My docstring"""
         return inp * np.exp(np.arange(len(inp)) * self.freq * 1j)

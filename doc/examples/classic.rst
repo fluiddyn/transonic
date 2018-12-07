@@ -14,7 +14,7 @@ Most of this code looks familiar to Pythran users. The differences:
 - :code:`# pythran def` instead of :code:`# pythran export` (to stress that it
   is not the same command).
 
-- A tiny bit of Python... The decorator :code:`@pythran_def` replaces the
+- A tiny bit of Python... The decorator :code:`@boost` replaces the
   Python function by the pythranized function if FluidPythran has been used to
   produced the associated Pythran file.
 

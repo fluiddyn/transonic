@@ -4,9 +4,9 @@
 User API
 --------
 
-.. autofunction:: pythran_def
+.. autofunction:: boost
 
-.. autofunction:: pythran_class
+.. autofunction:: pythran_def
 
 .. autofunction:: make_signature
 
@@ -116,18 +116,18 @@ def pythran_def(func):
     return fp.pythran_def(func)
 
 
-def pythran_class(cls):
-    """Decorator to declare that a class contains pythran_def
+def boost(obj):
+    """Decorator to declare that an object can "use" pythran
 
     Parameters
     ----------
 
-    cls: a class
+    obj: a function, a method or a class
 
     """
 
     fp = _get_fluidpythran_calling_module()
-    return fp.pythran_class(cls)
+    return fp.boost(obj)
 
 
 def make_signature(func, **kwargs):
@@ -414,6 +414,13 @@ class FluidPythran:
 
         return FluidPythranTemporaryMethod(func)
 
+    def boost(self, obj):
+        """Universal decorator for aot compilation"""
+        if isinstance(obj, type):
+            return self.pythran_class(obj)
+        else:
+            return self.pythran_def(obj)
+
     def pythran_class(self, cls: type):
         """Decorator used for classes
 
@@ -541,5 +548,5 @@ class FluidPythranTemporaryMethod:
     def __call__(self, self_bis, *args, **kwargs):
         raise RuntimeError(
             "Did you forget to decorate a class using methods decorated "
-            "with fluidpythran? Please decorate it with @pythran_class."
+            "with fluidpythran? Please decorate it with @boost."
         )

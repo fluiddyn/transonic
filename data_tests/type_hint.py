@@ -14,7 +14,7 @@ assert repr(N - 1) == "N - 1"
 print(repr(A1))
 
 
-@fp.pythran_def
+@fp.boost
 def compute(a: A, b: A1, c: T, d: A, e: str):
     print(e)
     tmp = a + b

@@ -111,6 +111,7 @@ def modification_date(filename):
 def has_to_build(output_file: Path, input_file: Path):
     """Check if a file has to be (re)built"""
     output_file = Path(output_file)
+    input_file = Path(input_file)
     if not output_file.exists():
         return True
     mod_date_output = modification_date(output_file)

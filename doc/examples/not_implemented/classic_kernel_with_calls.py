@@ -1,6 +1,6 @@
 import numpy as np
 
-from fluidpythran import pythran_def
+from fluidpythran import boost
 
 # pythran import numpy as np
 
@@ -12,6 +12,6 @@ def mylog(arr):
 # pythran def func(int[][], float[][])
 
 
-@pythran_def
+@boost
 def func(a, b):
     return (a * mylog(b)).max()
