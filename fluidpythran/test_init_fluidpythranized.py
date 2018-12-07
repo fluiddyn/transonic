@@ -16,19 +16,24 @@ from .util import (
     name_ext_from_path_pythran,
 )
 from .aheadoftime import modules
-from .mpi import Path
+from . import mpi
 
 module_name = "fluidpythran.for_test_init"
 
 
 class TestsInit(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.path_for_test = mpi.Path(__file__).parent / "for_test_init.py"
 
-    path_for_test = Path(__file__).parent / "for_test_init.py"
+        assert cls.path_for_test.exists()
 
-    assert path_for_test.exists()
-
-    path_pythran = path_for_test.parent / "__pythran__" / path_for_test.name
-    path_ext = path_pythran.with_name(name_ext_from_path_pythran(path_pythran))
+        cls.path_pythran = path_pythran = (
+            cls.path_for_test.parent / "__pythran__" / cls.path_for_test.name
+        )
+        cls.path_ext = path_pythran.with_name(
+            name_ext_from_path_pythran(path_pythran)
+        )
 
     @classmethod
     def tearDownClass(cls):
@@ -45,7 +50,11 @@ class TestsInit(unittest.TestCase):
         except KeyError:
             pass
 
+        print(mpi.rank, "end tearDownClass")
+
     def test_fluidpythranized(self):
+
+        print(mpi.rank, "start test", flush=1)
 
         try:
             os.environ.pop("PYTHRANIZE_AT_IMPORT")
@@ -59,10 +68,20 @@ class TestsInit(unittest.TestCase):
 
         assert not has_to_pythranize_at_import()
 
+        print(mpi.rank, "before if self.path_pythran.exists()", flush=1)
+
         if self.path_pythran.exists():
+
+            print(mpi.rank, "before self.path_pythran.unlink()", flush=1)
+
             self.path_pythran.unlink()
 
-        make_pythran_file(self.path_for_test)
+        print(mpi.rank, "before make_pythran_file(self.path_for_test)", flush=1)
+        if mpi.rank == 0:
+            make_pythran_file(self.path_for_test)
+
+        print(mpi.rank, "after make_pythran_file(self.path_for_test)", flush=1)
+        mpi.barrier()
 
         from . import for_test_init
 

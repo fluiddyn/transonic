@@ -66,10 +66,19 @@ if nb_proc > 1:
 
     class PathMPI(type(Path())):
         def exists(self):
-            respons = None
+            answer = None
             if rank == 0:
-                respons = super().exists()
-            return comm.bcast(respons)
+                answer = super().exists()
+
+            ret = comm.bcast(("exists", answer))
+
+            if len(ret) != 2 and ret[0] != "exists":
+                print(rank, "bug!!!!", ret, flush=1)
+                raise RuntimeError
+
+            kind, answer = ret
+
+            return answer
 
         def unlink(self):
             if rank == 0:

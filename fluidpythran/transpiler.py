@@ -45,6 +45,7 @@ from runpy import run_module, run_path
 import sys
 from unittest.mock import MagicMock as Mock
 from contextlib import contextmanager
+from pathlib import Path
 
 from typing import Iterable, Optional
 
@@ -61,7 +62,6 @@ from .util import (
     find_module_name_from_path,
 )
 from .compat import open
-from .mpi import Path
 import fluidpythran
 
 
