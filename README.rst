@@ -271,38 +271,29 @@ export`.
 Python classes: :code:`@pythran_def` for methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Just a NotImplemented idea! See https://bitbucket.org/fluiddyn/fluidpythran/issues/3
-
-For simple methods only using simple attributes, if could be simple and *very*
-useful to support this:
+For simple methods **only using attributes**, we can write:
 
 .. code :: python
 
-    from fluidpythran import Type, NDim, Array, pythran_def
-
     import numpy as np
 
-    T = Type(int, np.float64)
-    N = NDim(1)
+    from fluidpythran import pythran_def, pythran_class
 
-    A1 = Array[T, N]
-    A2 = Array[float, N+1]
+    A = "float[:]"
 
+    @pythran_class
     class MyClass:
 
-        arr0: A1
-        arr1: A1
-        arr2: A2
+        arr0: A
+        arr1: A
 
-        def __init__(self, n, dtype=int):
-            self.arr0 = np.zeros(n, dtype=dtype)
-            self.arr1 = np.zeros(n, dtype=dtype)
-            self.arr2 = np.zeros(n)
+        def __init__(self, n):
+            self.arr0 = np.zeros(n)
+            self.arr1 = np.zeros(n)
 
         @pythran_def
-        def compute(self, alpha: int):
-            tmp = (self.arr0 + self.arr1).mean()
-            return tmp ** alpha * self.arr2
+        def compute(self, alpha: float):
+            return (self.arr0 + self.arr1).mean() ** alpha
 
 Make the Pythran files
 ----------------------

@@ -2,8 +2,16 @@
 Future
 ------
 
+- :code:`cachedjit` for simple methods (without assignation to attributes
+  and call of other methods)
+
+0.1.4 (2018-12-06)
+------------------
+
 - :code:`pythran_def` for simple methods (without assignation to attributes
   and call of other methods)
+- Bugfixes
+- :code:`FLUIDPYTHRAN_DIR`
 
 0.1.3 (2018-12-04)
 ------------------

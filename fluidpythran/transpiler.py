@@ -25,12 +25,21 @@ Internal API
 
 """
 
-from tokenize import tokenize, untokenize, COMMENT, INDENT, DEDENT, STRING, NAME
+from tokenize import (
+    tokenize,
+    untokenize,
+    COMMENT,
+    INDENT,
+    DEDENT,
+    STRING,
+    NAME,
+    OP,
+)
 
-import os
 from logging import DEBUG
 
 from token import tok_name
+import inspect
 from io import BytesIO
 from runpy import run_module, run_path
 import sys
@@ -46,7 +55,11 @@ except ImportError:
 
 from .log import logger, set_log_level
 from .annotation import compute_pythran_types_from_valued_types
-from .util import has_to_build, get_source_without_decorator
+from .util import (
+    has_to_build,
+    get_source_without_decorator,
+    find_module_name_from_path,
+)
 from .compat import open
 from .mpi import Path
 import fluidpythran
@@ -245,6 +258,124 @@ def make_pythran_code_functions(
     return code_pythran
 
 
+def produce_pythran_code_class(cls):
+    pythran_code = ""
+    for key, value in cls.__dict__.items():
+        if (
+            hasattr(value, "__fluidpythran__")
+            and value.__fluidpythran__ == "pythran_def_method"
+        ):
+            pythran_code += produce_pythran_code_class_func(cls, key)
+    return pythran_code
+
+
+def produce_pythran_code_class_func(cls, func_name):
+
+    cls_name = cls.__name__
+    cls_annotations = cls.__annotations__
+    func = cls.__dict__[func_name]
+
+    signature = inspect.signature(func)
+    types_func = [param.annotation for param in signature.parameters.values()][1:]
+    args_func = list(signature.parameters.keys())[1:]
+
+    src = get_source_without_decorator(func)
+
+    tokens = []
+    attributes = set()
+
+    using_self = False
+
+    g = tokenize(BytesIO(src.encode("utf-8")).readline)
+    for toknum, tokval, a, b, c in g:
+        logger.debug((tok_name[toknum], tokval))
+
+        if using_self == "self":
+            if toknum == OP and tokval == ".":
+                using_self = tokval
+                continue
+            elif toknum == OP and tokval == ",":
+                tokens.append((NAME, "self"))
+                using_self = False
+            else:
+                raise NotImplementedError(
+                    f"self{tokval} not supported by FluidPythran"
+                )
+
+        if using_self == ".":
+            if toknum == NAME and tokval in cls_annotations:
+                using_self = False
+                tokens.append((NAME, "self_" + tokval))
+                attributes.add(tokval)
+                continue
+            else:
+                raise NotImplementedError(
+                    f"self.{tokval} used but {tokval} not in class annotations"
+                )
+
+        if toknum == NAME and tokval == "self":
+            using_self = tokval
+            continue
+
+        tokens.append((toknum, tokval))
+
+    attributes = sorted(attributes)
+
+    types_attrs = [cls_annotations[attr] for attr in attributes]
+
+    attributes_self = ["self_" + attr for attr in attributes]
+
+    index_self = tokens.index((NAME, "self"))
+
+    tokens_attr = []
+    for ind, attr in enumerate(attributes_self):
+        tokens_attr.append((NAME, attr))
+        tokens_attr.append((OP, ","))
+
+    tokens = tokens[:index_self] + tokens_attr + tokens[index_self + 2 :]
+
+    index_func_name = tokens.index((NAME, func_name))
+    name_pythran_func = f"__for_method__{cls_name}__{func_name}"
+    tokens[index_func_name] = (NAME, name_pythran_func)
+
+    new_code = untokenize(tokens).decode("utf-8")
+    if black:
+        new_code = black.format_str(new_code, line_length=82)
+
+    # args_pythran = attributes + args_func
+    types_pythran = types_attrs + types_func
+
+    pythran_signatures = "\n"
+
+    for types_string_signature in compute_pythran_types_from_valued_types(
+        types_pythran
+    ):
+        pythran_signatures += (
+            "# pythran export "
+            + name_pythran_func
+            + "("
+            + ", ".join(types_string_signature)
+            + ")\n"
+        )
+
+    pythran_code = pythran_signatures + "\n" + new_code
+
+    name_var_code_new_method = f"__code_new_method__{cls_name}__{func_name}"
+
+    str_self_dot_attributes = ", ".join("self." + attr for attr in attributes)
+    str_args_func = ", ".join(args_func)
+
+    pythran_code += (
+        f"\n# pythran export {name_var_code_new_method}\n"
+        f'\n{name_var_code_new_method} = """\n\n'
+        f"def new_method(self, {str_args_func}):\n"
+        f"    return pythran_func({str_self_dot_attributes}, {str_args_func})"
+        '\n\n"""\n'
+    )
+
+    return pythran_code
+
+
 def make_pythran_code(path_py: Path):
     """Create a pythran code from a Python file"""
 
@@ -252,21 +383,21 @@ def make_pythran_code(path_py: Path):
         code = file.read()
 
     namespace = None
+
+    module_name = find_module_name_from_path(path_py)
+
     if "# FLUIDPYTHRAN_NO_IMPORT" not in code:
         # we have to import the module!
         fluidpythran.aheadoftime.is_transpiling = True
         try:
             namespace = run_path(str(path_py))
         except ImportError:
-            name_mod = ".".join(
-                path_py.absolute().relative_to(os.getcwd()).with_suffix("").parts
-            )
             sys.path.insert(0, "")
             try:
-                namespace = run_module(name_mod)
+                namespace = run_module(module_name)
             except ImportError:
                 logger.error(
-                    f"fluidpythran was unable to import module {name_mod}: "
+                    f"fluidpythran was unable to import module {module_name}: "
                     "no Pythran file created. "
                     "You could add '# FLUIDPYTHRAN_NO_IMPORT' "
                     "in the module if needed..."
@@ -302,7 +433,6 @@ imports: {imports}\n"""
     if imports:
         code_pythran += "\n" + "\n".join(imports) + "\n"
 
-    module_name = Path(path_py).with_suffix("").name
     if module_name in fluidpythran.aheadoftime.modules:
         fp = fluidpythran.aheadoftime.modules[module_name]
         fp._make_signatures_from_annotations()
@@ -316,7 +446,18 @@ imports: {imports}\n"""
             if name_func not in signatures_func_all:
                 signatures_func_all[name_func] = []
             signatures_func_all[name_func].extend(signatures)
+
+        for cls in fp.classes.values():
+            code_pythran += produce_pythran_code_class(cls)
+
     else:
+        if "# FLUIDPYTHRAN_NO_IMPORT" not in code:
+            logger.warning(
+                "module_name not in fluidpythran.aheadoftime.modules\n"
+                f"module_name = {module_name}"
+                f"path_py = {path_py}"
+                )
+
         codes_functions = get_code_functions(code, functions)
         signatures_func_all = signatures_func
 

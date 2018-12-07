@@ -48,7 +48,7 @@ def test_create_pythran_classic():
         rmtree(path_dir_out)
 
     path_file = path_data_tests / "classic.py"
-    sys.argv = f"fluidpythran -np -v {path_file}".split()
+    sys.argv = f"fluidpythran -np {path_file}".split()
     run()
 
     print("after first build")

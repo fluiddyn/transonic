@@ -11,15 +11,18 @@ from fluidpythran.log import logger, set_log_level
 from fluidpythran.util import get_source_without_decorator
 from fluidpythran.annotation import compute_pythran_types_from_valued_types
 
-from fluidpythran import Array, Type, NDim
+
+def pythran_def_method(func):
+    func.__fluidpythran__ = "pythran_def_method"
+    return func
+
 
 # set_log_level("debug")
 
+
+from fluidpythran import Array, Type, NDim
+
 A = Array[Type(float, int), NDim(1, 2)]
-
-
-def pythran_def_method(func):
-    return func
 
 
 class Transmitter:
@@ -33,13 +36,33 @@ class Transmitter:
         """My docstring"""
         return inp * np.exp(np.arange(len(inp)) * self.freq * 1j)
 
+    @pythran_def_method
+    def call_with_print(self, inp: A):
+        """call + print"""
+        print("call_with_print")
+        return inp * np.exp(np.arange(len(inp)) * self.freq * 1j)
 
-def produce_pythran_code_class(cls, func_name):
+
+def produce_pythran_code_class(cls):
+
+    pythran_code = ""
+
+    for key, value in cls.__dict__.items():
+        if (
+            hasattr(value, "__fluidpythran__")
+            and value.__fluidpythran__ == "pythran_def_method"
+        ):
+            pythran_code += produce_pythran_code_class_func(cls, key)
+
+    return pythran_code
+
+
+def produce_pythran_code_class_func(cls, func_name):
+
+    cls_name = cls.__name__
+    cls_annotations = cls.__annotations__
 
     func = cls.__dict__[func_name]
-    cls_name = cls.__name__
-
-    cls_annotations = cls.__annotations__
 
     signature = inspect.signature(func)
     types_func = [param.annotation for param in signature.parameters.values()][1:]
@@ -131,11 +154,11 @@ def produce_pythran_code_class(cls, func_name):
         f'\n{name_var_code_new_method} = """\n\n'
         f"def new_method(self, {str_args_func}):\n"
         f"    return pythran_func({str_self_dot_attributes}, {str_args_func})"
-        '\n\n"""'
+        '\n\n"""\n'
     )
 
     return pythran_code
 
 
-func = pythran_code = produce_pythran_code_class(Transmitter, "__call__")
+pythran_code = produce_pythran_code_class(Transmitter)
 print(pythran_code)

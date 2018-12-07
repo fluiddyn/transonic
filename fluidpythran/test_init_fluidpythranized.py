@@ -73,6 +73,7 @@ class TestsInit(unittest.TestCase):
 
         for_test_init.func(1, 3.14)
         for_test_init.func1(1.1, 2.2)
+        for_test_init.check_class()
 
     @unittest.skipIf(not pythran, "Pythran is required for PYTHRANIZE_AT_IMPORT")
     def test_pythranize(self):
@@ -101,6 +102,8 @@ class TestsInit(unittest.TestCase):
         if not for_test_init.fp.is_compiling:
             importlib.reload(for_test_init)
 
+        assert module_name in modules, modules
+
         assert self.path_pythran.exists()
 
         fp = for_test_init.fp
@@ -122,3 +125,4 @@ class TestsInit(unittest.TestCase):
 
         for_test_init.func(1, 3.14)
         for_test_init.func1(1.1, 2.2)
+        for_test_init.check_class()

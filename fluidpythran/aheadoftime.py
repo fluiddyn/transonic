@@ -6,6 +6,8 @@ User API
 
 .. autofunction:: pythran_def
 
+.. autofunction:: pythran_class
+
 .. autofunction:: make_signature
 
 .. autoclass:: FluidPythran
@@ -114,6 +116,20 @@ def pythran_def(func):
     return fp.pythran_def(func)
 
 
+def pythran_class(cls):
+    """Decorator to declare that a class contains pythran_def
+
+    Parameters
+    ----------
+
+    cls: a class
+
+    """
+
+    fp = _get_fluidpythran_calling_module()
+    return fp.pythran_class(cls)
+
+
 def make_signature(func, **kwargs):
     """Create signature for a function with values for the template types
 
@@ -206,6 +222,7 @@ class FluidPythran:
 
         if is_transpiling:
             self.functions = {}
+            self.classes = {}
             self.signatures_func = {}
             modules[module_name] = self
             self.is_transpiled = False
@@ -306,24 +323,16 @@ class FluidPythran:
             if path_ext_alt.exists():
                 self.path_extension = path_ext = path_ext_alt
 
-        if path_ext.exists() and not self.is_compiling:
-            self.module_pythran = import_from_path(
-                self.path_extension, module_pythran_name
-            )
-        elif path_pythran.exists():
-            self.module_pythran = import_from_path(
-                path_pythran, module_pythran_name
-            )
-        else:
-            self.is_transpiled = False
-            self.is_compiled = False
+        self.reload_module_pythran(module_pythran_name)
 
         if self.is_transpiled:
             self.is_compiled = hasattr(self.module_pythran, "__pythran__")
             if self.is_compiled:
                 module = inspect.getmodule(frame[0])
-                module.__pythran__ = self.module_pythran.__pythran__
-                module.__fluidpythran__ = self.module_pythran.__fluidpythran__
+                # module can be None if (at least) it has been run with runpy
+                if module is not None:
+                    module.__pythran__ = self.module_pythran.__pythran__
+                    module.__fluidpythran__ = self.module_pythran.__fluidpythran__
 
             if hasattr(self.module_pythran, "arguments_blocks"):
                 self.arguments_blocks = getattr(
@@ -331,6 +340,21 @@ class FluidPythran:
                 )
 
         modules[module_name] = self
+
+    def reload_module_pythran(self, module_pythran_name=None):
+        if module_pythran_name is None:
+            module_pythran_name = self.module_pythran.__name__
+        if self.path_extension.exists() and not self.is_compiling:
+            self.module_pythran = import_from_path(
+                self.path_extension, module_pythran_name
+            )
+        elif self.path_pythran.exists():
+            self.module_pythran = import_from_path(
+                self.path_pythran, module_pythran_name
+            )
+        else:
+            self.is_transpiled = False
+            self.is_compiled = False
 
     def pythran_def(self, func):
         """Decorator used for functions
@@ -342,12 +366,24 @@ class FluidPythran:
 
         """
 
+        signature = inspect.signature(func)
+        try:
+            is_method = next(iter(signature.parameters.keys())) == "self"
+        except StopIteration:
+            is_method = False
+
+        if is_method:
+            return self.pythran_def_method(func)
+
         if is_transpiling:
             self.functions[func.__name__] = func
             return func
 
         if not self.is_transpiled:
             return func
+
+        if not hasattr(self.module_pythran, func.__name__):
+            self.reload_module_pythran()
 
         try:
             func_tmp = getattr(self.module_pythran, func.__name__)
@@ -359,6 +395,71 @@ class FluidPythran:
             return functools.wraps(func)(CheckCompiling(self, func_tmp))
 
         return func_tmp
+
+    def pythran_def_method(self, func):
+        """Decorator used for methods
+
+        Parameters
+        ----------
+
+        func: a function
+
+        """
+        if is_transpiling:
+            func.__fluidpythran__ = "pythran_def_method"
+            return func
+
+        if not self.is_transpiled:
+            return func
+
+        return FluidPythranTemporaryMethod(func)
+
+    def pythran_class(self, cls: type):
+        """Decorator used for classes
+
+        Parameters
+        ----------
+
+        cls: a class
+
+        """
+        if is_transpiling:
+            self.classes[cls.__name__] = cls
+            return cls
+
+        if not self.is_transpiled:
+            return cls
+
+        cls_name = cls.__name__
+
+        for key, value in cls.__dict__.items():
+            if not isinstance(value, FluidPythranTemporaryMethod):
+                continue
+            func = value.func
+            func_name = func.__name__
+
+            name_pythran_func = f"__for_method__{cls_name}__{func_name}"
+            name_var_code_new_method = (
+                f"__code_new_method__{cls_name}__{func_name}"
+            )
+
+            if not hasattr(self.module_pythran, name_pythran_func):
+                self.reload_module_pythran()
+
+            try:
+                pythran_func = getattr(self.module_pythran, name_pythran_func)
+                code_new_method = getattr(
+                    self.module_pythran, name_var_code_new_method
+                )
+            except AttributeError:
+                logger.warning("Pythran file does not seem to be up-to-date.")
+                # setattr(cls, key, func)
+            else:
+                namespace = {"pythran_func": pythran_func}
+                exec(code_new_method, namespace)
+                setattr(cls, key, functools.wraps(func)(namespace["new_method"]))
+
+        return cls
 
     def make_signature(self, func, _signature=None, **kwargs):
         """Create signature for a function with values for the template types
@@ -431,3 +532,14 @@ class FluidPythran:
             if func.__name__ not in self.signatures_func:
                 self.signatures_func[func.__name__] = []
             self.signatures_func[func.__name__].extend(signatures)
+
+
+class FluidPythranTemporaryMethod:
+    def __init__(self, func):
+        self.func = func
+
+    def __call__(self, self_bis, *args, **kwargs):
+        raise RuntimeError(
+            "Did you forget to decorate a class using methods decorated "
+            "with fluidpythran? Please decorate it with @pythran_class."
+        )
