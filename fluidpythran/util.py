@@ -4,6 +4,8 @@
 Internal API
 ------------
 
+.. autofunction:: find_module_name_from_path
+
 .. autofunction:: get_module_name
 
 .. autofunction:: modification_date
@@ -64,15 +66,35 @@ path_root = Path(
 )
 
 
+def find_module_name_from_path(path_py: Path):
+
+    cwd = Path.cwd()
+    path = path_py.absolute().parent
+    module_name = path_py.stem
+
+    while path.parents:
+        if path == cwd or str(path) in sys.path:
+            return module_name
+
+        module_name = path.name + "." + module_name
+        path = path.parent
+
+    return path_py.stem
+
+
 def get_module_name(frame):
     """Get the full module name"""
     module = inspect.getmodule(frame[0])
+    filename = None
     if module is not None:
         module_name = module.__name__
         if module_name in ("__main__", "<run_path>"):
-            module_name = inspect.getmodulename(frame.filename)
+            filename = frame.filename
     else:
-        module_name = inspect.getmodulename(frame.filename)
+        filename = frame.filename
+
+    if filename is not None:
+        module_name = find_module_name_from_path(Path(filename))
 
     if module_name is None:
         # ipython ?

@@ -323,17 +323,7 @@ class FluidPythran:
             if path_ext_alt.exists():
                 self.path_extension = path_ext = path_ext_alt
 
-        if path_ext.exists() and not self.is_compiling:
-            self.module_pythran = import_from_path(
-                self.path_extension, module_pythran_name
-            )
-        elif path_pythran.exists():
-            self.module_pythran = import_from_path(
-                path_pythran, module_pythran_name
-            )
-        else:
-            self.is_transpiled = False
-            self.is_compiled = False
+        self.reload_module_pythran(module_pythran_name)
 
         if self.is_transpiled:
             self.is_compiled = hasattr(self.module_pythran, "__pythran__")
@@ -351,14 +341,16 @@ class FluidPythran:
 
         modules[module_name] = self
 
-    def reload_module_pythran(self):
+    def reload_module_pythran(self, module_pythran_name=None):
+        if module_pythran_name is None:
+            module_pythran_name = self.module_pythran.__name__
         if self.path_extension.exists() and not self.is_compiling:
             self.module_pythran = import_from_path(
-                self.path_extension, self.module_pythran.__name__
+                self.path_extension, module_pythran_name
             )
         elif self.path_pythran.exists():
             self.module_pythran = import_from_path(
-                self.path_pythran, self.module_pythran.__name__
+                self.path_pythran, module_pythran_name
             )
         else:
             self.is_transpiled = False
@@ -390,15 +382,14 @@ class FluidPythran:
         if not self.is_transpiled:
             return func
 
+        if not hasattr(self.module_pythran, func.__name__):
+            self.reload_module_pythran()
+
         try:
             func_tmp = getattr(self.module_pythran, func.__name__)
         except AttributeError:
             logger.warning("Pythran file does not seem to be up-to-date.")
-            self.reload_module_pythran()
-            try:
-                func_tmp = getattr(self.module_pythran, func.__name__)
-            except AttributeError:
-                func_tmp = func
+            func_tmp = func
 
         if self.is_compiling:
             return functools.wraps(func)(CheckCompiling(self, func_tmp))
@@ -414,9 +405,6 @@ class FluidPythran:
         func: a function
 
         """
-
-        print("pythran_def_method", func, is_transpiling, self.is_transpiled)
-
         if is_transpiling:
             func.__fluidpythran__ = "pythran_def_method"
             return func
@@ -456,11 +444,7 @@ class FluidPythran:
             )
 
             if not hasattr(self.module_pythran, name_pythran_func):
-                print("self.module_pythran", self.module_pythran)
                 self.reload_module_pythran()
-                print("self.module_pythran", self.module_pythran)
-                with open(self.module_pythran.__file__, "r") as file:
-                    print(file.read())
 
             try:
                 pythran_func = getattr(self.module_pythran, name_pythran_func)
@@ -552,7 +536,6 @@ class FluidPythran:
 
 class FluidPythranTemporaryMethod:
     def __init__(self, func):
-        print("init FluidPythranTemporaryMethod", func)
         self.func = func
 
     def __call__(self, self_bis, *args, **kwargs):

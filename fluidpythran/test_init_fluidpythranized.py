@@ -62,15 +62,9 @@ class TestsInit(unittest.TestCase):
         if self.path_pythran.exists():
             self.path_pythran.unlink()
 
-        print("make_pythran_file", self.path_for_test)
-
         make_pythran_file(self.path_for_test)
 
-        print("from . import for_test_init")
-
         from . import for_test_init
-
-        print("importlib.reload(for_test_init)")
 
         importlib.reload(for_test_init)
 
@@ -107,6 +101,8 @@ class TestsInit(unittest.TestCase):
 
         if not for_test_init.fp.is_compiling:
             importlib.reload(for_test_init)
+
+        assert module_name in modules, modules
 
         assert self.path_pythran.exists()
 

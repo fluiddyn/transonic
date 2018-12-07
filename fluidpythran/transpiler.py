@@ -36,7 +36,6 @@ from tokenize import (
     OP,
 )
 
-import os
 from logging import DEBUG
 
 from token import tok_name
@@ -56,7 +55,11 @@ except ImportError:
 
 from .log import logger, set_log_level
 from .annotation import compute_pythran_types_from_valued_types
-from .util import has_to_build, get_source_without_decorator
+from .util import (
+    has_to_build,
+    get_source_without_decorator,
+    find_module_name_from_path,
+)
 from .compat import open
 from .mpi import Path
 import fluidpythran
@@ -379,9 +382,8 @@ def make_pythran_code(path_py: Path):
         code = file.read()
 
     namespace = None
-    module_name = ".".join(
-        path_py.absolute().relative_to(os.getcwd()).with_suffix("").parts
-    )
+
+    module_name = find_module_name_from_path(path_py)
 
     if "# FLUIDPYTHRAN_NO_IMPORT" not in code:
         # we have to import the module!
@@ -430,13 +432,6 @@ imports: {imports}\n"""
     if imports:
         code_pythran += "\n" + "\n".join(imports) + "\n"
 
-    print(f"\n\n {path_py} \n {module_name} \n\n")
-
-    print(
-        "if module_name in fluidpythran.aheadoftime.modules:",
-        module_name in fluidpythran.aheadoftime.modules,
-    )
-    print(module_name, fluidpythran.aheadoftime.modules)
     if module_name in fluidpythran.aheadoftime.modules:
         fp = fluidpythran.aheadoftime.modules[module_name]
         fp._make_signatures_from_annotations()
@@ -451,11 +446,17 @@ imports: {imports}\n"""
                 signatures_func_all[name_func] = []
             signatures_func_all[name_func].extend(signatures)
 
-        print("for cls in fp.classes.values():")
         for cls in fp.classes.values():
             code_pythran += produce_pythran_code_class(cls)
 
     else:
+        if "# FLUIDPYTHRAN_NO_IMPORT" not in code:
+            logger.warning(
+                "module_name not in fluidpythran.aheadoftime.modules\n"
+                f"module_name = {module_name}"
+                f"path_py = {path_py}"
+                )
+
         codes_functions = get_code_functions(code, functions)
         signatures_func_all = signatures_func
 
