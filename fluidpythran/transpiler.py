@@ -339,7 +339,8 @@ def produce_pythran_code_class_func(cls, func_name):
     tokens[index_func_name] = (NAME, name_pythran_func)
 
     new_code = untokenize(tokens).decode("utf-8")
-    new_code = black.format_str(new_code, line_length=82)
+    if black:
+        new_code = black.format_str(new_code, line_length=82)
 
     # args_pythran = attributes + args_func
     types_pythran = types_attrs + types_func
