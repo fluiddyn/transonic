@@ -78,8 +78,11 @@ from .util import (
     has_to_pythranize_at_import,
     import_from_path,
     pythran,
+    is_method,
 )
 from .annotation import make_signatures_from_typehinted_func
+
+from .aheadoftime import FluidPythranTemporaryJITMethod
 
 from .compat import open
 from . import mpi
@@ -239,6 +242,11 @@ class CachedJIT:
         self.process = None
 
     def __call__(self, func):
+
+        if is_method(func):
+            return FluidPythranTemporaryJITMethod(
+                func, self.native, self.xsimd, self.openmp
+            )
 
         if not pythran:
             return func

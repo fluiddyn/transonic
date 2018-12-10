@@ -303,3 +303,13 @@ def clear_cached_extensions(module_name: str, force: bool = False):
             for path in (path_pythran, path_ext):
                 if path.exists():
                     path.unlink()
+
+
+def is_method(func):
+    signature = inspect.signature(func)
+    try:
+        answer = next(iter(signature.parameters.keys())) == "self"
+    except StopIteration:
+        answer = False
+
+    return answer

@@ -37,7 +37,6 @@ def test_detect_pythran_extensions():
     shutil.rmtree(path_data_tests / "__pythran__", ignore_errors=True)
 
 
-
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
 def test_modification_date():
 

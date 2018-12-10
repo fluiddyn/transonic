@@ -38,6 +38,8 @@ from .util import (
     import_from_path,
     has_to_build,
     modification_date,
+    is_method,
+    path_root,
 )
 
 from .pythranizer import (
@@ -61,6 +63,8 @@ if mpi.nb_proc == 1:
 
 is_transpiling = False
 modules = {}
+
+path_cachedjit_classes = mpi.Path(path_root) / "__cachedjit_classes__"
 
 
 def _get_fluidpythran_calling_module(index_frame: int = 2):
@@ -365,14 +369,7 @@ class FluidPythran:
         func: a function
 
         """
-
-        signature = inspect.signature(func)
-        try:
-            is_method = next(iter(signature.parameters.keys())) == "self"
-        except StopIteration:
-            is_method = False
-
-        if is_method:
+        if is_method(func):
             return self.pythran_def_method(func)
 
         if is_transpiling:
@@ -439,7 +436,12 @@ class FluidPythran:
 
         cls_name = cls.__name__
 
+        jit_methods = {}
+
         for key, value in cls.__dict__.items():
+            if isinstance(value, FluidPythranTemporaryJITMethod):
+                jit_methods[key] = value
+
             if not isinstance(value, FluidPythranTemporaryMethod):
                 continue
             func = value.func
@@ -466,7 +468,10 @@ class FluidPythran:
                 exec(code_new_method, namespace)
                 setattr(cls, key, functools.wraps(func)(namespace["new_method"]))
 
-        return cls
+        if not jit_methods:
+            return cls
+
+        return cachedjit_class(cls, jit_methods)
 
     def make_signature(self, func, _signature=None, **kwargs):
         """Create signature for a function with values for the template types
@@ -550,3 +555,49 @@ class FluidPythranTemporaryMethod:
             "Did you forget to decorate a class using methods decorated "
             "with fluidpythran? Please decorate it with @boost."
         )
+
+
+# FIXME: @include and @include(used_by=("func0", "func1")
+
+
+class FluidPythranTemporaryJITMethod:
+    def __init__(self, func, native, xsimd, openmp):
+        self.func = func
+        self.native = native
+        self.xsimd = xsimd
+        self.openmp = openmp
+
+    def __call__(self, self_bis, *args, **kwargs):
+        raise RuntimeError(
+            "Did you forget to decorate a class using methods decorated "
+            "with fluidpythran? Please decorate it with @boost."
+        )
+
+
+def cachedjit_class(cls, jit_methods):
+    """
+    1. create a Python file with @cachejit functions and methods
+    2. import the file
+    3. replace the methods
+
+    """
+    # FIXME: to be implemented
+    cls_name = cls.__name__
+    mod_name = cls.__module__.__name__
+
+    python_path_dir = path_cachedjit_classes / mod_name.replace(".", os.path.sep)
+    python_path = python_path_dir / (cls_name + ".py")
+
+    if has_to_build(python_path, cls.__module__.__file__):
+        python_code = ...
+
+        if python_path.exists():
+            if mpi.rank == 0:
+                with open(python_path, "r") as file:
+                    python_code_file = file.read()
+
+    # if mpi.rank == 0:
+    #     path_cachedjit_classes.mkdir(parents=True, exist_ok=True)
+    # mpi.barrier()
+
+    raise NotImplementedError

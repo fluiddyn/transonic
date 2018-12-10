@@ -4,6 +4,8 @@ Future
 
 - :code:`cachedjit` for simple methods (without assignation to attributes
   and call of other methods)
+- :code:`Union` for annotations
+- :code:`include` decorator
 
 0.1.4 (2018-12-06)
 ------------------

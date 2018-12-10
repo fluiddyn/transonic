@@ -247,6 +247,7 @@ class ArrayMeta(type):
         return getattr(self, "parameters", tuple())
 
     def get_template_parameters(self):
+        # FIXME: possible bug "tuple has no value method"
         return tuple(
             param
             for param in self.get_parameters().values()
@@ -302,6 +303,9 @@ class Array(metaclass=ArrayMeta):
     """Represent a Numpy array in type hints"""
 
     pass
+
+
+# FIXME: Union
 
 
 def compute_pythran_types_from_types(types, **kwargs):

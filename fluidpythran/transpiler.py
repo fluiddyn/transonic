@@ -456,7 +456,7 @@ imports: {imports}\n"""
                 "module_name not in fluidpythran.aheadoftime.modules\n"
                 f"module_name = {module_name}"
                 f"path_py = {path_py}"
-                )
+            )
 
         codes_functions = get_code_functions(code, functions)
         signatures_func_all = signatures_func
