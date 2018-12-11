@@ -258,14 +258,14 @@ def make_pythran_code_functions(
     return code_pythran
 
 
-def produce_pythran_code_class(cls):
+def produce_code_class(cls, jit=False):
     pythran_code = ""
     for key, value in cls.__dict__.items():
-        if (
-            hasattr(value, "__fluidpythran__")
-            and value.__fluidpythran__ == "pythran_def_method"
+        if hasattr(value, "__fluidpythran__") and value.__fluidpythran__ in (
+            "pythran_def_method",
+            "jit_method",
         ):
-            pythran_code += produce_code_class_func(cls, key)
+            pythran_code += produce_code_class_func(cls, key, jit)
     return pythran_code
 
 
@@ -339,6 +339,9 @@ def produce_code_class_func(cls, func_name, jit=False):
 
     func = cls.__dict__[func_name]
 
+    if jit:
+        func = func.func
+
     new_code, attributes, name_new_func = produce_new_code_method(cls, func)
 
     try:
@@ -386,7 +389,9 @@ def produce_code_class_func(cls, func_name, jit=False):
         )
 
     if jit:
-        new_code = "@cachejit\n" + new_code
+        new_code = (
+            "from fluidpythran import cachedjit\n\n@cachedjit\n" + new_code
+        )
 
     python_code = pythran_signatures + "\n" + new_code
 
@@ -492,7 +497,7 @@ imports: {imports}\n"""
             signatures_func_all[name_func].extend(signatures)
 
         for cls in fp.classes.values():
-            code_pythran += produce_pythran_code_class(cls)
+            code_pythran += produce_code_class(cls)
 
     else:
         if "# FLUIDPYTHRAN_NO_IMPORT" not in code:

@@ -1,5 +1,6 @@
 import sys
 import os
+from time import sleep
 
 import numpy as np
 
@@ -8,16 +9,24 @@ try:
 except ImportError:
     pythran = None
 
+from .util import path_cachedjit_classes
 from .justintime import path_cachedjit, modules
 from .pythranizer import scheduler, wait_for_all_extensions
 from . import mpi
+from .compat import rmtree
 
 scheduler.nb_cpus = 2
 
 module_name = "fluidpythran.for_test_justintime"
 
-path_pythran_dir = mpi.PathSeq(path_cachedjit) / module_name.replace(
-    ".", os.path.sep
+str_relative_path = module_name.replace(".", os.path.sep)
+
+path_cachedjit = mpi.PathSeq(path_cachedjit)
+
+path_pythran_dir = path_cachedjit / str_relative_path
+path_classes_dir = path_cachedjit_classes / str_relative_path
+path_classes_dir1 = (
+    path_cachedjit / path_cachedjit_classes.name / str_relative_path
 )
 
 
@@ -32,12 +41,15 @@ if mpi.rank == 0:
     delete_pythran_files("func2")
     delete_pythran_files("func_dict")
 
+    if path_classes_dir.exists():
+        rmtree(path_classes_dir)
+        rmtree(path_classes_dir1)
+
 mpi.barrier()
 
 
 def test_cachedjit():
 
-    from time import sleep
     from .for_test_justintime import func1
 
     a = np.arange(2)
@@ -50,7 +62,6 @@ def test_cachedjit():
 
 def test_cachedjit_simple():
 
-    from time import sleep
     from .for_test_justintime import func2
 
     func2(1)
@@ -78,7 +89,6 @@ def test_cachedjit_simple():
 
 
 def test_cachedjit_dict():
-    from time import sleep
     from .for_test_justintime import func_dict
 
     d = dict(a=1, b=2)
@@ -103,3 +113,20 @@ def test_cachedjit_dict():
             sleep(0.1)
             func_dict(d)
             break
+
+
+def test_cachedjit_method():
+    from .for_test_justintime import MyClass
+
+    obj = MyClass()
+    obj.check()
+
+    if not pythran:
+        return
+
+    obj = MyClass()
+    obj.check()
+
+    wait_for_all_extensions()
+
+    obj.check()

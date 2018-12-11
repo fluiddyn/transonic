@@ -2,7 +2,7 @@ import numpy as np
 
 # pythran import numpy as np
 
-from fluidpythran import cachedjit, used_by_cachedjit
+from fluidpythran import cachedjit, used_by_cachedjit, boost
 from .mpi import Path
 
 
@@ -40,3 +40,16 @@ def func2(a):
 @cachedjit()
 def func_dict(d: "str: float dict"):
     return d.popitem()
+
+
+@boost
+class MyClass:
+    def __init__(self):
+        self.attr0 = self.attr1 = 1
+
+    @cachedjit
+    def myfunc(self, arg):
+        return self.attr1 + self.attr0 + arg
+
+    def check(self):
+        assert self.myfunc(1) == 3

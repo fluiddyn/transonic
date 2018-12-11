@@ -65,12 +65,27 @@ path_root = Path(
     os.environ.get("FLUIDPYTHRAN_DIR", Path.home() / ".fluidpythran")
 )
 
+path_cachedjit_classes = path_root / "__cachedjit_classes__"
+
 
 def find_module_name_from_path(path_py: Path):
 
     cwd = Path.cwd()
     path = path_py.absolute().parent
     module_name = path_py.stem
+
+    # special case for cachedjit_classes
+    try:
+        path_rel = path.relative_to(path_cachedjit_classes)
+    except ValueError:
+        pass
+    else:
+        tmp = [path_cachedjit_classes.name]
+        name_pack = str(path_rel).replace(os.path.sep, ".")
+        if name_pack:
+            tmp.append(name_pack)
+        tmp.append(module_name)
+        return ".".join(tmp)
 
     while path.parents:
         if path == cwd or str(path) in sys.path:

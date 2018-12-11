@@ -40,6 +40,7 @@ from .util import (
     modification_date,
     is_method,
     path_root,
+    path_cachedjit_classes,
 )
 
 from .pythranizer import (
@@ -53,6 +54,8 @@ from .annotation import (
     make_signatures_from_typehinted_func,
 )
 
+from .transpiler import produce_code_class
+
 from .log import logger
 from . import mpi
 from .mpi import Path
@@ -64,7 +67,7 @@ if mpi.nb_proc == 1:
 is_transpiling = False
 modules = {}
 
-path_cachedjit_classes = mpi.Path(path_root) / "__cachedjit_classes__"
+path_cachedjit_classes = mpi.Path(path_cachedjit_classes)
 
 
 def _get_fluidpythran_calling_module(index_frame: int = 2):
@@ -431,17 +434,21 @@ class FluidPythran:
             self.classes[cls.__name__] = cls
             return cls
 
+        jit_methods = {
+            key: value
+            for key, value in cls.__dict__.items()
+            if isinstance(value, FluidPythranTemporaryJITMethod)
+        }
+
+        if jit_methods:
+            cls = cachedjit_class(cls, jit_methods)
+
         if not self.is_transpiled:
             return cls
 
         cls_name = cls.__name__
 
-        jit_methods = {}
-
         for key, value in cls.__dict__.items():
-            if isinstance(value, FluidPythranTemporaryJITMethod):
-                jit_methods[key] = value
-
             if not isinstance(value, FluidPythranTemporaryMethod):
                 continue
             func = value.func
@@ -468,10 +475,7 @@ class FluidPythran:
                 exec(code_new_method, namespace)
                 setattr(cls, key, functools.wraps(func)(namespace["new_method"]))
 
-        if not jit_methods:
-            return cls
-
-        return cachedjit_class(cls, jit_methods)
+        return cls
 
     def make_signature(self, func, _signature=None, **kwargs):
         """Create signature for a function with values for the template types
@@ -561,6 +565,8 @@ class FluidPythranTemporaryMethod:
 
 
 class FluidPythranTemporaryJITMethod:
+    __fluidpythran__ = "jit_method"
+
     def __init__(self, func, native, xsimd, openmp):
         self.func = func
         self.native = native
@@ -581,23 +587,48 @@ def cachedjit_class(cls, jit_methods):
     3. replace the methods
 
     """
-    # FIXME: to be implemented
     cls_name = cls.__name__
-    mod_name = cls.__module__.__name__
+    mod_name = cls.__module__
 
+    module = sys.modules[mod_name]
+
+    # 1. create a Python file with @cachejit functions and methods
     python_path_dir = path_cachedjit_classes / mod_name.replace(".", os.path.sep)
     python_path = python_path_dir / (cls_name + ".py")
 
-    if has_to_build(python_path, cls.__module__.__file__):
-        python_code = ...
+    if has_to_build(python_path, module.__file__):
+        if mpi.rank == 0:
+            python_path = mpi.PathSeq(python_path)
+            python_code = produce_code_class(cls, jit=True)
 
-        if python_path.exists():
-            if mpi.rank == 0:
+            has_to_write = None
+            if python_path.exists():
                 with open(python_path, "r") as file:
                     python_code_file = file.read()
 
-    # if mpi.rank == 0:
-    #     path_cachedjit_classes.mkdir(parents=True, exist_ok=True)
-    # mpi.barrier()
+                if python_code_file != python_code:
+                    has_to_write = True
+            else:
+                has_to_write = True
 
-    raise NotImplementedError
+            if has_to_write:
+                python_path_dir.mkdir(exist_ok=True, parents=True)
+                with open(python_path, "w") as file:
+                    file.write(python_code)
+            python_path = mpi.Path(python_path)
+        mpi.barrier()
+
+    # 2. import the file
+    python_mod_name = (
+        path_cachedjit_classes.name + "." + mod_name + "." + cls_name
+    )
+    module = import_from_path(python_path, python_mod_name)
+
+    # 3. replace the methods
+    for name_method, method in jit_methods.items():
+        func = method.func
+        name_new_method = f"__new_method__{cls.__name__}__{name_method}"
+        new_method = getattr(module, name_new_method)
+        setattr(cls, name_method, functools.wraps(func)(new_method))
+
+    return cls
