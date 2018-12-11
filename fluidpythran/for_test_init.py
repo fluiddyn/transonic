@@ -54,6 +54,10 @@ class Transmitter:
         """My docstring"""
         return inp * np.exp(np.arange(len(inp)) * self.freq * 1j)
 
+    @boost
+    def other_func(self):
+        return 2 * self.freq
+
 
 def check_class():
     inp = np.ones(2)
@@ -64,6 +68,7 @@ def check_class():
         return inp * np.exp(np.arange(len(inp)) * freq * 1j)
 
     assert np.allclose(trans(inp), for_check(freq, inp))
+    assert trans.other_func() == 2 * freq
 
 
 if __name__ == "__main__":

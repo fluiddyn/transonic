@@ -265,19 +265,11 @@ def produce_pythran_code_class(cls):
             hasattr(value, "__fluidpythran__")
             and value.__fluidpythran__ == "pythran_def_method"
         ):
-            pythran_code += produce_pythran_code_class_func(cls, key)
+            pythran_code += produce_code_class_func(cls, key)
     return pythran_code
 
 
-def produce_pythran_code_class_func(cls, func_name):
-
-    cls_name = cls.__name__
-    cls_annotations = cls.__annotations__
-    func = cls.__dict__[func_name]
-
-    signature = inspect.signature(func)
-    types_func = [param.annotation for param in signature.parameters.values()][1:]
-    args_func = list(signature.parameters.keys())[1:]
+def produce_new_code_method(cls, func):
 
     src = get_source_without_decorator(func)
 
@@ -294,7 +286,7 @@ def produce_pythran_code_class_func(cls, func_name):
             if toknum == OP and tokval == ".":
                 using_self = tokval
                 continue
-            elif toknum == OP and tokval == ",":
+            elif toknum == OP and tokval in (",", ")"):
                 tokens.append((NAME, "self"))
                 using_self = False
             else:
@@ -303,25 +295,21 @@ def produce_pythran_code_class_func(cls, func_name):
                 )
 
         if using_self == ".":
-            if toknum == NAME and tokval in cls_annotations:
+            if toknum == NAME:
                 using_self = False
                 tokens.append((NAME, "self_" + tokval))
                 attributes.add(tokval)
                 continue
             else:
-                raise NotImplementedError(
-                    f"self.{tokval} used but {tokval} not in class annotations"
-                )
+                raise NotImplementedError
 
         if toknum == NAME and tokval == "self":
-            using_self = tokval
+            using_self = "self"
             continue
 
         tokens.append((toknum, tokval))
 
     attributes = sorted(attributes)
-
-    types_attrs = [cls_annotations[attr] for attr in attributes]
 
     attributes_self = ["self_" + attr for attr in attributes]
 
@@ -332,48 +320,104 @@ def produce_pythran_code_class_func(cls, func_name):
         tokens_attr.append((NAME, attr))
         tokens_attr.append((OP, ","))
 
-    tokens = tokens[:index_self] + tokens_attr + tokens[index_self + 2 :]
+    if tokens[index_self + 1] == (OP, ","):
+        del tokens[index_self + 1]
 
-    index_func_name = tokens.index((NAME, func_name))
-    name_pythran_func = f"__for_method__{cls_name}__{func_name}"
-    tokens[index_func_name] = (NAME, name_pythran_func)
+    tokens = tokens[:index_self] + tokens_attr + tokens[index_self + 1 :]
+
+    index_func_name = tokens.index((NAME, func.__name__))
+    cls_name = cls.__name__
+    name_new_func = f"__for_method__{cls_name}__{func.__name__}"
+    tokens[index_func_name] = (NAME, name_new_func)
 
     new_code = untokenize(tokens).decode("utf-8")
-    if black:
-        new_code = black.format_str(new_code, line_length=82)
 
-    # args_pythran = attributes + args_func
+    return new_code, attributes, name_new_func
+
+
+def produce_code_class_func(cls, func_name, jit=False):
+
+    func = cls.__dict__[func_name]
+
+    new_code, attributes, name_new_func = produce_new_code_method(cls, func)
+
+    try:
+        cls_annotations = cls.__annotations__
+    except AttributeError:
+        cls_annotations = {}
+
+    if jit:
+        types_attrs = [
+            cls_annotations[attr]
+            for attr in attributes
+            if attr in cls_annotations
+        ]
+    else:
+        for attr in attributes:
+            if attr not in cls_annotations:
+                raise NotImplementedError(
+                    f"self.{attr} used but {attr} not in class annotations"
+                )
+        types_attrs = [cls_annotations[attr] for attr in attributes]
+
+    signature = inspect.signature(func)
+    types_func = [param.annotation for param in signature.parameters.values()][1:]
     types_pythran = types_attrs + types_func
 
     pythran_signatures = "\n"
 
-    for types_string_signature in compute_pythran_types_from_valued_types(
-        types_pythran
-    ):
+    try:
+        types_string_signatures = compute_pythran_types_from_valued_types(
+            types_pythran
+        )
+    except ValueError:
+        if jit:
+            types_string_signatures = []
+        else:
+            raise
+
+    for types_string_signature in types_string_signatures:
         pythran_signatures += (
             "# pythran export "
-            + name_pythran_func
+            + name_new_func
             + "("
             + ", ".join(types_string_signature)
             + ")\n"
         )
 
-    pythran_code = pythran_signatures + "\n" + new_code
+    if jit:
+        new_code = "@cachejit\n" + new_code
 
-    name_var_code_new_method = f"__code_new_method__{cls_name}__{func_name}"
+    python_code = pythran_signatures + "\n" + new_code
 
     str_self_dot_attributes = ", ".join("self." + attr for attr in attributes)
+    args_func = list(signature.parameters.keys())[1:]
     str_args_func = ", ".join(args_func)
 
-    pythran_code += (
-        f"\n# pythran export {name_var_code_new_method}\n"
-        f'\n{name_var_code_new_method} = """\n\n'
-        f"def new_method(self, {str_args_func}):\n"
-        f"    return pythran_func({str_self_dot_attributes}, {str_args_func})"
-        '\n\n"""\n'
-    )
+    if jit:
+        name_new_method = f"__new_method__{cls.__name__}__{func_name}"
+        python_code += (
+            f"\ndef {name_new_method}"
+            f"(self, {str_args_func}):\n"
+            f"    return {name_new_func}({str_self_dot_attributes}, {str_args_func})"
+            "\n"
+        )
+    else:
+        name_var_code_new_method = (
+            f"__code_new_method__{cls.__name__}__{func_name}"
+        )
+        python_code += (
+            f"\n# pythran export {name_var_code_new_method}\n"
+            f'\n{name_var_code_new_method} = """\n\n'
+            f"def new_method(self, {str_args_func}):\n"
+            f"    return pythran_func({str_self_dot_attributes}, {str_args_func})"
+            '\n\n"""\n'
+        )
 
-    return pythran_code
+    if black:
+        python_code = black.format_str(python_code, line_length=82)
+
+    return python_code
 
 
 def make_pythran_code(path_py: Path):
