@@ -2,7 +2,7 @@ import numpy as np
 
 # pythran import numpy as np
 
-from fluidpythran import FluidPythran, boost
+from fluidpythran import FluidPythran, boost, include
 
 
 # pythran def func(int, float)
@@ -13,12 +13,14 @@ def func(a, b):
     return a + b
 
 
-# pythran def func2(int, float)
+@include
+def func_tmp(arg):
+    return arg ** 2
 
 
 @boost
-def func2(a, b):
-    return a - b
+def func2(a: int, b: float):
+    return a - func_tmp(b)
 
 
 fp = FluidPythran()

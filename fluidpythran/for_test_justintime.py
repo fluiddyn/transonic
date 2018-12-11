@@ -2,16 +2,16 @@ import numpy as np
 
 # pythran import numpy as np
 
-from fluidpythran import cachedjit, used_by_cachedjit, boost
+from fluidpythran import cachedjit, include, boost
 from .mpi import Path
 
 
-@used_by_cachedjit("func1")
+@include(used_by="func1")
 def func0(a):
     return 2 * a
 
 
-@used_by_cachedjit("func1")
+@include(used_by="func1")
 def func():
     return 1
 

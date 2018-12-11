@@ -8,7 +8,7 @@ except ImportError:
 
 from .annotation import Array, NDim, Type, Shape
 
-from .aheadoftime import FluidPythran, pythran_def, boost, make_signature
+from .aheadoftime import FluidPythran, pythran_def, boost, make_signature, include
 
 from .util import set_pythranize_at_import
 from .pythranizer import wait_for_all_extensions
@@ -18,6 +18,7 @@ __all__ = [
     "FluidPythran",
     "pythran_def",
     "boost",
+    "include",
     "make_signature",
     "path_data_tests",
     "Array",

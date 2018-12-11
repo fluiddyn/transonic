@@ -389,9 +389,7 @@ def produce_code_class_func(cls, func_name, jit=False):
         )
 
     if jit:
-        new_code = (
-            "from fluidpythran import cachedjit\n\n@cachedjit\n" + new_code
-        )
+        new_code = "from fluidpythran import cachedjit\n\n@cachedjit\n" + new_code
 
     python_code = pythran_signatures + "\n" + new_code
 
@@ -498,6 +496,9 @@ imports: {imports}\n"""
 
         for cls in fp.classes.values():
             code_pythran += produce_code_class(cls)
+
+        for func in fp.included_functions:
+            code_pythran += "\n" + get_source_without_decorator(func) + "\n"
 
     else:
         if "# FLUIDPYTHRAN_NO_IMPORT" not in code:

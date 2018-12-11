@@ -39,7 +39,6 @@ from .util import (
     has_to_build,
     modification_date,
     is_method,
-    path_root,
     path_cachedjit_classes,
 )
 
@@ -231,6 +230,7 @@ class FluidPythran:
             self.functions = {}
             self.classes = {}
             self.signatures_func = {}
+            self.included_functions = []
             modules[module_name] = self
             self.is_transpiled = False
             return
@@ -549,6 +549,9 @@ class FluidPythran:
                 self.signatures_func[func.__name__] = []
             self.signatures_func[func.__name__].extend(signatures)
 
+    def include(self, func):
+        self.included_functions.append(func)
+
 
 class FluidPythranTemporaryMethod:
     def __init__(self, func):
@@ -561,7 +564,54 @@ class FluidPythranTemporaryMethod:
         )
 
 
-# FIXME: @include and @include(used_by=("func0", "func1")
+def include(func=None, used_by=None):
+    """Decorator to record that the function has to be included in a Pythran file
+
+    """
+    if func is not None and used_by is None:
+        if not callable(func):
+            func, used_by = used_by, func
+
+    decor = Include(used_by=used_by)
+    if callable(func):
+        decor._decorator_no_arg = True
+        return decor(func)
+    else:
+        return decor
+
+
+class Include:
+    """Decorator used internally by the public include decorator
+
+    @include
+
+    @include(used_by=("func0", "func1")
+
+    """
+
+    def __init__(self, used_by=None):
+        self.used_by = used_by
+        self._decorator_no_arg = False
+
+    def __call__(self, func):
+
+        if self._decorator_no_arg:
+            index_frame = 3
+        else:
+            index_frame = 2
+
+        if self.used_by is not None:
+            from .justintime import _get_module_cachedjit
+
+            jit_mod = _get_module_cachedjit(index_frame)
+            jit_mod.record_used_function(func, self.used_by)
+
+        if not is_transpiling:
+            return func
+
+        fp = _get_fluidpythran_calling_module(index_frame)
+        fp.include(func)
+        return func
 
 
 class FluidPythranTemporaryJITMethod:

@@ -60,6 +60,7 @@ import sys
 import time
 from distutils.util import strtobool
 from functools import wraps
+from warnings import warn
 
 try:
     import numpy as np
@@ -181,6 +182,10 @@ class used_by_cachedjit:
         self.names = names
 
     def __call__(self, func):
+        warn(
+            "used_by_cachedjit is deprecated, use include instead",
+            DeprecationWarning,
+        )
         mod = _get_module_cachedjit()
         mod.record_used_function(func, self.names)
         return func
