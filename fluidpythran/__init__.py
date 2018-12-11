@@ -6,7 +6,7 @@ try:
 except ImportError:
     pass
 
-from .annotation import Array, NDim, Type, Shape
+from .annotation import Array, NDim, Type, Shape, Union
 
 from .aheadoftime import FluidPythran, pythran_def, boost, make_signature, include
 
@@ -25,6 +25,7 @@ __all__ = [
     "NDim",
     "Type",
     "Shape",
+    "Union",
     "cachedjit",
     "used_by_cachedjit",
     "set_compile_cachedjit",

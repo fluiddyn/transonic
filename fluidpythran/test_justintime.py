@@ -43,6 +43,7 @@ if mpi.rank == 0:
 
     if path_classes_dir.exists():
         rmtree(path_classes_dir)
+    if path_classes_dir1.exists():
         rmtree(path_classes_dir1)
 
 mpi.barrier()

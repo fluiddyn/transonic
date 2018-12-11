@@ -99,7 +99,10 @@ class TemplateVar:
 
     def _check_type_values(self):
         if not all(isinstance(value, self._type_values) for value in self.values):
-            raise TypeError
+            raise TypeError(
+                f"{self.values} "
+                f"{[isinstance(value, self._type_values) for value in self.values]}"
+            )
 
 
 class Type(TemplateVar):
@@ -170,6 +173,12 @@ class Shape(TemplateVar):
     def _is_correct_for_name(self, arg):
         raise NotImplementedError
         return isinstance(arg, str)
+
+
+class UnionVar(TemplateVar):
+
+    _type_values = type
+    _letter = "U"
 
 
 class ArrayMeta(type):
@@ -244,10 +253,9 @@ class ArrayMeta(type):
         return ArrayBis
 
     def get_parameters(self):
-        return getattr(self, "parameters", tuple())
+        return getattr(self, "parameters", dict())
 
     def get_template_parameters(self):
-        # FIXME: possible bug "tuple has no value method"
         return tuple(
             param
             for param in self.get_parameters().values()
@@ -305,7 +313,71 @@ class Array(metaclass=ArrayMeta):
     pass
 
 
-# FIXME: Union
+class UnionMeta(type):
+    """Metaclass for the Array class used for type hints"""
+
+    def __getitem__(self, types):
+
+        if not isinstance(types, tuple):
+            types = (types,)
+
+        fp = _get_fluidpythran_calling_module()
+        template_var = UnionVar(*types, _fp=fp)
+
+        return type(
+            "UnionBis", (Union,), {"types": types, "template_var": template_var}
+        )
+
+    def get_template_parameters(self):
+        template_params = []
+        for type_ in self.types:
+            if hasattr(type_, "get_template_parameters"):
+                template_params.extend(type_.get_template_parameters())
+
+        template_params.append(self.template_var)
+
+        return tuple(template_params)
+
+    def __repr__(self):
+        strings = []
+        for p in self.parameters.values():
+            if isinstance(p, type):
+                string = p.__name__
+            else:
+                string = repr(p)
+            strings.append(string)
+        return "Union[" + ", ".join(strings) + "]"
+
+    def get_pythran_type(self, **kwargs):
+        type_ = kwargs.pop(self.template_var.__name__)
+        return compute_pythran_type_from_type(type_, **kwargs)
+
+
+class Union(metaclass=UnionMeta):
+    """Similar to typing.Union"""
+
+    pass
+
+
+def compute_pythran_type_from_type(type_, **kwargs):
+    if hasattr(type_, "get_pythran_type"):
+        return type_.get_pythran_type(**kwargs)
+    elif hasattr(type_, "__name__"):
+        return type_.__name__
+    else:
+        pythran_type = str(type_)
+        types = pythran_type.split(" or ")
+        new_types = []
+        for _type in types:
+            if "][" in _type:
+                # C style: we try to rewrite it in Cython style
+                base, dims = _type.split("[", 1)
+                dims = ", ".join([_ or ":" for _ in dims[:-1].split("][")])
+                _type = base + "[" + dims + "]"
+            elif _type.endswith("[]"):
+                _type = _type[:-2] + "[:]"
+            new_types.append(_type)
+        return " or ".join(new_types)
 
 
 def compute_pythran_types_from_types(types, **kwargs):
@@ -314,26 +386,7 @@ def compute_pythran_types_from_types(types, **kwargs):
     """
     pythran_types = []
     for type_ in types:
-        if hasattr(type_, "get_pythran_type"):
-            pythran_type = type_.get_pythran_type(**kwargs)
-        elif hasattr(type_, "__name__"):
-            pythran_type = type_.__name__
-        else:
-            pythran_type = str(type_)
-            types = pythran_type.split(" or ")
-            new_types = []
-            for _type in types:
-                if "][" in _type:
-                    # C style: we try to rewrite it in Cython style
-                    base, dims = _type.split("[", 1)
-                    dims = ", ".join([_ or ":" for _ in dims[:-1].split("][")])
-                    _type = base + "[" + dims + "]"
-                elif _type.endswith("[]"):
-                    _type = _type[:-2] + "[:]"
-                new_types.append(_type)
-            pythran_type = " or ".join(new_types)
-
-        pythran_types.append(pythran_type)
+        pythran_types.append(compute_pythran_type_from_type(type_, **kwargs))
 
         if "_empty" in pythran_types:
             raise ValueError(

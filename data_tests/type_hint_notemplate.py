@@ -1,6 +1,6 @@
 import numpy as np
 import fluidpythran as fp
-from fluidpythran import Type, NDim, Array
+from fluidpythran import Type, NDim, Array, Union
 
 T = Type(int, np.complex128)
 N = NDim(1, 3)
@@ -16,7 +16,7 @@ T = Type(int, np.complex128)
 
 
 @fp.boost
-def compute(a: A, b: A, c: T, d: A1, e: str):
+def compute(a: A, b: A, c: T, d: Union[A, A1], e: str):
     print(e)
     tmp = a + b
     return tmp

@@ -2,7 +2,7 @@ import numpy as np
 
 # pythran import numpy as np
 
-from fluidpythran import FluidPythran, boost, include
+from fluidpythran import FluidPythran, boost, include, Array, Union
 
 
 # pythran def func(int, float)
@@ -18,8 +18,11 @@ def func_tmp(arg):
     return arg ** 2
 
 
+A = Union[int, Array[int, "1d"]]
+
+
 @boost
-def func2(a: int, b: float):
+def func2(a: A, b: float):
     return a - func_tmp(b)
 
 
