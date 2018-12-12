@@ -1,6 +1,11 @@
 """Internal utilities
 =====================
 
+Public API
+----------
+
+.. autofunction:: set_pythranize_at_import
+
 Internal API
 ------------
 
@@ -31,6 +36,8 @@ Internal API
 .. autofunction:: query_yes_no
 
 .. autofunction:: clear_cached_extensions
+
+.. autofunction:: is_method
 """
 
 import os
@@ -69,6 +76,11 @@ path_cachedjit_classes = path_root / "__cachedjit_classes__"
 
 
 def find_module_name_from_path(path_py: Path):
+    """Find the module name from the path of a Python file
+
+    It is done by looking to ``sys.path`` to see how the module can be imported.
+
+    """
 
     cwd = Path.cwd()
     path = path_py.absolute().parent
@@ -203,6 +215,7 @@ _PYTHRANIZE_AT_IMPORT = None
 
 
 def set_pythranize_at_import(value=True):
+    """Control the "pythranize_at_import" mode"""
     global _PYTHRANIZE_AT_IMPORT
     _PYTHRANIZE_AT_IMPORT = value
 
@@ -321,6 +334,7 @@ def clear_cached_extensions(module_name: str, force: bool = False):
 
 
 def is_method(func):
+    """Determine wether a function is going to be used as a method"""
     signature = inspect.signature(func)
     try:
         answer = next(iter(signature.parameters.keys())) == "self"

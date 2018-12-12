@@ -21,3 +21,11 @@ Most of this code looks familiar to Pythran users. The differences:
 In this very simple mode, fluidpythran does not need to import the module to
 produce the Pythran files. If we do not want fluidpythran to import the module,
 we can use the command :code:`# FLUIDPYTHRAN_NO_IMPORT`.
+
+:code:`include` decorator
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: classic_include.py
+
+Note that no Pythran signatures or annotations are needed for "included"
+functions.

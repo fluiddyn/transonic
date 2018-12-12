@@ -6,6 +6,8 @@ User API
 
 .. autofunction:: cachedjit
 
+.. autofunction:: set_compile_cachedjit
+
 .. autofunction:: used_by_cachedjit
 
 Internal API
@@ -23,8 +25,6 @@ Internal API
 
 .. autofunction:: make_pythran_type_name
 
-.. autofunction:: set_compile_cachedjit
-
 Notes
 -----
 
@@ -32,7 +32,7 @@ Serge talked about @cachedjit (see https://gist.github.com/serge-sans-paille/28c
 
 It's indeed a good idea!
 
-With "# pythran import" and @used_by_cachedjit the implementation isn't
+With "# pythran import" and @include the implementation isn't
 too complicated.
 
 - At import time, we create one .py file per cachedjit function.
@@ -176,7 +176,11 @@ def _get_module_cachedjit(index_frame: int = 2):
 
 
 class used_by_cachedjit:
-    """Decorator to record that the function is used by a cachedjited function"""
+    """Decorator to record that the function is used by a cachedjited function
+
+    ``@used_by_cachedjit(names)`` is deprecated, use ``@include(names)`` instead.
+
+    """
 
     def __init__(self, names):
         self.names = names

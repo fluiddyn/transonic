@@ -1,7 +1,8 @@
 import numpy as np
+
 # pythran import numpy as np
 
-from fluidpythran import cachedjit
+from fluidpythran import cachedjit, wait_for_all_extensions
 
 from numba import jit
 
@@ -80,6 +81,9 @@ if __name__ == "__main__":
 
     laplace_numba(image)
     laplace_numba_loops(image)
+
+    wait_for_all_extensions()
+
 
 """
 With

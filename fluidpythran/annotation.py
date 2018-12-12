@@ -20,6 +20,10 @@ User API
    :members:
    :private-members:
 
+.. autoclass:: Union
+   :members:
+   :private-members:
+
 Internal API
 ------------
 
@@ -48,11 +52,11 @@ import inspect
 class TemplateVar:
     """Base class for template variables
 
-    T = TemplateVar("T")
-    T = TemplateVar("T", int, float)
+    >>> T = TemplateVar("T")
+    >>> T = TemplateVar("T", int, float)
 
-    T = TemplateVar()  # raise ValueError
-    T = TemplateVar(1)  # raise TypeError
+    >>> T = TemplateVar()  # raise ValueError
+    >>> T = TemplateVar(1)  # raise TypeError
 
     """
 
@@ -354,7 +358,11 @@ class UnionMeta(type):
 
 
 class Union(metaclass=UnionMeta):
-    """Similar to typing.Union"""
+    """Similar to typing.Union
+
+    >>> U = Union[float, Array[int, "1d"]]
+
+    """
 
     pass
 

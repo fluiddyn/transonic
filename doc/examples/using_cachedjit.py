@@ -1,9 +1,9 @@
 import numpy as np
 # pythran import numpy as np
 
-from fluidpythran import cachedjit, used_by_cachedjit
+from fluidpythran import cachedjit, include
 
-@used_by_cachedjit("func1")
+@include("func1")
 def func0(a, b):
     return a + b
 

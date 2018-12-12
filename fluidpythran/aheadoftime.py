@@ -6,13 +6,13 @@ User API
 
 .. autofunction:: boost
 
-.. autofunction:: pythran_def
-
 .. autofunction:: make_signature
 
 .. autoclass:: FluidPythran
    :members:
    :private-members:
+
+.. autofunction:: pythran_def
 
 Internal API
 ------------
@@ -31,6 +31,7 @@ import subprocess
 import os
 import functools
 import sys
+from warnings import warn
 
 from .util import (
     get_module_name,
@@ -111,12 +112,15 @@ def pythran_def(func):
     """Decorator to declare that a pythranized version of the function has to
     be used
 
+    ``pythran_def`` is deprecated, use ``boost`` instead
+
     Parameters
     ----------
 
     func: a function
 
     """
+    warn("pythran_def is deprecated, use boost instead", DeprecationWarning)
 
     fp = _get_fluidpythran_calling_module()
     return fp.pythran_def(func)
@@ -415,7 +419,10 @@ class FluidPythran:
         return FluidPythranTemporaryMethod(func)
 
     def boost(self, obj):
-        """Universal decorator for aot compilation"""
+        """Universal decorator for AOT compilation
+
+        Used for functions, methods and classes.
+        """
         if isinstance(obj, type):
             return self.pythran_class(obj)
         else:
@@ -554,6 +561,7 @@ class FluidPythran:
 
 
 class FluidPythranTemporaryMethod:
+    """Internal temporary class for methods"""
     def __init__(self, func):
         self.func = func
 
@@ -615,6 +623,8 @@ class Include:
 
 
 class FluidPythranTemporaryJITMethod:
+    """Internal temporary class for JIT methods"""
+
     __fluidpythran__ = "jit_method"
 
     def __init__(self, func, native, xsimd, openmp):
@@ -631,7 +641,8 @@ class FluidPythranTemporaryJITMethod:
 
 
 def cachedjit_class(cls, jit_methods):
-    """
+    """Modify the class by replacing cachedjit methods
+
     1. create a Python file with @cachejit functions and methods
     2. import the file
     3. replace the methods

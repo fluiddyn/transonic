@@ -1,8 +1,29 @@
 Object oriented programming!
 ============================
 
+OOP is not natively supported by Pythran so it is not a pleasure to use Pythran
+in Python classes. One needs to rewrite functions in another modules and call
+these functions in the methods: boring, bad in terms of readability and good to
+introduce bugs...
+
 With FluidPythran, one can easily use Pythran for methods:
 
 .. literalinclude:: methods.py
 
-For implementation reasons, we *need* to decorate the method and the class...
+.. warning ::
+
+    For implementation reasons, we *need* to decorate the methods (with
+    :code:`@boost` or :code:`@cachedjit`) and the classes (with
+    :code:`@boost`)...
+
+.. warning ::
+
+    Calling another method in a pythranized method is *not yet* supported!
+
+Function calls in methods are supported!
+
+.. literalinclude:: methods_with_include.py
+
+We can also use the :code:`cachedjit` decorator for methods!
+
+.. literalinclude:: methods_cachedjit.py

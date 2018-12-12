@@ -27,7 +27,7 @@ Note that one can also just write Pythran type-string in type annotations::
     def myfunc(a: "float[3, :]", b: float):
         ...
 
-Finally, array types with only one number of dimension can simply be
+Array types with only one number of dimension can simply be
 defined like this::
 
     from fluidpythran import Array
@@ -37,3 +37,10 @@ defined like this::
 Which has actually the same effect as::
 
     A = "float[:, :, :]"
+
+There is also an ``Union`` "type" that can be used similarly as `typing.Union
+<https://docs.python.org/3/library/typing.html#typing.Union>`__::
+
+    from fluidpythran import Array, Union
+
+    U = Union[float, Array[float, "3d"]]

@@ -19,10 +19,10 @@ FluidPythran: easily speedup your Python code with Pythran
 
 .. warning ::
 
-   FluidPythran is in an early stage. Remarks and suggestions are very
-   welcome.
+   FluidPythran is still in a quite early stage. Remarks and suggestions are
+   very welcome.
 
-   FluidPythran is used in `FluidSim
+   FluidPythran is used "in production" in `FluidSim
    <https://bitbucket.org/fluiddyn/fluidsim>`_ (see examples for `blocks
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_,
    `@boost
@@ -43,11 +43,15 @@ Pythran is able to produce **very efficient C++ code and binaries from high
 level Numpy code**. If the algorithm is easier to express without loops, don't
 write loops!
 
-Pythran always releases the GIL and can use SIMD instructions and OpenMP!
+Pythran always releases the `GIL
+<https://wiki.python.org/moin/GlobalInterpreterLock>`_ and can use `SIMD
+instructions <https://github.com/QuantStack/xsimd>`_ and `OpenMP
+<https://www.openmp.org/>`_!
 
 **Pythran is not a hard dependency of FluidPythran:** Python code using
 FluidPythran run fine without Pythran and without compilation (and of course
 without speedup)!
+
 
 Overview
 --------
@@ -69,16 +73,19 @@ related to manual writting of Pythran function signatures in comments, which
 can not be automated. Pythran uses C++ templates but Pythran users can not
 think with this concept. We would like to be able to **express the templated
 nature of Pythran with modern Python syntax** (in particular **type
-annotations**). Finally, another limitation is that it is not possible to use
-Pythran for **just-in-time** (JIT) compilation so one needs to manually write
-all argument types.
+annotations**).
+
+Finally, another limitation is that it is not possible to use Pythran for
+**just-in-time** (JIT) compilation so one needs to manually write all argument
+types.
 
 With FluidPythran, we try to overcome these limitations. FluidPythran provides
-few supplementary Pythran commands and a small Python API to define Pythran
-functions without writing the Pythran modules. The code of the numerical
-kernels can stay in the modules and in the classes where they were written. The
-Pythran files (i.e. the files compiled by Pythran), which are usually written
-by the user, are produced automatically by FluidPythran.
+few supplementary Pythran commands and a small Python API to accelerate
+functions and methods with Pythran without writing the Pythran modules. The
+code of the numerical kernels can stay in the modules and in the classes where
+they were written. The Pythran files (i.e. the files compiled by Pythran),
+which are usually written by the user, are produced automatically by
+FluidPythran.
 
 Bonus: There are FluidPythran syntaxes for both **ahead-of-time** and
 **just-in-time** compilations!
@@ -103,6 +110,23 @@ application/library** with Python could be:
 that can be compiled at build, import or run times depending of the cases. Note
 that the developers can still read the Pythran files if needed.
 
+.. tip ::
+
+  FluidPythran is really convenient for experimenting and benchmarking with
+  Pythran (as for example these comparisons `with Julia
+  <https://github.com/fluiddyn/BenchmarksPythonJuliaAndCo/tree/master/JuMicroBenchmarks>`_
+  and `with Numba
+  <https://fluidpythran.readthedocs.io/en/latest/examples/using_cachedjit.html#comparison-numba-vs-fluidpythran>`__):
+
+  - The whole code can be gathered in one Python file.
+
+  - With the :code:`@cachedjit` decorator, we don't need to add the types!
+
+  - Even without :code:`@cachedjit` (i.e. with AOT compilation), it is easy to
+    trigger a mode in which FluidPythran automatically takes care of all
+    compilation steps (see `set_pythranize_at_import <pythranize-at-import_>`__).
+
+
 Installation
 ------------
 
@@ -113,11 +137,12 @@ Installation
 The environment variable :code:`FLUIDPYTHRAN_DIR` can be set to control where
 the cached files are saved.
 
+
 A short tour of FluidPythran syntaxes
 -------------------------------------
 
-Command :code:`# pythran def`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Decorator :code:`boost` and command :code:`# pythran def`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code :: python
 
@@ -165,11 +190,10 @@ The previous example can be rewritten without Pythran commands:
 
     ...
 
-Nice but very limited... So it is possible to mix type hints and :code:`#
-pythran def` commands. Moreover, one can also elegantly define many Pythran
+Nice but very limited... So one can also elegantly define many Pythran
 signatures with type variables (see `these examples in the documentation
 <https://fluidpythran.readthedocs.io/en/latest/examples/type_hints.html>`_).
-
+Moreover, it is possible to mix type hints and :code:`# pythran def` commands.
 
 Cached Just-In-Time compilation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -268,8 +292,8 @@ export`.
 <https://fluidpythran.readthedocs.io/en/latest/examples/blocks.html>`_
 
 
-Python classes: :code:`@boost` for methods
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Python classes: :code:`@boost` and :code:`@cachedjit` for methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For simple methods **only using attributes**, we can write:
 
@@ -294,6 +318,15 @@ For simple methods **only using attributes**, we can write:
         @boost
         def compute(self, alpha: float):
             return (self.arr0 + self.arr1).mean() ** alpha
+
+.. warning ::
+
+   Calling another method in a Pythranized method is not yet supported!
+
+More examples of how to use FluidPythran for Object Oriented Programing are
+given `here
+<https://fluidpythran.readthedocs.io/en/latest/examples/methods.html>`__.
+
 
 Make the Pythran files
 ----------------------
@@ -323,9 +356,12 @@ how it is done in the example package `example_package_fluidpythran
 `fluidsim's setup.py
 <https://bitbucket.org/fluiddyn/fluidsim/src/default/setup.py>`_).
 
+.. _pythranize-at-import :
+
 If the environment variable :code:`PYTHRANIZE_AT_IMPORT` is set, FluidPythran
 compiles at import time (i.e. only when needed) the Pythran file associated
-with the imported module.
+with the imported module. This behavior can also be triggered programmatically
+by using the function :code:`set_pythranize_at_import`.
 
 License
 -------
