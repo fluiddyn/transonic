@@ -14,6 +14,12 @@ tests_mpi:
 tests_nbval:
 	pytest --nbval data_tests/ipynb
 
+clean:
+	rm -rf $(HOME)/.fluidpythran/__cachedjit__/fluidpythran/
+	rm -rf $(HOME)/.fluidpythran/__cachedjit_classes__/fluidpythran/
+	rm -rf $(HOME)/.fluidpythran/__cachedjit__/__cachedjit_classes__/fluidpythran/
+	rm -rf fluidpythran/__pythran__/
+
 tests_coverage:
 	mkdir -p .coverage
 	coverage run -p -m pytest
