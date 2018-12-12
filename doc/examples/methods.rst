@@ -18,9 +18,9 @@ With FluidPythran, one can easily use Pythran for methods:
 
 .. warning ::
 
-    One has to be very carreful with assignation in methods. For example,
+    One has to be very carreful with assignments in methods. For example,
     :code:`self.attr = 1` does not work but :code:`self.myarray[:] = 1` should
-    work (because it is not a real assignation).
+    work (because it is not a real assignment).
 
 .. warning ::
 

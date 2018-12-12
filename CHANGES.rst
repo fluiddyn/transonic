@@ -1,6 +1,9 @@
 
-Future
-------
+.. Future
+   ------
+
+0.1.5 (2018-12-12)
+------------------
 
 - :code:`cachedjit` for simple methods (without assignation to attributes
   and call of other methods)
