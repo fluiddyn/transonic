@@ -24,15 +24,8 @@ class MyClass:
         if fp.is_transpiled:
             result = fp.use_pythranized_block("block0")
         else:
-            # pythran block (
-            #     A a, b; A1 c;
-            #     int n
-            # ) -> result
-
-            # pythran block (
-            #     int a, b, c;
-            #     float n
-            # ) -> result
+            # pythran block (A a, b; A1 c; int n) -> result
+            # pythran block (int a, b, c; float n) -> result
 
             result = np.zeros_like(a)
             for _ in range(n):

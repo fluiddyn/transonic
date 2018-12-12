@@ -22,8 +22,9 @@ FluidPythran: easily speedup your Python code with Pythran
    FluidPythran is still in a quite early stage. Remarks and suggestions are
    very welcome.
 
-   FluidPythran is used "in production" in `FluidSim
-   <https://bitbucket.org/fluiddyn/fluidsim>`_ (see examples for `blocks
+   However, FluidPythran is now really usable and used "in production" in
+   `FluidSim <https://bitbucket.org/fluiddyn/fluidsim>`_ (see examples for
+   `blocks
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_,
    `@boost
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/operators/operators3d.py>`_
@@ -120,11 +121,17 @@ that the developers can still read the Pythran files if needed.
 
   - The whole code can be gathered in one Python file.
 
-  - With the :code:`@cachedjit` decorator, we don't need to add the types!
+  - With the :code:`@cachedjit` decorator, we don't need to add the types and
+    to launch compilation commands!
 
   - Even without :code:`@cachedjit` (i.e. with AOT compilation), it is easy to
     trigger a mode in which FluidPythran automatically takes care of all
     compilation steps (see `set_pythranize_at_import <pythranize-at-import_>`__).
+
+.. note ::
+
+  FluidPythran can be used in libraries and applications using MPI (as
+  `FluidSim <https://bitbucket.org/fluiddyn/fluidsim>`_).
 
 
 Installation
@@ -190,8 +197,9 @@ The previous example can be rewritten without Pythran commands:
 
     ...
 
-Nice but very limited... So one can also elegantly define many Pythran
-signatures with type variables (see `these examples in the documentation
+Nice (shorter and clearer than with the Pythran command) but very limited... So
+one can also elegantly define many Pythran signatures using in the annotations
+type variables and Pythran types in strings (see `these examples
 <https://fluidpythran.readthedocs.io/en/latest/examples/type_hints.html>`_).
 Moreover, it is possible to mix type hints and :code:`# pythran def` commands.
 
@@ -225,9 +233,6 @@ great, but it is a good start!
 Note that the :code:`@cachedjit` decorator takes into account type hints (see
 `the example in the documentation
 <https://fluidpythran.readthedocs.io/en/latest/examples/using_cachedjit.html>`_).
-
-If the environment variable :code:`PYTHRANIZE_AT_IMPORT` is set, fluidpythran
-compiles at import time the functions with type hints.
 
 **Implementation details for just-in-time compilation:** A Pythran file is
 produced for each "cachedjited" function (function decorated with
