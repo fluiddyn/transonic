@@ -1,6 +1,13 @@
 Use blocks of code to define Pythran functions
 ==============================================
 
+.. warning ::
+
+   I'm not satisfied by the syntax for Pythran blocks so I (PA) proposed an
+   alternative syntax in `issue #29
+   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_.
+
+
 FluidPythran blocks can be used with classes and more generally in functions
 with lines that cannot be compiled by Pythran.
 

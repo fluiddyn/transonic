@@ -1,6 +1,10 @@
 
-.. Future
-   ------
+Future
+------
+
+- No need for :code:`include` and :code:`# pythran import ...`
+- Alternative syntax for blocks (see `issue #29
+  <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_)
 
 0.1.5 (2018-12-12)
 ------------------

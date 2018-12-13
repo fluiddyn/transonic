@@ -296,6 +296,11 @@ export`.
 `Blocks can now also be defined with type hints!
 <https://fluidpythran.readthedocs.io/en/latest/examples/blocks.html>`_
 
+.. warning ::
+
+   I'm not satisfied by the syntax for Pythran blocks so I (PA) proposed an
+   alternative syntax in `issue #29
+   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_.
 
 Python classes: :code:`@boost` and :code:`@cachedjit` for methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
