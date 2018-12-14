@@ -6,6 +6,12 @@ Future
 - Alternative syntax for blocks (see `issue #29
   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_)
 
+0.1.6 (2018-12-14)
+------------------
+
+- Better logging and commandline (no compilation if the extension is
+  up-to-date)
+
 0.1.5 (2018-12-12)
 ------------------
 

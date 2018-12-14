@@ -661,7 +661,7 @@ def make_pythran_file(
     path_pythran = path_dir / path_py.name
 
     if not has_to_build(path_pythran, path_py) and not force:
-        logger.info(f"File {path_pythran} already up-to-date.")
+        logger.warning(f"File {path_pythran} already up-to-date.")
         return
 
     with mock_modules(mocked_modules):
@@ -675,7 +675,7 @@ def make_pythran_file(
             code_pythran_old = file.read()
 
         if code_pythran_old == code_pythran:
-            logger.info(f"Code in file {path_pythran} already up-to-date.")
+            logger.warning(f"Code in file {path_pythran} already up-to-date.")
             return
 
     logger.debug(f"code_pythran:\n{code_pythran}")

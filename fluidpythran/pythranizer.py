@@ -30,6 +30,8 @@ from typing import Union, Iterable, Optional
 import sysconfig
 import hashlib
 import sys
+import os
+from datetime import datetime
 
 from .compat import open, implementation
 from . import mpi
@@ -37,6 +39,23 @@ from .mpi import Path, PathSeq
 from .log import logger
 
 ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
+
+
+def modification_date(filename):
+    """Get the modification date of a file"""
+    return datetime.fromtimestamp(os.path.getmtime(str(filename)))
+
+
+def has_to_build(output_file: Path, input_file: Path):
+    """Check if a file has to be (re)built"""
+    output_file = PathSeq(output_file)
+    input_file = PathSeq(input_file)
+    if not output_file.exists():
+        return True
+    mod_date_output = modification_date(output_file)
+    if mod_date_output < modification_date(input_file):
+        return True
+    return False
 
 
 def make_hex(src):
@@ -117,7 +136,23 @@ class SchedulerPopen:
         openmp=False,
         str_pythran_flags: Optional[str] = None,
         parallel=True,
+        force=True,
     ):
+
+        if name_ext_file is None:
+            name_ext_file = name_ext_from_path_pythran(path)
+
+        if not force:
+            path_out = path.with_name(name_ext_file)
+            if not has_to_build(path_out, path):
+                logger.warning(
+                    f"Do not pythranize {path} because it seems up-to-date "
+                    "(but the compilation options may have changed). "
+                    "You can force the compilation with the option -f.")
+                return
+
+        logger.info(f"Schedule pythranization of file {path}")
+
         if str_pythran_flags is not None:
             flags = str_pythran_flags.strip().split()
         else:
@@ -146,8 +181,6 @@ class SchedulerPopen:
             path.name,
         ]
 
-        if name_ext_file is None:
-            name_ext_file = name_ext_from_path_pythran(path)
         words_command.extend(("-o", name_ext_file))
 
         words_command.extend(flags)
@@ -179,12 +212,14 @@ def wait_for_all_extensions():
 
 
 def compile_pythran_files(
-    paths: Iterable[Path], str_pythran_flags: str, parallel=True
+    paths: Iterable[Path], str_pythran_flags: str, parallel=True, force=True
 ):
     for path in paths:
-        print("Schedule pythranization of file", path)
         scheduler.compile_with_pythran(
-            path, str_pythran_flags=str_pythran_flags, parallel=parallel
+            path,
+            str_pythran_flags=str_pythran_flags,
+            parallel=parallel,
+            force=force,
         )
 
 

@@ -45,7 +45,7 @@ def run():
         return
 
     if not args.path and not args.clear_cache:
-        print("No python files given. Nothing to do! ✨ 🍰 ✨.")
+        logger.warning("No python files given. Nothing to do! ✨ 🍰 ✨.")
         return
 
     if args.clear_cache:
@@ -94,7 +94,9 @@ def run():
         if has_to_build(ext_path, pythran_path):
             pythran_paths.append(pythran_path)
 
-    compile_pythran_files(pythran_paths, args.pythran_flags, parallel=True)
+    compile_pythran_files(
+        pythran_paths, args.pythran_flags, parallel=True, force=args.force
+    )
 
 
 def parse_args():

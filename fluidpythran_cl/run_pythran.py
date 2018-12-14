@@ -30,7 +30,7 @@ def main():
 
     name = args[0]
     path = Path.cwd() / name
-    print(f"Pythranize {path}")
+    print(f"Pythranizing {path}")
 
     if "-o" in args:
         index_output = args.index("-o") + 1
@@ -85,10 +85,10 @@ def main():
         path_tmp.rename(path_out)
 
     if path_out.exists():
-        print(f"file {path_out.absolute()} created")
+        print(f"Done! File {path_out.absolute()} created")
     else:
         logger.error(
-            f"file {path_out.absolute()} has not been created by Pythran"
+            f"Error! File {path_out.absolute()} has not been created by Pythran"
         )
 
 

@@ -312,7 +312,7 @@ class CachedJIT:
                     has_to_write = False
 
             if has_to_write and mpi.rank == 0:
-                logger.info(f"write code in file {path_pythran}")
+                logger.debug(f"write code in file {path_pythran}")
                 with open(path_pythran, "w") as file:
                     file.write(src)
                     file.flush()
@@ -370,7 +370,7 @@ class CachedJIT:
 
             mpi.barrier()
             if mpi.rank == 0:
-                logger.info(
+                logger.debug(
                     f"write Pythran signature in file {path_pythran_header} with types\n{arg_types}"
                 )
                 with open(path_pythran_header, "w") as file:

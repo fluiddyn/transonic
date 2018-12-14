@@ -43,7 +43,6 @@ Internal API
 import os
 import sys
 import inspect
-from datetime import datetime
 import re
 from pathlib import Path
 import ast
@@ -65,7 +64,15 @@ try:
 except ImportError:
     pass
 
-from .pythranizer import ext_suffix, name_ext_from_path_pythran, make_hex
+from .pythranizer import (
+    ext_suffix,
+    name_ext_from_path_pythran,
+    make_hex,
+    modification_date,
+    has_to_build,
+)
+
+__all__ = ["modification_date", "has_to_build"]
 
 
 path_root = Path(
@@ -128,23 +135,6 @@ def get_module_name(frame):
         src, module_name = get_info_from_ipython()
 
     return module_name
-
-
-def modification_date(filename):
-    """Get the modification date of a file"""
-    return datetime.fromtimestamp(os.path.getmtime(str(filename)))
-
-
-def has_to_build(output_file: Path, input_file: Path):
-    """Check if a file has to be (re)built"""
-    output_file = Path(output_file)
-    input_file = Path(input_file)
-    if not output_file.exists():
-        return True
-    mod_date_output = modification_date(output_file)
-    if mod_date_output < modification_date(input_file):
-        return True
-    return False
 
 
 def get_source_without_decorator(func: Callable):
