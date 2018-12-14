@@ -34,7 +34,7 @@ import sys
 from .compat import open, implementation
 from . import mpi
 from .mpi import Path, PathSeq
-
+from .log import logger
 
 ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 
@@ -135,6 +135,9 @@ class SchedulerPopen:
 
         if openmp:
             update_flags("-fopenmp")
+
+        if logger.is_enable_for("info"):
+            update_flags("-v")
 
         words_command = [
             sys.executable,

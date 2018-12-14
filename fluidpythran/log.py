@@ -6,6 +6,7 @@ Defines the fluidpythran logger (variable :code:`logger`).
 """
 
 import logging
+from types import MethodType
 
 logger = logging.getLogger("fluidpythran")
 
@@ -33,15 +34,39 @@ except ImportError:
     logger.info("Disabling color, you really want to install colorlog.")
 
 
-def set_log_level(level):
-    """Set logging level"""
+def _get_level_number(level):
     level = level.lower()
     if level == "info":
-        level = logging.INFO
+        return logging.INFO
     elif level == "debug":
-        level = logging.DEBUG
+        return logging.DEBUG
+    elif level == "warning":
+        return logging.WARNING
+    else:
+        raise ValueError
 
-    logger.setLevel(level)
+
+def set_level(self, level):
+    """Set logging level"""
+    if not level:
+        self.setLevel(0)
+        return
+
+    level = _get_level_number(level)
+
+    self.setLevel(level)
 
 
-set_log_level("info")
+def get_level(self):
+    return logging.getLevelName(self.getEffectiveLevel()).lower()
+
+
+def is_enable_for(self, level):
+    return _get_level_number(level) >= self.getEffectiveLevel()
+
+
+logger.set_level = MethodType(set_level, logger)
+logger.get_level = MethodType(get_level, logger)
+logger.is_enable_for = MethodType(is_enable_for, logger)
+
+logger.set_level("info")

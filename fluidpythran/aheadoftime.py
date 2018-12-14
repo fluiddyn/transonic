@@ -562,6 +562,7 @@ class FluidPythran:
 
 class FluidPythranTemporaryMethod:
     """Internal temporary class for methods"""
+
     def __init__(self, func):
         self.func = func
 

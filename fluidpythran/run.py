@@ -13,10 +13,11 @@ Internal API
 import argparse
 from pathlib import Path
 from glob import glob
+import sys
 
 from . import __version__
 from .transpiler import make_pythran_files
-from .log import logger, set_log_level
+from .log import logger
 from .pythranizer import compile_pythran_files, ext_suffix
 from .util import has_to_build, clear_cached_extensions
 
@@ -38,7 +39,6 @@ def run():
     See :code:`fluidpythran -h`
     """
     args = parse_args()
-    # print(args)
 
     if args.version:
         print(__version__)
@@ -53,10 +53,12 @@ def run():
         return
 
     if args.verbose is None:
-        set_log_level("info")
-    elif args.verbose > 0:
-        set_log_level("debug")
-        logger.debug(args)
+        logger.set_level(None)
+    elif args.verbose == 1:
+        logger.set_level("info")
+    elif args.verbose > 1:
+        logger.set_level("debug")
+    logger.info(args)
 
     path = args.path
 
@@ -73,6 +75,10 @@ def run():
             paths = path.glob("*.py")
         else:
             paths = glob(str(path))
+
+    if not paths:
+        logger.error(f"No input file found (args.path = {args.path})")
+        sys.exit(1)
 
     make_pythran_files(paths, force=args.force)
 

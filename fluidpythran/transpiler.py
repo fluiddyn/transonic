@@ -36,8 +36,6 @@ from tokenize import (
     OP,
 )
 
-from logging import DEBUG
-
 from token import tok_name
 import inspect
 from io import BytesIO
@@ -54,7 +52,7 @@ try:
 except ImportError:
     black = False
 
-from .log import logger, set_log_level
+from .log import logger
 from .annotation import compute_pythran_types_from_valued_types
 from .util import (
     has_to_build,
@@ -465,7 +463,7 @@ def make_pythran_code(path_py: Path):
         imports,
     ) = parse_py_code(code)
 
-    if logger.isEnabledFor(DEBUG):
+    if logger.is_enable_for("debug"):
         logger.debug(
             f"""
 blocks: {blocks}\n
@@ -644,9 +642,12 @@ def make_pythran_file(
 ):
     """Create a Python file from a Python file (if necessary)"""
     if log_level is not None:
-        set_log_level(log_level)
+        logger.set_level(log_level)
 
     path_py = Path(path_py)
+
+    if not path_py.exists():
+        raise FileNotFoundError(f"Input file {path_py} not found")
 
     if path_py.absolute().parent.name == "__pythran__":
         logger.debug(f"skip file {path_py}")
@@ -698,7 +699,7 @@ def make_pythran_files(
     """Create Pythran files from a list of Python files"""
 
     if log_level is not None:
-        set_log_level(log_level)
+        logger.set_level(log_level)
 
     paths_out = []
     for path in paths:

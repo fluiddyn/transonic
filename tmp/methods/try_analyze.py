@@ -7,7 +7,7 @@ import black
 
 import numpy as np
 
-from fluidpythran.log import logger, set_log_level
+from fluidpythran.log import logger
 from fluidpythran.util import get_source_without_decorator
 from fluidpythran.annotation import compute_pythran_types_from_valued_types
 
@@ -17,7 +17,7 @@ def pythran_def_method(func):
     return func
 
 
-# set_log_level("debug")
+# logger.set_level("debug")
 
 
 from fluidpythran import Array, Type, NDim
