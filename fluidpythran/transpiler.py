@@ -154,7 +154,7 @@ def parse_py_code(code: str):
             has_to_find_code_block = "in block"
             code_blocks[name_block] = []
 
-        logger.debug((tok_name[toknum], tokval))
+        # logger.debug((tok_name[toknum], tokval))
 
     return (
         blocks,

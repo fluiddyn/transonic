@@ -55,6 +55,11 @@ from typing import Callable
 import astunparse
 
 try:
+    import black
+except ImportError:
+    black = False
+
+try:
     import pythran
 except ImportError:
     pythran = False
@@ -173,13 +178,23 @@ class TypeHintRemover(ast.NodeTransformer):
 
 def strip_typehints(source):
     """Strip the type hints from a function"""
+
+    if black:
+        source = black.format_str(source, line_length=82)
+
     # parse the source code into an AST
     parsed_source = ast.parse(source)
     # remove all type annotations, function return type definitions
     # and import statements from 'typing'
     transformed = TypeHintRemover().visit(parsed_source)
     # convert the AST back to source code
-    return astunparse.unparse(transformed)
+    striped_code = astunparse.unparse(transformed)
+
+    # bad hack to conserve the comments...
+    sep = ":(\n)+    "
+    head = re.split(sep, striped_code, maxsplit=1)[0]
+    body = re.split(sep, source, maxsplit=1)[-1]
+    return head + ":\n    " + body
 
 
 def get_ipython_input(last=True):

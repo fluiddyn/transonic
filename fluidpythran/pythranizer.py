@@ -148,7 +148,8 @@ class SchedulerPopen:
                 logger.warning(
                     f"Do not pythranize {path} because it seems up-to-date "
                     "(but the compilation options may have changed). "
-                    "You can force the compilation with the option -f.")
+                    "You can force the compilation with the option -f."
+                )
                 return
 
         logger.info(f"Schedule pythranization of file {path}")
