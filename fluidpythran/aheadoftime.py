@@ -658,7 +658,7 @@ def cachedjit_class(cls, jit_methods):
     python_path_dir = path_cachedjit_classes / mod_name.replace(".", os.path.sep)
     python_path = python_path_dir / (cls_name + ".py")
 
-    if has_to_build(python_path, module.__file__):
+    if mpi.has_to_build(python_path, module.__file__):
         if mpi.rank == 0:
             python_path = mpi.PathSeq(python_path)
             python_code = produce_code_class(cls, jit=True)
