@@ -502,7 +502,7 @@ imports: {imports}\n"""
         if "# FLUIDPYTHRAN_NO_IMPORT" not in code:
             logger.warning(
                 "module_name not in fluidpythran.aheadoftime.modules\n"
-                f"module_name = {module_name}"
+                f"module_name = {module_name}\n"
                 f"path_py = {path_py}"
             )
 

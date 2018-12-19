@@ -59,6 +59,7 @@ from .transpiler import produce_code_class
 from .log import logger
 from . import mpi
 from .mpi import Path
+from .config import has_to_replace
 
 if mpi.nb_proc == 1:
     mpi.has_to_build = has_to_build
@@ -197,7 +198,7 @@ class FluidPythran:
     Parameters
     ----------
 
-    use_pythran : bool (optional, default True)
+    use_fluidpythranized : bool (optional, default True)
 
       If False, don't use the pythranized versions at run time
 
@@ -211,7 +212,7 @@ class FluidPythran:
 
     """
 
-    def __init__(self, use_pythran=True, frame=None, reuse=True):
+    def __init__(self, use_fluidpythranized=True, frame=None, reuse=True):
 
         if frame is None:
             frame = inspect.stack()[1]
@@ -239,7 +240,7 @@ class FluidPythran:
             self.is_transpiled = False
             return
 
-        if not use_pythran:
+        if not use_fluidpythranized or not has_to_replace:
             self.is_transpiled = False
             return
 
@@ -383,7 +384,7 @@ class FluidPythran:
             self.functions[func.__name__] = func
             return func
 
-        if not self.is_transpiled:
+        if not has_to_replace or not self.is_transpiled:
             return func
 
         if not hasattr(self.module_pythran, func.__name__):
@@ -413,7 +414,7 @@ class FluidPythran:
             func.__fluidpythran__ = "pythran_def_method"
             return func
 
-        if not self.is_transpiled:
+        if not has_to_replace or not self.is_transpiled:
             return func
 
         return FluidPythranTemporaryMethod(func)
@@ -450,7 +451,7 @@ class FluidPythran:
         if jit_methods:
             cls = cachedjit_class(cls, jit_methods)
 
-        if not self.is_transpiled:
+        if not has_to_replace or not self.is_transpiled:
             return cls
 
         cls_name = cls.__name__
@@ -649,6 +650,9 @@ def cachedjit_class(cls, jit_methods):
     3. replace the methods
 
     """
+    if not has_to_replace:
+        return cls
+
     cls_name = cls.__name__
     mod_name = cls.__module__
 

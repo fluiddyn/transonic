@@ -77,12 +77,10 @@ from .pythranizer import (
     has_to_build,
 )
 
+from .config import path_root
+
 __all__ = ["modification_date", "has_to_build"]
 
-
-path_root = Path(
-    os.environ.get("FLUIDPYTHRAN_DIR", Path.home() / ".fluidpythran")
-)
 
 path_cachedjit_classes = path_root / "__cachedjit_classes__"
 

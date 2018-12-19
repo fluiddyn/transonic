@@ -34,6 +34,7 @@ of the modules, classes and functions.
     fluidpythran.run
     fluidpythran.log
     fluidpythran.util
+    fluidpythran.config
 
 More
 ----

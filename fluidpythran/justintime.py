@@ -88,6 +88,7 @@ from .aheadoftime import FluidPythranTemporaryJITMethod
 from .compat import open
 from . import mpi
 from .log import logger
+from .config import has_to_replace
 
 modules = {}
 
@@ -257,7 +258,7 @@ class CachedJIT:
                 func, self.native, self.xsimd, self.openmp
             )
 
-        if not pythran:
+        if not pythran or not has_to_replace:
             return func
 
         func_name = func.__name__

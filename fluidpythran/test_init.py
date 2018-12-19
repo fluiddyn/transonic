@@ -28,4 +28,4 @@ def test_not_fluidpythranized():
 
 
 def test_use_pythran_false():
-    FluidPythran(use_pythran=False)
+    FluidPythran(use_fluidpythranized=False)

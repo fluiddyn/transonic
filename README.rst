@@ -23,8 +23,8 @@ FluidPythran: easily speedup your Python code with Pythran
    very welcome.
 
    However, FluidPythran is now really usable and used "in production" in
-   `FluidSim <https://bitbucket.org/fluiddyn/fluidsim>`_ (see examples for
-   `blocks
+   `FluidSim <https://bitbucket.org/fluiddyn/fluidsim>`_ and `FluidFFT
+   <https://bitbucket.org/fluiddyn/fluidfft>`_ (see examples for `blocks
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_,
    `@boost
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/operators/operators3d.py>`_
@@ -134,15 +134,30 @@ that the developers can still read the Pythran files if needed.
   `FluidSim <https://bitbucket.org/fluiddyn/fluidsim>`_).
 
 
-Installation
-------------
+Installation and configuration
+------------------------------
 
 .. code ::
 
    pip install fluidpythran
 
-The environment variable :code:`FLUIDPYTHRAN_DIR` can be set to control where
-the cached files are saved.
+.. _pythranize-at-import :
+
+FluidPythran is sensible to environment variables:
+
+- :code:`FLUIDPYTHRAN_DIR` can be set to control where the cached files are
+  saved.
+
+- :code:`PYTHRANIZE_AT_IMPORT` can be set to enable a mode for which
+  FluidPythran compiles at import time the Pythran file associated with the
+  imported module. This behavior can also be triggered programmatically by using
+  the function :code:`set_pythranize_at_import`.
+
+- :code:`FLUIDPYTHRAN_NO_REPLACE` can be set to disable all code replacements.
+  This is useful only when measuring code coverage.
+
+- :code:`FLUID_COMPILE_CACHEDJIT` can be set to false to disable the
+  compilation of cachedjited functions. This can be useful for unittests.
 
 
 A short tour of FluidPythran syntaxes
@@ -365,13 +380,6 @@ how it is done in the example package `example_package_fluidpythran
 <https://bitbucket.org/fluiddyn/example_package_fluidpythran>`_ or in
 `fluidsim's setup.py
 <https://bitbucket.org/fluiddyn/fluidsim/src/default/setup.py>`_).
-
-.. _pythranize-at-import :
-
-If the environment variable :code:`PYTHRANIZE_AT_IMPORT` is set, FluidPythran
-compiles at import time (i.e. only when needed) the Pythran file associated
-with the imported module. This behavior can also be triggered programmatically
-by using the function :code:`set_pythranize_at_import`.
 
 License
 -------
