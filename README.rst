@@ -154,7 +154,7 @@ FluidPythran is sensible to environment variables:
   the function :code:`set_pythranize_at_import`.
 
 - :code:`FLUIDPYTHRAN_NO_REPLACE` can be set to disable all code replacements.
-  This is useful only when measuring code coverage.
+  This is useful to compare execution times and when measuring code coverage.
 
 - :code:`FLUID_COMPILE_CACHEDJIT` can be set to false to disable the
   compilation of cachedjited functions. This can be useful for unittests.

@@ -240,11 +240,12 @@ class FluidPythran:
             self.is_transpiled = False
             return
 
+        self.is_compiling = False
+
         if not use_fluidpythranized or not has_to_replace:
             self.is_transpiled = False
+            self.is_compiled = False
             return
-
-        self.is_compiling = False
 
         if "." in module_name:
             package, module_short_name = module_name.rsplit(".", 1)
