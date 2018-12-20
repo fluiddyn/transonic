@@ -6,6 +6,11 @@ Future
 - Alternative syntax for blocks (see `issue #29
   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_)
 
+Next release
+------------
+
+- Environment variable :code:`FLUIDPYTHRAN_NO_REPLACE`
+
 0.1.7 (2018-12-18)
 ------------------
 

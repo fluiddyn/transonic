@@ -27,7 +27,7 @@ FluidPythran: easily speedup your Python code with Pythran
    <https://bitbucket.org/fluiddyn/fluidfft>`_ (see examples for `blocks
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_,
    `@boost
-   <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/operators/operators3d.py>`_
+   <https://bitbucket.org/fluiddyn/fluidfft/src/default/fluidfft/fft3d/operators.py>`_
    and `@cachedjit
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/solvers/plate2d/output/correlations_freq.py>`_).
 
