@@ -230,6 +230,7 @@ class FluidPythran:
         self.names_template_variables = {}
 
         self.is_transpiling = is_transpiling
+        self.has_to_replace = has_to_replace
 
         if is_transpiling:
             self.functions = {}
