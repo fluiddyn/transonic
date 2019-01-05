@@ -395,11 +395,22 @@ def produce_code_class_func(cls, func_name, jit=False):
     args_func = list(signature.parameters.keys())[1:]
     str_args_func = ", ".join(args_func)
 
+    str_args_value_func = ""
+    for param, value in signature.parameters.items():
+        if param == "self":
+            continue
+        elif value.default is value.empty:
+            str_args_value_func += f"{param}, "
+        else:
+            str_args_value_func += f"{param}={value.default}, "
+
+    str_args_value_func = str_args_value_func.rstrip(", ")
+
     if jit:
         name_new_method = f"__new_method__{cls.__name__}__{func_name}"
         python_code += (
             f"\ndef {name_new_method}"
-            f"(self, {str_args_func}):\n"
+            f"(self, {str_args_value_func}):\n"
             f"    return {name_new_func}({str_self_dot_attributes}, {str_args_func})"
             "\n"
         )
@@ -410,7 +421,7 @@ def produce_code_class_func(cls, func_name, jit=False):
         python_code += (
             f"\n# pythran export {name_var_code_new_method}\n"
             f'\n{name_var_code_new_method} = """\n\n'
-            f"def new_method(self, {str_args_func}):\n"
+            f"def new_method(self, {str_args_value_func}):\n"
             f"    return pythran_func({str_self_dot_attributes}, {str_args_func})"
             '\n\n"""\n'
         )

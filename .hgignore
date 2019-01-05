@@ -24,6 +24,7 @@ doc/ipynb/executed/*.rst
 doc/ipynb/*.rst
 
 .pytest_cache
+.mypy_cache
 
 *.egg-info/*
 
