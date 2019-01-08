@@ -1,13 +1,13 @@
 """
 See https://bitbucket.org/fluiddyn/fluidpythran/issues/7/
 
-We can use the decorator fluidpythran.include but here we don't use it bacause
+We can use the decorator transonic.include but here we don't use it bacause
 it should not be difficult to detect that `func` uses `mylog`.
 
 """
 import numpy as np
 
-from fluidpythran import boost
+from transonic import boost
 
 # pythran import numpy as np
 

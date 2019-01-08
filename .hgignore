@@ -30,4 +30,4 @@ doc/ipynb/*.rst
 
 **/__pythran__/*
 
-fluidpythran/_path_data_tests.py
+transonic/_path_data_tests.py

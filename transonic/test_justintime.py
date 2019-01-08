@@ -17,7 +17,7 @@ from .compat import rmtree
 
 scheduler.nb_cpus = 2
 
-module_name = "fluidpythran.for_test_justintime"
+module_name = "transonic.for_test_justintime"
 
 str_relative_path = module_name.replace(".", os.path.sep)
 

@@ -2,7 +2,7 @@
 import h5py
 import mpi4py
 
-from fluidpythran import boost
+from transonic import boost
 
 @boost
 def myfunc(a: int, b: float):

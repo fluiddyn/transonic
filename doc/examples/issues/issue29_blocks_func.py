@@ -2,7 +2,7 @@
 See https://bitbucket.org/fluiddyn/fluidpythran/issues/29/
 
 """
-from fluidpythran import with_blocks, block
+from transonic import with_blocks, block
 
 
 def non_pythranizable(arg):

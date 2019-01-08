@@ -1,6 +1,6 @@
 import numpy as np
-import fluidpythran as fp
-from fluidpythran import Type, NDim, Array, Union
+import transonic as fp
+from transonic import Type, NDim, Array, Union
 
 T = Type(int, np.complex128)
 N = NDim(1, 3)

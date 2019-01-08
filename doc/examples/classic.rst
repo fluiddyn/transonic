@@ -1,7 +1,7 @@
 Nearly as with Pythran
 ======================
 
-This example shows how to use FluidPythran nearly `how you would use Pythran
+This example shows how to use Transonic nearly `how you would use Pythran
 <https://pythran.readthedocs.io>`_.
 
 .. literalinclude:: classic.py
@@ -15,12 +15,12 @@ Most of this code looks familiar to Pythran users. The differences:
   is not the same command).
 
 - A tiny bit of Python... The decorator :code:`@boost` replaces the
-  Python function by the pythranized function if FluidPythran has been used to
+  Python function by the pythranized function if Transonic has been used to
   produced the associated Pythran file.
 
-In this very simple mode, fluidpythran does not need to import the module to
-produce the Pythran files. If we do not want fluidpythran to import the module,
-we can use the command :code:`# FLUIDPYTHRAN_NO_IMPORT`.
+In this very simple mode, transonic does not need to import the module to
+produce the Pythran files. If we do not want transonic to import the module,
+we can use the command :code:`# TRANSONIC_NO_IMPORT`.
 
 :code:`include` decorator
 ~~~~~~~~~~~~~~~~~~~~~~~~~

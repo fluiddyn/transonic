@@ -6,7 +6,7 @@
 import os
 from pathlib import Path
 
-if "FLUIDPYTHRAN_NO_MPI" in os.environ:
+if "TRANSONIC_NO_MPI" in os.environ:
     nb_proc = 1
     rank = 0
 else:

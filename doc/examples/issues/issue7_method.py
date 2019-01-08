@@ -2,10 +2,10 @@
 See https://bitbucket.org/fluiddyn/fluidpythran/issues/7/
 
 The function `add` is used in the "boosted" method `compute` and we don't use
-`fluidpythran.include`.
+`transonic.include`.
 
 """
-from fluidpythran import boost
+from transonic import boost
 
 
 def add(a, b):

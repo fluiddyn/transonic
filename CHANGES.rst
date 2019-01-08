@@ -9,7 +9,7 @@ Future
 Next release
 ------------
 
-- Environment variable :code:`FLUIDPYTHRAN_NO_REPLACE`
+- Environment variable :code:`TRANSONIC_NO_REPLACE`
 
 0.1.7 (2018-12-18)
 ------------------
@@ -36,7 +36,7 @@ Next release
 - :code:`boost` decorator for functions, simple methods (without assignation to
   attributes and call of other methods) and classes
 - Bugfixes
-- :code:`FLUIDPYTHRAN_DIR`
+- :code:`TRANSONIC_DIR`
 
 0.1.3 (2018-12-04)
 ------------------
@@ -72,7 +72,7 @@ Next release
 0.0.9 (2018-11-20)
 ------------------
 
-- :code:`PYTHRANIZE_AT_IMPORT` mode for ahead-of-time and just-in-time
+- :code:`COMPILE_AT_IMPORT` mode for ahead-of-time and just-in-time
   compilation (works also in IPython)
 - By default, the fluidpythran commandline uses Pythran
 

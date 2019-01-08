@@ -4,9 +4,9 @@ import numpy as np
 
 # pythran blabla
 
-from fluidpythran import FluidPythran
+from transonic import Transonic
 
-fp = FluidPythran()
+fp = Transonic()
 
 
 class MyClass:
@@ -20,7 +20,7 @@ class MyClass:
         b = self.b
 
         if fp.is_transpiled:
-            result = fp.use_pythranized_block("block0")
+            result = fp.use_block("block0")
         else:
             # pythran block (
             #     float[][] a, b;
@@ -41,7 +41,7 @@ class MyClass:
         a = result
 
         if fp.is_transpiled:
-            result = fp.use_pythranized_block("block1")
+            result = fp.use_block("block1")
         else:
             # pythran block (
             #     float[][] a, b;

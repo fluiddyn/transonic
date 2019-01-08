@@ -1,7 +1,7 @@
 Cached Just-In-Time compilation
 ===============================
 
-With FluidPythran, one can use the Ahead-Of-Time compiler Pythran in a
+With Transonic, one can use the Ahead-Of-Time compiler Pythran in a
 Just-In-Time mode. It is really the **easiest way to speedup a function with
 Pythran**, just by adding a decorator! And it works also in notebooks!
 
@@ -17,10 +17,10 @@ Note that it can be very convenient to use type hints **and**
 
 .. literalinclude:: using_cachedjit_diff_types.py
 
-If the environment variable :code:`PYTHRANIZE_AT_IMPORT` is set, fluidpythran
+If the environment variable :code:`COMPILE_AT_IMPORT` is set, transonic
 compiles at import time the functions with type hints.
 
-Comparison Numba vs FluidPythran
+Comparison Numba vs Transonic
 --------------------------------
 
 Code taken from this `blog post
@@ -29,7 +29,7 @@ by Florian LE BOURDAIS.
 
 .. literalinclude:: perf_numba.py
 
-The warmup is much longer for FluidPythran but remember that it is a cached JIT
+The warmup is much longer for Transonic but remember that it is a cached JIT
 so it is an issue only for the first call of the function. When we reimport the
 module, there is no warmup.
 

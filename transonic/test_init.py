@@ -1,12 +1,12 @@
 import importlib
 
-from . import FluidPythran, mpi
+from . import Transonic, mpi
 
 from .compat import rmtree
 from .mpi import Path
 
 
-def test_not_fluidpythranized():
+def test_not_transonified():
 
     path_for_test = Path(__file__).parent / "for_test_init.py"
 
@@ -28,4 +28,4 @@ def test_not_fluidpythranized():
 
 
 def test_use_pythran_false():
-    FluidPythran(use_fluidpythranized=False)
+    Transonic(use_transonified=False)

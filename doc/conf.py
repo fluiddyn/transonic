@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# FluidPythran documentation build configuration file, copied from a file created by
+# Transonic documentation build configuration file, copied from a file created by
 # sphinx-quickstart on Sun Mar  2 12:15:31 2014.
 #
 # This file is execfile() with the current directory set to its containing dir.
@@ -22,7 +22,7 @@
 #     # this package comes from fluiddyn
 #     fluiddoc.mock_modules([])
 
-import fluidpythran
+import transonic
 
 from fluiddoc.ipynb_maker import ipynb_to_rst
 # ipynb_to_rst()
@@ -65,7 +65,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'FluidPythran'
+project = u'Transonic'
 copyright = u'2018, Pierre Augier'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -74,7 +74,7 @@ copyright = u'2018, Pierre Augier'
 #
 
 # The full version, including alpha/beta/rc tags.
-release = fluidpythran.__version__
+release = transonic.__version__
 # The short X.Y version.
 version = release.split('.')
 version = '{}.{}.{}'.format(version[0], version[1], version[2])
@@ -137,7 +137,7 @@ html_theme = 'sphinx_rtd_theme'
 #html_title = None
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-html_short_title = 'FluidPythran ' + release
+html_short_title = 'Transonic ' + release
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
@@ -214,7 +214,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'fluidpythran.tex', u'FluidPythran Documentation',
+  ('index', 'transonic.tex', u'Transonic Documentation',
    u'Pierre Augier', 'manual'),
 ]
 
@@ -244,7 +244,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'FluidPythran', u'FluidPythran Documentation',
+    ('index', 'Transonic', u'Transonic Documentation',
      [u'Pierre Augier'], 1)
 ]
 
@@ -258,8 +258,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'FluidPythran', u'FluidPythran Documentation',
-   u'Pierre Augier', 'FluidPythran', 'One line description of project.',
+  ('index', 'Transonic', u'Transonic Documentation',
+   u'Pierre Augier', 'Transonic', 'One line description of project.',
    'Miscellaneous'),
 ]
 

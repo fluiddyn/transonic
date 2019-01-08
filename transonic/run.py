@@ -1,4 +1,4 @@
-"""Command line fluidpythran
+"""Command line transonic
 ============================
 
 Internal API
@@ -28,15 +28,15 @@ except ImportError:
 
 
 doc = """
-fluidpythran: easily speedup your Python code with Pythran
+transonic: easily speedup your Python code with Pythran
 
 """
 
 
 def run():
-    """Run the fluidpythran commandline
+    """Run the transonic commandline
 
-    See :code:`fluidpythran -h`
+    See :code:`transonic -h`
     """
     args = parse_args()
 
@@ -133,7 +133,7 @@ def parse_args():
             "Flags sent to Pythran. "
             'Default is "-march=native -DUSE_XSIMD". '
             "There has to be atleast one space in the passed string! "
-            'Example: fluidpythran toto.py -pf "-march=native "\n'
+            'Example: transonic toto.py -pf "-march=native "\n'
         ),
         type=str,
         default="",

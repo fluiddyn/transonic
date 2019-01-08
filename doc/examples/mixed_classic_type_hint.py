@@ -3,7 +3,7 @@ import numpy as np
 # don't import skimage in a Pythran file. Here, no problem!
 from skimage.filters import sobel
 
-from fluidpythran import boost
+from transonic import boost
 
 # pythran import numpy as np
 

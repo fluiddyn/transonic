@@ -8,16 +8,14 @@ User API
 
 .. autofunction:: make_signature
 
-.. autoclass:: FluidPythran
+.. autoclass:: Transonic
    :members:
    :private-members:
-
-.. autofunction:: pythran_def
 
 Internal API
 ------------
 
-.. autofunction:: _get_fluidpythran_calling_module
+.. autofunction:: _get_transonic_calling_module
 
 .. autoclass:: CheckCompiling
    :members:
@@ -35,7 +33,7 @@ from warnings import warn
 
 from .util import (
     get_module_name,
-    has_to_pythranize_at_import,
+    has_to_compile_at_import,
     import_from_path,
     has_to_build,
     modification_date,
@@ -71,8 +69,8 @@ modules = {}
 path_cachedjit_classes = mpi.Path(path_cachedjit_classes)
 
 
-def _get_fluidpythran_calling_module(index_frame: int = 2):
-    """Get the FluidPythran instance corresponding to the calling module
+def _get_transonic_calling_module(index_frame: int = 2):
+    """Get the Transonic instance corresponding to the calling module
 
     Parameters
     ----------
@@ -96,35 +94,17 @@ def _get_fluidpythran_calling_module(index_frame: int = 2):
         fp = modules[module_name]
         if (
             fp.is_transpiling != is_transpiling
-            or fp._pythranize_at_import_at_creation
-            != has_to_pythranize_at_import()
+            or fp._compile_at_import_at_creation
+            != has_to_compile_at_import()
             or hasattr(fp, "path_mod")
             and fp.path_mod.exists()
             and mpi.has_to_build(fp.path_pythran, fp.path_mod)
         ):
-            fp = FluidPythran(frame=frame, reuse=False)
+            fp = Transonic(frame=frame, reuse=False)
     else:
-        fp = FluidPythran(frame=frame, reuse=False)
+        fp = Transonic(frame=frame, reuse=False)
 
     return fp
-
-
-def pythran_def(func):
-    """Decorator to declare that a pythranized version of the function has to
-    be used
-
-    ``pythran_def`` is deprecated, use ``boost`` instead
-
-    Parameters
-    ----------
-
-    func: a function
-
-    """
-    warn("pythran_def is deprecated, use boost instead", DeprecationWarning)
-
-    fp = _get_fluidpythran_calling_module()
-    return fp.pythran_def(func)
 
 
 def boost(obj):
@@ -137,7 +117,7 @@ def boost(obj):
 
     """
 
-    fp = _get_fluidpythran_calling_module()
+    fp = _get_transonic_calling_module()
     return fp.boost(obj)
 
 
@@ -157,7 +137,7 @@ def make_signature(func, **kwargs):
     if not is_transpiling:
         return
 
-    fp = _get_fluidpythran_calling_module()
+    fp = _get_transonic_calling_module()
     fp.make_signature(func, **kwargs)
 
 
@@ -191,14 +171,14 @@ class CheckCompiling:
         return self.func(*args, **kwargs)
 
 
-class FluidPythran:
+class Transonic:
     """
-    Representation of a module using ahead-of-time fluidpythran commands
+    Representation of a module using ahead-of-time transonic commands
 
     Parameters
     ----------
 
-    use_fluidpythranized : bool (optional, default True)
+    use_transonified : bool (optional, default True)
 
       If False, don't use the pythranized versions at run time
 
@@ -212,14 +192,14 @@ class FluidPythran:
 
     """
 
-    def __init__(self, use_fluidpythranized=True, frame=None, reuse=True):
+    def __init__(self, use_transonified=True, frame=None, reuse=True):
 
         if frame is None:
             frame = inspect.stack()[1]
 
         self.module_name = module_name = get_module_name(frame)
 
-        self._pythranize_at_import_at_creation = has_to_pythranize_at_import()
+        self._compile_at_import_at_creation = has_to_compile_at_import()
 
         if reuse and module_name in modules:
             fp = modules[module_name]
@@ -243,7 +223,7 @@ class FluidPythran:
 
         self.is_compiling = False
 
-        if not use_fluidpythranized or not has_to_replace:
+        if not use_transonified or not has_to_replace:
             self.is_transpiled = False
             self.is_compiled = False
             return
@@ -264,7 +244,7 @@ class FluidPythran:
 
         path_ext = None
 
-        if has_to_pythranize_at_import() and path_mod.exists():
+        if has_to_compile_at_import() and path_mod.exists():
             if mpi.has_to_build(path_pythran, path_mod):
                 if path_pythran.exists():
                     time_pythran = mpi.modification_date(path_pythran)
@@ -273,24 +253,24 @@ class FluidPythran:
 
                 returncode = None
                 if mpi.rank == 0:
-                    print(f"Running fluidpythran on file {path_mod}... ", end="")
+                    print(f"Running transonic on file {path_mod}... ", end="")
                     # better to do this in another process because the file is already run...
-                    os.environ["FLUIDPYTHRAN_NO_MPI"] = "1"
+                    os.environ["TRANSONIC_NO_MPI"] = "1"
                     returncode = subprocess.call(
                         [
                             sys.executable,
                             "-m",
-                            "fluidpythran.run",
+                            "transonic.run",
                             "-np",
                             str(path_mod),
                         ]
                     )
-                    del os.environ["FLUIDPYTHRAN_NO_MPI"]
+                    del os.environ["TRANSONIC_NO_MPI"]
                 returncode = mpi.bcast(returncode)
 
                 if returncode != 0:
                     raise RuntimeError(
-                        "fluidpythran does not manage to produce the Pythran "
+                        "transonic does not manage to produce the Pythran "
                         f"file for {path_mod}"
                     )
 
@@ -318,7 +298,7 @@ class FluidPythran:
         self.path_extension = path_ext
 
         if (
-            has_to_pythranize_at_import()
+            has_to_compile_at_import()
             and path_mod.exists()
             and not self.path_extension.exists()
         ):
@@ -346,7 +326,7 @@ class FluidPythran:
                 # module can be None if (at least) it has been run with runpy
                 if module is not None:
                     module.__pythran__ = self.module_pythran.__pythran__
-                    module.__fluidpythran__ = self.module_pythran.__fluidpythran__
+                    module.__transonic__ = self.module_pythran.__transonic__
 
             if hasattr(self.module_pythran, "arguments_blocks"):
                 self.arguments_blocks = getattr(
@@ -370,7 +350,7 @@ class FluidPythran:
             self.is_transpiled = False
             self.is_compiled = False
 
-    def pythran_def(self, func):
+    def trans_def(self, func):
         """Decorator used for functions
 
         Parameters
@@ -380,7 +360,7 @@ class FluidPythran:
 
         """
         if is_method(func):
-            return self.pythran_def_method(func)
+            return self.trans_def_method(func)
 
         if is_transpiling:
             self.functions[func.__name__] = func
@@ -403,7 +383,7 @@ class FluidPythran:
 
         return func_tmp
 
-    def pythran_def_method(self, func):
+    def trans_def_method(self, func):
         """Decorator used for methods
 
         Parameters
@@ -413,7 +393,7 @@ class FluidPythran:
 
         """
         if is_transpiling:
-            func.__fluidpythran__ = "pythran_def_method"
+            func.__transonic__ = "trans_def_method"
             return func
 
         if not has_to_replace or not self.is_transpiled:
@@ -427,11 +407,11 @@ class FluidPythran:
         Used for functions, methods and classes.
         """
         if isinstance(obj, type):
-            return self.pythran_class(obj)
+            return self.trans_class(obj)
         else:
-            return self.pythran_def(obj)
+            return self.trans_def(obj)
 
-    def pythran_class(self, cls: type):
+    def trans_class(self, cls: type):
         """Decorator used for classes
 
         Parameters
@@ -509,7 +489,7 @@ class FluidPythran:
 
         self.signatures_func[func.__name__].append(signature)
 
-    def use_pythranized_block(self, name):
+    def use_block(self, name):
         """Use the pythranized version of a code block
 
         Parameters
@@ -522,7 +502,7 @@ class FluidPythran:
         """
         if not self.is_transpiled:
             raise ValueError(
-                "`use_pythranized_block` has to be used protected "
+                "`use_block` has to be used protected "
                 "by `if fp.is_transpiled`"
             )
 
@@ -572,7 +552,7 @@ class FluidPythranTemporaryMethod:
     def __call__(self, self_bis, *args, **kwargs):
         raise RuntimeError(
             "Did you forget to decorate a class using methods decorated "
-            "with fluidpythran? Please decorate it with @boost."
+            "with transonic? Please decorate it with @boost."
         )
 
 
@@ -621,7 +601,7 @@ class Include:
         if not is_transpiling:
             return func
 
-        fp = _get_fluidpythran_calling_module(index_frame)
+        fp = _get_transonic_calling_module(index_frame)
         fp.include(func)
         return func
 
@@ -629,7 +609,7 @@ class Include:
 class FluidPythranTemporaryJITMethod:
     """Internal temporary class for JIT methods"""
 
-    __fluidpythran__ = "jit_method"
+    __transonic__ = "jit_method"
 
     def __init__(self, func, native, xsimd, openmp):
         self.func = func
@@ -640,7 +620,7 @@ class FluidPythranTemporaryJITMethod:
     def __call__(self, self_bis, *args, **kwargs):
         raise RuntimeError(
             "Did you forget to decorate a class using methods decorated "
-            "with fluidpythran? Please decorate it with @boost."
+            "with transonic? Please decorate it with @boost."
         )
 
 

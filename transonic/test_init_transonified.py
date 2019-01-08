@@ -11,14 +11,14 @@ except ImportError:
 
 from .transpiler import make_pythran_file
 from .util import (
-    has_to_pythranize_at_import,
+    has_to_compile_at_import,
     ext_suffix,
     name_ext_from_path_pythran,
 )
 from .aheadoftime import modules
 from . import mpi
 
-module_name = "fluidpythran.for_test_init"
+module_name = "transonic.for_test_init"
 
 
 class TestsInit(unittest.TestCase):
@@ -46,18 +46,18 @@ class TestsInit(unittest.TestCase):
             path_ext.unlink()
 
         try:
-            os.environ.pop("PYTHRANIZE_AT_IMPORT")
+            os.environ.pop("COMPILE_AT_IMPORT")
         except KeyError:
             pass
 
         print(mpi.rank, "end tearDownClass")
 
-    def test_fluidpythranized(self):
+    def test_transonified(self):
 
         print(mpi.rank, "start test", flush=1)
 
         try:
-            os.environ.pop("PYTHRANIZE_AT_IMPORT")
+            os.environ.pop("COMPILE_AT_IMPORT")
         except KeyError:
             pass
 
@@ -66,7 +66,7 @@ class TestsInit(unittest.TestCase):
         except KeyError:
             pass
 
-        assert not has_to_pythranize_at_import()
+        assert not has_to_compile_at_import()
 
         print(mpi.rank, "before if self.path_pythran.exists()", flush=1)
 
@@ -94,17 +94,17 @@ class TestsInit(unittest.TestCase):
         for_test_init.func1(1.1, 2.2)
         for_test_init.check_class()
 
-    @unittest.skipIf(not pythran, "Pythran is required for PYTHRANIZE_AT_IMPORT")
+    @unittest.skipIf(not pythran, "Pythran is required for COMPILE_AT_IMPORT")
     def test_pythranize(self):
 
-        os.environ["PYTHRANIZE_AT_IMPORT"] = "1"
+        os.environ["COMPILE_AT_IMPORT"] = "1"
 
         try:
             del modules[module_name]
         except KeyError:
             pass
 
-        assert has_to_pythranize_at_import()
+        assert has_to_compile_at_import()
 
         if self.path_pythran.exists():
             self.path_pythran.unlink()

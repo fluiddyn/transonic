@@ -13,7 +13,7 @@ class FluidPythranTemporaryMethod:
         raise RuntimeError("Do not call this function!")
 
 
-def pythran_def_method(func):
+def trans_def_method(func):
     return FluidPythranTemporaryMethod(func)
 
 
@@ -48,7 +48,7 @@ class Transmitter:
     def __init__(self, freq):
         self.freq = float(freq)
 
-    @pythran_def_method
+    @trans_def_method
     def __call__(self, inp: "float[]"):
         """My docstring"""
         return inp * np.exp(np.arange(len(inp)) * self.freq * 1j)

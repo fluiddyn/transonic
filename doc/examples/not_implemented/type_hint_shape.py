@@ -9,7 +9,7 @@ We could also express these concepts in strings, mainly following Pythran...
 
 """
 
-from fluidpythran import boost, Type, NDim, Shape, Array
+from transonic import boost, Type, NDim, Shape, Array
 
 T = Type(int, float)
 

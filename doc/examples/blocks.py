@@ -1,9 +1,9 @@
 import numpy as np
 # pythran import numpy as np
 
-from fluidpythran import FluidPythran
+from transonic import Transonic
 
-fp = FluidPythran()
+fp = Transonic()
 
 # don't define classes in Pythran file! Here, no problem...
 
@@ -18,7 +18,7 @@ class MyClass:
         b = self.b
 
         if fp.is_transpiled:
-            result = fp.use_pythranized_block("block0")
+            result = fp.use_block("block0")
         else:
             # pythran block (
             #     float[][] a, b;

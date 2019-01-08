@@ -60,7 +60,7 @@ from .util import (
     find_module_name_from_path,
 )
 from .compat import open
-import fluidpythran
+import transonic
 
 
 def parse_py_code(code: str):
@@ -90,10 +90,10 @@ def parse_py_code(code: str):
         ):
             imports.append(tokval.split("# pythran ", 1)[1])
 
-        if toknum == NAME and tokval == "use_pythranized_block":
+        if toknum == NAME and tokval == "use_block":
             has_to_find_name_block = True
             has_to_find_signatures = True
-            has_to_find_code_block = "after use_pythranized_block"
+            has_to_find_code_block = "after use_block"
 
         if has_to_find_name_block and toknum == STRING:
             name_block = eval(tokval)
@@ -148,7 +148,7 @@ def parse_py_code(code: str):
                 code_blocks[name_block].append((toknum, tokval))
 
         if (
-            has_to_find_code_block == "after use_pythranized_block"
+            has_to_find_code_block == "after use_block"
             and toknum == INDENT
         ):
             has_to_find_code_block = "in block"
@@ -259,8 +259,8 @@ def make_pythran_code_functions(
 def produce_code_class(cls, jit=False):
     pythran_code = ""
     for key, value in cls.__dict__.items():
-        if hasattr(value, "__fluidpythran__") and value.__fluidpythran__ in (
-            "pythran_def_method",
+        if hasattr(value, "__transonic__") and value.__transonic__ in (
+            "trans_def_method",
             "jit_method",
         ):
             pythran_code += produce_code_class_func(cls, key, jit)
@@ -289,7 +289,7 @@ def produce_new_code_method(cls, func):
                 using_self = False
             else:
                 raise NotImplementedError(
-                    f"self{tokval} not supported by FluidPythran"
+                    f"self{tokval} not supported by Transonic"
                 )
 
         if using_self == ".":
@@ -387,7 +387,7 @@ def produce_code_class_func(cls, func_name, jit=False):
         )
 
     if jit:
-        new_code = "from fluidpythran import cachedjit\n\n@cachedjit\n" + new_code
+        new_code = "from transonic import cachedjit\n\n@cachedjit\n" + new_code
 
     python_code = pythran_signatures + "\n" + new_code
 
@@ -442,9 +442,9 @@ def make_pythran_code(path_py: Path):
 
     module_name = find_module_name_from_path(path_py)
 
-    if "# FLUIDPYTHRAN_NO_IMPORT" not in code:
+    if "# TRANSONIC_NO_IMPORT" not in code:
         # we have to import the module!
-        fluidpythran.aheadoftime.is_transpiling = True
+        transonic.aheadoftime.is_transpiling = True
         try:
             namespace = run_path(str(path_py))
         except ImportError:
@@ -453,9 +453,9 @@ def make_pythran_code(path_py: Path):
                 namespace = run_module(module_name)
             except ImportError:
                 logger.error(
-                    f"fluidpythran was unable to import module {module_name}: "
+                    f"transonic was unable to import module {module_name}: "
                     "no Pythran file created. "
-                    "You could add '# FLUIDPYTHRAN_NO_IMPORT' "
+                    "You could add '# TRANSONIC_NO_IMPORT' "
                     "in the module if needed..."
                     "You could mock modules by using the argument mocked_modules to "
                     "the function make_pythran_files."
@@ -463,7 +463,7 @@ def make_pythran_code(path_py: Path):
                 raise
             finally:
                 del sys.path[0]
-        fluidpythran.aheadoftime.is_transpiling = False
+        transonic.aheadoftime.is_transpiling = False
 
     (
         blocks,
@@ -489,8 +489,8 @@ imports: {imports}\n"""
     if imports:
         code_pythran += "\n" + "\n".join(imports) + "\n"
 
-    if module_name in fluidpythran.aheadoftime.modules:
-        fp = fluidpythran.aheadoftime.modules[module_name]
+    if module_name in transonic.aheadoftime.modules:
+        fp = transonic.aheadoftime.modules[module_name]
         fp._make_signatures_from_annotations()
         functions = fp.functions.keys()
         signatures_func_annot = fp.signatures_func
@@ -510,9 +510,9 @@ imports: {imports}\n"""
             code_pythran += "\n" + get_source_without_decorator(func) + "\n"
 
     else:
-        if "# FLUIDPYTHRAN_NO_IMPORT" not in code:
+        if "# TRANSONIC_NO_IMPORT" not in code:
             logger.warning(
-                "module_name not in fluidpythran.aheadoftime.modules\n"
+                "module_name not in transonic.aheadoftime.modules\n"
                 f"module_name = {module_name}\n"
                 f"path_py = {path_py}"
             )
@@ -526,7 +526,7 @@ imports: {imports}\n"""
 
     # blocks...
 
-    # we check that some types correspond to fluidpythran types
+    # we check that some types correspond to transonic types
     # we can do that only if the module has been imported
 
     types_variables_blocks = {}
@@ -635,8 +635,8 @@ imports: {imports}\n"""
 
     if code_pythran:
         code_pythran += (
-            "\n# pythran export __fluidpythran__\n"
-            f"__fluidpythran__ = ('{fluidpythran.__version__}',)"
+            "\n# pythran export __transonic__\n"
+            f"__transonic__ = ('{transonic.__version__}',)"
         )
 
     if black:
@@ -665,7 +665,7 @@ def make_pythran_file(
         return
     if not path_py.name.endswith(".py"):
         raise ValueError(
-            "fluidpythran only processes Python file. Cannot process {path_py}"
+            "transonic only processes Python file. Cannot process {path_py}"
         )
 
     path_dir = path_py.parent / "__pythran__"

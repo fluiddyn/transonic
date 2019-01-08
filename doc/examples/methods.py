@@ -2,7 +2,7 @@ import numpy as np
 
 # pythran import numpy as np
 
-from fluidpythran import boost
+from transonic import boost
 
 
 @boost

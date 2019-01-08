@@ -2,7 +2,7 @@ import numpy as np
 
 # pythran import numpy as np
 
-from fluidpythran import FluidPythran, boost, include, Array, Union
+from transonic import Transonic, boost, include, Array, Union
 
 
 # pythran def func(int, float)
@@ -26,14 +26,14 @@ def func2(a: A, b: float):
     return a - func_tmp(b)
 
 
-fp = FluidPythran()
+fp = Transonic()
 
 
 def func1(a, b):
     n = 10
 
     if fp.is_transpiled:
-        result = fp.use_pythranized_block("block0")
+        result = fp.use_block("block0")
     else:
         # pythran block (
         #     float a, b;

@@ -1,4 +1,4 @@
-from fluidpythran import boost, cachedjit
+from transonic import boost, cachedjit
 
 
 @boost

@@ -1,28 +1,33 @@
-FluidPythran: easily speedup your Python code with Pythran
-==========================================================
+Transonic: Make your code fly at transonic speeds!
+==================================================
 
 |release| |docs| |coverage|
 
-.. |release| image:: https://img.shields.io/pypi/v/fluidpythran.svg
-   :target: https://pypi.python.org/pypi/fluidpythran/
+.. |release| image:: https://img.shields.io/pypi/v/transonic.svg
+   :target: https://pypi.python.org/pypi/transonic/
    :alt: Latest version
 
-.. |docs| image:: https://readthedocs.org/projects/fluidpythran/badge/?version=latest
-   :target: http://fluidpythran.readthedocs.org
+.. |docs| image:: https://readthedocs.org/projects/transonic/badge/?version=latest
+   :target: http://transonic.readthedocs.org
    :alt: Documentation status
 
-.. |coverage| image:: https://codecov.io/bb/fluiddyn/fluidpythran/branch/default/graph/badge.svg
-   :target: https://codecov.io/bb/fluiddyn/fluidpythran/branch/default/
+.. |coverage| image:: https://codecov.io/bb/fluiddyn/transonic/branch/default/graph/badge.svg
+   :target: https://codecov.io/bb/fluiddyn/transonic/branch/default/
    :alt: Code coverage
 
-**Documentation**: https://fluidpythran.readthedocs.io
+
+Transonic is a fork of `FluidPythran
+<https://bitbucket.org/fluiddyn/fluidpythran>`_ by its authors. It should
+replace FluidPythran.
+
+**Documentation**: https://transonic.readthedocs.io
 
 .. warning ::
 
-   FluidPythran is still in a quite early stage. Remarks and suggestions are
+   Transonic is still in a quite early stage. Remarks and suggestions are
    very welcome.
 
-   However, FluidPythran is now really usable and used "in production" in
+   However, Transonic is now really usable and used "in production" in
    `FluidSim <https://bitbucket.org/fluiddyn/fluidsim>`_ and `FluidFFT
    <https://bitbucket.org/fluiddyn/fluidfft>`_ (see examples for `blocks
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_,
@@ -31,7 +36,7 @@ FluidPythran: easily speedup your Python code with Pythran
    and `@cachedjit
    <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/solvers/plate2d/output/correlations_freq.py>`_).
 
-FluidPythran is a pure Python package (requiring Python >= 3.6 or Pypy3) to
+Transonic is a pure Python package (requiring Python >= 3.6 or Pypy3) to
 help to write Python code that *can* use `Pythran
 <https://github.com/serge-sans-paille/pythran>`_ if it is available.
 
@@ -49,8 +54,8 @@ Pythran always releases the `GIL
 instructions <https://github.com/QuantStack/xsimd>`_ and `OpenMP
 <https://www.openmp.org/>`_!
 
-**Pythran is not a hard dependency of FluidPythran:** Python code using
-FluidPythran run fine without Pythran and without compilation (and of course
+**Pythran is not a hard dependency of Transonic:** Python code using
+Transonic run fine without Pythran and without compilation (and of course
 without speedup)!
 
 
@@ -80,19 +85,19 @@ Finally, another limitation is that it is not possible to use Pythran for
 **just-in-time** (JIT) compilation so one needs to manually write all argument
 types.
 
-With FluidPythran, we try to overcome these limitations. FluidPythran provides
+With Transonic, we try to overcome these limitations. Transonic provides
 few supplementary Pythran commands and a small Python API to accelerate
 functions and methods with Pythran without writing the Pythran modules. The
 code of the numerical kernels can stay in the modules and in the classes where
 they were written. The Pythran files (i.e. the files compiled by Pythran),
 which are usually written by the user, are produced automatically by
-FluidPythran.
+Transonic.
 
-Bonus: There are FluidPythran syntaxes for both **ahead-of-time** and
+Bonus: There are Transonic syntaxes for both **ahead-of-time** and
 **just-in-time** compilations!
 
-At run time, FluidPythran uses when possible the pythranized functions, but
-let's stress again that codes using FluidPythran work fine without Pythran (of
+At run time, Transonic uses when possible the pythranized functions, but
+let's stress again that codes using Transonic work fine without Pythran (of
 course without speedup)!
 
 To summarize, a **strategy to quickly develop a very efficient scientific
@@ -104,20 +109,20 @@ application/library** with Python could be:
 - Profile your applications on real cases, detect the bottlenecks and apply
   standard optimizations with Numpy.
 
-- Add few lines of FluidPythran to compile the hot spots.
+- Add few lines of Transonic to compile the hot spots.
 
-**Implementation details:** Under the hood, FluidPythran creates Pythran files
+**Implementation details:** Under the hood, Transonic creates Pythran files
 (one per module for AOT compilation and one per function for JIT compilation)
 that can be compiled at build, import or run times depending of the cases. Note
 that the developers can still read the Pythran files if needed.
 
 .. tip ::
 
-  FluidPythran is really convenient for experimenting and benchmarking with
+  Transonic is really convenient for experimenting and benchmarking with
   Pythran (as for example these comparisons `with Julia
   <https://github.com/fluiddyn/BenchmarksPythonJuliaAndCo/tree/master/JuMicroBenchmarks>`_
   and `with Numba
-  <https://fluidpythran.readthedocs.io/en/latest/examples/using_cachedjit.html#comparison-numba-vs-fluidpythran>`__):
+  <https://transonic.readthedocs.io/en/latest/examples/using_cachedjit.html#comparison-numba-vs-transonic>`__):
 
   - The whole code can be gathered in one Python file.
 
@@ -125,12 +130,12 @@ that the developers can still read the Pythran files if needed.
     to launch compilation commands!
 
   - Even without :code:`@cachedjit` (i.e. with AOT compilation), it is easy to
-    trigger a mode in which FluidPythran automatically takes care of all
-    compilation steps (see `set_pythranize_at_import <pythranize-at-import_>`__).
+    trigger a mode in which Transonic automatically takes care of all
+    compilation steps (see `set_compile_at_import <compile-at-import_>`__).
 
 .. note ::
 
-  FluidPythran can be used in libraries and applications using MPI (as
+  Transonic can be used in libraries and applications using MPI (as
   `FluidSim <https://bitbucket.org/fluiddyn/fluidsim>`_).
 
 
@@ -139,28 +144,28 @@ Installation and configuration
 
 .. code ::
 
-   pip install fluidpythran
+   pip install transonic
 
-.. _pythranize-at-import :
+.. _compile-at-import :
 
-FluidPythran is sensible to environment variables:
+Transonic is sensible to environment variables:
 
-- :code:`FLUIDPYTHRAN_DIR` can be set to control where the cached files are
+- :code:`TRANSONIC_DIR` can be set to control where the cached files are
   saved.
 
-- :code:`PYTHRANIZE_AT_IMPORT` can be set to enable a mode for which
-  FluidPythran compiles at import time the Pythran file associated with the
+- :code:`COMPILE_AT_IMPORT` can be set to enable a mode for which
+  Transonic compiles at import time the Pythran file associated with the
   imported module. This behavior can also be triggered programmatically by using
-  the function :code:`set_pythranize_at_import`.
+  the function :code:`set_compile_at_import`.
 
-- :code:`FLUIDPYTHRAN_NO_REPLACE` can be set to disable all code replacements.
+- :code:`TRANSONIC_NO_REPLACE` can be set to disable all code replacements.
   This is useful to compare execution times and when measuring code coverage.
 
 - :code:`FLUID_COMPILE_CACHEDJIT` can be set to false to disable the
   compilation of cachedjited functions. This can be useful for unittests.
 
 
-A short tour of FluidPythran syntaxes
+A short tour of Transonic syntaxes
 -------------------------------------
 
 Decorator :code:`boost` and command :code:`# pythran def`
@@ -171,7 +176,7 @@ Decorator :code:`boost` and command :code:`# pythran def`
     import h5py
     import mpi4py
 
-    from fluidpythran import boost
+    from transonic import boost
 
     # pythran def myfunc(int, float)
 
@@ -190,7 +195,7 @@ Most of this code looks familiar to Pythran users. The differences:
   is not the same command).
 
 - A tiny bit of Python... The decorator :code:`@boost` replaces the
-  Python function by the pythranized function if FluidPythran has been used to
+  Python function by the pythranized function if Transonic has been used to
   produced the associated Pythran file.
 
 
@@ -204,7 +209,7 @@ The previous example can be rewritten without Pythran commands:
     import h5py
     import mpi4py
 
-    from fluidpythran import boost
+    from transonic import boost
 
     @boost
     def myfunc(a: int, b: float):
@@ -215,16 +220,16 @@ The previous example can be rewritten without Pythran commands:
 Nice (shorter and clearer than with the Pythran command) but very limited... So
 one can also elegantly define many Pythran signatures using in the annotations
 type variables and Pythran types in strings (see `these examples
-<https://fluidpythran.readthedocs.io/en/latest/examples/type_hints.html>`_).
+<https://transonic.readthedocs.io/en/latest/examples/type_hints.html>`_).
 Moreover, it is possible to mix type hints and :code:`# pythran def` commands.
 
 Cached Just-In-Time compilation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-With FluidPythran, one can use the Ahead-Of-Time compiler Pythran in a
+With Transonic, one can use the Ahead-Of-Time compiler Pythran in a
 Just-In-Time mode. It is really the **easiest way to speedup a function with
 Pythran**, just by adding a decorator! And it also works `in notebooks
-<https://fluidpythran.readthedocs.io/en/latest/ipynb/executed/demo_cachedjit.html>`_!
+<https://transonic.readthedocs.io/en/latest/ipynb/executed/demo_cachedjit.html>`_!
 
 It is a "work in progress" so (i) it could be buggy and (ii) the API is not
 great, but it is a good start!
@@ -235,7 +240,7 @@ great, but it is a good start!
 
     # pythran import numpy as numpy
 
-    from fluidpythran import cachedjit, used_by_cachedjit
+    from transonic import cachedjit, used_by_cachedjit
 
     @used_by_cachedjit("func1")
     def func0(a, b):
@@ -247,7 +252,7 @@ great, but it is a good start!
 
 Note that the :code:`@cachedjit` decorator takes into account type hints (see
 `the example in the documentation
-<https://fluidpythran.readthedocs.io/en/latest/examples/using_cachedjit.html>`_).
+<https://transonic.readthedocs.io/en/latest/examples/using_cachedjit.html>`_).
 
 **Implementation details for just-in-time compilation:** A Pythran file is
 produced for each "cachedjited" function (function decorated with
@@ -260,14 +265,14 @@ another process.
 Command :code:`# pythran block`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-FluidPythran blocks can be used with classes and more generally in functions
+Transonic blocks can be used with classes and more generally in functions
 with lines that cannot be compiled by Pythran.
 
 .. code :: python
 
-    from fluidpythran import FluidPythran
+    from transonic import Transonic
 
-    fp = FluidPythran()
+    fp = Transonic()
 
     class MyClass:
 
@@ -277,7 +282,7 @@ with lines that cannot be compiled by Pythran.
             a, b = self.something_that_cannot_be_pythranized()
 
             if fp.is_transpiled:
-                result = fp.use_pythranized_block("name_block")
+                result = fp.use_block("name_block")
             else:
                 # pythran block (
                 #     float a, b;
@@ -295,7 +300,7 @@ with lines that cannot be compiled by Pythran.
 
 For blocks, we need a little bit more of Python.
 
-- At import time, we have :code:`fp = FluidPythran()`, which detects which
+- At import time, we have :code:`fp = Transonic()`, which detects which
   Pythran module should be used and imports it. This is done at import time
   since we want to be very fast at run time.
 
@@ -309,7 +314,7 @@ Note that the annotations in the command :code:`# pythran block` are different
 export`.
 
 `Blocks can now also be defined with type hints!
-<https://fluidpythran.readthedocs.io/en/latest/examples/blocks.html>`_
+<https://transonic.readthedocs.io/en/latest/examples/blocks.html>`_
 
 .. warning ::
 
@@ -326,7 +331,7 @@ For simple methods **only using attributes**, we can write:
 
     import numpy as np
 
-    from fluidpythran import boost
+    from transonic import boost
 
     A = "float[:]"
 
@@ -348,16 +353,16 @@ For simple methods **only using attributes**, we can write:
 
    Calling another method in a Pythranized method is not yet supported!
 
-More examples of how to use FluidPythran for Object Oriented Programing are
+More examples of how to use Transonic for Object Oriented Programing are
 given `here
-<https://fluidpythran.readthedocs.io/en/latest/examples/methods.html>`__.
+<https://transonic.readthedocs.io/en/latest/examples/methods.html>`__.
 
 
 Make the Pythran files
 ----------------------
 
-There is a command-line tool :code:`fluidpythran` which makes the associated
-Pythran files from Python files with annotations and fluidpythran code. By
+There is a command-line tool :code:`transonic` which makes the associated
+Pythran files from Python files with annotations and transonic code. By
 default and if Pythran is available, the Pythran files are compiled.
 
 There is also a function :code:`make_pythran_files` that can be used in a
@@ -367,7 +372,7 @@ setup.py like this:
 
     from pathlib import Path
 
-    from fluidpythran.dist import make_pythran_files
+    from transonic.dist import make_pythran_files
 
     here = Path(__file__).parent.absolute()
 

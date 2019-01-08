@@ -30,7 +30,7 @@ Note that one can also just write Pythran type-string in type annotations::
 Array types with only one number of dimension can simply be
 defined like this::
 
-    from fluidpythran import Array
+    from transonic import Array
 
     A = Array[float, "3d"]
 
@@ -41,6 +41,6 @@ Which has actually the same effect as::
 There is also an ``Union`` "type" that can be used similarly as `typing.Union
 <https://docs.python.org/3/library/typing.html#typing.Union>`__::
 
-    from fluidpythran import Array, Union
+    from transonic import Array, Union
 
     U = Union[float, Array[float, "3d"]]

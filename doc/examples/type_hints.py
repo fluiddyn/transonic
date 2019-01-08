@@ -1,6 +1,6 @@
 import numpy as np
-import fluidpythran as fp
-from fluidpythran import Type, NDim, Array
+import transonic as fp
+from transonic import Type, NDim, Array
 
 T = Type("T")
 N = NDim("N")

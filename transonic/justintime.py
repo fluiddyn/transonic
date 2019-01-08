@@ -76,7 +76,7 @@ from .util import (
     path_root,
     get_info_from_ipython,
     make_hex,
-    has_to_pythranize_at_import,
+    has_to_compile_at_import,
     import_from_path,
     pythran,
     is_method,
@@ -407,7 +407,7 @@ class CachedJIT:
         ext_files = mpi.bcast(ext_files)
 
         if not ext_files:
-            if has_to_pythranize_at_import() and _COMPILE_CACHEDJIT:
+            if has_to_compile_at_import() and _COMPILE_CACHEDJIT:
                 pythranize_with_new_header()
             self.pythran_func = None
         else:

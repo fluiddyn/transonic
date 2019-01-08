@@ -1,9 +1,9 @@
 
 import numpy as np
 
-from fluidpythran import boost
+from transonic import boost
 
-# FLUIDPYTHRAN_NO_IMPORT
+# TRANSONIC_NO_IMPORT
 
 # pythran import numpy as np
 

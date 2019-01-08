@@ -1,5 +1,5 @@
 import numpy as np
-from fluidpythran import Type, NDim, Array, boost
+from transonic import Type, NDim, Array, boost
 
 T = Type(int, np.complex128)
 N = NDim(1, 3)

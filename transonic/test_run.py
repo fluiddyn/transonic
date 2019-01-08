@@ -18,29 +18,29 @@ def test_create_pythran_files():
     if path_dir_out.exists():
         rmtree(path_dir_out)
 
-    sys.argv = f"fluidpythran -np {path_data_tests / '*.py'}".split()
+    sys.argv = f"transonic -np {path_data_tests / '*.py'}".split()
     run()
 
-    sys.argv = f"fluidpythran -np {path_data_tests}".split()
+    sys.argv = f"transonic -np {path_data_tests}".split()
     run()
 
     paths = path_data_tests.glob("*.py")
-    sys.argv = ["fluidpythran", "-np"] + [str(path) for path in paths]
+    sys.argv = ["transonic", "-np"] + [str(path) for path in paths]
     run()
 
 
 @pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
 def test_create_pythran_simple():
 
-    sys.argv = "fluidpythran --version".split()
+    sys.argv = "transonic --version".split()
     run()
 
-    sys.argv = ["fluidpythran"]
+    sys.argv = ["transonic"]
     run()
 
 
 @pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
-def test_create_pythran_classic():
+def test_create_trans_classic():
 
     util.input = lambda: "y"
 
@@ -48,7 +48,7 @@ def test_create_pythran_classic():
         rmtree(path_dir_out)
 
     path_file = path_data_tests / "classic.py"
-    sys.argv = f"fluidpythran -np {path_file}".split()
+    sys.argv = f"transonic -np {path_file}".split()
     run()
 
     print("after first build")
@@ -66,11 +66,11 @@ def test_create_pythran_classic():
     print("after unlink")
     run()
 
-    sys.argv = f"fluidpythran -cc {path_file}".split()
+    sys.argv = f"transonic -cc {path_file}".split()
     run()
 
-    sys.argv = f"fluidpythran {path_file}".split()
+    sys.argv = f"transonic {path_file}".split()
     run()
 
-    sys.argv = f"fluidpythran -np {path_file_pythran}".split()
+    sys.argv = f"transonic -np {path_file_pythran}".split()
     run()

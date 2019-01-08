@@ -1,14 +1,14 @@
 """Logging
 ==========
 
-Defines the fluidpythran logger (variable :code:`logger`).
+Defines the transonic logger (variable :code:`logger`).
 
 """
 
 import logging
 from types import MethodType
 
-logger = logging.getLogger("fluidpythran")
+logger = logging.getLogger("transonic")
 
 # Initialize logging
 try:

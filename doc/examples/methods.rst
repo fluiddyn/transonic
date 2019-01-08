@@ -6,7 +6,7 @@ in Python classes. One needs to rewrite functions in another modules and call
 these functions in the methods: boring, bad in terms of readability and good to
 introduce bugs...
 
-With FluidPythran, one can easily use Pythran for methods:
+With Transonic, one can easily use Pythran for methods:
 
 .. literalinclude:: methods.py
 
@@ -24,7 +24,7 @@ With FluidPythran, one can easily use Pythran for methods:
 
 .. warning ::
 
-    Calling another method in a pythranized method is *not yet* supported!
+    Calling another method in a transonified method is *not yet* supported!
 
 Function calls in methods are supported!
 

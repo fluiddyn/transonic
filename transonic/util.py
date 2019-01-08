@@ -4,7 +4,7 @@
 Public API
 ----------
 
-.. autofunction:: set_pythranize_at_import
+.. autofunction:: set_compile_at_import
 
 Internal API
 ------------
@@ -29,7 +29,7 @@ Internal API
 
 .. autofunction:: get_info_from_ipython
 
-.. autofunction:: has_to_pythranize_at_import
+.. autofunction:: has_to_compile_at_import
 
 .. autofunction:: import_from_path
 
@@ -217,17 +217,17 @@ def get_info_from_ipython():
 _PYTHRANIZE_AT_IMPORT = None
 
 
-def set_pythranize_at_import(value=True):
-    """Control the "pythranize_at_import" mode"""
+def set_compile_at_import(value=True):
+    """Control the "compile_at_import" mode"""
     global _PYTHRANIZE_AT_IMPORT
     _PYTHRANIZE_AT_IMPORT = value
 
 
-def has_to_pythranize_at_import():
-    """Check if fluidpythran has to pythranize at import time"""
+def has_to_compile_at_import():
+    """Check if transonic has to pythranize at import time"""
     if _PYTHRANIZE_AT_IMPORT is not None:
         return _PYTHRANIZE_AT_IMPORT
-    return "PYTHRANIZE_AT_IMPORT" in os.environ
+    return "COMPILE_AT_IMPORT" in os.environ
 
 
 def import_from_path(path: Path, module_name: str):

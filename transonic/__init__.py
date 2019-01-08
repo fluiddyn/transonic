@@ -8,15 +8,14 @@ except ImportError:
 
 from .annotation import Array, NDim, Type, Shape, Union
 
-from .aheadoftime import FluidPythran, pythran_def, boost, make_signature, include
+from .aheadoftime import Transonic, boost, make_signature, include
 
-from .util import set_pythranize_at_import
+from .util import set_compile_at_import
 from .pythranizer import wait_for_all_extensions
 
 __all__ = [
     "__version__",
-    "FluidPythran",
-    "pythran_def",
+    "Transonic",
     "boost",
     "include",
     "make_signature",
@@ -29,6 +28,6 @@ __all__ = [
     "cachedjit",
     "used_by_cachedjit",
     "set_compile_cachedjit",
-    "set_pythranize_at_import",
+    "set_compile_at_import",
     "wait_for_all_extensions",
 ]

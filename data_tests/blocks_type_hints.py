@@ -6,14 +6,14 @@ import numpy as np
 # pythran import numpy as np
 
 
-from fluidpythran import FluidPythran, Type, NDim, Array
+from transonic import Transonic, Type, NDim, Array
 
 T = Type(float, complex)
 N = NDim(1, 2)
 A = Array[T, N]
 A1 = Array[T, N + 1]
 
-fp = FluidPythran()
+fp = Transonic()
 
 
 class MyClass:
@@ -27,7 +27,7 @@ class MyClass:
         b = self.b
 
         if fp.is_transpiled:
-            result = fp.use_pythranized_block("block0")
+            result = fp.use_block("block0")
         else:
             # pythran block (
             #     A a; A1 b;

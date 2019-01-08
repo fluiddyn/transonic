@@ -72,7 +72,7 @@ class TemplateVar:
             raise ValueError
 
         if _fp is None:
-            fp = _get_fluidpythran_calling_module()
+            fp = _get_transonic_calling_module()
         else:
             fp = _fp
 
@@ -139,7 +139,7 @@ class NDim(TemplateVar):
     def __init__(self, *args, shift=0, _fp=None):
 
         if _fp is None:
-            _fp = _get_fluidpythran_calling_module()
+            _fp = _get_transonic_calling_module()
 
         super().__init__(*args, _fp=_fp)
         self.shift = shift
@@ -156,11 +156,11 @@ class NDim(TemplateVar):
         return name
 
     def __add__(self, number):
-        fp = _get_fluidpythran_calling_module()
+        fp = _get_transonic_calling_module()
         return type(self)(self.__name__, *self.values, shift=number, _fp=fp)
 
     def __sub__(self, number):
-        fp = _get_fluidpythran_calling_module()
+        fp = _get_transonic_calling_module()
         return type(self)(self.__name__, *self.values, shift=-number, _fp=fp)
 
 
@@ -232,7 +232,7 @@ class ArrayMeta(type):
                             "Use for example NDim(2, 3)."
                         )
                     param = ndim = NDim(
-                        tmp, _fp=_get_fluidpythran_calling_module()
+                        tmp, _fp=_get_transonic_calling_module()
                     )
 
             if isinstance(param, str):
@@ -325,7 +325,7 @@ class UnionMeta(type):
         if not isinstance(types, tuple):
             types = (types,)
 
-        fp = _get_fluidpythran_calling_module()
+        fp = _get_transonic_calling_module()
         template_var = UnionVar(*types, _fp=fp)
 
         return type(
@@ -533,4 +533,4 @@ def make_signatures_from_typehinted_func(func):
 
 
 # we need to put this import here
-from .aheadoftime import _get_fluidpythran_calling_module
+from .aheadoftime import _get_transonic_calling_module

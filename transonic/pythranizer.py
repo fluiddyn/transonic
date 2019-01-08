@@ -178,7 +178,7 @@ class SchedulerPopen:
         words_command = [
             sys.executable,
             "-m",
-            "fluidpythran_cl.run_pythran",
+            "transonic_cl.run_pythran",
             path.name,
         ]
 

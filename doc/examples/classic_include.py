@@ -1,6 +1,6 @@
 import numpy as np
 
-from fluidpythran import boost, include
+from transonic import boost, include
 
 # pythran import numpy as np
 

@@ -1,7 +1,7 @@
 import numpy as np
 # pythran import numpy as np
 
-from fluidpythran import cachedjit, include
+from transonic import cachedjit, include
 
 @include("func1")
 def func0(a, b):

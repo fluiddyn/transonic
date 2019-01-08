@@ -1,4 +1,4 @@
-from fluidpythran import boost, include
+from transonic import boost, include
 
 
 @include

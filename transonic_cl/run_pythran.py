@@ -24,7 +24,7 @@ ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 def main():
     """Minimal layer above the Pythran commandline"""
 
-    assert sys.argv[0].endswith("fluidpythran_cl/run_pythran.py")
+    assert sys.argv[0].endswith("transonic_cl/run_pythran.py")
 
     args = sys.argv[1:]
 

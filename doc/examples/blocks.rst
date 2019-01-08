@@ -8,14 +8,14 @@ Use blocks of code to define Pythran functions
    <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_.
 
 
-FluidPythran blocks can be used with classes and more generally in functions
+Transonic blocks can be used with classes and more generally in functions
 with lines that cannot be compiled by Pythran.
 
 .. literalinclude:: blocks.py
 
 For blocks, we need a little bit more of Python.
 
-- At import time, we have :code:`fp = FluidPythran()`, which detects which
+- At import time, we have :code:`fp = Transonic()`, which detects which
   Pythran module should be used and imports it. This is done at import time
   since we want to be very fast at run time.
 
@@ -44,7 +44,7 @@ export`.
 
         c = 0
         if fp.is_transpiled:
-            a, b = fp.use_pythranized_block("buggy_block")
+            a, b = fp.use_block("buggy_block")
         else:
             # pythran block () -> (a, b)
             a = b = c = 1

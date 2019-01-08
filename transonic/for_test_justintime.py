@@ -2,7 +2,7 @@ import numpy as np
 
 # pythran import numpy as np
 
-from fluidpythran import cachedjit, include, boost
+from transonic import cachedjit, include, boost
 from .mpi import Path
 
 

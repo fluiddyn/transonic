@@ -2,7 +2,7 @@ import numpy as np
 
 # pythran import numpy as np
 
-from fluidpythran import cachedjit, wait_for_all_extensions
+from transonic import cachedjit, wait_for_all_extensions
 
 from numba import jit
 

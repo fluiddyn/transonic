@@ -3,27 +3,27 @@ develop:
 	pip install -e .[test]
 
 black:
-	black -l 82 fluidpythran fluidpythran_cl
+	black -l 82 transonic transonic_cl
 
 tests:
-	pytest fluidpythran data_tests/ipynb
+	pytest transonic data_tests/ipynb
 
 tests_mpi:
-	mpirun -np 2 pytest fluidpythran
+	mpirun -np 2 pytest transonic
 
 tests_nbval:
 	pytest --nbval data_tests/ipynb
 
 clean:
-	rm -rf $(HOME)/.fluidpythran/__cachedjit__/fluidpythran/
-	rm -rf $(HOME)/.fluidpythran/__cachedjit_classes__/fluidpythran/
-	rm -rf $(HOME)/.fluidpythran/__cachedjit__/__cachedjit_classes__/fluidpythran/
-	rm -rf fluidpythran/__pythran__/
+	rm -rf $(HOME)/.transonic/__cachedjit__/transonic/
+	rm -rf $(HOME)/.transonic/__cachedjit_classes__/transonic/
+	rm -rf $(HOME)/.transonic/__cachedjit__/__cachedjit_classes__/transonic/
+	rm -rf transonic/__pythran__/
 
 tests_coverage:
 	mkdir -p .coverage
 	coverage run -p -m pytest
-	mpirun -np 2 coverage run -p -m pytest fluidpythran
+	mpirun -np 2 coverage run -p -m pytest transonic
 
 report_coverage:
 	coverage combine

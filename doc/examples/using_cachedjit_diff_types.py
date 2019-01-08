@@ -1,4 +1,4 @@
-from fluidpythran import cachedjit, Type
+from transonic import cachedjit, Type
 
 T = Type(int, float)
 

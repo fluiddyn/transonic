@@ -1,12 +1,12 @@
 
 
-from fluidpythran import FluidPythran
+from transonic import Transonic
 
-fp = FluidPythran()
+fp = Transonic()
 
 
 class MyClass:
-    def _time_step_RK2_fluidpythran(self):
+    def _time_step_RK2(self):
         dt = self.deltat
         diss, diss2 = self.exact_linear_coefs.get_updated_coefs()
 
@@ -18,7 +18,7 @@ class MyClass:
         state_spect_n12 = self._state_spect_tmp
 
         if fp.is_transpiled:
-            fp.use_pythranized_block("rk2_step0")
+            fp.use_block("rk2_step0")
         else:
             # pythran block (
             #     complex128[][][] state_spect_n12, state_spect,

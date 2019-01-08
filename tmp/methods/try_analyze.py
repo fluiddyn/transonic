@@ -7,20 +7,20 @@ import black
 
 import numpy as np
 
-from fluidpythran.log import logger
-from fluidpythran.util import get_source_without_decorator
-from fluidpythran.annotation import compute_pythran_types_from_valued_types
+from transonic.log import logger
+from transonic.util import get_source_without_decorator
+from transonic.annotation import compute_pythran_types_from_valued_types
 
 
-def pythran_def_method(func):
-    func.__fluidpythran__ = "pythran_def_method"
+def trans_def_method(func):
+    func.__transonic__ = "trans_def_method"
     return func
 
 
 # logger.set_level("debug")
 
 
-from fluidpythran import Array, Type, NDim
+from transonic import Array, Type, NDim
 
 A = Array[Type(float, int), NDim(1, 2)]
 
@@ -31,12 +31,12 @@ class Transmitter:
     def __init__(self):
         pass
 
-    @pythran_def_method
+    @trans_def_method
     def __call__(self, inp: A):
         """My docstring"""
         return inp * np.exp(np.arange(len(inp)) * self.freq * 1j)
 
-    @pythran_def_method
+    @trans_def_method
     def call_with_print(self, inp: A):
         """call + print"""
         print("call_with_print")
@@ -49,8 +49,8 @@ def produce_pythran_code_class(cls):
 
     for key, value in cls.__dict__.items():
         if (
-            hasattr(value, "__fluidpythran__")
-            and value.__fluidpythran__ == "pythran_def_method"
+            hasattr(value, "__transonic__")
+            and value.__transonic__ == "trans_def_method"
         ):
             pythran_code += produce_pythran_code_class_func(cls, key)
 

@@ -1,4 +1,4 @@
-.. FluidPythran documentation master file
+.. Transonic documentation master file
 
 .. include:: ../README.rst
 
@@ -13,7 +13,7 @@ Examples
    examples/using_cachedjit
    examples/blocks
    examples/methods
-   ipynb/executed/demo_pythranize_at_import
+   ipynb/executed/demo_compile_at_import
    ipynb/executed/demo_cachedjit
 
 Modules Reference
@@ -25,16 +25,16 @@ of the modules, classes and functions.
 .. autosummary::
    :toctree: generated/
 
-    fluidpythran.aheadoftime
-    fluidpythran.transpiler
-    fluidpythran.annotation
-    fluidpythran.justintime
-    fluidpythran.pythranizer
-    fluidpythran.dist
-    fluidpythran.run
-    fluidpythran.log
-    fluidpythran.util
-    fluidpythran.config
+    transonic.aheadoftime
+    transonic.transpiler
+    transonic.annotation
+    transonic.justintime
+    transonic.pythranizer
+    transonic.dist
+    transonic.run
+    transonic.log
+    transonic.util
+    transonic.config
 
 More
 ----
@@ -42,8 +42,8 @@ More
 .. toctree::
    :maxdepth: 1
 
-   FluidPythran forge on Bitbucket <https://bitbucket.org/fluiddyn/fluidpythran>
-   FluidPythran in PyPI  <https://pypi.python.org/pypi/fluidpythran/>
+   Transonic forge on Bitbucket <https://bitbucket.org/fluiddyn/transonic>
+   Transonic in PyPI  <https://pypi.python.org/pypi/transonic/>
    changes
    authors
    for_dev
