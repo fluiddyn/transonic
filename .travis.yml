@@ -87,12 +87,11 @@ install:
       if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         # All dependencies inside tox.ini - since tox does not officially
         # allow conda install
-        conda install -q -y virtualenv numpy cython mpi4py coverage \
-            openmpi
-        pip install -U tox-pipenv fluiddevops
+        conda install -q -y virtualenv numpy cython mpi4py openmpi
+        pip install -U tox fluiddevops coverage
       else
         pip install -U pip setuptools wheel six colorlog
-        pip install -U pipenv tox-pipenv coverage fluiddevops
+        pip install -U tox coverage fluiddevops
       fi
 
 before_script:
