@@ -12,24 +12,18 @@ matrix:
   include:
     - python: 3.6
       env:
-        - OMPI_CC=/usr/bin/gcc-6
-        - OMPI_CXX=/usr/bin/g++-6
         - TOXENV=py36,py36-pythran,codecov-travis
         - SITE_CFG=linux
       dist: xenial
       sudo: required
     - python: 3.7
       env:
-        - OMPI_CC=/usr/bin/gcc-6
-        - OMPI_CXX=/usr/bin/g++-6
         - TOXENV=py37,py37-pythran,codecov-travis
         - SITE_CFG=linux
       dist: xenial     # required for Python 3.7 (travis-ci/travis-ci#9069)
       sudo: required   # required for Python 3.7 (travis-ci/travis-ci#9069)
     - python: pypy3
       env:
-        - OMPI_CC=/usr/bin/gcc-6
-        - OMPI_CXX=/usr/bin/g++-6
         - TOXENV=pypy3,pypy3-pythran,codecov-travis
         - SITE_CFG=linux_pypy3
       sudo: required
