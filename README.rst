@@ -1,7 +1,7 @@
 Transonic: Make your code fly at transonic speeds!
 ==================================================
 
-|release| |docs| |coverage|
+|release| |docs| |coverage| |travis|
 
 .. |release| image:: https://img.shields.io/pypi/v/transonic.svg
    :target: https://pypi.python.org/pypi/transonic/
@@ -15,6 +15,9 @@ Transonic: Make your code fly at transonic speeds!
    :target: https://codecov.io/bb/fluiddyn/transonic/branch/default/
    :alt: Code coverage
 
+.. |travis| image:: https://travis-ci.org/fluiddyn/transonic.svg?branch=master
+   :target: https://travis-ci.org/fluiddyn/transonic
+   :alt: Travis CI status
 
 Transonic is a fork of `FluidPythran
 <https://bitbucket.org/fluiddyn/fluidpythran>`_ by its authors. It should

@@ -32,7 +32,6 @@ matrix:
         - OMPI_CXX=/usr/bin/g++-6
         - TOXENV=pypy3,pypy3-pythran,codecov-travis
         - SITE_CFG=linux_pypy3
-      dist: xenial
       sudo: required
     - os: osx
       osx_image: xcode8.3
