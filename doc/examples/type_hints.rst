@@ -1,5 +1,5 @@
-Defining Pythran functions with type hints
-==========================================
+Accelerated functions with type hints
+=====================================
 
 First a minimalist example:
 

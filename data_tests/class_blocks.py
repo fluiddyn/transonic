@@ -1,8 +1,8 @@
 import numpy as np
 
-# pythran import numpy as np
+# transonic import numpy as np
 
-# pythran blabla
+# transonic blabla
 
 from transonic import Transonic
 
@@ -22,7 +22,7 @@ class MyClass:
         if fp.is_transpiled:
             result = fp.use_block("block0")
         else:
-            # pythran block (
+            # transonic block (
             #     float[][] a, b;
             #     int n
             # ) -> result
@@ -30,7 +30,7 @@ class MyClass:
 
             # blibli
 
-            # pythran block (
+            # transonic block (
             #     float[][][] a, b;
             #     int n
             # ) -> result
@@ -43,7 +43,7 @@ class MyClass:
         if fp.is_transpiled:
             result = fp.use_block("block1")
         else:
-            # pythran block (
+            # transonic block (
             #     float[][] a, b;
             #     int n
             # ) -> (result)
@@ -51,7 +51,7 @@ class MyClass:
 
             # blibli
 
-            # pythran block (
+            # transonic block (
             #     float[][][] a, b;
             #     int n
             # ) -> (result)

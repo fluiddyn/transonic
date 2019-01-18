@@ -5,7 +5,7 @@ import pytest
 from . import dist
 from .mpi import nb_proc
 
-from .dist import detect_pythran_extensions, modification_date, make_pythran_files
+from .dist import detect_pythran_extensions, modification_date, make_backend_files
 from . import path_data_tests
 
 dist.can_import_pythran = True
@@ -27,7 +27,7 @@ def test_detect_pythran_extensions():
         "type_hint.py",
     ]
 
-    make_pythran_files(
+    make_backend_files(
         (path_data_tests / name for name in names),
         mocked_modules=("toto.titi", "numpy"),
     )

@@ -24,11 +24,11 @@ except ImportError:
     PythranBuildExt = build_ext
     PythranExtension = None
 
-from .transpiler import make_pythran_files
+from .transpiler import make_backend_files
 from .util import modification_date
 
 __all__ = [
-    "make_pythran_files",
+    "make_backend_files",
     "PythranBuildExt",
     "PythranExtension",
     "can_import_pythran",

@@ -13,7 +13,7 @@ With Transonic, one can easily use Pythran for methods:
 .. warning ::
 
     For implementation reasons, we *need* to decorate the methods (with
-    :code:`@boost` or :code:`@cachedjit`) and the classes (with
+    :code:`@boost` or :code:`@jit`) and the classes (with
     :code:`@boost`)...
 
 .. warning ::
@@ -30,6 +30,6 @@ Function calls in methods are supported!
 
 .. literalinclude:: methods_with_include.py
 
-We can also use the :code:`cachedjit` decorator for methods!
+We can also use the :code:`jit` decorator for methods!
 
-.. literalinclude:: methods_cachedjit.py
+.. literalinclude:: methods_jit.py

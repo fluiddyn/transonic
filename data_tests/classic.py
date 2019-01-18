@@ -5,13 +5,13 @@ from transonic import boost
 
 # TRANSONIC_NO_IMPORT
 
-# pythran import numpy as np
+# transonic import numpy as np
 
-# pythran def func(
+# transonic def func(
 #  float[][],
 #  float[][]
 # )
-# pythran def func(int[][], float[][])
+# transonic def func(int[][], float[][])
 
 
 @boost

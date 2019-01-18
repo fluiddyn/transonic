@@ -16,7 +16,7 @@ from glob import glob
 import sys
 
 from . import __version__
-from .transpiler import make_pythran_files
+from .transpiler import make_backend_files
 from .log import logger
 from .pythranizer import compile_pythran_files, ext_suffix
 from .util import has_to_build, clear_cached_extensions
@@ -80,7 +80,7 @@ def run():
         logger.error(f"No input file found (args.path = {args.path})")
         sys.exit(1)
 
-    make_pythran_files(paths, force=args.force)
+    make_backend_files(paths, force=args.force)
 
     if not pythran or args.no_pythran:
         return

@@ -20,7 +20,7 @@ class MyClass:
         if fp.is_transpiled:
             fp.use_block("rk2_step0")
         else:
-            # pythran block (
+            # transonic block (
             #     complex128[][][] state_spect_n12, state_spect,
             #                      tendencies_n;
             #     float64[][] diss2;

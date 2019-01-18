@@ -1,5 +1,5 @@
-Use blocks of code to define Pythran functions
-==============================================
+Define accelerated blocks
+=========================
 
 .. warning ::
 
@@ -20,11 +20,11 @@ For blocks, we need a little bit more of Python.
   since we want to be very fast at run time.
 
 - In the function, we define a block with three lines of Python and special
-  Pythran annotations (:code:`# pythran block`). The 3 lines of Python are used
+  Pythran annotations (:code:`# transonic block`). The 3 lines of Python are used
   (i) at run time to choose between the two branches (:code:`is_transpiled` or
   not) and (ii) at compile time to detect the blocks.
 
-Note that the annotations in the command :code:`# pythran block` are different
+Note that the annotations in the command :code:`# transonic block` are different
 (and somehow easier to write) than in the standard command :code:`# pythran
 export`.
 
@@ -46,7 +46,7 @@ export`.
         if fp.is_transpiled:
             a, b = fp.use_block("buggy_block")
         else:
-            # pythran block () -> (a, b)
+            # transonic block () -> (a, b)
             a = b = c = 1
 
         assert c == 1

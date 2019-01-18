@@ -1,5 +1,5 @@
 import numpy as np
-# pythran import numpy as np
+# transonic import numpy as np
 
 from transonic import Transonic
 
@@ -20,11 +20,11 @@ class MyClass:
         if fp.is_transpiled:
             result = fp.use_block("block0")
         else:
-            # pythran block (
+            # transonic block (
             #     float[][] a, b;
             #     int n
             # ) -> result
-            # pythran block (
+            # transonic block (
             #     float[][][] a, b;
             #     int n
             # ) -> result

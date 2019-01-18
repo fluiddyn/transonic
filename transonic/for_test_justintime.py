@@ -1,8 +1,8 @@
 import numpy as np
 
-# pythran import numpy as np
+# transonic import numpy as np
 
-from transonic import cachedjit, include, boost
+from transonic import jit, include, boost
 from .mpi import Path
 
 
@@ -16,14 +16,14 @@ def func():
     return 1
 
 
-@cachedjit
+@jit
 def func1(a: "int[][] or float[]", l: "int list"):
     tmp = np.exp(sum(l))
     result = tmp * a * func0(a) + func()
     return result
 
 
-@cachedjit()
+@jit()
 def func2(a):
     return a
 
@@ -32,12 +32,12 @@ def func2(a):
 Path(__file__).touch()
 
 
-@cachedjit()
+@jit()
 def func2(a):
     return a
 
 
-@cachedjit()
+@jit()
 def func_dict(d: "str: float dict"):
     return d.popitem()
 
@@ -47,7 +47,7 @@ class MyClass:
     def __init__(self):
         self.attr0 = self.attr1 = 1
 
-    @cachedjit
+    @jit
     def myfunc(self, arg):
         return self.attr1 + self.attr0 + arg
 

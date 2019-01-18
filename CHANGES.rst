@@ -2,7 +2,7 @@
 Future
 ------
 
-- No need for :code:`include` and :code:`# pythran import ...`
+- No need for :code:`include` and :code:`# transonic import ...`
 - Alternative syntax for blocks (see `issue #29
   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_)
 
@@ -25,7 +25,7 @@ Next release
 0.1.5 (2018-12-12)
 ------------------
 
-- :code:`cachedjit` for simple methods (without assignation to attributes
+- :code:`jit` for simple methods (without assignation to attributes
   and call of other methods)
 - :code:`Union` for annotations
 - :code:`include` decorator
@@ -52,8 +52,8 @@ Next release
 - Fix bug C-style `[][]`
 - :code:`Array[float, "2d"]` supported
 - :code:`NDim(0)` supported
-- Function :code:`set_compile_cachedjit()` to disable compilation of
-  cachedjit functions
+- Function :code:`set_compile_jit()` to disable compilation of
+  jit functions
 
 0.1.1 (2018-11-28)
 ------------------
@@ -72,20 +72,20 @@ Next release
 0.0.9 (2018-11-20)
 ------------------
 
-- :code:`COMPILE_AT_IMPORT` mode for ahead-of-time and just-in-time
+- :code:`TRANSONIC_COMPILE_AT_IMPORT` mode for ahead-of-time and just-in-time
   compilation (works also in IPython)
 - By default, the fluidpythran commandline uses Pythran
 
 0.0.8 (2018-11-16)
 ------------------
 
-- Fix cachedjit when calling with new types
-- :code:`cachedjit` in IPython / Jupyter
+- Fix jit when calling with new types
+- :code:`jit` in IPython / Jupyter
 
 0.0.7 (2018-11-15)
 ------------------
 
-- :code:`cachedjit` decorator (supports also type hints)
+- :code:`jit` decorator (supports also type hints)
 
 0.0.6 (2018-11-05)
 ------------------

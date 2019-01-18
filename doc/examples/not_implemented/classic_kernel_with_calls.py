@@ -2,14 +2,14 @@ import numpy as np
 
 from transonic import boost
 
-# pythran import numpy as np
+# transonic import numpy as np
 
 
 def mylog(arr):
     return np.log(arr)
 
-# pythran def func(float[][], float[][])
-# pythran def func(int[][], float[][])
+# transonic def func(float[][], float[][])
+# transonic def func(int[][], float[][])
 
 
 @boost

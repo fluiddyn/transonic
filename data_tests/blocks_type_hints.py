@@ -3,7 +3,7 @@
 
 import numpy as np
 
-# pythran import numpy as np
+# transonic import numpy as np
 
 
 from transonic import Transonic, Type, NDim, Array
@@ -29,12 +29,12 @@ class MyClass:
         if fp.is_transpiled:
             result = fp.use_block("block0")
         else:
-            # pythran block (
+            # transonic block (
             #     A a; A1 b;
             #     int n
             # ) -> result
 
-            # pythran block (
+            # transonic block (
             #     int[:] a, b;
             #     float n
             # ) -> result

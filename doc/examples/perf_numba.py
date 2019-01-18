@@ -1,10 +1,10 @@
 import numpy as np
 
-# pythran import numpy as np
+# transonic import numpy as np
 
-from transonic import cachedjit, wait_for_all_extensions
+from transonic import jit, wait_for_all_extensions
 
-from numba import jit
+import numba
 
 
 def laplace_numpy(image):
@@ -17,7 +17,7 @@ def laplace_numpy(image):
     return thresh
 
 
-@cachedjit
+@jit
 def laplace_pythran(image):
     """Laplace operator in NumPy for 2D images."""
     laplacian = (
@@ -28,7 +28,7 @@ def laplace_pythran(image):
     return thresh
 
 
-@cachedjit
+@jit
 def laplace_pythran_loops(image):
     """Laplace operator for 2D images."""
     h = image.shape[0]
@@ -43,7 +43,7 @@ def laplace_pythran_loops(image):
     return laplacian
 
 
-@jit(nopython=True, cache=True)
+@numba.jit(nopython=True, cache=True)
 def laplace_numba(image):
     """Laplace operator in NumPy for 2D images. Numba accelerated."""
     laplacian = (
@@ -54,7 +54,7 @@ def laplace_numba(image):
     return thresh
 
 
-@jit(nopython=True, cache=True)
+@numba.jit(nopython=True, cache=True)
 def laplace_numba_loops(image):
     """Laplace operator for 2D images. Numba accelerated."""
     h = image.shape[0]

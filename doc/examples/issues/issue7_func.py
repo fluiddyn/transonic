@@ -9,7 +9,7 @@ import numpy as np
 
 from transonic import boost
 
-# pythran import numpy as np
+# transonic import numpy as np
 
 
 def mylog(arr):

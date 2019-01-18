@@ -1,8 +1,8 @@
-from transonic import cachedjit, Type
+from transonic import jit, Type
 
 T = Type(int, float)
 
-@cachedjit()
+@jit()
 def func(a: T, b: T):
     return a * b
 

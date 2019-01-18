@@ -1,11 +1,11 @@
 import numpy as np
 
-# pythran import numpy as np
+# transonic import numpy as np
 
 from transonic import Transonic, boost, include, Array, Union
 
 
-# pythran def func(int, float)
+# transonic def func(int, float)
 
 
 @boost
@@ -35,7 +35,7 @@ def func1(a, b):
     if fp.is_transpiled:
         result = fp.use_block("block0")
     else:
-        # pythran block (
+        # transonic block (
         #     float a, b;
         #     int n
         # ) -> (result, a)

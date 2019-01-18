@@ -15,9 +15,9 @@ tests_nbval:
 	pytest --nbval data_tests/ipynb
 
 clean:
-	rm -rf $(HOME)/.transonic/__cachedjit__/transonic/
-	rm -rf $(HOME)/.transonic/__cachedjit_classes__/transonic/
-	rm -rf $(HOME)/.transonic/__cachedjit__/__cachedjit_classes__/transonic/
+	rm -rf $(HOME)/.transonic/__jit__/transonic/
+	rm -rf $(HOME)/.transonic/__jit_classes__/transonic/
+	rm -rf $(HOME)/.transonic/__jit__/__jit_classes__/transonic/
 	rm -rf transonic/__pythran__/
 
 tests_coverage:

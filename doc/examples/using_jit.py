@@ -1,13 +1,13 @@
 import numpy as np
-# pythran import numpy as np
+# transonic import numpy as np
 
-from transonic import cachedjit, include
+from transonic import jit, include
 
 @include("func1")
 def func0(a, b):
     return a + b
 
-@cachedjit()
+@jit()
 def func1(a, b):
     return np.exp(a) * b * func0(a, b)
 

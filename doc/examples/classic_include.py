@@ -2,10 +2,10 @@ import numpy as np
 
 from transonic import boost, include
 
-# pythran import numpy as np
+# transonic import numpy as np
 
-# pythran def func(float[][], float[][])
-# pythran def func(int[][], float[][])
+# transonic def func(float[][], float[][])
+# transonic def func(int[][], float[][])
 
 
 @include

@@ -1,5 +1,5 @@
 import numpy as np
-# pythran import numpy as np
+# transonic import numpy as np
 
 from transonic import Transonic, Type, NDim, Array
 
@@ -24,8 +24,8 @@ class MyClass:
         if fp.is_transpiled:
             result = fp.use_block("block0")
         else:
-            # pythran block (A a, b; A1 c; int n) -> result
-            # pythran block (int a, b, c; float n) -> result
+            # transonic block (A a, b; A1 c; int n) -> result
+            # transonic block (int a, b, c; float n) -> result
 
             result = np.zeros_like(a)
             for _ in range(n):

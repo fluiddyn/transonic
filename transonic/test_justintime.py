@@ -9,8 +9,8 @@ try:
 except ImportError:
     pythran = None
 
-from .util import path_cachedjit_classes
-from .justintime import path_cachedjit, modules
+from .util import path_jit_classes
+from .justintime import path_jit, modules
 from .pythranizer import scheduler, wait_for_all_extensions
 from . import mpi
 from .compat import rmtree
@@ -21,12 +21,12 @@ module_name = "transonic.for_test_justintime"
 
 str_relative_path = module_name.replace(".", os.path.sep)
 
-path_cachedjit = mpi.PathSeq(path_cachedjit)
+path_jit = mpi.PathSeq(path_jit)
 
-path_pythran_dir = path_cachedjit / str_relative_path
-path_classes_dir = path_cachedjit_classes / str_relative_path
+path_pythran_dir = path_jit / str_relative_path
+path_classes_dir = path_jit_classes / str_relative_path
 path_classes_dir1 = (
-    path_cachedjit / path_cachedjit_classes.name / str_relative_path
+    path_jit / path_jit_classes.name / str_relative_path
 )
 
 
@@ -49,7 +49,7 @@ if mpi.rank == 0:
 mpi.barrier()
 
 
-def test_cachedjit():
+def test_jit():
 
     from .for_test_justintime import func1
 
@@ -61,7 +61,7 @@ def test_cachedjit():
         sleep(0.1)
 
 
-def test_cachedjit_simple():
+def test_jit_simple():
 
     from .for_test_justintime import func2
 
@@ -71,7 +71,7 @@ def test_cachedjit_simple():
         return
 
     mod = modules[module_name]
-    cjit = mod.cachedjit_functions["func2"]
+    cjit = mod.jit_functions["func2"]
 
     for _ in range(100):
         func2(1)
@@ -89,7 +89,7 @@ def test_cachedjit_simple():
     func2(1)
 
 
-def test_cachedjit_dict():
+def test_jit_dict():
     from .for_test_justintime import func_dict
 
     d = dict(a=1, b=2)
@@ -99,7 +99,7 @@ def test_cachedjit_dict():
         return
 
     mod = modules[module_name]
-    cjit = mod.cachedjit_functions["func_dict"]
+    cjit = mod.jit_functions["func_dict"]
 
     d = dict(a=1, b=2)
     func_dict(d)
@@ -116,7 +116,7 @@ def test_cachedjit_dict():
             break
 
 
-def test_cachedjit_method():
+def test_jit_method():
     from .for_test_justintime import MyClass
 
     obj = MyClass()

@@ -1,5 +1,5 @@
 from ._version import __version__
-from .justintime import cachedjit, used_by_cachedjit, set_compile_cachedjit
+from .justintime import jit, set_compile_jit
 
 try:
     from ._path_data_tests import path_data_tests
@@ -25,9 +25,8 @@ __all__ = [
     "Type",
     "Shape",
     "Union",
-    "cachedjit",
-    "used_by_cachedjit",
-    "set_compile_cachedjit",
+    "jit",
+    "set_compile_jit",
     "set_compile_at_import",
     "wait_for_all_extensions",
 ]

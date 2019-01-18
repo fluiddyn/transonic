@@ -2,6 +2,14 @@
 
 .. include:: ../README.rst
 
+Backends
+--------
+
+.. toctree::
+   :maxdepth: 2
+
+   pythran_backend
+
 Examples
 --------
 
@@ -10,11 +18,11 @@ Examples
 
    examples/classic
    examples/type_hints
-   examples/using_cachedjit
+   examples/using_jit
    examples/blocks
    examples/methods
    ipynb/executed/demo_compile_at_import
-   ipynb/executed/demo_cachedjit
+   ipynb/executed/demo_jit
 
 Modules Reference
 -----------------

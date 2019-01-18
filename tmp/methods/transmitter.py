@@ -1,6 +1,6 @@
 
 import numpy as np
-# pythran import numpy as np
+# transonic import numpy as np
 
 
 class Transmitter():

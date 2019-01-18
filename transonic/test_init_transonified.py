@@ -46,7 +46,7 @@ class TestsInit(unittest.TestCase):
             path_ext.unlink()
 
         try:
-            os.environ.pop("COMPILE_AT_IMPORT")
+            os.environ.pop("TRANSONIC_COMPILE_AT_IMPORT")
         except KeyError:
             pass
 
@@ -57,7 +57,7 @@ class TestsInit(unittest.TestCase):
         print(mpi.rank, "start test", flush=1)
 
         try:
-            os.environ.pop("COMPILE_AT_IMPORT")
+            os.environ.pop("TRANSONIC_COMPILE_AT_IMPORT")
         except KeyError:
             pass
 
@@ -94,10 +94,10 @@ class TestsInit(unittest.TestCase):
         for_test_init.func1(1.1, 2.2)
         for_test_init.check_class()
 
-    @unittest.skipIf(not pythran, "Pythran is required for COMPILE_AT_IMPORT")
+    @unittest.skipIf(not pythran, "Pythran is required for TRANSONIC_COMPILE_AT_IMPORT")
     def test_pythranize(self):
 
-        os.environ["COMPILE_AT_IMPORT"] = "1"
+        os.environ["TRANSONIC_COMPILE_AT_IMPORT"] = "1"
 
         try:
             del modules[module_name]

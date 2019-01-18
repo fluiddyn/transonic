@@ -1,4 +1,4 @@
-from transonic import boost, cachedjit
+from transonic import boost, jit
 
 
 @boost
@@ -13,6 +13,6 @@ class OtherClass:
     def __init__(self, arg):
         self.attr0 = self.attr1 = 2 * arg
 
-    @cachedjit
+    @jit
     def calcul(self, a, b):
         return a * self.attr0 + b * self.attr1

@@ -38,7 +38,7 @@ from .util import (
     has_to_build,
     modification_date,
     is_method,
-    path_cachedjit_classes,
+    path_jit_classes,
 )
 
 from .pythranizer import (
@@ -66,7 +66,7 @@ if mpi.nb_proc == 1:
 is_transpiling = False
 modules = {}
 
-path_cachedjit_classes = mpi.Path(path_cachedjit_classes)
+path_jit_classes = mpi.Path(path_jit_classes)
 
 
 def _get_transonic_calling_module(index_frame: int = 2):
@@ -431,7 +431,7 @@ class Transonic:
         }
 
         if jit_methods:
-            cls = cachedjit_class(cls, jit_methods)
+            cls = jit_class(cls, jit_methods)
 
         if not has_to_replace or not self.is_transpiled:
             return cls
@@ -593,9 +593,9 @@ class Include:
             index_frame = 2
 
         if self.used_by is not None:
-            from .justintime import _get_module_cachedjit
+            from .justintime import _get_module_jit
 
-            jit_mod = _get_module_cachedjit(index_frame)
+            jit_mod = _get_module_jit(index_frame)
             jit_mod.record_used_function(func, self.used_by)
 
         if not is_transpiling:
@@ -624,8 +624,8 @@ class FluidPythranTemporaryJITMethod:
         )
 
 
-def cachedjit_class(cls, jit_methods):
-    """Modify the class by replacing cachedjit methods
+def jit_class(cls, jit_methods):
+    """Modify the class by replacing jit methods
 
     1. create a Python file with @cachejit functions and methods
     2. import the file
@@ -641,7 +641,7 @@ def cachedjit_class(cls, jit_methods):
     module = sys.modules[mod_name]
 
     # 1. create a Python file with @cachejit functions and methods
-    python_path_dir = path_cachedjit_classes / mod_name.replace(".", os.path.sep)
+    python_path_dir = path_jit_classes / mod_name.replace(".", os.path.sep)
     python_path = python_path_dir / (cls_name + ".py")
 
     if mpi.has_to_build(python_path, module.__file__):
@@ -668,7 +668,7 @@ def cachedjit_class(cls, jit_methods):
 
     # 2. import the file
     python_mod_name = (
-        path_cachedjit_classes.name + "." + mod_name + "." + cls_name
+        path_jit_classes.name + "." + mod_name + "." + cls_name
     )
     module = import_from_path(python_path, python_mod_name)
 

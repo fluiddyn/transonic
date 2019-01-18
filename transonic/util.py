@@ -82,7 +82,7 @@ from .config import path_root
 __all__ = ["modification_date", "has_to_build"]
 
 
-path_cachedjit_classes = path_root / "__cachedjit_classes__"
+path_jit_classes = path_root / "__jit_classes__"
 
 
 def find_module_name_from_path(path_py: Path):
@@ -96,13 +96,13 @@ def find_module_name_from_path(path_py: Path):
     path = path_py.absolute().parent
     module_name = path_py.stem
 
-    # special case for cachedjit_classes
+    # special case for jit_classes
     try:
-        path_rel = path.relative_to(path_cachedjit_classes)
+        path_rel = path.relative_to(path_jit_classes)
     except ValueError:
         pass
     else:
-        tmp = [path_cachedjit_classes.name]
+        tmp = [path_jit_classes.name]
         name_pack = str(path_rel).replace(os.path.sep, ".")
         if name_pack:
             tmp.append(name_pack)
@@ -227,7 +227,7 @@ def has_to_compile_at_import():
     """Check if transonic has to pythranize at import time"""
     if _PYTHRANIZE_AT_IMPORT is not None:
         return _PYTHRANIZE_AT_IMPORT
-    return "COMPILE_AT_IMPORT" in os.environ
+    return "TRANSONIC_COMPILE_AT_IMPORT" in os.environ
 
 
 def import_from_path(path: Path, module_name: str):
@@ -289,7 +289,7 @@ def clear_cached_extensions(module_name: str, force: bool = False):
 
     """
 
-    from .justintime import path_cachedjit
+    from .justintime import path_jit
 
     if module_name.endswith(".py"):
         module_name = module_name[:-3]
@@ -299,7 +299,7 @@ def clear_cached_extensions(module_name: str, force: bool = False):
     else:
         relative_path = module_name
 
-    path_pythran_dir_jit = path_cachedjit / relative_path
+    path_pythran_dir_jit = path_jit / relative_path
 
     relative_path = Path(relative_path)
 

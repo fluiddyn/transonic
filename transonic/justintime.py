@@ -4,22 +4,20 @@
 User API
 --------
 
-.. autofunction:: cachedjit
+.. autofunction:: jit
 
-.. autofunction:: set_compile_cachedjit
-
-.. autofunction:: used_by_cachedjit
+.. autofunction:: set_compile_jit
 
 Internal API
 ------------
 
-.. autoclass:: ModuleCachedJIT
+.. autoclass:: ModuleJIT
    :members:
    :private-members:
 
-.. autofunction:: _get_module_cachedjit
+.. autofunction:: _get_module_jit
 
-.. autoclass:: CachedJIT
+.. autoclass:: JIT
    :members:
    :private-members:
 
@@ -28,19 +26,19 @@ Internal API
 Notes
 -----
 
-Serge talked about @cachedjit (see https://gist.github.com/serge-sans-paille/28c86d2b33cd561ba5e50081716b2cf4)
+Serge talked about @jit (see https://gist.github.com/serge-sans-paille/28c86d2b33cd561ba5e50081716b2cf4)
 
 It's indeed a good idea!
 
-With "# pythran import" and @include the implementation isn't
+With "# transonic import" and @include the implementation isn't
 too complicated.
 
-- At import time, we create one .py file per cachedjit function.
+- At import time, we create one .py file per jit function.
 
 - At run time, we create (and complete when needed) a corresponding
   .pythran file with signature(s).
 
-  The cachedjit decorator:
+  The jit decorator:
 
   * at the first call, get the types, create the .pythran file and call
     Pythran.
@@ -60,7 +58,6 @@ import sys
 import time
 from distutils.util import strtobool
 from functools import wraps
-from warnings import warn
 
 try:
     import numpy as np
@@ -93,21 +90,21 @@ from .config import has_to_replace
 modules = {}
 
 
-path_cachedjit = mpi.Path(path_root) / "__cachedjit__"
+path_jit = mpi.Path(path_root) / "__jit__"
 if mpi.rank == 0:
-    path_cachedjit.mkdir(parents=True, exist_ok=True)
+    path_jit.mkdir(parents=True, exist_ok=True)
 mpi.barrier()
 
-_COMPILE_CACHEDJIT = strtobool(os.environ.get("FLUID_COMPILE_CACHEDJIT", "True"))
+_COMPILE_JIT = strtobool(os.environ.get("TRANSONIC_COMPILE_JIT", "True"))
 
 
-def set_compile_cachedjit(value):
-    global _COMPILE_CACHEDJIT
-    _COMPILE_CACHEDJIT = value
+def set_compile_jit(value):
+    global _COMPILE_JIT
+    _COMPILE_JIT = value
 
 
-class ModuleCachedJIT:
-    """Representation of a module using cachedjit"""
+class ModuleJIT:
+    """Representation of a module using jit"""
 
     def __init__(self, frame=None):
 
@@ -124,7 +121,7 @@ class ModuleCachedJIT:
             self.module_name = get_module_name(frame)
         modules[self.module_name] = self
         self.used_functions = {}
-        self.cachedjit_functions = {}
+        self.jit_functions = {}
 
     def record_used_function(self, func, names):
         if isinstance(names, str):
@@ -148,8 +145,8 @@ class ModuleCachedJIT:
             return inspect.getsource(mod)
 
 
-def _get_module_cachedjit(index_frame: int = 2):
-    """Get the ModuleCachedJIT instance corresponding to the calling module
+def _get_module_jit(index_frame: int = 2):
+    """Get the ModuleJIT instance corresponding to the calling module
 
     Parameters
     ----------
@@ -173,27 +170,7 @@ def _get_module_cachedjit(index_frame: int = 2):
     if module_name in modules:
         return modules[module_name]
     else:
-        return ModuleCachedJIT(frame=frame)
-
-
-class used_by_cachedjit:
-    """Decorator to record that the function is used by a cachedjited function
-
-    ``@used_by_cachedjit(names)`` is deprecated, use ``@include(names)`` instead.
-
-    """
-
-    def __init__(self, names):
-        self.names = names
-
-    def __call__(self, func):
-        warn(
-            "used_by_cachedjit is deprecated, use include instead",
-            DeprecationWarning,
-        )
-        mod = _get_module_cachedjit()
-        mod.record_used_function(func, self.names)
-        return func
+        return ModuleJIT(frame=frame)
 
 
 def make_pythran_type_name(obj: object):
@@ -225,11 +202,11 @@ def make_pythran_type_name(obj: object):
     return name
 
 
-def cachedjit(func=None, native=True, xsimd=True, openmp=False):
-    """Decorator to record that the function has to be cachedjit compiled
+def jit(func=None, native=True, xsimd=True, openmp=False):
+    """Decorator to record that the function has to be jit compiled
 
     """
-    decor = CachedJIT(native=native, xsimd=xsimd, openmp=openmp)
+    decor = JIT(native=native, xsimd=xsimd, openmp=openmp)
     if callable(func):
         decor._decorator_no_arg = True
         return decor(func)
@@ -237,8 +214,8 @@ def cachedjit(func=None, native=True, xsimd=True, openmp=False):
         return decor
 
 
-class CachedJIT:
-    """Decorator used internally by the public cachedjit decorator
+class JIT:
+    """Decorator used internally by the public jit decorator
     """
 
     def __init__(self, native=True, xsimd=True, openmp=False):
@@ -268,11 +245,11 @@ class CachedJIT:
         else:
             index_frame = 2
 
-        mod = _get_module_cachedjit(index_frame)
-        mod.cachedjit_functions[func_name] = self
+        mod = _get_module_jit(index_frame)
+        mod.jit_functions[func_name] = self
         module_name = mod.module_name
 
-        path_pythran = path_cachedjit / module_name.replace(".", os.path.sep)
+        path_pythran = path_jit / module_name.replace(".", os.path.sep)
 
         if mpi.rank == 0:
             path_pythran.mkdir(parents=True, exist_ok=True)
@@ -293,9 +270,9 @@ class CachedJIT:
 
         if has_to_write:
             import_lines = [
-                line.split("# pythran ")[1]
+                line.split("# transonic ")[1]
                 for line in mod.get_source().split("\n")
-                if line.startswith("# pythran ") and "import" in line
+                if line.startswith("# transonic ") and "import" in line
             ]
             src = "\n".join(import_lines) + "\n\n"
 
@@ -407,7 +384,7 @@ class CachedJIT:
         ext_files = mpi.bcast(ext_files)
 
         if not ext_files:
-            if has_to_compile_at_import() and _COMPILE_CACHEDJIT:
+            if has_to_compile_at_import() and _COMPILE_JIT:
                 pythranize_with_new_header()
             self.pythran_func = None
         else:
@@ -434,7 +411,7 @@ class CachedJIT:
                 # need to compiled or recompile
                 pass
 
-            if self.compiling or not _COMPILE_CACHEDJIT:
+            if self.compiling or not _COMPILE_JIT:
                 return func(*args, **kwargs)
 
             arg_types = [

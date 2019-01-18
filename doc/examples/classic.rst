@@ -11,8 +11,7 @@ Most of this code looks familiar to Pythran users. The differences:
 - One can use (for example) h5py and mpi4py (of course not in the Pythran
   functions).
 
-- :code:`# pythran def` instead of :code:`# pythran export` (to stress that it
-  is not the same command).
+- :code:`# transonic def` instead of :code:`# pythran export`.
 
 - A tiny bit of Python... The decorator :code:`@boost` replaces the
   Python function by the pythranized function if Transonic has been used to

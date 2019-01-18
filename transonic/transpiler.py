@@ -4,7 +4,7 @@
 User API
 --------
 
-.. autofunction:: make_pythran_files
+.. autofunction:: make_backend_files
 
 Internal API
 ------------
@@ -85,10 +85,10 @@ def parse_py_code(code: str):
 
         if (
             toknum == COMMENT
-            and tokval.startswith("# pythran ")
+            and tokval.startswith("# transonic ")
             and "import" in tokval
         ):
-            imports.append(tokval.split("# pythran ", 1)[1])
+            imports.append(tokval.split("# transonic ", 1)[1])
 
         if toknum == NAME and tokval == "use_block":
             has_to_find_name_block = True
@@ -100,9 +100,9 @@ def parse_py_code(code: str):
             has_to_find_name_block = False
             blocks.append(name_block)
 
-        if toknum == COMMENT and tokval.startswith("# pythran def "):
+        if toknum == COMMENT and tokval.startswith("# transonic def "):
             in_def = True
-            signature_func = tokval.split("# pythran def ", 1)[1]
+            signature_func = tokval.split("# transonic def ", 1)[1]
             name_func = signature_func.split("(")[0]
             functions.add(name_func)
 
@@ -115,7 +115,7 @@ def parse_py_code(code: str):
 
         if in_def:
             if toknum == COMMENT:
-                if "# pythran def " in tokval:
+                if "# transonic def " in tokval:
                     tokval = tokval.split("(", 1)[1]
                 signature_func += tokval.replace("#", "").strip()
                 if ")" in tokval:
@@ -123,9 +123,9 @@ def parse_py_code(code: str):
                     signatures_func[name_func].append(signature_func)
 
         if has_to_find_signatures and toknum == COMMENT:
-            if tokval.startswith("# pythran block "):
+            if tokval.startswith("# transonic block "):
                 in_signature = True
-                signature = tokval.split("# pythran block ", 1)[1]
+                signature = tokval.split("# transonic block ", 1)[1]
             elif in_signature:
                 signature += tokval[1:].strip()
                 if ")" in tokval and "-> (" not in tokval or tokval.endswith(")"):
@@ -387,7 +387,7 @@ def produce_code_class_func(cls, func_name, jit=False):
         )
 
     if jit:
-        new_code = "from transonic import cachedjit\n\n@cachedjit\n" + new_code
+        new_code = "from transonic import jit\n\n@jit\n" + new_code
 
     python_code = pythran_signatures + "\n" + new_code
 
@@ -458,7 +458,7 @@ def make_pythran_code(path_py: Path):
                     "You could add '# TRANSONIC_NO_IMPORT' "
                     "in the module if needed..."
                     "You could mock modules by using the argument mocked_modules to "
-                    "the function make_pythran_files."
+                    "the function make_backend_files."
                 )
                 raise
             finally:
@@ -701,13 +701,16 @@ def make_pythran_file(
     return path_pythran
 
 
-def make_pythran_files(
+def make_backend_files(
     paths: Iterable[Path],
     force=False,
     log_level=None,
     mocked_modules: Optional[Iterable] = None,
+    backend=None,
 ):
     """Create Pythran files from a list of Python files"""
+
+    assert backend is None
 
     if log_level is not None:
         logger.set_level(log_level)
