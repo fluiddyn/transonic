@@ -2,7 +2,7 @@
 
 from transonic import Transonic
 
-fp = Transonic()
+ts = Transonic()
 
 
 class MyClass:
@@ -17,8 +17,8 @@ class MyClass:
 
         state_spect_n12 = self._state_spect_tmp
 
-        if fp.is_transpiled:
-            fp.use_block("rk2_step0")
+        if ts.is_transpiled:
+            ts.use_block("rk2_step0")
         else:
             # transonic block (
             #     complex128[][][] state_spect_n12, state_spect,

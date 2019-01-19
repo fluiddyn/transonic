@@ -25,14 +25,13 @@ replace FluidPythran.
 
 **Documentation**: https://transonic.readthedocs.io
 
-Transonic is a pure Python package (requiring Python >= 3.6 or the not yet
-released Pypy3.6) to easily accelerate modern Python-Numpy code with different
-accelerators (like Cython, `Pythran
-<https://github.com/serge-sans-paille/pythran>`_, Numba, Cupy, PyTorch, Uarray,
-etc...) opportunistically (i.e. if/when they are available).
+Transonic is a pure Python package (requiring Python >= 3.6) to easily
+accelerate modern Python-Numpy code with different accelerators (like Cython,
+`Pythran <https://github.com/serge-sans-paille/pythran>`_, Numba, Cupy,
+PyTorch, Uarray, etc...) opportunistically (i.e. if/when they are available).
 
-**The accelerators are not hard dependencies of Transonic:** Python code using
-Transonic run fine without any accelerators installed (and of course without
+**The accelerators are not hard dependencies of Transonic:** Python codes using
+Transonic run fine without any accelerators installed (of course without
 speedup)!
 
 .. warning ::
@@ -61,23 +60,38 @@ Transonic targets Python end-users and library developers.
 
 It is based on the following principles:
 
-- Write Pythonic, readable, modern code (Python >= 3.6) for your scientific /
-  computing applications / libraries.
+- We'd like to write scientific / computing applications / libraries with
+  pythonic, readable, modern code (Python >= 3.6).
 
-- Adding types is sometimes necessary. Type annotations is the good place for
-  that.
-
-- Accelerate/compile only what needs to be accelerated. Let's stay in Python
-  for the rest.
+- In some cases, Python-Numpy is too slow. However, there are tools to
+  accelerate such Python-Numpy code which lead to very good performances!
 
 - Let's try to write universal code which express what we want to compute and
-  not the special hacks we want to use to make it run fast.
+  not the special hacks we want to use to make it fast. We just need nice ways
+  to express that a function, a method or a block of code has to be accelerated
+  (and how it has to be accelerated). We'd like to be able to do this in a
+  pythonic way, with decorators and context managers.
 
-- Let's use both ahead-of-time (AOT) and just-in-time (JIT) compilation modes
-  with an unified simple API.
+- There are many tools to accelerate Python-Numpy code! Let's avoid writting
+  code specialized for only one of these tools.
 
-  * AOT is useful to be able to distribute compiled packages and there are
-    cases more optimizations can be applied.
+- Let's try to keep the code as it would be written without acceleration. For
+  example, with Transonic, we are able to accelerate (simple) methods of
+  classes even though most of the accelerators don't support classes.
+
+- Let's accelerate/compile only what needs to be accelerated, i.e. only the
+  bottlenecks. Python and its interpreters are good for the rest. In most
+  cases, the benefice of writting big compiled extensions (with Cython or in
+  other languages) is negligible.
+
+- Adding types is sometimes necessary. In modern Python, we have nice syntaxes
+  for type annotations! Let's use them.
+
+- Ahead-of-time (AOT) and just-in-time (JIT) compilation modes are both useful.
+  We'd like to have a nice, simple and unified API for these two modes.
+
+  * AOT is useful to be able to distribute compiled packages and in some cases,
+    more optimizations can be applied.
 
   * JIT is simpler to use (no need for type annotations) and optimizations can
     be more hardware specific.
@@ -85,16 +99,19 @@ It is based on the following principles:
   Note that with Transonic, AOT compilers can be used as JIT compilers (with a
   cache mechanism).
 
+  In contrast, some JIT compilers cannot be used as AOT compilers. For these
+  tools, the AOT decorators are used in a JIT mode.
+
 To summarize, a **strategy to quickly develop a very efficient scientific
 application/library** with Python could be:
 
-- Use modern Python coding, standard Numpy/Scipy for the computations and all
-  the cool libraries you want.
+1. Use modern Python coding, standard Numpy/Scipy for the computations and all
+   the cool libraries you want.
 
-- Profile your applications on real cases, detect the bottlenecks and apply
-  standard optimizations with Numpy.
+2. Profile your applications on real cases, detect the bottlenecks and apply
+   standard optimizations with Numpy.
 
-- Add few lines of Transonic to compile the hot spots.
+3. Add few lines of Transonic to compile the hot spots.
 
 What we have now
 ----------------
@@ -174,7 +191,8 @@ Most of this code looks familiar to Pythran users. The differences:
 Pythran using type annotations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The previous example can be rewritten without Pythran commands:
+The previous example can be rewritten without :code:`# transonic def`. It is
+the recommended syntaxes for ahead-of-time function acceleration:
 
 .. code :: python
 
@@ -242,7 +260,7 @@ with lines that cannot be compiled by Pythran.
 
     from transonic import Transonic
 
-    fp = Transonic()
+    ts = Transonic()
 
     class MyClass:
 
@@ -251,8 +269,8 @@ with lines that cannot be compiled by Pythran.
         def func(self, n):
             a, b = self.something_that_cannot_be_pythranized()
 
-            if fp.is_transpiled:
-                result = fp.use_block("name_block")
+            if ts.is_transpiled:
+                result = ts.use_block("name_block")
             else:
                 # transonic block (
                 #     float a, b;
@@ -270,7 +288,7 @@ with lines that cannot be compiled by Pythran.
 
 For blocks, we need a little bit more of Python.
 
-- At import time, we have :code:`fp = Transonic()`, which detects which
+- At import time, we have :code:`ts = Transonic()`, which detects which
   Pythran module should be used and imports it. This is done at import time
   since we want to be very fast at run time.
 
@@ -349,9 +367,9 @@ setup.py like this:
     paths = ["fluidsim/base/time_stepping/pseudo_spect.py"]
     make_backend_files([here / path for path in paths], mocked_modules=["h5py"])
 
-Note that the function :code:`make_backend_files` does not use Pythran.
-Compiling the associated Pythran file can be done if wanted (see for example
-how it is done in the example package `example_package_fluidpythran
+Note that the function :code:`make_backend_files` does not use compile the file
+produced. The compilation has to be done after the call of this function (see
+for example how it is done in the example package `example_package_fluidpythran
 <https://bitbucket.org/fluiddyn/example_package_fluidpythran>`_ or in
 `fluidsim's setup.py
 <https://bitbucket.org/fluiddyn/fluidsim/src/default/setup.py>`_).
@@ -359,7 +377,7 @@ how it is done in the example package `example_package_fluidpythran
 License
 -------
 
-FluidDyn is distributed under the CeCILL-B_ License, a BSD compatible
+Transonic is distributed under the CeCILL-B_ License, a BSD compatible
 french license.
 
 .. _CeCILL-B: http://www.cecill.info/index.en.html

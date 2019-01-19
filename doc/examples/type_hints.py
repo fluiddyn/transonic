@@ -1,5 +1,5 @@
 import numpy as np
-import transonic as fp
+import transonic as ts
 from transonic import Type, NDim, Array
 
 T = Type("T")
@@ -9,7 +9,7 @@ A = Array[T, N]
 A1 = Array[np.int8, N + 1]
 
 
-@fp.boost
+@ts.boost
 def compute(a: A, b: A, c: T, d: A1, e: str):
     print(e)
     tmp = a + b
@@ -18,7 +18,7 @@ def compute(a: A, b: A, c: T, d: A1, e: str):
 
 for dtype in [int, np.complex128]:
     for ndim in [1, 3]:
-        fp.make_signature(compute, T=dtype, N=ndim)
+        ts.make_signature(compute, T=dtype, N=ndim)
 
 
 if __name__ == "__main__":

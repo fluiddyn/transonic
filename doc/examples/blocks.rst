@@ -15,7 +15,7 @@ with lines that cannot be compiled by Pythran.
 
 For blocks, we need a little bit more of Python.
 
-- At import time, we have :code:`fp = Transonic()`, which detects which
+- At import time, we have :code:`ts = Transonic()`, which detects which
   Pythran module should be used and imports it. This is done at import time
   since we want to be very fast at run time.
 
@@ -37,14 +37,14 @@ export`.
 
 .. warning ::
 
-    The two branches of the :code:`if fp.is_transpiled` are not equivalent! The
+    The two branches of the :code:`if ts.is_transpiled` are not equivalent! The
     user has to be careful because it is not difficult to write such buggy code:
 
     .. code :: python
 
         c = 0
-        if fp.is_transpiled:
-            a, b = fp.use_block("buggy_block")
+        if ts.is_transpiled:
+            a, b = ts.use_block("buggy_block")
         else:
             # transonic block () -> (a, b)
             a = b = c = 1

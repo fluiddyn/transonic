@@ -88,7 +88,7 @@ class TestsInit(unittest.TestCase):
         importlib.reload(for_test_init)
 
         assert self.path_pythran.exists()
-        assert for_test_init.fp.is_transpiled
+        assert for_test_init.ts.is_transpiled
 
         for_test_init.func(1, 3.14)
         for_test_init.func1(1.1, 2.2)
@@ -118,29 +118,29 @@ class TestsInit(unittest.TestCase):
 
         from . import for_test_init
 
-        if not for_test_init.fp.is_compiling:
+        if not for_test_init.ts.is_compiling:
             importlib.reload(for_test_init)
 
         assert module_name in modules, modules
 
         assert self.path_pythran.exists()
 
-        fp = for_test_init.fp
+        ts = for_test_init.ts
 
-        assert fp.is_transpiled
-        assert fp.is_compiling
-        assert not fp.is_compiled
+        assert ts.is_transpiled
+        assert ts.is_compiling
+        assert not ts.is_compiled
 
         for_test_init.func(1, 3.14)
         for_test_init.func1(1.1, 2.2)
 
-        while not fp.is_compiled:
+        while not ts.is_compiled:
             time.sleep(0.1)
             for_test_init.func(1, 3.14)
             for_test_init.func1(1.1, 2.2)
 
-        assert not fp.is_compiling
-        assert fp.is_compiled
+        assert not ts.is_compiling
+        assert ts.is_compiled
 
         for_test_init.func(1, 3.14)
         for_test_init.func1(1.1, 2.2)

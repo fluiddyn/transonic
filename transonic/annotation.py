@@ -66,20 +66,20 @@ class TemplateVar:
     def get_template_parameters(self):
         return (self,)
 
-    def __init__(self, *args, _fp=None):
+    def __init__(self, *args, _ts=None):
 
         if not args:
             raise ValueError
 
-        if _fp is None:
-            fp = _get_transonic_calling_module()
+        if _ts is None:
+            ts = _get_transonic_calling_module()
         else:
-            fp = _fp
+            ts = _ts
 
-        if type(self) not in fp.names_template_variables:
-            fp.names_template_variables[type(self)] = set()
+        if type(self) not in ts.names_template_variables:
+            ts.names_template_variables[type(self)] = set()
 
-        names_already_used = fp.names_template_variables[type(self)]
+        names_already_used = ts.names_template_variables[type(self)]
 
         if self._is_correct_for_name(args[0]):
             self.__name__ = args[0]
@@ -136,12 +136,12 @@ class NDim(TemplateVar):
     _type_values = int
     _letter = "N"
 
-    def __init__(self, *args, shift=0, _fp=None):
+    def __init__(self, *args, shift=0, _ts=None):
 
-        if _fp is None:
-            _fp = _get_transonic_calling_module()
+        if _ts is None:
+            _ts = _get_transonic_calling_module()
 
-        super().__init__(*args, _fp=_fp)
+        super().__init__(*args, _ts=_ts)
         self.shift = shift
 
     def __repr__(self):
@@ -156,12 +156,12 @@ class NDim(TemplateVar):
         return name
 
     def __add__(self, number):
-        fp = _get_transonic_calling_module()
-        return type(self)(self.__name__, *self.values, shift=number, _fp=fp)
+        ts = _get_transonic_calling_module()
+        return type(self)(self.__name__, *self.values, shift=number, _ts=ts)
 
     def __sub__(self, number):
-        fp = _get_transonic_calling_module()
-        return type(self)(self.__name__, *self.values, shift=-number, _fp=fp)
+        ts = _get_transonic_calling_module()
+        return type(self)(self.__name__, *self.values, shift=-number, _ts=ts)
 
 
 class Shape(TemplateVar):
@@ -232,7 +232,7 @@ class ArrayMeta(type):
                             "Use for example NDim(2, 3)."
                         )
                     param = ndim = NDim(
-                        tmp, _fp=_get_transonic_calling_module()
+                        tmp, _ts=_get_transonic_calling_module()
                     )
 
             if isinstance(param, str):
@@ -325,8 +325,8 @@ class UnionMeta(type):
         if not isinstance(types, tuple):
             types = (types,)
 
-        fp = _get_transonic_calling_module()
-        template_var = UnionVar(*types, _fp=fp)
+        ts = _get_transonic_calling_module()
+        template_var = UnionVar(*types, _ts=ts)
 
         return type(
             "UnionBis", (Union,), {"types": types, "template_var": template_var}

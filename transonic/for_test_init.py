@@ -26,14 +26,14 @@ def func2(a: A, b: float):
     return a - func_tmp(b)
 
 
-fp = Transonic()
+ts = Transonic()
 
 
 def func1(a, b):
     n = 10
 
-    if fp.is_transpiled:
-        result = fp.use_block("block0")
+    if ts.is_transpiled:
+        result = ts.use_block("block0")
     else:
         # transonic block (
         #     float a, b;

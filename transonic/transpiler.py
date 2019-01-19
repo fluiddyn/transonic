@@ -490,11 +490,11 @@ imports: {imports}\n"""
         code_pythran += "\n" + "\n".join(imports) + "\n"
 
     if module_name in transonic.aheadoftime.modules:
-        fp = transonic.aheadoftime.modules[module_name]
-        fp._make_signatures_from_annotations()
-        functions = fp.functions.keys()
-        signatures_func_annot = fp.signatures_func
-        codes_functions = get_codes_from_functions(fp.functions)
+        ts = transonic.aheadoftime.modules[module_name]
+        ts._make_signatures_from_annotations()
+        functions = ts.functions.keys()
+        signatures_func_annot = ts.signatures_func
+        codes_functions = get_codes_from_functions(ts.functions)
 
         # merge signatures introduced by type annotations and by Pythran commands
         signatures_func_all = signatures_func.copy()
@@ -503,10 +503,10 @@ imports: {imports}\n"""
                 signatures_func_all[name_func] = []
             signatures_func_all[name_func].extend(signatures)
 
-        for cls in fp.classes.values():
+        for cls in ts.classes.values():
             code_pythran += produce_code_class(cls)
 
-        for func in fp.included_functions:
+        for func in ts.included_functions:
             code_pythran += "\n" + get_source_without_decorator(func) + "\n"
 
     else:

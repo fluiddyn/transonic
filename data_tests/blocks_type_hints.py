@@ -13,7 +13,7 @@ N = NDim(1, 2)
 A = Array[T, N]
 A1 = Array[T, N + 1]
 
-fp = Transonic()
+ts = Transonic()
 
 
 class MyClass:
@@ -26,8 +26,8 @@ class MyClass:
         a = self.a
         b = self.b
 
-        if fp.is_transpiled:
-            result = fp.use_block("block0")
+        if ts.is_transpiled:
+            result = ts.use_block("block0")
         else:
             # transonic block (
             #     A a; A1 b;
@@ -54,10 +54,10 @@ if __name__ == "__main__":
 
     obj.compute(10)
 
-    if fp.is_transpiled:
+    if ts.is_transpiled:
         ret = obj.compute(10)
-        fp.is_transpiled = False
+        ts.is_transpiled = False
         ret1 = obj.compute(10)
-        fp.is_transpiled = True
+        ts.is_transpiled = True
         assert np.allclose(ret, ret1)
         print("allclose OK")

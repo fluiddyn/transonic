@@ -152,7 +152,8 @@ class SchedulerPopen:
                 )
                 return
 
-        logger.info(f"Schedule pythranization of file {path}")
+        if mpi.rank == 0:
+            logger.info(f"Schedule pythranization of file {path}")
 
         if str_pythran_flags is not None:
             flags = str_pythran_flags.strip().split()

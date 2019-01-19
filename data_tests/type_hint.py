@@ -1,5 +1,5 @@
 import numpy as np
-import transonic as fp
+import transonic as ts
 from transonic import Type, NDim, Array
 
 T = Type("T")
@@ -14,7 +14,7 @@ assert repr(N - 1) == "N - 1"
 print(repr(A1))
 
 
-@fp.boost
+@ts.boost
 def compute(a: A, b: A1, c: T, d: A, e: str):
     print(e)
     tmp = a + b
@@ -23,7 +23,7 @@ def compute(a: A, b: A1, c: T, d: A, e: str):
 
 for dtype in [int, np.complex128]:
     for ndim in [1, 3]:
-        fp.make_signature(compute, T=dtype, N=ndim, T1=float)
+        ts.make_signature(compute, T=dtype, N=ndim, T1=float)
 
 
 if __name__ == "__main__":

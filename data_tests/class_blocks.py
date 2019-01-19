@@ -6,7 +6,7 @@ import numpy as np
 
 from transonic import Transonic
 
-fp = Transonic()
+ts = Transonic()
 
 
 class MyClass:
@@ -19,8 +19,8 @@ class MyClass:
         a = self.a
         b = self.b
 
-        if fp.is_transpiled:
-            result = fp.use_block("block0")
+        if ts.is_transpiled:
+            result = ts.use_block("block0")
         else:
             # transonic block (
             #     float[][] a, b;
@@ -40,8 +40,8 @@ class MyClass:
 
         a = result
 
-        if fp.is_transpiled:
-            result = fp.use_block("block1")
+        if ts.is_transpiled:
+            result = ts.use_block("block1")
         else:
             # transonic block (
             #     float[][] a, b;
@@ -72,13 +72,13 @@ if __name__ == "__main__":
 
     ret0 = obj.compute(10)
 
-    print("(is_transpiled, is_compiling, is_compiled)", (fp.is_transpiled, fp.is_compiling, fp.is_compiled))
+    print("(is_transpiled, is_compiling, is_compiled)", (ts.is_transpiled, ts.is_compiling, ts.is_compiled))
 
-    if fp.is_transpiled:
+    if ts.is_transpiled:
         ret = obj.compute(10)
         assert np.allclose(ret, ret0), (ret - ret0)
-        fp.is_transpiled = False
+        ts.is_transpiled = False
         ret1 = obj.compute(10)
-        fp.is_transpiled = True
+        ts.is_transpiled = True
         assert np.allclose(ret, ret1), (ret - ret1)
         print("allclose OK")

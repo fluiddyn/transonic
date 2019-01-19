@@ -91,20 +91,20 @@ def _get_transonic_calling_module(index_frame: int = 2):
     module_name = get_module_name(frame)
 
     if module_name in modules:
-        fp = modules[module_name]
+        ts = modules[module_name]
         if (
-            fp.is_transpiling != is_transpiling
-            or fp._compile_at_import_at_creation
+            ts.is_transpiling != is_transpiling
+            or ts._compile_at_import_at_creation
             != has_to_compile_at_import()
-            or hasattr(fp, "path_mod")
-            and fp.path_mod.exists()
-            and mpi.has_to_build(fp.path_pythran, fp.path_mod)
+            or hasattr(ts, "path_mod")
+            and ts.path_mod.exists()
+            and mpi.has_to_build(ts.path_pythran, ts.path_mod)
         ):
-            fp = Transonic(frame=frame, reuse=False)
+            ts = Transonic(frame=frame, reuse=False)
     else:
-        fp = Transonic(frame=frame, reuse=False)
+        ts = Transonic(frame=frame, reuse=False)
 
-    return fp
+    return ts
 
 
 def boost(obj):
@@ -117,8 +117,8 @@ def boost(obj):
 
     """
 
-    fp = _get_transonic_calling_module()
-    return fp.boost(obj)
+    ts = _get_transonic_calling_module()
+    return ts.boost(obj)
 
 
 def make_signature(func, **kwargs):
@@ -137,16 +137,16 @@ def make_signature(func, **kwargs):
     if not is_transpiling:
         return
 
-    fp = _get_transonic_calling_module()
-    fp.make_signature(func, **kwargs)
+    ts = _get_transonic_calling_module()
+    ts.make_signature(func, **kwargs)
 
 
 class CheckCompiling:
     """Check if the module is been compiled and replace the module and the function"""
 
-    def __init__(self, fp, func):
+    def __init__(self, ts, func):
         self.has_been_replaced = False
-        self.fp = fp
+        self.ts = ts
         self.func = func
 
     def __call__(self, *args, **kwargs):
@@ -154,18 +154,18 @@ class CheckCompiling:
         if self.has_been_replaced:
             return self.func(*args, **kwargs)
 
-        fp = self.fp
-        if fp.is_compiling and not fp.process.is_alive():
-            fp.is_compiling = False
+        ts = self.ts
+        if ts.is_compiling and not ts.process.is_alive():
+            ts.is_compiling = False
             time.sleep(0.1)
-            fp.module_pythran = import_from_path(
-                fp.path_extension, fp.module_pythran.__name__
+            ts.module_pythran = import_from_path(
+                ts.path_extension, ts.module_pythran.__name__
             )
-            assert hasattr(self.fp.module_pythran, "__pythran__")
-            fp.is_compiled = True
+            assert hasattr(self.ts.module_pythran, "__pythran__")
+            ts.is_compiled = True
 
-        if not fp.is_compiling:
-            self.func = getattr(fp.module_pythran, self.func.__name__)
+        if not ts.is_compiling:
+            self.func = getattr(ts.module_pythran, self.func.__name__)
             self.has_been_replaced = True
 
         return self.func(*args, **kwargs)
@@ -202,8 +202,8 @@ class Transonic:
         self._compile_at_import_at_creation = has_to_compile_at_import()
 
         if reuse and module_name in modules:
-            fp = modules[module_name]
-            for key, value in fp.__dict__.items():
+            ts = modules[module_name]
+            for key, value in ts.__dict__.items():
                 self.__dict__[key] = value
             return
 
@@ -503,7 +503,7 @@ class Transonic:
         if not self.is_transpiled:
             raise ValueError(
                 "`use_block` has to be used protected "
-                "by `if fp.is_transpiled`"
+                "by `if ts.is_transpiled`"
             )
 
         if self.is_compiling and not self.process.is_alive():
@@ -601,8 +601,8 @@ class Include:
         if not is_transpiling:
             return func
 
-        fp = _get_transonic_calling_module(index_frame)
-        fp.include(func)
+        ts = _get_transonic_calling_module(index_frame)
+        ts.include(func)
         return func
 
 
