@@ -29,7 +29,6 @@ import subprocess
 import os
 import functools
 import sys
-from warnings import warn
 
 from .util import (
     get_module_name,
@@ -219,6 +218,7 @@ class Transonic:
             self.included_functions = []
             modules[module_name] = self
             self.is_transpiled = False
+            self.is_compiled = False
             return
 
         self.is_compiling = False
