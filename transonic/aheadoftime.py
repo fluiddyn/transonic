@@ -41,8 +41,8 @@ from .util import (
 )
 
 from .pythranizer import (
-    compile_pythran_file,
-    name_ext_from_path_pythran,
+    compile_extension,
+    name_ext_from_path_backend,
     ext_suffix,
 )
 
@@ -141,7 +141,7 @@ def make_signature(func, **kwargs):
 
 
 class CheckCompiling:
-    """Check if the module is been compiled and replace the module and the function"""
+    """Check if the module is being compiled and replace the module and the function"""
 
     def __init__(self, ts, func):
         self.has_been_replaced = False
@@ -278,7 +278,7 @@ class Transonic:
                     print("Done!")
 
                 path_ext = path_pythran.with_name(
-                    name_ext_from_path_pythran(path_pythran)
+                    name_ext_from_path_backend(path_pythran)
                 )
 
                 time_pythran_after = mpi.modification_date(path_pythran)
@@ -292,7 +292,7 @@ class Transonic:
                         path_pythran.touch()
 
         path_ext = path_ext or path_pythran.with_name(
-            name_ext_from_path_pythran(path_pythran)
+            name_ext_from_path_backend(path_pythran)
         )
 
         self.path_extension = path_ext
@@ -304,7 +304,7 @@ class Transonic:
         ):
             if mpi.rank == 0:
                 print("Launching Pythran to compile a new extension...")
-            self.process = compile_pythran_file(
+            self.process = compile_extension(
                 path_pythran, name_ext_file=self.path_extension.name
             )
             self.is_compiling = True
@@ -350,7 +350,7 @@ class Transonic:
             self.is_transpiled = False
             self.is_compiled = False
 
-    def trans_def(self, func):
+    def transonic_def(self, func):
         """Decorator used for functions
 
         Parameters
@@ -360,7 +360,7 @@ class Transonic:
 
         """
         if is_method(func):
-            return self.trans_def_method(func)
+            return self.transonic_def_method(func)
 
         if is_transpiling:
             self.functions[func.__name__] = func
@@ -383,7 +383,7 @@ class Transonic:
 
         return func_tmp
 
-    def trans_def_method(self, func):
+    def transonic_def_method(self, func):
         """Decorator used for methods
 
         Parameters
@@ -399,7 +399,7 @@ class Transonic:
         if not has_to_replace or not self.is_transpiled:
             return func
 
-        return FluidPythranTemporaryMethod(func)
+        return TransonicTemporaryMethod(func)
 
     def boost(self, obj):
         """Universal decorator for AOT compilation
@@ -407,11 +407,11 @@ class Transonic:
         Used for functions, methods and classes.
         """
         if isinstance(obj, type):
-            return self.trans_class(obj)
+            return self.transonic_class(obj)
         else:
-            return self.trans_def(obj)
+            return self.transonic_def(obj)
 
-    def trans_class(self, cls: type):
+    def transonic_class(self, cls: type):
         """Decorator used for classes
 
         Parameters
@@ -427,7 +427,7 @@ class Transonic:
         jit_methods = {
             key: value
             for key, value in cls.__dict__.items()
-            if isinstance(value, FluidPythranTemporaryJITMethod)
+            if isinstance(value, TransonicTemporaryJITMethod)
         }
 
         if jit_methods:
@@ -439,7 +439,7 @@ class Transonic:
         cls_name = cls.__name__
 
         for key, value in cls.__dict__.items():
-            if not isinstance(value, FluidPythranTemporaryMethod):
+            if not isinstance(value, TransonicTemporaryMethod):
                 continue
             func = value.func
             func_name = func.__name__
@@ -543,7 +543,7 @@ class Transonic:
         self.included_functions.append(func)
 
 
-class FluidPythranTemporaryMethod:
+class TransonicTemporaryMethod:
     """Internal temporary class for methods"""
 
     def __init__(self, func):
@@ -606,7 +606,7 @@ class Include:
         return func
 
 
-class FluidPythranTemporaryJITMethod:
+class TransonicTemporaryJITMethod:
     """Internal temporary class for JIT methods"""
 
     __transonic__ = "jit_method"
@@ -627,7 +627,7 @@ class FluidPythranTemporaryJITMethod:
 def jit_class(cls, jit_methods):
     """Modify the class by replacing jit methods
 
-    1. create a Python file with @cachejit functions and methods
+    1. create a Python file with @jit functions and methods
     2. import the file
     3. replace the methods
 

@@ -18,7 +18,7 @@ import sys
 from . import __version__
 from .transpiler import make_backend_files
 from .log import logger
-from .pythranizer import compile_pythran_files, ext_suffix
+from .pythranizer import compile_extensions, ext_suffix
 from .util import has_to_build, clear_cached_extensions
 
 try:
@@ -94,7 +94,7 @@ def run():
         if has_to_build(ext_path, pythran_path):
             pythran_paths.append(pythran_path)
 
-    compile_pythran_files(
+    compile_extensions(
         pythran_paths, args.pythran_flags, parallel=True, force=args.force
     )
 

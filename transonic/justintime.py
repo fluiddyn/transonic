@@ -64,7 +64,7 @@ try:
 except ImportError:
     np = None
 
-from .pythranizer import compile_pythran_file, ext_suffix
+from .pythranizer import compile_extension, ext_suffix
 
 from .util import (
     get_module_name,
@@ -80,7 +80,7 @@ from .util import (
 )
 from .annotation import make_signatures_from_typehinted_func
 
-from .aheadoftime import FluidPythranTemporaryJITMethod
+from .aheadoftime import TransonicTemporaryJITMethod
 
 from .compat import open
 from . import mpi
@@ -231,7 +231,7 @@ class JIT:
     def __call__(self, func):
 
         if is_method(func):
-            return FluidPythranTemporaryJITMethod(
+            return TransonicTemporaryJITMethod(
                 func, self.native, self.xsimd, self.openmp
             )
 
@@ -367,7 +367,7 @@ class JIT:
 
             self.compiling = True
 
-            self.process = compile_pythran_file(
+            self.process = compile_extension(
                 path_pythran,
                 name_ext_file,
                 native=self.native,

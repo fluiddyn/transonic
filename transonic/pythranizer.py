@@ -15,11 +15,11 @@ Internal API
    :members:
    :private-members:
 
-.. autofunction:: name_ext_from_path_pythran
+.. autofunction:: name_ext_from_path_backend
 
-.. autofunction:: compile_pythran_files
+.. autofunction:: compile_extensions
 
-.. autofunction:: compile_pythran_file
+.. autofunction:: compile_extension
 
 """
 
@@ -63,19 +63,19 @@ def make_hex(src):
     return hashlib.md5(src.encode("utf8")).hexdigest()
 
 
-def name_ext_from_path_pythran(path_pythran):
+def name_ext_from_path_backend(path_backend):
     """Return an extension name given the path of a Pythran file"""
 
     name = None
     if mpi.rank == 0:
-        path_pythran = PathSeq(path_pythran)
-        if path_pythran.exists():
-            with open(path_pythran) as file:
+        path_backend = PathSeq(path_backend)
+        if path_backend.exists():
+            with open(path_backend) as file:
                 src = file.read()
         else:
             src = ""
 
-        name = path_pythran.stem + "_" + make_hex(src) + ext_suffix
+        name = path_backend.stem + "_" + make_hex(src) + ext_suffix
 
     return mpi.bcast(name)
 
@@ -127,7 +127,7 @@ class SchedulerPopen:
 
         mpi.barrier()
 
-    def compile_with_pythran(
+    def compile_extension(
         self,
         path: Path,
         name_ext_file: Optional[str] = None,
@@ -140,7 +140,7 @@ class SchedulerPopen:
     ):
 
         if name_ext_file is None:
-            name_ext_file = name_ext_from_path_pythran(path)
+            name_ext_file = name_ext_from_path_backend(path)
 
         if not force:
             path_out = path.with_name(name_ext_file)
@@ -213,11 +213,11 @@ def wait_for_all_extensions():
     scheduler.wait_for_all_extensions()
 
 
-def compile_pythran_files(
+def compile_extensions(
     paths: Iterable[Path], str_pythran_flags: str, parallel=True, force=True
 ):
     for path in paths:
-        scheduler.compile_with_pythran(
+        scheduler.compile_extension(
             path,
             str_pythran_flags=str_pythran_flags,
             parallel=parallel,
@@ -225,7 +225,7 @@ def compile_pythran_files(
         )
 
 
-def compile_pythran_file(
+def compile_extension(
     path: Union[Path, str],
     name_ext_file: Optional[str] = None,
     native=True,
@@ -236,6 +236,6 @@ def compile_pythran_file(
         path = Path(path)
 
     # return the process
-    return scheduler.compile_with_pythran(
+    return scheduler.compile_extension(
         path, name_ext_file, native=native, xsimd=xsimd, openmp=openmp
     )

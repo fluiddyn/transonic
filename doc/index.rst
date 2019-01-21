@@ -9,6 +9,7 @@ Backends
    :maxdepth: 2
 
    pythran_backend
+   other_backends
 
 Examples
 --------

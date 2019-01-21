@@ -71,7 +71,7 @@ except ImportError:
 
 from .pythranizer import (
     ext_suffix,
-    name_ext_from_path_pythran,
+    name_ext_from_path_backend,
     make_hex,
     modification_date,
     has_to_build,
@@ -306,7 +306,7 @@ def clear_cached_extensions(module_name: str, force: bool = False):
     path_pythran = relative_path.parent / (
         "__pythran__/" + relative_path.name + ".py"
     )
-    path_ext = path_pythran.with_name(name_ext_from_path_pythran(path_pythran))
+    path_ext = path_pythran.with_name(name_ext_from_path_backend(path_pythran))
 
     if not path_pythran_dir_jit.exists() and not (
         path_pythran.exists() or path_ext.exists()

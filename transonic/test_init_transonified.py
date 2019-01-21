@@ -13,7 +13,7 @@ from .transpiler import make_pythran_file
 from .util import (
     has_to_compile_at_import,
     ext_suffix,
-    name_ext_from_path_pythran,
+    name_ext_from_path_backend,
 )
 from .aheadoftime import modules
 from . import mpi
@@ -32,7 +32,7 @@ class TestsInit(unittest.TestCase):
             cls.path_for_test.parent / "__pythran__" / cls.path_for_test.name
         )
         cls.path_ext = path_pythran.with_name(
-            name_ext_from_path_pythran(path_pythran)
+            name_ext_from_path_backend(path_pythran)
         )
 
     @classmethod
