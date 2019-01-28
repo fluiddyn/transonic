@@ -40,12 +40,12 @@ __all__ = [
     "can_import_pythran",
     "detect_pythran_extensions",
     "init_pythran_extensions",
-    "init_logger",
+    "get_logger",
     "ParallelBuildExt"
 ]
 
 
-def init_logger(name):
+def get_logger(name):
     """Returns a logger instance using ``colorlog`` package if available; else
     defaults to ``logging`` standard library.
 
@@ -97,12 +97,6 @@ def detect_pythran_extensions(
                     os.fspath(path).replace(os.path.sep, ".").split(".py")[0]
                 )
     return ext_names
-
-
-def modification_date(filename) -> datetime:
-    """Get modification date of a file."""
-    t = os.path.getmtime(filename)
-    return datetime.fromtimestamp(t)
 
 
 def init_pythran_extensions(
@@ -220,6 +214,7 @@ class ParallelBuildExt(PythranBuildExt):
         ``distutils.command.build_ext.build_ext.build_extensions`` using threads.
 
         """
+        self.logger.info("TRANSONICCC!")
         self.compiler.compiler_so = [
             key
             for key in self.compiler.compiler_so
@@ -250,7 +245,7 @@ class ParallelBuildExt(PythranBuildExt):
         def names(exts):
             return [ext.name for ext in exts]
 
-        # Separate building pythran and other extensions to avoid race condtions
+        # Separate building pythran and other extensions to avoid race conditions
         with Pool(self.num_jobs) as pool:
             self.logger.info(
                 f"Start build_extension: {names(pythran_extensions)}"
