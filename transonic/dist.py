@@ -180,7 +180,7 @@ def init_pythran_extensions(
     return extensions
 
 
-class ParallelBuildExt(build_ext, PythranBuildExt):
+class ParallelBuildExt(PythranBuildExt):
     # Modify the following to packaging specific needs
     PARALLEL = True
     LOGGER_NAME = "transonic"
