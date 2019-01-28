@@ -19,6 +19,7 @@ from distutils.command.build_ext import build_ext
 from distutils.sysconfig import get_config_var
 from logging import ERROR, INFO
 from typing import Iterable
+from concurrent.futures import ThreadPoolExecutor as Pool
 
 try:
     from pythran.dist import PythranBuildExt, PythranExtension
@@ -27,7 +28,7 @@ try:
 except ImportError:
     can_import_pythran = False
     PythranBuildExt = build_ext
-    PythranExtension = None
+    PythranExtension = object
 
 from .transpiler import make_backend_files
 from .util import modification_date
@@ -40,6 +41,7 @@ __all__ = [
     "detect_pythran_extensions",
     "init_pythran_extensions",
     "init_logger",
+    "ParallelBuildExt"
 ]
 
 
@@ -65,7 +67,7 @@ def init_logger(name):
 
         handler = logging.StreamHandler()
 
-    logger = logging.getLogger("fluidsim")
+    logger = logging.getLogger(name)
     logger.addHandler(handler)
     logger.setLevel(level)
     return logger
@@ -176,3 +178,91 @@ def init_pythran_extensions(
             extensions.append(pext)
 
     return extensions
+
+
+class ParallelBuildExt(build_ext, PythranBuildExt):
+    # Modify the following to packaging specific needs
+    PARALLEL = True
+    LOGGER_NAME = "transonic"
+    NUM_JOBS_ENV_VAR = ""
+    ignoreflags = ("-Wstrict-prototypes",)
+    ignoreflags_startswith = ("-axMIC_", "-diag-disable:")
+
+    @property
+    def logger(self):
+        try:
+            import colorlog as logging
+        except ImportError:
+            import logging
+
+        return logging.getLogger(self.LOGGER_NAME)
+
+    @property
+    def num_jobs(self):
+        try:
+            num_jobs = int(os.environ[self.NUM_JOBS_ENV_VAR])
+        except KeyError:
+            import multiprocessing
+            num_jobs = multiprocessing.cpu_count()
+
+            try:
+                from psutil import virtual_memory
+            except ImportError:
+                pass
+            else:
+                avail_memory_in_Go = virtual_memory().available / 1e9
+                limit_num_jobs = round(avail_memory_in_Go / 3)
+                num_jobs = min(num_jobs, limit_num_jobs)
+        return num_jobs
+
+    def build_extensions(self):
+        """Parallelize
+        ``distutils.command.build_ext.build_ext.build_extensions`` using threads.
+
+        """
+        self.compiler.compiler_so = [
+            key
+            for key in self.compiler.compiler_so
+            if key not in self.ignoreflags
+            and all([not key.startswith(s) for s in self.ignoreflags_startwith])
+        ]
+
+        if not self.PARALLEL:
+            return super().build_extensions()
+
+        self.check_extensions_list(self.extensions)
+
+        for ext in self.extensions:
+            try:
+                # For Cython extensions
+                ext.sources = self.cython_sources(ext.sources, ext)
+            except AttributeError:
+                pass
+
+        pythran_extensions = []
+        other_extensions = []
+        for ext in self.extensions:
+            if isinstance(ext, PythranExtension):
+                pythran_extensions.append(ext)
+            else:
+                other_extensions.append(ext)
+
+        def names(exts):
+            return [ext.name for ext in exts]
+
+        # Separate building pythran and other extensions to avoid race condtions
+        with Pool(self.num_jobs) as pool:
+            self.logger.info(
+                f"Start build_extension: {names(pythran_extensions)}"
+            )
+            pool.map(self.build_extension, pythran_extensions)
+
+        self.logger.info(f"Stop build_extension: {names(pythran_extensions)}")
+
+        with Pool(self.num_jobs) as pool:
+            self.logger.info(
+                f"Start build_extension: {names(other_extensions)}"
+            )
+            pool.map(self.build_extension, other_extensions)
+
+        self.logger.info(f"Stop build_extension: {names(other_extensions)}")
