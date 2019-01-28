@@ -3,8 +3,6 @@ from runpy import run_path as run_path_
 from pathlib import Path
 import platform
 
-f"In >=2018, you should use a Python supporting f-strings!"
-
 if platform.python_implementation() == "PyPy":
 
     def run_path(path):
