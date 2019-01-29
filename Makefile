@@ -14,6 +14,10 @@ tests_mpi:
 tests_nbval:
 	pytest --nbval data_tests/ipynb
 
+tests_cov:
+	mkdir -p .coverage
+	pytest --cov-config setup.cfg --cov=transonic
+
 clean:
 	rm -rf $(HOME)/.transonic/__jit__/transonic/
 	rm -rf $(HOME)/.transonic/__jit_classes__/transonic/

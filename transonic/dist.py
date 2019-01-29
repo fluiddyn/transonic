@@ -21,18 +21,21 @@ from concurrent.futures import ThreadPoolExecutor as Pool
 from distutils.command.build_ext import build_ext as DistutilsBuildExt
 
 try:
-    from Cython.Distutils import build_ext as CythonBuildExt
+    from Cython.Distutils.build_ext import build_ext as CythonBuildExt
 except ImportError:
-    CythonBuildExt = DistutilsBuildExt
+    build_ext_classes = [DistutilsBuildExt]
+else:
+    build_ext_classes = [CythonBuildExt]
 
 try:
     from pythran.dist import PythranBuildExt, PythranExtension
-
-    can_import_pythran = True
 except ImportError:
-    can_import_pythran = False
     PythranBuildExt = object
     PythranExtension = object
+    can_import_pythran = False
+else:
+    can_import_pythran = True
+    build_ext_classes.insert(0, PythranBuildExt)
 
 from .transpiler import make_backend_files
 from .util import modification_date
@@ -165,7 +168,7 @@ def init_pythran_extensions(
     return extensions
 
 
-class ParallelBuildExt(CythonBuildExt, PythranBuildExt):
+class ParallelBuildExt(*build_ext_classes):
     @property
     def logger(self):
         try:
@@ -191,7 +194,7 @@ class ParallelBuildExt(CythonBuildExt, PythranBuildExt):
 
         super().finalize_options()
         self.logger.debug(f"Parallel build enabled with {self.parallel} jobs")
-        self.logger.debug(f"Base classes: {CythonBuildExt}, {PythranBuildExt}")
+        self.logger.debug(f"Base classes: {build_ext_classes}")
 
     def get_num_jobs(self):
         try:

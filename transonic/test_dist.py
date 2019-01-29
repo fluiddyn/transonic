@@ -1,11 +1,16 @@
 import shutil
-
+from distutils.core import Distribution
 import pytest
 
 from . import dist
 from .mpi import nb_proc
 
-from .dist import detect_pythran_extensions, modification_date, make_backend_files
+from .dist import (
+    detect_pythran_extensions,
+    modification_date,
+    make_backend_files,
+    ParallelBuildExt,
+)
 from . import path_data_tests
 
 dist.can_import_pythran = True
@@ -41,3 +46,18 @@ def test_detect_pythran_extensions():
 def test_modification_date():
 
     modification_date(path_data_tests / "no_pythran_.py")
+
+
+@pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
+def test_build_ext():
+
+    dist = Distribution()
+    build_ext = ParallelBuildExt(dist)
+
+    build_ext.initialize_options()
+    build_ext.parallel = 1
+    build_ext.finalize_options()
+    # TODO: would be nice to have some tests with extensions
+    build_ext.extensions = []
+    build_ext.run()
+
