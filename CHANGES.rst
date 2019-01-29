@@ -6,13 +6,17 @@ Future
 - Alternative syntax for blocks (see `issue #29
   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_)
 
-Next release
-------------
+0.1.9 (2019-01-29)
+------------------
 
-- Environment variable :code:`TRANSONIC_NO_REPLACE`
 - Common setup functions such as :code:`get_logger`,
   :code:`ParallelBuildExt` and :code:`init_pythran_extensions` in
   :code:`transonic.dist`.
+
+0.1.8 (2019-01-19)
+------------------
+
+- Environment variable :code:`TRANSONIC_NO_REPLACE`
 
 0.1.7 (2018-12-18)
 ------------------
