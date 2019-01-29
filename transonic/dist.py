@@ -23,7 +23,7 @@ from distutils.command.build_ext import build_ext as DistutilsBuildExt
 try:
     from Cython.Distutils import build_ext as CythonBuildExt
 except ImportError:
-    from setuptools.command import build_ext as CythonBuildExt
+    CythonBuildExt = DistutilsBuildExt
 
 try:
     from pythran.dist import PythranBuildExt, PythranExtension
