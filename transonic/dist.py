@@ -15,11 +15,17 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from distutils.command.build_ext import build_ext
 from distutils.sysconfig import get_config_var
 from logging import ERROR, INFO
 from typing import Iterable
 from concurrent.futures import ThreadPoolExecutor as Pool
+
+from distutils.command.build_ext import build_ext as DistutilsBuildExt
+
+try:
+    from Cython.Distutils import build_ext as CythonBuildExt
+except ImportError:
+    from setuptools.command import build_ext as CythonBuildExt
 
 try:
     from pythran.dist import PythranBuildExt, PythranExtension
@@ -27,7 +33,7 @@ try:
     can_import_pythran = True
 except ImportError:
     can_import_pythran = False
-    PythranBuildExt = build_ext
+    PythranBuildExt = object
     PythranExtension = object
 
 from .transpiler import make_backend_files
@@ -50,11 +56,6 @@ def get_logger(name):
     defaults to ``logging`` standard library.
 
     """
-    if "egg_info" in sys.argv:
-        level = ERROR
-    else:
-        level = INFO
-
     try:
         import colorlog as logging
 
@@ -69,7 +70,6 @@ def get_logger(name):
 
     logger = logging.getLogger(name)
     logger.addHandler(handler)
-    logger.setLevel(level)
     return logger
 
 
@@ -174,27 +174,32 @@ def init_pythran_extensions(
     return extensions
 
 
-class ParallelBuildExt(PythranBuildExt):
-    # Modify the following to packaging specific needs
-    PARALLEL = True
-    LOGGER_NAME = "transonic"
-    NUM_JOBS_ENV_VAR = ""
-    ignoreflags = ("-Wstrict-prototypes",)
-    ignoreflags_startswith = ("-axMIC_", "-diag-disable:")
+class ParallelBuildExt(CythonBuildExt, PythranBuildExt):
 
     @property
     def logger(self):
-        try:
-            import colorlog as logging
-        except ImportError:
-            import logging
+        return get_logger(self.logger_name)
 
-        return logging.getLogger(self.LOGGER_NAME)
+    def initialize_options(self):
+        """Modify the following to packaging specific needs."""
+        super().initialize_options()
+        self.logger_name = "transonic"
+        self.num_jobs_env_var = ""
+        self.ignoreflags = ("-Wstrict-prototypes",)
+        self.ignoreflags_startswith = ("-axMIC_", "-diag-disable:")
 
-    @property
-    def num_jobs(self):
+    def finalize_options(self):
+        """Only changed to support setting ``self.parallel`` automatically."""
+        if self.parallel is None:
+            self.parallel = self.get_num_jobs()
+
+        super().finalize_options()
+        self.logger.debug(f"Parallel build enabled with {self.parallel} jobs")
+        self.logger.debug(f"Base classes: {CythonBuildExt}, {PythranBuildExt}")
+
+    def get_num_jobs(self):
         try:
-            num_jobs = int(os.environ[self.NUM_JOBS_ENV_VAR])
+            num_jobs = int(os.environ[self.num_jobs_env_var])
         except KeyError:
             import multiprocessing
             num_jobs = multiprocessing.cpu_count()
@@ -210,21 +215,6 @@ class ParallelBuildExt(PythranBuildExt):
         return num_jobs
 
     def build_extensions(self):
-        """Parallelize
-        ``distutils.command.build_ext.build_ext.build_extensions`` using threads.
-
-        """
-        self.logger.info("TRANSONICCC!")
-        self.compiler.compiler_so = [
-            key
-            for key in self.compiler.compiler_so
-            if key not in self.ignoreflags
-            and all([not key.startswith(s) for s in self.ignoreflags_startwith])
-        ]
-
-        if not self.PARALLEL:
-            return super().build_extensions()
-
         self.check_extensions_list(self.extensions)
 
         for ext in self.extensions:
@@ -234,30 +224,45 @@ class ParallelBuildExt(PythranBuildExt):
             except AttributeError:
                 pass
 
-        pythran_extensions = []
-        other_extensions = []
+        # Invoke Distutils build_extensions method which respects
+        # parallel building. Cython's build_ext ignores this
+        DistutilsBuildExt.build_extensions(self)
+
+    def _build_extensions_parallel(self):
+        """A slightly modified version
+        ``distutils.command.build_ext.build_ext._build_extensions_parallel``
+        which:
+
+        - filters out some problematic compiler flags
+        - separates extensions of different types into different thread pools.
+
+        """
+        logger = self.logger
+        logger.debug(
+            f"ParallelBuildExt base classes: {PythranBuildExt} and {CythonBuildExt}"
+        )
+        self.compiler.compiler_so = [
+            key
+            for key in self.compiler.compiler_so
+            if key not in self.ignoreflags
+            and all([not key.startswith(s) for s in self.ignoreflags_startswith])
+        ]
+
+        # Set of all extension types
+        ext_types = {type(ext) for ext in self.extensions}
+        extensions_by_type = {T: [] for T in ext_types}
         for ext in self.extensions:
-            if isinstance(ext, PythranExtension):
-                pythran_extensions.append(ext)
-            else:
-                other_extensions.append(ext)
+            extensions_by_type[ext.__class__].append(ext)
 
         def names(exts):
             return [ext.name for ext in exts]
 
-        # Separate building pythran and other extensions to avoid race conditions
-        with Pool(self.num_jobs) as pool:
-            self.logger.info(
-                f"Start build_extension: {names(pythran_extensions)}"
-            )
-            pool.map(self.build_extension, pythran_extensions)
+        # Separate building extensions of different types to avoid race conditions
+        num_jobs = self.parallel
+        for exts in extensions_by_type.values():
+            self.logger.info(f"Start build_extension: {names(exts)}")
 
-        self.logger.info(f"Stop build_extension: {names(pythran_extensions)}")
+            with Pool(num_jobs) as pool:
+                pool.map(self.build_extension, exts)
 
-        with Pool(self.num_jobs) as pool:
-            self.logger.info(
-                f"Start build_extension: {names(other_extensions)}"
-            )
-            pool.map(self.build_extension, other_extensions)
-
-        self.logger.info(f"Stop build_extension: {names(other_extensions)}")
+            self.logger.info(f"Stop build_extension: {names(exts)}")
