@@ -10,6 +10,9 @@ Next release
 ------------
 
 - Environment variable :code:`TRANSONIC_NO_REPLACE`
+- Common setup functions such as :code:`get_logger`,
+  :code:`ParallelBuildExt` and :code:`init_pythran_extensions` in
+  :code:`transonic.dist`.
 
 0.1.7 (2018-12-18)
 ------------------
