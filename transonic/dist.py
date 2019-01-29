@@ -168,7 +168,13 @@ def init_pythran_extensions(
 class ParallelBuildExt(CythonBuildExt, PythranBuildExt):
     @property
     def logger(self):
-        return get_logger(self.logger_name)
+        try:
+            import colorlog as logging
+        except ImportError:
+            import logging
+
+        logger = logging.getLogger(self.logger_name)
+        return logger
 
     def initialize_options(self):
         """Modify the following to packaging specific needs."""
