@@ -13,10 +13,8 @@ setup.py.
 
 import os
 import sys
-from datetime import datetime
 from pathlib import Path
 from distutils.sysconfig import get_config_var
-from logging import ERROR, INFO
 from typing import Iterable
 from concurrent.futures import ThreadPoolExecutor as Pool
 
@@ -47,7 +45,7 @@ __all__ = [
     "detect_pythran_extensions",
     "init_pythran_extensions",
     "get_logger",
-    "ParallelBuildExt"
+    "ParallelBuildExt",
 ]
 
 
@@ -73,9 +71,7 @@ def get_logger(name):
     return logger
 
 
-def detect_pythran_extensions(
-    name_package: str,
-) -> Iterable[str]:
+def detect_pythran_extensions(name_package: str,) -> Iterable[str]:
     """Recursively scans a package for Pythran extensions to build, and returns a
     list of strings, where each string is a module name. The package should be
     present in the current working directory.
@@ -104,7 +100,7 @@ def init_pythran_extensions(
     include_dirs: Iterable[str] = (),
     compile_args: Iterable[str] = (),
     exclude_exts: Iterable[str] = (),
-    logger=None
+    logger=None,
 ):
     """Detects pythran extensions under a package and returns a list of
     Extension instances ready to be passed into the ``setup()`` function.
@@ -135,9 +131,7 @@ def init_pythran_extensions(
 
     if len(exclude_exts) > 0 and logger:
         logger.info(
-            "Files in the packages "
-            + str(exclude_exts)
-            + " will not be built."
+            "Files in the packages " + str(exclude_exts) + " will not be built."
         )
     develop = "develop" in sys.argv
 
@@ -163,10 +157,7 @@ def init_pythran_extensions(
                     )
                 )
 
-            pext = PythranExtension(
-                mod,
-                [py_file],
-            )
+            pext = PythranExtension(mod, [py_file])
             pext.include_dirs.append(include_dirs)
             pext.extra_compile_args.extend(compile_args)
             extensions.append(pext)
@@ -175,7 +166,6 @@ def init_pythran_extensions(
 
 
 class ParallelBuildExt(CythonBuildExt, PythranBuildExt):
-
     @property
     def logger(self):
         return get_logger(self.logger_name)
@@ -202,6 +192,7 @@ class ParallelBuildExt(CythonBuildExt, PythranBuildExt):
             num_jobs = int(os.environ[self.num_jobs_env_var])
         except KeyError:
             import multiprocessing
+
             num_jobs = multiprocessing.cpu_count()
 
             try:
