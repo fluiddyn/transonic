@@ -31,6 +31,6 @@ def teardown_module():
         with suppress(FileNotFoundError):
             shutil.rmtree(setup_dir / namedir)
 
-    to_remove = list(setup_dir.glob("*.[hc]")) + list(setup_dir.glob("*.so"))
+    to_remove = list(setup_dir.glob("*.h")) + list(setup_dir.glob("*.so"))
     for path in to_remove:
         os.remove(path)

@@ -1,4 +1,5 @@
 from distutils.core import setup, Extension
+from pathlib import Path
 import numpy as np
 from transonic.dist import init_pythran_extensions, ParallelBuildExt
 
@@ -8,7 +9,18 @@ include_dirs = [np.get_include()]
 try:
     from Cython.Build import cythonize
 except ImportError:
-    extensions = Extension
+    # from setuptools import Extension
+    path_sources = str(Path(__file__).parent.absolute())
+    extensions = [
+        Extension(
+            "add_cython",
+            include_dirs=[path_sources] + include_dirs,
+            libraries=["m"],
+            library_dirs=[],
+            sources=[path_sources + "/add_cython.c"],
+        )
+    ]
+    print(extensions)
 else:
     extensions = cythonize(
         Extension("add_cython", ['add_cython.pyx'], include_dirs=include_dirs)
@@ -20,7 +32,7 @@ extensions.extend(
 
 setup(
     name="add",
-    ext_modules=cythonize(extensions),
+    ext_modules=extensions,
     script_name='setup.py',
     script_args=['build_ext'],
     cmdclass=dict(build_ext=ParallelBuildExt),
