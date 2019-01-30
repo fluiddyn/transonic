@@ -1,5 +1,6 @@
 import shutil
 from distutils.core import Distribution
+from copy import copy
 import pytest
 
 from . import dist
@@ -13,7 +14,12 @@ from .dist import (
 )
 from . import path_data_tests
 
-dist.can_import_pythran = True
+
+can_actually_import_pythran = copy(dist.can_import_pythran)
+
+
+def setup_module():
+    dist.can_import_pythran = True
 
 
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
@@ -56,3 +62,7 @@ def test_build_ext():
     build_ext.initialize_options()
     build_ext.parallel = 1
     build_ext.finalize_options()
+
+
+def teardown_module():
+    dist.can_import_pythran = can_actually_import_pythran
