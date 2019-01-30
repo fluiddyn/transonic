@@ -25,12 +25,15 @@ if implementation == "PyPy":
     def rmtree(path):
         shutil.rmtree(str(path))
 
+    def fspath(path):
+        return str(path)
 
 else:
 
     from builtins import open
     from runpy import run_path
     from shutil import rmtree
+    from os import fspath
 
 
-__all__ = ["open", "run_path", "rmtree"]
+__all__ = ["open", "run_path", "rmtree", "fspath"]

@@ -78,6 +78,7 @@ from .pythranizer import (
 )
 
 from .config import path_root
+from .compat import fspath
 
 __all__ = ["modification_date", "has_to_build"]
 
@@ -103,14 +104,14 @@ def find_module_name_from_path(path_py: Path):
         pass
     else:
         tmp = [path_jit_classes.name]
-        name_pack = str(path_rel).replace(os.path.sep, ".")
+        name_pack = fspath(path_rel).replace(os.path.sep, ".")
         if name_pack:
             tmp.append(name_pack)
         tmp.append(module_name)
         return ".".join(tmp)
 
     while path.parents:
-        if path == cwd or str(path) in sys.path:
+        if path == cwd or fspath(path) in sys.path:
             return module_name
 
         module_name = path.name + "." + module_name
@@ -254,7 +255,7 @@ def import_from_path(path: Path, module_name: str):
         if module.__file__.endswith(ext_suffix) and Path(module.__file__) == path:
             return module
 
-    spec = importlib.util.spec_from_file_location(module_name, str(path))
+    spec = importlib.util.spec_from_file_location(module_name, fspath(path))
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -323,7 +324,7 @@ def clear_cached_extensions(module_name: str, force: bool = False):
         force=force,
     ):
         print(f"Remove directory {path_pythran_dir_jit}")
-        shutil.rmtree(str(path_pythran_dir_jit))
+        shutil.rmtree(fspath(path_pythran_dir_jit))
 
     if path_pythran.exists() or path_ext.exists():
         if query_yes_no(

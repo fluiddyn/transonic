@@ -41,6 +41,7 @@ else:
 
 from .transpiler import make_backend_files
 from .util import modification_date
+from .compat import fspath
 
 __all__ = [
     "make_backend_files",
@@ -95,7 +96,7 @@ def detect_pythran_extensions(name_package: str,) -> Iterable[str]:
             ):
                 path = path_dir / name
                 ext_names.append(
-                    os.fspath(path).replace(os.path.sep, ".").split(".py")[0]
+                    fspath(path).replace(os.path.sep, ".").split(".py")[0]
                 )
     return ext_names
 

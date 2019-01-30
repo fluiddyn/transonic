@@ -59,7 +59,7 @@ from .util import (
     get_source_without_decorator,
     find_module_name_from_path,
 )
-from .compat import open
+from .compat import open, fspath
 import transonic
 
 
@@ -446,7 +446,7 @@ def make_pythran_code(path_py: Path):
         # we have to import the module!
         transonic.aheadoftime.is_transpiling = True
         try:
-            namespace = run_path(str(path_py))
+            namespace = run_path(fspath(path_py))
         except ImportError:
             sys.path.insert(0, "")
             try:
@@ -696,7 +696,7 @@ def make_pythran_file(
     with open(path_pythran, "w") as file:
         file.write(code_pythran)
 
-    logger.info(f"File {str(path_pythran)} written")
+    logger.info(f"File {fspath(path_pythran)} written")
 
     return path_pythran
 
