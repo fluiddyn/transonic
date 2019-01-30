@@ -50,14 +50,9 @@ def test_modification_date():
 
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
 def test_build_ext():
-
     dist = Distribution()
     build_ext = ParallelBuildExt(dist)
 
     build_ext.initialize_options()
     build_ext.parallel = 1
     build_ext.finalize_options()
-    # TODO: would be nice to have some tests with extensions
-    build_ext.extensions = []
-    build_ext.run()
-

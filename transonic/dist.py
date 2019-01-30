@@ -24,8 +24,10 @@ try:
     from Cython.Distutils.build_ext import build_ext as CythonBuildExt
 except ImportError:
     build_ext_classes = [DistutilsBuildExt]
+    can_import_cython = False
 else:
     build_ext_classes = [CythonBuildExt]
+    can_import_cython = True
 
 try:
     from pythran.dist import PythranBuildExt, PythranExtension
@@ -34,8 +36,8 @@ except ImportError:
     PythranExtension = object
     can_import_pythran = False
 else:
-    can_import_pythran = True
     build_ext_classes.insert(0, PythranBuildExt)
+    can_import_pythran = True
 
 from .transpiler import make_backend_files
 from .util import modification_date
@@ -129,7 +131,7 @@ def init_pythran_extensions(
 
     """
     modules = detect_pythran_extensions(name_package)
-    if not modules:
+    if not modules or not can_import_pythran:
         return []
 
     if len(exclude_exts) > 0 and logger:
@@ -238,9 +240,6 @@ class ParallelBuildExt(*build_ext_classes):
 
         """
         logger = self.logger
-        logger.debug(
-            f"ParallelBuildExt base classes: {PythranBuildExt} and {CythonBuildExt}"
-        )
         self.compiler.compiler_so = [
             key
             for key in self.compiler.compiler_so
@@ -260,9 +259,9 @@ class ParallelBuildExt(*build_ext_classes):
         # Separate building extensions of different types to avoid race conditions
         num_jobs = self.parallel
         for exts in extensions_by_type.values():
-            self.logger.info(f"Start build_extension: {names(exts)}")
+            logger.info(f"Start build_extension: {names(exts)}")
 
             with Pool(num_jobs) as pool:
                 pool.map(self.build_extension, exts)
 
-            self.logger.info(f"Stop build_extension: {names(exts)}")
+            logger.info(f"Stop build_extension: {names(exts)}")
