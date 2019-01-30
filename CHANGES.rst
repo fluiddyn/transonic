@@ -6,6 +6,12 @@ Future
 - Alternative syntax for blocks (see `issue #29
   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_)
 
+0.1.9.post0 (2019-01-30)
+------------------------
+
+- Bugfix release with a more thoroughly tested :code:`ParallelBuildExt`.
+- Pythonic `fspath`.
+
 0.1.9 (2019-01-29)
 ------------------
 
