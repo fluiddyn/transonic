@@ -24,8 +24,10 @@ try:
     from Cython.Distutils.build_ext import build_ext as CythonBuildExt
 except ImportError:
     build_ext_classes = [DistutilsBuildExt]
+    can_import_cython = False
 else:
     build_ext_classes = [CythonBuildExt]
+    can_import_cython = True
 
 try:
     from pythran.dist import PythranBuildExt, PythranExtension
@@ -34,8 +36,8 @@ except ImportError:
     PythranExtension = object
     can_import_pythran = False
 else:
-    can_import_pythran = True
     build_ext_classes.insert(0, PythranBuildExt)
+    can_import_pythran = True
 
 from .transpiler import make_backend_files
 from .util import modification_date

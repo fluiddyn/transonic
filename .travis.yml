@@ -5,7 +5,7 @@ python:
   - 3.6
 
 env:
-  - TOXENV=py-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-6 OMPI_CXX=/usr/bin/g++-6 SITE_CFG=linux
+  - TOXENV=py,codecov-travis OMPI_CC=/usr/bin/gcc-6 OMPI_CXX=/usr/bin/g++-6 SITE_CFG=linux
 
 matrix:
   fast_finish: true
