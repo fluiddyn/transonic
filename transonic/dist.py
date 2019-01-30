@@ -238,9 +238,6 @@ class ParallelBuildExt(*build_ext_classes):
 
         """
         logger = self.logger
-        logger.debug(
-            f"ParallelBuildExt base classes: {PythranBuildExt} and {CythonBuildExt}"
-        )
         self.compiler.compiler_so = [
             key
             for key in self.compiler.compiler_so
@@ -260,9 +257,9 @@ class ParallelBuildExt(*build_ext_classes):
         # Separate building extensions of different types to avoid race conditions
         num_jobs = self.parallel
         for exts in extensions_by_type.values():
-            self.logger.info(f"Start build_extension: {names(exts)}")
+            logger.info(f"Start build_extension: {names(exts)}")
 
             with Pool(num_jobs) as pool:
                 pool.map(self.build_extension, exts)
 
-            self.logger.info(f"Stop build_extension: {names(exts)}")
+            logger.info(f"Stop build_extension: {names(exts)}")
