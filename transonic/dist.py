@@ -131,7 +131,7 @@ def init_pythran_extensions(
 
     """
     modules = detect_pythran_extensions(name_package)
-    if not modules:
+    if not modules or not can_import_pythran:
         return []
 
     if len(exclude_exts) > 0 and logger:

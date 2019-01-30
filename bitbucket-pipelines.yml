@@ -16,28 +16,21 @@ pipelines:
               - pip
             script:
               - pip install -U tox --user
-              - tox -e py36
+              - tox -e py36,codecov
         - step:
             image: fluiddyn/python3-stable
             caches:
               - pip
             script:
               - pip install -U tox --user
-              - tox -vv -e py36-pythran
+              - tox -vv -e py36-pythran,py36-cython,codecov
         - step:
             image: fluiddyn/python3-stable
             caches:
               - pip
             script:
               - pip install -U tox --user
-              - tox -vv -e py36-cython
-        - step:
-            image: fluiddyn/python3-stable
-            caches:
-              - pip
-            script:
-              - pip install -U tox --user
-              - tox -vv -e py36-pythran-cython,codecov
+              - tox -vv -e py36-pythran-cython
     dev:
       - parallel:
         - step:
