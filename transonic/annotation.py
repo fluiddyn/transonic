@@ -365,7 +365,7 @@ class Union(metaclass=UnionMeta):
     pass
 
 
-normalized_types = {"float": "float64", "complex": "complex128", "int": "int32"}
+normalized_types = {"float": "float64", "complex": "complex128"}
 
 
 def normalize_type_name(name):
