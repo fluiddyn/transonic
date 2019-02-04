@@ -231,9 +231,7 @@ class ArrayMeta(type):
                             "one string fixing the number of dimension. "
                             "Use for example NDim(2, 3)."
                         )
-                    param = ndim = NDim(
-                        tmp, _ts=_get_transonic_calling_module()
-                    )
+                    param = ndim = NDim(tmp, _ts=_get_transonic_calling_module())
 
             if isinstance(param, str):
                 raise ValueError(f"{param} cannot be interpretted...")
@@ -367,25 +365,38 @@ class Union(metaclass=UnionMeta):
     pass
 
 
+normalized_types = {"float": "float64", "complex": "complex128", "int": "int32"}
+
+
+def normalize_type_name(name):
+    try:
+        return normalized_types[name]
+    except KeyError:
+        return name
+
+
 def compute_pythran_type_from_type(type_, **kwargs):
     if hasattr(type_, "get_pythran_type"):
-        return type_.get_pythran_type(**kwargs)
+        pythran_type = type_.get_pythran_type(**kwargs)
     elif hasattr(type_, "__name__"):
-        return type_.__name__
+        pythran_type = type_.__name__
     else:
         pythran_type = str(type_)
         types = pythran_type.split(" or ")
         new_types = []
         for _type in types:
+            _type = normalize_type_name(_type)
             if "][" in _type:
                 # C style: we try to rewrite it in Cython style
                 base, dims = _type.split("[", 1)
                 dims = ", ".join([_ or ":" for _ in dims[:-1].split("][")])
-                _type = base + "[" + dims + "]"
+                _type = normalize_type_name(base) + "[" + dims + "]"
             elif _type.endswith("[]"):
-                _type = _type[:-2] + "[:]"
+                _type = normalize_type_name(_type[:-2]) + "[:]"
             new_types.append(_type)
-        return " or ".join(new_types)
+        pythran_type = " or ".join(new_types)
+
+    return normalize_type_name(pythran_type)
 
 
 def compute_pythran_types_from_types(types, **kwargs):
@@ -471,15 +482,19 @@ def make_signature_from_template_variables(func, _signature=None, **kwargs):
     if _signature is None:
         _signature = inspect.signature(func)
 
-    signature = f"{func.__name__}("
-
     types = [param.annotation for param in _signature.parameters.values()]
 
     pythran_types = compute_pythran_types_from_types(types, **kwargs)
 
-    signature += ", ".join(pythran_types) + ")"
+    # "multiply" the signatures to take into account the "or" syntax
+    multi_pythran_types = [
+        _ for _ in itertools.product(*[t.split(" or ") for t in pythran_types])
+    ]
+    signatures = []
+    for pythran_types in multi_pythran_types:
+        signatures.append(f"{func.__name__}(" + ", ".join(pythran_types) + ")")
 
-    return signature
+    return signatures
 
 
 def make_signatures_from_typehinted_func(func):
@@ -506,10 +521,10 @@ def make_signatures_from_typehinted_func(func):
     _signature = inspect.signature(func)
 
     if not template_parameters:
-        signature = make_signature_from_template_variables(
+        signatures = make_signature_from_template_variables(
             func, _signature=_signature
         )
-        return (signature,)
+        return signatures
 
     if not all(param.values for param in template_parameters):
         return tuple()
@@ -524,11 +539,12 @@ def make_signatures_from_typehinted_func(func):
         template_variables = {
             name: value for name, value in zip(names, set_types)
         }
-        signatures.append(
+        signatures.extend(
             make_signature_from_template_variables(
                 func, _signature=_signature, **template_variables
             )
         )
+
     return signatures
 
 

@@ -49,6 +49,7 @@ import ast
 import importlib.util
 from distutils.util import strtobool
 import shutil
+from textwrap import dedent
 
 from typing import Callable
 
@@ -144,18 +145,7 @@ def get_module_name(frame):
 def get_source_without_decorator(func: Callable):
     """Get the source of a function without its decorator"""
     src = inspect.getsource(func)
-
-    # de-indent the code
-    nb_spaces = 0
-    for c in src:
-        if not c.isspace():
-            break
-        nb_spaces += 1
-
-    if nb_spaces > 0:
-        lines = [line[nb_spaces:] for line in src.split("\n")]
-        src = "\n".join(lines)
-
+    src = dedent(src)
     return strip_typehints(re.sub(r"@.*?\sdef\s", "def ", src))
 
 

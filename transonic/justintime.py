@@ -78,7 +78,7 @@ from .util import (
     pythran,
     is_method,
 )
-from .annotation import make_signatures_from_typehinted_func
+from .annotation import make_signatures_from_typehinted_func, normalize_type_name
 
 from .aheadoftime import TransonicTemporaryJITMethod
 
@@ -176,6 +176,7 @@ def _get_module_jit(index_frame: int = 2):
 def make_pythran_type_name(obj: object):
     """return the Pythran type name"""
     name = type(obj).__name__
+    name = normalize_type_name(name)
 
     if np and isinstance(obj, np.ndarray):
         name = obj.dtype.name

@@ -481,14 +481,14 @@ class Transonic:
           The template types and their value
 
         """
-        signature = make_signature_from_template_variables(
+        signatures = make_signature_from_template_variables(
             func, _signature=_signature, **kwargs
         )
 
         if func.__name__ not in self.signatures_func:
             self.signatures_func[func.__name__] = []
 
-        self.signatures_func[func.__name__].append(signature)
+        self.signatures_func[func.__name__].extend(signatures)
 
     def use_block(self, name):
         """Use the pythranized version of a code block
