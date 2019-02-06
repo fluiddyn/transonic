@@ -331,7 +331,17 @@ class JIT:
             if not exports:
                 return
 
-            if path_pythran_header.exists():
+            try:
+                path_pythran_header_exists = path_pythran_header.exists()
+            except TimeoutError:
+                raise RuntimeError(
+                    f"A MPI communication in Transonic failed when compiling "
+                    f"function {func}. This usually arises when a jitted "
+                    "function has to be compiled in MPI and is only called "
+                    f"by one process (rank={mpi.rank})."
+                )
+
+            if path_pythran_header_exists:
                 # get the old signature(s)
 
                 exports_old = None

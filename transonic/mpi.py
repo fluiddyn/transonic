@@ -5,6 +5,7 @@
 
 import os
 from pathlib import Path
+from time import time, sleep
 
 if "TRANSONIC_NO_MPI" in os.environ:
     nb_proc = 1
@@ -28,16 +29,82 @@ else:
         if nb_proc > 1:
             comm = _mpi.comm
 
+if nb_proc > 1:
+    comm = comm.Clone()
 
-def barrier():
-    if nb_proc > 1:
+
+if nb_proc == 1:
+
+    def bcast(value, root=0):
+        return value
+
+    def barrier(timeout=None):
+        pass
+
+
+else:
+
+    _tag = 3 * 7 * 9 * sum(ord(letter) for letter in "mpi transonic")
+
+    def bcast(value, root=0, timeout=5.0, tag=_tag):
+        """MPI broadcast
+
+        Should do something similar to::
+
+          value = comm.bcast(value, root=root)
+
+        but with a timeout
+
+        """
+
+        time_comm = time()
+
+        requests = []
+        if rank == root:
+            for irank in range(nb_proc):
+                if irank == rank:
+                    continue
+                requests.append(comm.isend(value, dest=irank, tag=tag))
+        else:
+            requests.append(comm.irecv(source=root, tag=tag))
+
+        for request in requests:
+            while True:
+                ready, received = request.test()
+                if ready:
+                    break
+                if time() - time_comm > timeout:
+                    raise TimeoutError(f"rank = {rank}, value = {value}")
+                sleep(0.1)
+
+        if rank != root:
+            value = received
+
+        # send back something small to say that we received the value
+        requests = []
+        if rank == root:
+            for irank in range(nb_proc):
+                if irank == rank:
+                    continue
+                requests.append(comm.irecv(source=irank, tag=tag+100))
+        else:
+            requests.append(comm.isend("ok", dest=0, tag=tag+100))
+
+        for request in requests:
+            while True:
+                ready, received = request.test()
+                if ready:
+                    break
+                if time() - time_comm > timeout:
+                    raise TimeoutError(f"rank = {rank}, value = {value}")
+                sleep(0.1)
+
+        return value
+
+    def barrier(timeout=5):
+        if timeout is not None:
+            bcast("barrier", timeout=timeout, tag=_tag+4)
         comm.barrier()
-
-
-def bcast(value, root=0):
-    if nb_proc > 1:
-        value = comm.bcast(value, root=root)
-    return value
 
 
 class ShellProcessMPI:
@@ -70,7 +137,7 @@ if nb_proc > 1:
             if rank == 0:
                 answer = super().exists()
 
-            ret = comm.bcast(("exists", answer))
+            ret = bcast(("exists", answer), tag=_tag + 1)
 
             if len(ret) != 2 and ret[0] != "exists":
                 print(rank, "bug!!!!", ret, flush=1)
@@ -93,7 +160,7 @@ if nb_proc > 1:
         ret = None
         if rank == 0:
             ret = util.has_to_build(output_file, input_file)
-        return comm.bcast(ret)
+        return bcast(ret, tag=_tag + 2)
 
     def modification_date(filename):
         from . import util
@@ -101,7 +168,7 @@ if nb_proc > 1:
         ret = None
         if rank == 0:
             ret = util.modification_date(filename)
-        return comm.bcast(ret)
+        return bcast(ret, tag=_tag + 3)
 
 
 if __name__ == "__main__":

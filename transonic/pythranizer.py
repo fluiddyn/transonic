@@ -125,7 +125,7 @@ class SchedulerPopen:
                     if process.is_alive_root()
                 ]
 
-        mpi.barrier()
+        mpi.barrier(timeout=None)
 
     def compile_extension(
         self,
