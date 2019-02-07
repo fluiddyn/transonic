@@ -75,11 +75,17 @@ def main():
 
         return
 
+    if "-v" in args:
+        # no capture_output
+        stdout = stderr = None
+    else:
+        stdout = stderr = subprocess.PIPE
+
     print(f"Pythranizing {path}", flush=True)
     args.insert(0, "pythran")
     name_lock.touch()
     try:
-        completed_process = subprocess.run(args, capture_output="-v" not in args, text=True)
+        completed_process = subprocess.run(args, stdout=stdout, stderr=stderr)
     except Exception:
         pass
     finally:
@@ -100,9 +106,9 @@ def main():
             pass
         else:
             if completed_process.stdout:
-                print("Pythran stdout:\n" + completed_process.stdout)
+                print(f"Pythran stdout:\n{completed_process.stdout}")
             if completed_process.stderr:
-                print("Pythran stderr:\n" + completed_process.stderr)
+                logger.error(f"Pythran stderr:\n{completed_process.stderr}")
 
 
 if __name__ == "__main__":
