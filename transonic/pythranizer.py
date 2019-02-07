@@ -112,7 +112,7 @@ class SchedulerPopen:
                     if process.is_alive_root()
                 ]
 
-        mpi.barrier()
+        mpi.barrier(timeout=None)
 
     def wait_for_all_extensions(self):
         """Wait until all compilation processes are done"""
