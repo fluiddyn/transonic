@@ -30,7 +30,6 @@ def main():
 
     name = args[0]
     path = Path.cwd() / name
-    print(f"Pythranizing {path}")
 
     if "-o" in args:
         index_output = args.index("-o") + 1
@@ -51,7 +50,11 @@ def main():
     name_lock = Path(name_out_base + ".lock")
 
     if name_lock.exists():
-        # the compilation should be
+        print(
+            f"lock file {name_lock.absolute()} present: "
+            "waiting for completion of the compilation",
+            flush=True,
+        )
         time_out_lock = 3600  # (s) let's hope it's enough
         time_start = time()
         while name_lock.exists() and time() - time_start < time_out_lock:
@@ -72,10 +75,11 @@ def main():
 
         return
 
+    print(f"Pythranizing {path}", flush=True)
     args.insert(0, "pythran")
     name_lock.touch()
     try:
-        subprocess.call(args)
+        completed_process = subprocess.run(args, capture_output="-v" not in args, text=True)
     except Exception:
         pass
     finally:
@@ -85,11 +89,20 @@ def main():
         path_tmp.rename(path_out)
 
     if path_out.exists():
-        print(f"Done! File {path_out.absolute()} created")
+        print(f"File {path_out.absolute()} created by Pythran")
     else:
         logger.error(
             f"Error! File {path_out.absolute()} has not been created by Pythran"
         )
+        try:
+            completed_process
+        except NameError:
+            pass
+        else:
+            if completed_process.stdout:
+                print("Pythran stdout:\n" + completed_process.stdout)
+            if completed_process.stderr:
+                print("Pythran stderr:\n" + completed_process.stderr)
 
 
 if __name__ == "__main__":

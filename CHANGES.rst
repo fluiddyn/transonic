@@ -6,6 +6,12 @@ Future
 - Alternative syntax for blocks (see `issue #29
   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_)
 
+0.1.10 (2019-02-07)
+-------------------
+
+- Less verbose compilations (`pythran -v` obtained with `transonic -vv`)
+- Bugfixes: Pythran "or" syntax for JIT and timeout with MPI
+
 0.1.9.post0 (2019-01-30)
 ------------------------
 

@@ -173,7 +173,7 @@ class SchedulerPopen:
         if openmp:
             update_flags("-fopenmp")
 
-        if logger.is_enable_for("info"):
+        if logger.is_enable_for("debug"):
             update_flags("-v")
 
         words_command = [
