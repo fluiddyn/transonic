@@ -12,7 +12,16 @@ import numpy as np
 
 from transonic import boost
 
+my_constant = 3
+
 
 @boost
 def func(a: float, b: float):
-    return (a * np.log(b)).max()
+
+    c = a + b
+    return (a * np.log(c)).max() * my_constant
+
+
+if __name__ == "__main__":
+    result1 = func(1., 1.)
+    result2 = func(2., 2.)
