@@ -231,12 +231,15 @@ class JIT:
 
     def __call__(self, func):
 
+        if not has_to_replace:
+            return func
+
         if is_method(func):
             return TransonicTemporaryJITMethod(
                 func, self.native, self.xsimd, self.openmp
             )
 
-        if not pythran or not has_to_replace:
+        if not pythran:
             return func
 
         func_name = func.__name__
