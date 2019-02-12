@@ -86,9 +86,9 @@ else:
             for irank in range(nb_proc):
                 if irank == rank:
                     continue
-                requests.append(comm.irecv(source=irank, tag=tag+100))
+                requests.append(comm.irecv(source=irank, tag=tag + 100))
         else:
-            requests.append(comm.isend("ok", dest=0, tag=tag+100))
+            requests.append(comm.isend("ok", dest=0, tag=tag + 100))
 
         for request in requests:
             while True:
@@ -103,7 +103,7 @@ else:
 
     def barrier(timeout=5):
         if timeout is not None:
-            bcast("barrier", timeout=timeout, tag=_tag+4)
+            bcast("barrier", timeout=timeout, tag=_tag + 4)
         comm.barrier()
 
 

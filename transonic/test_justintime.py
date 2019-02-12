@@ -25,9 +25,7 @@ path_jit = mpi.PathSeq(path_jit)
 
 path_pythran_dir = path_jit / str_relative_path
 path_classes_dir = path_jit_classes / str_relative_path
-path_classes_dir1 = (
-    path_jit / path_jit_classes.name / str_relative_path
-)
+path_classes_dir1 = path_jit / path_jit_classes.name / str_relative_path
 
 
 def delete_pythran_files(func_name):

@@ -147,10 +147,7 @@ def parse_py_code(code: str):
             else:
                 code_blocks[name_block].append((toknum, tokval))
 
-        if (
-            has_to_find_code_block == "after use_block"
-            and toknum == INDENT
-        ):
+        if has_to_find_code_block == "after use_block" and toknum == INDENT:
             has_to_find_code_block = "in block"
             code_blocks[name_block] = []
 

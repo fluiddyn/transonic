@@ -49,7 +49,7 @@ class MyClass:
 
     @jit
     def myfunc(self, arg):
-        return self.attr1 + self.attr0 + arg
+        return self.attr1 + self.attr0 + np.abs(arg)
 
     def check(self):
         assert self.myfunc(1) == 3

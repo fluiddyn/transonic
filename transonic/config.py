@@ -39,8 +39,6 @@ import os
 from pathlib import Path
 from distutils.util import strtobool
 
-path_root = Path(
-    os.environ.get("TRANSONIC_DIR", Path.home() / ".transonic")
-)
+path_root = Path(os.environ.get("TRANSONIC_DIR", Path.home() / ".transonic"))
 
 has_to_replace = not strtobool(os.environ.get("TRANSONIC_NO_REPLACE", "0"))

@@ -40,11 +40,7 @@ from .util import (
     path_jit_classes,
 )
 
-from .pythranizer import (
-    compile_extension,
-    name_ext_from_path_backend,
-    ext_suffix,
-)
+from .pythranizer import compile_extension, name_ext_from_path_backend, ext_suffix
 
 from .annotation import (
     make_signature_from_template_variables,
@@ -94,8 +90,7 @@ def _get_transonic_calling_module(index_frame: int = 2):
         ts = modules[module_name]
         if (
             ts.is_transpiling != is_transpiling
-            or ts._compile_at_import_at_creation
-            != has_to_compile_at_import()
+            or ts._compile_at_import_at_creation != has_to_compile_at_import()
             or hasattr(ts, "path_mod")
             and ts.path_mod.exists()
             and mpi.has_to_build(ts.path_pythran, ts.path_mod)
@@ -503,8 +498,7 @@ class Transonic:
         """
         if not self.is_transpiled:
             raise ValueError(
-                "`use_block` has to be used protected "
-                "by `if ts.is_transpiled`"
+                "`use_block` has to be used protected by `if ts.is_transpiled`"
             )
 
         if self.is_compiling and not self.process.is_alive():
@@ -641,14 +635,25 @@ def jit_class(cls, jit_methods):
 
     module = sys.modules[mod_name]
 
-    # 1. create a Python file with @cachejit functions and methods
+    # 1. create a Python file with @jit functions and methods
     python_path_dir = path_jit_classes / mod_name.replace(".", os.path.sep)
     python_path = python_path_dir / (cls_name + ".py")
 
     if mpi.has_to_build(python_path, module.__file__):
         if mpi.rank == 0:
             python_path = mpi.PathSeq(python_path)
-            python_code = produce_code_class(cls, jit=True)
+
+            # quick fix to keep the "#transonic import" commands
+            transonic_imports = []
+            with open(module.__file__) as file:
+                for line in file:
+                    if line.startswith("# transonic ") and " import " in line:
+                        transonic_imports.append(line)
+                        transonic_imports.append(line[12:])
+
+            python_code = "\n".join(transonic_imports) + "\n"
+
+            python_code += produce_code_class(cls, jit=True)
 
             has_to_write = None
             if python_path.exists():
@@ -668,9 +673,7 @@ def jit_class(cls, jit_methods):
         mpi.barrier()
 
     # 2. import the file
-    python_mod_name = (
-        path_jit_classes.name + "." + mod_name + "." + cls_name
-    )
+    python_mod_name = path_jit_classes.name + "." + mod_name + "." + cls_name
     module = import_from_path(python_path, python_mod_name)
 
     # 3. replace the methods

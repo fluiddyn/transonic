@@ -10,11 +10,7 @@ except ImportError:
 
 
 from .transpiler import make_pythran_file
-from .util import (
-    has_to_compile_at_import,
-    ext_suffix,
-    name_ext_from_path_backend,
-)
+from .util import has_to_compile_at_import, ext_suffix, name_ext_from_path_backend
 from .aheadoftime import modules
 from . import mpi
 
@@ -94,7 +90,9 @@ class TestsInit(unittest.TestCase):
         for_test_init.func1(1.1, 2.2)
         for_test_init.check_class()
 
-    @unittest.skipIf(not pythran, "Pythran is required for TRANSONIC_COMPILE_AT_IMPORT")
+    @unittest.skipIf(
+        not pythran, "Pythran is required for TRANSONIC_COMPILE_AT_IMPORT"
+    )
     def test_pythranize(self):
 
         os.environ["TRANSONIC_COMPILE_AT_IMPORT"] = "1"

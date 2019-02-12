@@ -28,6 +28,7 @@ if implementation == "PyPy":
     def fspath(path):
         return str(path)
 
+
 else:
 
     from builtins import open
