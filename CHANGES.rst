@@ -6,8 +6,8 @@ Future
 - Alternative syntax for blocks (see `issue #29
   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_)
 
-0.1.11 (?)
-----------
+0.1.11 (2019-02-12)
+-------------------
 
 - Bugfix: @jit methods with # transonic import.
 
