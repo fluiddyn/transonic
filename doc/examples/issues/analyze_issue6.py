@@ -1,5 +1,8 @@
 import beniget
 import gast as ast
+import astunparse
+
+from capturex import CaptureX
 
 examples = {6: "issue6_import.py", 7: "issue7_func.py"}
 
@@ -26,40 +29,15 @@ for user in boost.users():
 
 chain = duc.chains[fdef]
 
-
-class Capture(ast.NodeVisitor):
-    def __init__(self, module_node):
-        # initialize def-use chains
-        self.duc = beniget.DefUseChains()
-        self.duc.visit(module_node)
-        self.users_local_def = set()  # uses of local definitions
-        self.captured = set()  # identifiers that don't belong to local uses
-
-    def visit_FunctionDef(self, node):
-        # initialize the set of node using a local variable
-        for def_ in self.duc.locals[node]:
-            # print("def_.name()", def_.name())
-            # print(list((user.name(), user.node.ctx) for user in def_.users()))
-            self.users_local_def.update(user.node for user in def_.users())
-
-        self.generic_visit(node)
-
-    def visit_Name(self, node):
-        # register load of identifiers not locally defined
-        # print("node.id", node.id, node.ctx)
-        if isinstance(node.ctx, ast.Load):
-            if node not in self.users_local_def:
-                self.captured.add(node)
-
-
-capture = Capture(module)
-
 for node in fdef.decorator_list:
     if node.id == "boost":
         fdef.decorator_list.remove(node)
 
-capture.visit(fdef)
 
-print(list(node.id for node in capture.captured))
+capturex = CaptureX(module, fdef)
 
-node = next(iter(capture.captured))
+capturex.visit(fdef)
+
+for node in capturex.external:
+    print(astunparse.dump(node))
+    print(astunparse.unparse(node))

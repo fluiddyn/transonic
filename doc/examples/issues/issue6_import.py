@@ -23,7 +23,7 @@ my_constant = len(values)
 @boost
 def func(a: float, b: float):
 
-    c = a + b
+    c = a + b + values[0]
     return (a * np.log(c)).max() * my_constant
 
 
