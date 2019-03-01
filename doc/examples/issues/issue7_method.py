@@ -5,11 +5,15 @@ The function `add` is used in the "boosted" method `compute` and we don't use
 `transonic.include`.
 
 """
+import numpy as np
+
 from transonic import boost
+
+myconstant = 1
 
 
 def add(a, b):
-    return a + b
+    return a + b + np.cos(myconstant)
 
 
 @boost

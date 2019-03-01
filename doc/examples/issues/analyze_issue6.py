@@ -22,10 +22,10 @@ boost = [d for d in duc.locals[module] if d.name() == "boost"][0]
 
 for user in boost.users():
     # we're interested in the parent of the decorator
-    parents = ancestors.parents[user.node]
+    parents = ancestors.parents(user.node)
     # direct parent of the decorator is the function
     fdef = parents[-1]
-    print(fdef.name)
+    # print(fdef.name)
 
 chain = duc.chains[fdef]
 
@@ -39,5 +39,5 @@ capturex = CaptureX(module, fdef)
 capturex.visit(fdef)
 
 for node in capturex.external:
-    print(astunparse.dump(node))
-    print(astunparse.unparse(node))
+    # print(astunparse.dump(node))
+    print(astunparse.unparse(node).strip())

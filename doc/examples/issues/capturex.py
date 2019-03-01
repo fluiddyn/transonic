@@ -7,27 +7,43 @@ class CaptureX(ast.NodeVisitor):
     def __init__(self, module_node, fun):
         self.fun = fun
         # initialize use-def chains
-        self.ud_chains = beniget.UseDefChains()
-        self.ud_chains.visit(module_node)
+        self.du_chains = du = beniget.DefUseChains()
+        du.visit(module_node)
+        self.ud_chains = beniget.UseDefChains(du)
         self.ancestors = beniget.Ancestors()
         self.ancestors.visit(module_node)
-        self.external = set()
+        self.external = []
+        self.visited_external = set()
 
     def visit_Name(self, node):
         # register load of identifiers not locally defined
         if isinstance(node.ctx, ast.Load):
             def_ = self.ud_chains.chains[node]
-            parents = self.ancestors.parents[def_.node]
+            try:
+                parents = self.ancestors.parents(def_.node)
+            except KeyError:
+                return  # a builtin
             if self.fun not in parents:
-                parent = parents[-1]
-                if parent not in self.external:
-                    self.external.add(parent)
-                    self.rec(parent)
+                try:
+                    defining_node = self.ancestors.parentStmt(def_.node)
+                except ValueError:
+                    # FunctionDef
+                    defining_node = def_.node
+                if defining_node not in self.visited_external:
+                    self.rec(defining_node)
+                    self.visited_external.add(defining_node)
+                    self.external.append(defining_node)
 
     def rec(self, node):
         "walk definitions to find their operands's def"
         if isinstance(node, ast.Assign):
             self.visit(node.value)
+        elif isinstance(node, ast.FunctionDef):
+            old_func = self.fun
+            self.fun = node
+            self.visit(node)
+            self.fun = old_func
+
         # TODO: implement this for AugAssign etc
 
 
@@ -35,14 +51,29 @@ if __name__ == "__main__":
 
     code = "a = 1; b = [a, a]\ndef foo():\n return b"
     # code = "a = 1; b = len([a, a])\ndef foo():\n return b"
-    # code = "import numpy as bar\na = 1\ndef foo():\n return bar.zeros(2)"
-    module = ast.parse(code)
-    function = module.body[2]
-    capturex = CaptureX(module, function)
-    capturex.visit(function)
-    # the two top level assignments have been captured!
-    list(map(type, capturex.external))
+    # code = "import numpy as np\na = np.int(1)\ndef foo():\n return np.zeros(a)"
 
+    code = """
+
+a = 1
+
+def fooo():
+    return 1
+
+def foo():
+    return a + fooo()
+
+def bar():
+    return foo()
+
+    """
+
+
+    module = ast.parse(code)
+    function = module.body[3]
+    capturex = CaptureX(module, function)
+
+    capturex.visit(function)
     for node in capturex.external:
-        print(astunparse.dump(node))
-        print(astunparse.unparse(node))
+        # print(astunparse.dump(node))
+        print(astunparse.unparse(node).strip())
