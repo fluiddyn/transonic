@@ -22,10 +22,7 @@ boost = [d for d in duc.locals[module] if d.name() == "boost"][0]
 
 for user in boost.users():
     # we're interested in the parent of the decorator
-    parents = ancestors.parents(user.node)
-    # direct parent of the decorator is the function
-    fdef = parents[-1]
-    # print(fdef.name)
+    fdef = ancestors.parent(user.node)
 
 chain = duc.chains[fdef]
 
