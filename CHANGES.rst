@@ -2,9 +2,21 @@
 Future
 ------
 
-- No need for :code:`include` and :code:`# transonic import ...`
+- Ability to use Cython and Numba (?)
 - Alternative syntax for blocks (see `issue #29
   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_)
+
+0.2.0 (?)
+---------
+
+- No need for :code:`include` and :code:`# transonic import ...`
+- No import of the modules at compiled time (ast analyses with beniget)!
+- bugfix builds on Windows
+
+0.1.12 (2019-03-05)
+-------------------
+
+- Depreciate `make_signature` (won't be available in 0.2.0)
 
 0.1.11 (2019-02-12)
 -------------------

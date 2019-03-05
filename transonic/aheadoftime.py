@@ -6,8 +6,6 @@ User API
 
 .. autofunction:: boost
 
-.. autofunction:: make_signature
-
 .. autoclass:: Transonic
    :members:
    :private-members:
@@ -29,6 +27,8 @@ import subprocess
 import os
 import functools
 import sys
+
+from warnings import warn
 
 from .util import (
     get_module_name,
@@ -129,6 +129,11 @@ def make_signature(func, **kwargs):
       The template types and their value
 
     """
+    warn(
+        "make_signature is deprecated and will be removed in transonic 0.2",
+        DeprecationWarning,
+    )
+
     if not is_transpiling:
         return
 
@@ -476,6 +481,10 @@ class Transonic:
           The template types and their value
 
         """
+        warn(
+            "make_signature is deprecated and will be removed in transonic 0.2",
+            DeprecationWarning,
+        )
         signatures = make_signature_from_template_variables(
             func, _signature=_signature, **kwargs
         )

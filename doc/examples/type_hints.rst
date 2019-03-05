@@ -10,12 +10,7 @@ def` commands.
 
 .. literalinclude:: mixed_classic_type_hint.py
 
-Moreover, if you like `C++11 template
-<https://en.cppreference.com/w/cpp/language/templates>`_, you can write:
-
-.. literalinclude:: type_hints.py
-
-If you don't like generic templating, you can also just write
+Moreover, you can write:
 
 .. literalinclude:: type_hints_notemplate.py
 
