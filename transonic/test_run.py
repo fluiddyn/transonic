@@ -1,6 +1,6 @@
 import sys
-
 import time
+import os
 
 import pytest
 
@@ -18,8 +18,9 @@ def test_create_pythran_files():
     if path_dir_out.exists():
         rmtree(path_dir_out)
 
-    sys.argv = f"transonic -np {path_data_tests / '*.py'}".split()
-    run()
+    if os.name != "nt":
+        sys.argv = f"transonic -np {path_data_tests / '*.py'}".split()
+        run()
 
     sys.argv = f"transonic -np {path_data_tests}".split()
     run()

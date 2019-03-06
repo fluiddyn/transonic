@@ -164,7 +164,7 @@ class SchedulerPopen:
             if flag not in flags:
                 flags.append(flag)
 
-        if native:
+        if native and os.name != "nt":
             update_flags("-march=native")
 
         if xsimd:

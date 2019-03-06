@@ -11,7 +11,11 @@ Future
 
 - No need for :code:`include` and :code:`# transonic import ...`
 - No import of the modules at compiled time (ast analyses with beniget)!
-- bugfix builds on Windows
+
+0.1.13 (?)
+----------
+
+- Bugfixes for Windows
 
 0.1.12 (2019-03-05)
 -------------------

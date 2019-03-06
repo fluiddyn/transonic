@@ -25,7 +25,7 @@ if path_data_tests.exists():
     with open("transonic/_path_data_tests.py", "w") as file:
         file.write(
             "from pathlib import Path\n\n"
-            f'path_data_tests = Path("{path_data_tests}")\n'
+            f'path_data_tests = Path(r"{path_data_tests}")\n'
         )
 
 setup(

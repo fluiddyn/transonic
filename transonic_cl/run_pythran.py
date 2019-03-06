@@ -14,6 +14,7 @@ import logging
 from pathlib import Path
 import sysconfig
 from time import time, sleep
+import os
 
 logger = logging.getLogger("pythran_fluid")
 logger.setLevel(logging.INFO)
@@ -24,7 +25,9 @@ ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 def main():
     """Minimal layer above the Pythran commandline"""
 
-    assert sys.argv[0].endswith("transonic_cl/run_pythran.py")
+    assert sys.argv[0].endswith(
+        os.path.sep.join(("transonic_cl", "run_pythran.py"))
+    )
 
     args = sys.argv[1:]
 
