@@ -244,12 +244,15 @@ class ParallelBuildExt(*build_ext_classes):
 
         """
         logger = self.logger
-        self.compiler.compiler_so = [
-            key
-            for key in self.compiler.compiler_so
-            if key not in self.ignoreflags
-            and all([not key.startswith(s) for s in self.ignoreflags_startswith])
-        ]
+        if hasattr(self.compiler, "compiler_so"):
+            self.compiler.compiler_so = [
+                key
+                for key in self.compiler.compiler_so
+                if key not in self.ignoreflags
+                and all(
+                    [not key.startswith(s) for s in self.ignoreflags_startswith]
+                )
+            ]
 
         # Set of all extension types
         ext_types = {type(ext) for ext in self.extensions}

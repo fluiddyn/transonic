@@ -20,8 +20,8 @@ Transonic: Make your code fly at transonic speeds!
    :alt: Travis CI status
 
 Transonic is a fork of `FluidPythran
-<https://bitbucket.org/fluiddyn/fluidpythran>`_ by its authors. It's going to
-replace FluidPythran.
+<https://bitbucket.org/fluiddyn/fluidpythran>`_ (now depreciated) by its
+authors.
 
 **Documentation**: https://transonic.readthedocs.io
 
