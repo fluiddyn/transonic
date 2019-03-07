@@ -1,6 +1,6 @@
 import numpy as np
 import transonic as ts
-from transonic import Type, NDim, Array
+from transonic import Type, NDim, Array, Union
 
 T = Type("T")
 T1 = Type("T1")
@@ -12,6 +12,9 @@ A1 = Array[T1, N + 1]
 # for coverage
 assert repr(N - 1) == "N - 1"
 print(repr(A1))
+
+
+repr(Union[A, A1])
 
 
 @ts.boost

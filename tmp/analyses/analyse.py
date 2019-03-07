@@ -8,31 +8,33 @@ from pprint import pprint
 
 from capturex import CaptureX, make_code_external
 
-
-def dump(node):
-    print(astunparse.dump(node))
+from transonic.analyses.util import get_annotations, print_ast, print_dump
 
 
 path_examples = Path("examples")
 
 files = sorted(path_examples.glob("*.py"))
 
-with open(files[3]) as file:
+with open(files[2]) as file:
     code = file.read()
 
+print("ast.parse")
 module = ast.parse(code)
 
+print("compute DefUseChains")
 duc = beniget.DefUseChains()
 duc.visit(module)
 
+print("compute Ancestors")
 ancestors = beniget.Ancestors()
 ancestors.visit(module)
 
+print("compute UseDefChains")
 udc = beniget.UseDefChains(duc)
 
 
 functions_boosted = {}
-class_boosted = {}
+classes_boosted = {}
 methods_boosted = {}
 
 # we first need to find the node where transonic.boost is defined...
@@ -49,7 +51,7 @@ def add_definition(definition_node):
         else:
             tmp_boosted = functions_boosted
     elif isinstance(definition_node, ast.ClassDef):
-        tmp_boosted = class_boosted
+        tmp_boosted = classes_boosted
     if tmp_boosted is not None:
         tmp_boosted[key] = definition_node
 
@@ -79,19 +81,20 @@ for node in module.body:
                         add_definition(definition_node)
 
 
+print("functions:")
 pprint(functions_boosted)
+print("methods:")
 pprint(methods_boosted)
-pprint(class_boosted)
+print("classes:")
+pprint(classes_boosted)
+
+boosteds = {"functions": functions_boosted, "methods": methods_boosted, "classes": classes_boosted}
 
 objects = []
 
-for boosted in (functions_boosted, methods_boosted):
-    for fdef in boosted.values():
-        fdef.decorator_list = []
-        objects.append(fdef)
-
-for cdef in class_boosted.values():
-    objects.append(cdef)
+for boosted in boosteds.values():
+    for definition in boosted.values():
+        objects.append(definition)
 
 capturex_annotations = CaptureX(
     objects,
@@ -114,3 +117,17 @@ capturex = CaptureX(
 )
 
 code_dependance = make_code_external(capturex.external)
+
+namespace = {}
+exec(code_dependance_annotations, namespace)
+
+
+annotations = {}
+
+for kind, boosted in boosteds.items():
+    annotations[kind] = {}
+
+    for key, definition in boosted.items():
+        annotations[kind][key] = get_annotations(definition, namespace)
+
+pprint(annotations)

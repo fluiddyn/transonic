@@ -342,7 +342,7 @@ class UnionMeta(type):
 
     def __repr__(self):
         strings = []
-        for p in self.parameters.values():
+        for p in self.types:
             if isinstance(p, type):
                 string = p.__name__
             else:
