@@ -8,14 +8,14 @@ from pprint import pprint
 
 from capturex import CaptureX, make_code_external
 
-from transonic.analyses.util import get_annotations, print_ast, print_dump
+from transonic.analyses.util import get_annotations, print_ast, print_dump, filter_code_typevars
 
 
 path_examples = Path("examples")
 
 files = sorted(path_examples.glob("*.py"))
 
-with open(files[2]) as file:
+with open(files[1]) as file:
     code = file.read()
 
 print("ast.parse")
@@ -96,16 +96,8 @@ for boosted in boosteds.values():
     for definition in boosted.values():
         objects.append(definition)
 
-capturex_annotations = CaptureX(
-    objects,
-    module,
-    defuse_chains=duc,
-    usedef_chains=udc,
-    ancestors=ancestors,
-    consider_annotations="only",
-)
 
-code_dependance_annotations = make_code_external(capturex_annotations.external)
+code_dependance_annotations = filter_code_typevars(module, duc, ancestors)
 
 capturex = CaptureX(
     objects,

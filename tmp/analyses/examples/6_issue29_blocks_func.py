@@ -4,6 +4,8 @@ See https://bitbucket.org/fluiddyn/fluidpythran/issues/29/
 """
 from transonic import with_blocks, block
 
+T = int
+
 
 def non_pythranizable(arg):
     """represent a function that can not be compiled by Pythran"""
@@ -13,10 +15,20 @@ def non_pythranizable(arg):
 @with_blocks
 def func0(arg: int):
 
-    a = non_pythranizable(arg)
+    a = b = non_pythranizable(arg)
+    c: float = 1.2
 
-    with block(a=float):
-        return a + arg
+    with block():
+        # transonic signature(
+        #     T a, b
+        # )
+
+        # transonic signature(
+        a: int
+        b: float
+        # )
+
+        return a + b + c + arg
 
 
 @with_blocks
@@ -24,7 +36,8 @@ def func1(arg: int):
 
     a = non_pythranizable(arg)
 
-    with block(a=float):
+    with block():
+        a: int
         tmp = a + arg
 
     return non_pythranizable(tmp)

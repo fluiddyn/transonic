@@ -26,15 +26,15 @@ class MyClass:
         if ts.is_transpiled:
             result = ts.use_block("block0")
         else:
-            # transonic block (
+            # transonic signature (
             #     A a; A1 b;
-            #     int n
-            # ) -> result
+            #     float n
+            # )
 
-            # transonic block (
+            # transonic signature (
             #     int[:] a, b;
             #     float n
-            # ) -> result
+            # )
 
             result = a ** 2 + b.mean() ** 3 + n
 

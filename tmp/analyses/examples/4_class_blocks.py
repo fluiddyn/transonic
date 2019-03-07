@@ -10,7 +10,7 @@ class MyClass:
         self.a = a
         self.b = b
 
-    def compute(self, n):
+    def compute(self, n: int):
 
         a = self.a
         b = self.b
@@ -18,18 +18,13 @@ class MyClass:
         if ts.is_transpiled:
             result = ts.use_block("block0")
         else:
-            # transonic block (
+            # transonic signature (
             #     float[][] a, b;
-            #     int n
-            # ) -> result
-            # blabla
+            # )
 
-            # blibli
-
-            # transonic block (
+            # transonic signature (
             #     float[][][] a, b;
-            #     int n
-            # ) -> result
+            # )
             result = np.zeros_like(a)
             for _ in range(n):
                 result += a ** 2 + b ** 3
@@ -39,18 +34,13 @@ class MyClass:
         if ts.is_transpiled:
             result = ts.use_block("block1")
         else:
-            # transonic block (
+            # transonic signature (
             #     float[][] a, b;
-            #     int n
-            # ) -> (result)
-            # blabla
+            # )
 
-            # blibli
-
-            # transonic block (
+            # transonic signature (
             #     float[][][] a, b;
-            #     int n
-            # ) -> (result)
+            # )
             result = np.zeros_like(a)
             for _ in range(n):
                 result += a ** 2 + b ** 3

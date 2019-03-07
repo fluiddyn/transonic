@@ -12,6 +12,10 @@ def print_dump(node):
     print(astunparse.dump(node))
 
 
+def print_unparsed(node):
+    print(astunparse.unparse(node))
+
+
 def _fill_ast_annotations_function(function_def, ast_annotations):
 
     dict_node = ast_annotations.value
@@ -65,3 +69,36 @@ def get_annotations(object_def, namespace):
         pass
     exec(source, namespace)
     return namespace["annotations"]
+
+
+def filter_code_typevars(module, duc, ancestors):
+
+    module_filtered = ast.Module()
+    kept = module_filtered.body = []
+    suppressed = set()
+
+    def fill_suppressed(def_):
+        for user in def_.users():
+            parent_in_body = ancestors.parents(user.node)[1]
+            suppressed.add(parent_in_body)
+            fill_suppressed(user)
+
+    for node in module.body:
+        if node in suppressed:
+            continue
+
+        if isinstance(node, ast.Import):
+            if node.names[0].name in ["transonic", "numpy"]:
+                kept.append(node)
+            else:
+                def_ = duc.chains[node.names[0]]
+                fill_suppressed(def_)
+            #     suppressed.add()
+        elif isinstance(node, ast.ImportFrom):
+            if node.module in ["transonic", "numpy"]:
+                kept.append(node)
+
+        elif isinstance(node, (ast.Assign, ast.AugAssign)):
+            kept.append(node)
+
+    return astunparse.unparse(module_filtered)
