@@ -14,7 +14,7 @@ myconst1 = 2*myconst0
 
 
 @boost
-def func(a, b):
+def func(a: int, b: int):
     return myconst1 * (a * np.log(b)).max()
 
 

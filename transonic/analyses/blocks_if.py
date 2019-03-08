@@ -114,7 +114,8 @@ def get_signatures_from_comments(comments, namespace=None):
 
     for sig_str in tmp:
         sig_dict = {}
-        type_vars_strs = sig_str.split(";")
+        type_vars_strs = [tmp.strip() for tmp in sig_str.split(";")]
+        type_vars_strs = [tmp for tmp in type_vars_strs if tmp]
         for type_vars_str in type_vars_strs:
             type_, vars_str = type_vars_str.strip().split(" ", 1)
 

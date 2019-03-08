@@ -6,8 +6,11 @@ import beniget
 from .util import filter_code_typevars, get_annotations
 from .capturex import CaptureX, make_code_external
 from .blocks_if import get_block_definitions
+from .parser import parse_code
+
 
 from ..log import logger
+
 
 def compute_ancestors_chains(module_node):
 
@@ -88,6 +91,30 @@ def analyse_aot(code):
     boosted_dicts = get_boosted_dicts(module, ancestors, duc)
     debug(pformat(boosted_dicts))
 
+    debug("compute the annotations")
+    namespace = {}
+    exec(code_dependance_annotations, namespace)
+
+    annotations = {}
+
+    for kind, boosted_dict in boosted_dicts.items():
+        annotations[kind] = {}
+
+        for key, definition in boosted_dict.items():
+            ann = get_annotations(definition, namespace)
+            if ann != {}:
+                annotations[kind][key] = get_annotations(definition, namespace)
+
+    debug(pformat(annotations))
+
+    debug("get_block_definitions")
+    blocks = get_block_definitions(code, module, ancestors, duc, udc)
+
+    for block in blocks:
+        block.parse_comments(namespace)
+
+    debug(pformat(blocks))
+
     debug("compute code dependance")
 
     def_nodes = [
@@ -112,26 +139,25 @@ def analyse_aot(code):
     code_dependance = make_code_external(capturex.external)
     debug(code_dependance)
 
-    debug("compute the annotations")
-    namespace = {}
-    exec(code_dependance_annotations, namespace)
+    # todo: we need another special capturex for blocks...
 
-    annotations = {}
+    blocks_p, signatures_blocks_p, code_blocks_p, signatures_p = parse_code(code)
 
-    for kind, boosted_dict in boosted_dicts.items():
-        annotations[kind] = {}
+    blocks_parsed = blocks_p, signatures_blocks_p, code_blocks_p
 
-        for key, definition in boosted_dict.items():
-            annotations[kind][key] = get_annotations(definition, namespace)
+    annotations["comments"] = {}
 
-    debug(pformat(annotations))
+    for name_func, fdef in boosted_dicts["functions"].items():
+        signatures = signatures_p[name_func]
+        fdef = boosted_dicts["functions"][name_func]
+        arg_names = [arg.id for arg in fdef.args.args]
+        annotations_sign = annotations["comments"][name_func] = []
+        for sig in signatures:
+            types = [
+                type_.strip() for type_ in sig[len(fdef.name) + 1 : -1].split(",")
+            ]
+            annotations_sign.append(
+                {arg_name: type_ for arg_name, type_ in zip(arg_names, types)}
+            )
 
-    debug("get_block_definitions")
-    blocks = get_block_definitions(code, module, ancestors, duc, udc)
-
-    for block in blocks:
-        block.parse_comments(namespace)
-
-    debug(pformat(blocks))
-
-    return boosted_dicts, code_dependance, annotations, blocks
+    return boosted_dicts, code_dependance, annotations, blocks, blocks_parsed
