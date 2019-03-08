@@ -1,125 +1,83 @@
 from pathlib import Path
 
-# import ast
 import gast as ast
-import beniget
 import astunparse
 from pprint import pprint
 
-from capturex import CaptureX, make_code_external
+from transonic.analyses.capturex import CaptureX, make_code_external
 
-from transonic.analyses.util import get_annotations, print_ast, print_dump, filter_code_typevars
+from transonic.analyses import compute_ancestors_chains, get_boosted_dicts
+
+from transonic.analyses.util import (
+    print_dumped,
+    print_unparsed,
+    get_annotations,
+    filter_code_typevars,
+)
+from transonic.analyses.blocks_if import get_block_definitions
 
 
 path_examples = Path("examples")
 
 files = sorted(path_examples.glob("*.py"))
 
-with open(files[1]) as file:
+with open(files[4]) as file:
     code = file.read()
 
 print("ast.parse")
 module = ast.parse(code)
 
-print("compute DefUseChains")
-duc = beniget.DefUseChains()
-duc.visit(module)
+print("compute ancestors and chains")
+ancestors, duc, udc = compute_ancestors_chains(module)
 
-print("compute Ancestors")
-ancestors = beniget.Ancestors()
-ancestors.visit(module)
-
-print("compute UseDefChains")
-udc = beniget.UseDefChains(duc)
-
-
-functions_boosted = {}
-classes_boosted = {}
-methods_boosted = {}
-
-# we first need to find the node where transonic.boost is defined...
-
-
-def add_definition(definition_node):
-    tmp_boosted = None
-    key = definition_node.name
-    if isinstance(definition_node, ast.FunctionDef):
-        parent = ancestors.parent(definition_node)
-        if isinstance(parent, ast.ClassDef):
-            tmp_boosted = methods_boosted
-            key = (parent.name, key)
-        else:
-            tmp_boosted = functions_boosted
-    elif isinstance(definition_node, ast.ClassDef):
-        tmp_boosted = classes_boosted
-    if tmp_boosted is not None:
-        tmp_boosted[key] = definition_node
-
-
-for node in module.body:
-    if isinstance(node, ast.Import):
-        for alias in node.names:
-            if alias.name == "transonic":
-                transonic_def_node = alias
-                transonic_def = duc.chains[transonic_def_node]
-                for user in transonic_def.users():
-                    for user1 in user.users():
-                        if (
-                            isinstance(user1.node, ast.Attribute)
-                            and user1.node.attr == "boost"
-                        ):
-                            definition_node = ancestors.parent(user1.node)
-                            add_definition(definition_node)
-    elif isinstance(node, ast.ImportFrom):
-        if node.module == "transonic":
-            for alias in node.names:
-                if alias.name == "boost":
-                    boost_def_node = alias
-                    boost_def = duc.chains[boost_def_node]
-                    for user in boost_def.users():
-                        definition_node = ancestors.parent(user.node)
-                        add_definition(definition_node)
-
-
-print("functions:")
-pprint(functions_boosted)
-print("methods:")
-pprint(methods_boosted)
-print("classes:")
-pprint(classes_boosted)
-
-boosteds = {"functions": functions_boosted, "methods": methods_boosted, "classes": classes_boosted}
-
-objects = []
-
-for boosted in boosteds.values():
-    for definition in boosted.values():
-        objects.append(definition)
-
-
+print("filter_code_typevars")
 code_dependance_annotations = filter_code_typevars(module, duc, ancestors)
+print(code_dependance_annotations)
+
+
+print("find boosted objects")
+boosted_dicts = get_boosted_dicts(module, ancestors, duc)
+pprint(boosted_dicts)
+
+print("compute code dependance")
+
+def_nodes = [
+    def_node
+    for boosted_dict in boosted_dicts.values()
+    for def_node in boosted_dict.values()
+]
+
+# remove the decorator (boost) to compute the code dependance
+for def_node in def_nodes:
+    def_node.decorator_list = []
 
 capturex = CaptureX(
-    objects,
+    def_nodes,
     module,
+    ancestors=ancestors,
     defuse_chains=duc,
     usedef_chains=udc,
-    ancestors=ancestors,
     consider_annotations=False,
 )
 
 code_dependance = make_code_external(capturex.external)
+print(code_dependance)
 
+
+print("compute the annotations")
 namespace = {}
 exec(code_dependance_annotations, namespace)
 
-
 annotations = {}
 
-for kind, boosted in boosteds.items():
+for kind, boosted_dict in boosted_dicts.items():
     annotations[kind] = {}
 
-    for key, definition in boosted.items():
+    for key, definition in boosted_dict.items():
         annotations[kind][key] = get_annotations(definition, namespace)
 
 pprint(annotations)
+
+print("get_block_definitions")
+blocks = get_block_definitions(code, module, ancestors, duc, udc)
+pprint(blocks)

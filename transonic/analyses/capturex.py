@@ -8,9 +8,9 @@ class CaptureX(ast.NodeVisitor):
         self,
         functions,
         module_node,
+        ancestors=None,
         defuse_chains=None,
         usedef_chains=None,
-        ancestors=None,
         consider_annotations=True,
     ):
 

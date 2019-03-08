@@ -1,14 +1,18 @@
+from textwrap import dedent
+
 import gast as ast
 import astunparse
 
 
-def print_ast(code):
-    module = ast.parse(code)
-    print(astunparse.dump(module))
-    return module
-
-
-def print_dump(node):
+def print_dumped(source):
+    if isinstance(source, str):
+        module = ast.parse(source)
+        if len(module.body) == 1:
+            node = module.body[0]
+        else:
+            node = module
+    else:
+        node = source
     print(astunparse.dump(node))
 
 
@@ -102,3 +106,54 @@ def filter_code_typevars(module, duc, ancestors):
             kept.append(node)
 
     return astunparse.unparse(module_filtered)
+
+
+
+class AnalyseLines(ast.NodeVisitor):
+    def __init__(self, main_node):
+        if isinstance(main_node, ast.Module):
+            self.line_start = 1
+        else:
+            self.line_start = main_node.lineno
+        self.line_last = self.line_start
+        self.visit(main_node)
+
+    def generic_visit(self, node):
+        if hasattr(node, "lineno"):
+            if node.lineno > self.line_last:
+                self.line_last = node.lineno
+        super().generic_visit(node)
+
+    def get_lines(self):
+        return self.line_start, self.line_last
+
+    def get_code(self, source):
+        lines = source.split("\n")
+
+        stop = self.line_last
+        nb_lines = len(lines)
+        if nb_lines != stop:
+            # find next not empty and not comment line
+            ind = stop - 1
+            next_line = ""
+            while ind + 1 < nb_lines and next_line == "":
+                ind += 1
+                next_line = lines[ind].strip()
+                if next_line.startswith("#"):
+                    next_line = ""
+
+            if any(
+                next_line.startswith(character) for character in (")", "]", "}")
+            ):
+                stop = ind + 1
+
+        return "\n".join(lines[self.line_start - 1 : stop])
+
+
+def gather_rawcode_comments(node, code_module):
+    analysis = AnalyseLines(node)
+    rawcode = dedent(analysis.get_code(code_module))
+    comments = dedent("\n".join(
+        line for line in rawcode.split("\n") if line.strip().startswith("#")
+    ))
+    return rawcode, comments
