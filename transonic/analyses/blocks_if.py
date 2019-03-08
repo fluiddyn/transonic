@@ -11,6 +11,9 @@ class BlockDefinition:
     def __repr__(self):
         return repr(self.kwargs)
 
+    def parse_comments(self, namespace=None):
+        self.signatures = get_signatures_from_comments(self.comments, namespace)
+
 
 def get_block_definitions(code, module, ancestors, duc, udc):
 
@@ -85,3 +88,47 @@ def get_block_definitions(code, module, ancestors, duc, udc):
                         )
 
     return blocks
+
+
+def get_signatures_from_comments(comments, namespace=None):
+
+    if namespace is None:
+        namespace = {}
+
+    comments = comments.replace("#", "").replace("\n", "")
+
+    signatures_tmp = [
+        sig.strip() for sig in comments.split("transonic block")[1:]
+    ]
+
+    signatures = []
+    for sig in signatures_tmp:
+        if sig.startswith("("):
+            if not sig.endswith(")"):
+                raise SyntaxError
+            sig = sig[1:-1]
+        signatures.append(sig)
+
+    tmp = signatures
+    signatures = []
+
+    for sig_str in tmp:
+        sig_dict = {}
+        type_vars_strs = sig_str.split(";")
+        for type_vars_str in type_vars_strs:
+            type_, vars_str = type_vars_str.strip().split(" ", 1)
+
+            if type_ in namespace:
+                type_ = namespace[type_]
+            else:
+                try:
+                    type_ = eval(type_)
+                except (SyntaxError, TypeError):
+                    pass
+
+            for var_str in vars_str.split(","):
+                var_str = var_str.strip()
+                sig_dict[var_str] = type_
+        signatures.append(sig_dict)
+
+    return signatures

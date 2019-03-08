@@ -18,11 +18,11 @@ class MyClass:
         if ts.is_transpiled:
             result = ts.use_block("block0")
         else:
-            # transonic signature (
+            # transonic block (
             #     float[][] a, b;
             # )
 
-            # transonic signature (
+            # transonic block (
             #     float[][][] a, b;
             # )
             result = np.zeros_like(a)
@@ -34,11 +34,11 @@ class MyClass:
         if ts.is_transpiled:
             result = ts.use_block("block1")
         else:
-            # transonic signature (
+            # transonic block (
             #     float[][] a, b;
             # )
 
-            # transonic signature (
+            # transonic block (
             #     float[][][] a, b;
             # )
             result = np.zeros_like(a)

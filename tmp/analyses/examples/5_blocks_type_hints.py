@@ -26,12 +26,12 @@ class MyClass:
         if ts.is_transpiled:
             result = ts.use_block("block0")
         else:
-            # transonic signature (
+            # transonic block (
             #     A a; A1 b;
             #     float n
             # )
 
-            # transonic signature (
+            # transonic block (
             #     int[:] a, b;
             #     float n
             # )
