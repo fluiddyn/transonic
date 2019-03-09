@@ -7,7 +7,7 @@ from transonic.analyses.util import print_dumped
 path_examples = Path("examples")
 
 paths = sorted(path_examples.glob("*.py"))
-path = paths[4]
+path = paths[5]
 
 # path = Path("~/Dev/fluidsim/fluidsim/base/time_stepping/pseudo_spect.py")
 

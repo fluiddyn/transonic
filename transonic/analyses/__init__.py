@@ -127,6 +127,8 @@ def analyse_aot(code):
     for def_node in def_nodes:
         def_node.decorator_list = []
 
+    blocks_for_capturex = [block.ast_code for block in blocks]
+
     capturex = CaptureX(
         def_nodes,
         module,
@@ -134,12 +136,11 @@ def analyse_aot(code):
         defuse_chains=duc,
         usedef_chains=udc,
         consider_annotations=False,
+        blocks=blocks_for_capturex,
     )
 
     code_dependance = make_code_external(capturex.external)
     debug(code_dependance)
-
-    # todo: we need another special capturex for blocks...
 
     blocks_p, signatures_blocks_p, code_blocks_p, signatures_p = parse_code(code)
 

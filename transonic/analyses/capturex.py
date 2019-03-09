@@ -12,6 +12,7 @@ class CaptureX(ast.NodeVisitor):
         defuse_chains=None,
         usedef_chains=None,
         consider_annotations=True,
+        blocks=None,
     ):
 
         if defuse_chains is None:
@@ -35,6 +36,16 @@ class CaptureX(ast.NodeVisitor):
         for func in functions:
             self.func = func
             self.visit(func)
+
+        if blocks is None:
+            return
+
+        for nodes in blocks:
+            if nodes:
+                node = nodes[0]
+                self.func = ancestors.parentFunction(node)
+                for node in nodes:
+                    self.visit(node)
 
     def visit_Name(self, node):
         # register load of identifiers not locally defined

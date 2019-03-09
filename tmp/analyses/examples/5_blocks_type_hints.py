@@ -3,6 +3,8 @@
 
 import numpy as np
 
+import foo
+
 from transonic import Transonic, Type, NDim, Array
 
 T = Type(float, complex)
@@ -36,7 +38,7 @@ class MyClass:
             #     float n
             # )
 
-            result = a ** 2 + b.mean() ** 3 + n
+            result = a ** 2 + b.mean() ** 3 + foo.bar(n)
 
         return result
 
