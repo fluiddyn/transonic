@@ -149,7 +149,10 @@ def analyse_aot(code):
     annotations["comments"] = {}
 
     for name_func, fdef in boosted_dicts["functions"].items():
-        signatures = signatures_p[name_func]
+        try:
+            signatures = signatures_p[name_func]
+        except KeyError:
+            signatures = tuple()
         fdef = boosted_dicts["functions"][name_func]
         arg_names = [arg.id for arg in fdef.args.args]
         annotations_sign = annotations["comments"][name_func] = []

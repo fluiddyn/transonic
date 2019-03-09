@@ -62,6 +62,10 @@ from .util import (
 from .compat import open, fspath
 import transonic
 
+from transonic.backends.pythran import (
+    make_pythran_code as make_pythran_code_with_ast,
+)
+
 
 def parse_py_code(code: str):
     """Parse the code of a .py file and return data"""
@@ -671,6 +675,8 @@ def make_pythran_file(
     if not has_to_build(path_pythran, path_py) and not force:
         logger.warning(f"File {path_pythran} already up-to-date.")
         return
+
+    # make_pythran_code = make_pythran_code_with_ast
 
     with mock_modules(mocked_modules):
         code_pythran = make_pythran_code(path_py)

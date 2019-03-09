@@ -4,6 +4,7 @@ from transonic import boost
 
 type_ = float
 
+
 @boost
 class Transmitter:
 
@@ -13,7 +14,7 @@ class Transmitter:
         self.freq = float(freq)
 
     @boost
-    def __call__(self, inp: "float[]"):
+    def __call__(self, inp: "float[]", arg_default: int = 1):
         """My docstring"""
         return inp * np.exp(np.arange(len(inp)) * self.freq * 1j)
 

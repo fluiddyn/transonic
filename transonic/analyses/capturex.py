@@ -73,7 +73,10 @@ class CaptureX(ast.NodeVisitor):
 
                         self.visited_external.add(defining_node)
                         self.external.append(defining_node)
-        elif isinstance(node.ctx, (ast.Param, ast.Store)) and self.consider_annotations:
+        elif (
+            isinstance(node.ctx, (ast.Param, ast.Store))
+            and self.consider_annotations
+        ):
             if node.annotation is None:
                 return
             self._annot = node.annotation

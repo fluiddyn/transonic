@@ -108,7 +108,6 @@ def filter_code_typevars(module, duc, ancestors):
     return astunparse.unparse(module_filtered)
 
 
-
 class AnalyseLines(ast.NodeVisitor):
     def __init__(self, main_node):
         if isinstance(main_node, ast.Module):
@@ -153,7 +152,9 @@ class AnalyseLines(ast.NodeVisitor):
 def gather_rawcode_comments(node, code_module):
     analysis = AnalyseLines(node)
     rawcode = dedent(analysis.get_code(code_module))
-    comments = dedent("\n".join(
-        line for line in rawcode.split("\n") if line.strip().startswith("#")
-    ))
+    comments = dedent(
+        "\n".join(
+            line for line in rawcode.split("\n") if line.strip().startswith("#")
+        )
+    )
     return rawcode, comments
