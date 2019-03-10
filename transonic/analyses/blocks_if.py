@@ -97,8 +97,11 @@ def get_signatures_from_comments(comments, namespace=None):
 
     comments = comments.replace("#", "").replace("\n", "")
 
+    # todo: debug this buggy code! Use tokens...
+
     signatures_tmp = [
-        sig.strip() for sig in comments.split("transonic block")[1:]
+        sig.split("->", 1)[0].strip()
+        for sig in comments.split("transonic block")[1:]
     ]
 
     signatures = []

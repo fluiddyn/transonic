@@ -95,6 +95,9 @@ class CaptureX(ast.NodeVisitor):
         if isinstance(node, ast.Assign):
             self.visit(node.value)
         elif isinstance(node, ast.FunctionDef):
+            # tmp: to deal with @include
+            node.decorator_list = []
+
             old_func = self.func
             self.func = node
             self.visit(node)

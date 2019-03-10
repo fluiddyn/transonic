@@ -446,7 +446,9 @@ def compute_pythran_types_from_valued_types(types):
         return (str_types,)
 
     if not all(param.values for param in template_parameters):
-        raise ValueError
+        raise ValueError(
+            f"{template_parameters}, {[param.values for param in template_parameters]}"
+        )
 
     values_template_parameters = {}
     for param in template_parameters:

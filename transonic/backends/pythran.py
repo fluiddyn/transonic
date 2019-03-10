@@ -12,7 +12,8 @@ try:
 except ImportError:
     black = False
 
-
+import transonic
+from transonic.compat import open
 from transonic.log import logger
 from transonic.util import TypeHintRemover
 from transonic.analyses.util import gather_rawcode_comments
@@ -211,7 +212,7 @@ def produce_code_for_method(
 
 def make_pythran_code(path_py):
 
-    with open(path_py.expanduser()) as file:
+    with open(path_py) as file:
         code_module = file.read()
 
     boosted_dicts, code_dependance, annotations, blocks, blocks_parsed = analyse_aot(
@@ -295,7 +296,7 @@ def make_pythran_code(path_py):
             code.append(f"    return {', '.join(block.results)}\n")
 
     arguments_blocks = {
-        block.name: tuple(block.signatures[0].keys()) for block in blocks
+        block.name: list(block.signatures[0].keys()) for block in blocks
     }
 
     if arguments_blocks:
@@ -304,7 +305,13 @@ def make_pythran_code(path_py):
             f"arguments_blocks = {str(arguments_blocks)}\n"
         )
 
-    code = "\n".join(code)
+    code = "\n".join(code).strip()
+
+    if code:
+        code += (
+            "\n\n# pythran export __transonic__\n"
+            f"__transonic__ = ('{transonic.__version__}',)"
+        )
 
     if black:
         code = black.format_str(code, line_length=82)
