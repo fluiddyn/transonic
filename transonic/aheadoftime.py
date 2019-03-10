@@ -42,10 +42,6 @@ from .util import (
 
 from .pythranizer import compile_extension, name_ext_from_path_backend, ext_suffix
 
-from .annotation import (
-    make_signature_from_template_variables,
-    make_signatures_from_typehinted_func,
-)
 
 from .transpiler import produce_code_class
 
@@ -129,16 +125,9 @@ def make_signature(func, **kwargs):
       The template types and their value
 
     """
-    warn(
-        "make_signature is deprecated and will be removed in transonic 0.2",
-        DeprecationWarning,
+    raise DeprecationWarning(
+        "make_signature is deprecated and has been removed in transonic 0.2"
     )
-
-    if not is_transpiling:
-        return
-
-    ts = _get_transonic_calling_module()
-    ts.make_signature(func, **kwargs)
 
 
 class CheckCompiling:
@@ -217,7 +206,6 @@ class Transonic:
             self.classes = {}
             self.signatures_func = {}
             self.included_functions = []
-            modules[module_name] = self
             self.is_transpiled = False
             self.is_compiled = False
             return
@@ -363,11 +351,7 @@ class Transonic:
         if is_method(func):
             return self.transonic_def_method(func)
 
-        if is_transpiling:
-            self.functions[func.__name__] = func
-            return func
-
-        if not has_to_replace or not self.is_transpiled:
+        if is_transpiling or not has_to_replace or not self.is_transpiled:
             return func
 
         if not hasattr(self.module_pythran, func.__name__):
@@ -393,11 +377,8 @@ class Transonic:
         func: a function
 
         """
-        if is_transpiling:
-            func.__transonic__ = "trans_def_method"
-            return func
 
-        if not has_to_replace or not self.is_transpiled:
+        if is_transpiling or not has_to_replace or not self.is_transpiled:
             return func
 
         return TransonicTemporaryMethod(func)
@@ -481,18 +462,9 @@ class Transonic:
           The template types and their value
 
         """
-        warn(
-            "make_signature is deprecated and will be removed in transonic 0.2",
-            DeprecationWarning,
+        raise DeprecationWarning(
+            "make_signature is deprecated and has been removed in transonic 0.2"
         )
-        signatures = make_signature_from_template_variables(
-            func, _signature=_signature, **kwargs
-        )
-
-        if func.__name__ not in self.signatures_func:
-            self.signatures_func[func.__name__] = []
-
-        self.signatures_func[func.__name__].extend(signatures)
 
     def use_block(self, name):
         """Use the pythranized version of a code block
@@ -530,18 +502,6 @@ class Transonic:
 
         arguments = [locals_caller[name] for name in argument_names]
         return func(*arguments)
-
-    def _make_signatures_from_annotations(self):
-        """Make the signatures from annotations if it is possible
-
-        Useful when there are only "not templated" types.
-
-        """
-        for func in self.functions.values():
-            signatures = make_signatures_from_typehinted_func(func)
-            if func.__name__ not in self.signatures_func:
-                self.signatures_func[func.__name__] = []
-            self.signatures_func[func.__name__].extend(signatures)
 
     def include(self, func):
         self.included_functions.append(func)

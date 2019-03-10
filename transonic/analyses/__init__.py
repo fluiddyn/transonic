@@ -93,7 +93,12 @@ def analyse_aot(code):
 
     debug("compute the annotations")
     namespace = {}
+
+    from transonic import aheadoftime
+
+    aheadoftime.is_transpiling = True
     exec(code_dependance_annotations, namespace)
+    aheadoftime.is_transpiling = False
 
     annotations = {}
 

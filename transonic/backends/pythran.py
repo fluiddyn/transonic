@@ -211,7 +211,7 @@ def produce_code_for_method(
 
 
 def make_pythran_code(path_py):
-
+    """Create a pythran code from a Python file"""
     with open(path_py) as file:
         code_module = file.read()
 

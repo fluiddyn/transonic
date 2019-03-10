@@ -11,6 +11,7 @@ from .dist import (
     modification_date,
     make_backend_files,
     ParallelBuildExt,
+    get_logger,
 )
 from . import path_data_tests
 
@@ -51,6 +52,7 @@ def test_detect_pythran_extensions():
 def test_modification_date():
 
     modification_date(path_data_tests / "no_pythran_.py")
+    get_logger("bar")
 
 
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")

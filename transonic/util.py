@@ -142,6 +142,17 @@ def get_module_name(frame):
     return module_name
 
 
+def get_name_calling_module(index_frame: int = 1):
+    try:
+        frame = inspect.stack()[index_frame]
+    except IndexError:
+        print("index_frame", index_frame)
+        print([frame[1] for frame in inspect.stack()])
+        raise
+
+    return get_module_name(frame)
+
+
 def get_source_without_decorator(func: Callable):
     """Get the source of a function without its decorator"""
     src = inspect.getsource(func)

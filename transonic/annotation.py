@@ -1,4 +1,4 @@
-"""Create Pythran signatures from type hints
+"""Create Pythran signatures from type hinname_calling_module
 ============================================
 
 User API
@@ -48,6 +48,10 @@ Internal API
 import itertools
 import inspect
 
+from transonic.util import get_name_calling_module
+
+names_template_variables = {}
+
 
 class TemplateVar:
     """Base class for template variables
@@ -66,20 +70,25 @@ class TemplateVar:
     def get_template_parameters(self):
         return (self,)
 
-    def __init__(self, *args, _ts=None):
+    def __init__(self, *args, name_calling_module=None):
 
         if not args:
             raise ValueError
 
-        if _ts is None:
-            ts = _get_transonic_calling_module()
+        if name_calling_module is None:
+            name_calling_module = get_name_calling_module()
         else:
-            ts = _ts
+            name_calling_module = name_calling_module
 
-        if type(self) not in ts.names_template_variables:
-            ts.names_template_variables[type(self)] = set()
+        if name_calling_module not in names_template_variables:
+            names_template_variables[name_calling_module] = {}
 
-        names_already_used = ts.names_template_variables[type(self)]
+        names_variables = names_template_variables[name_calling_module]
+
+        if type(self) not in names_variables:
+            names_variables[type(self)] = set()
+
+        names_already_used = names_variables[type(self)]
 
         if self._is_correct_for_name(args[0]):
             self.__name__ = args[0]
@@ -136,12 +145,12 @@ class NDim(TemplateVar):
     _type_values = int
     _letter = "N"
 
-    def __init__(self, *args, shift=0, _ts=None):
+    def __init__(self, *args, shift=0, name_calling_module=None):
 
-        if _ts is None:
-            _ts = _get_transonic_calling_module()
+        if name_calling_module is None:
+            name_calling_module = get_name_calling_module()
 
-        super().__init__(*args, _ts=_ts)
+        super().__init__(*args, name_calling_module=name_calling_module)
         self.shift = shift
 
     def __repr__(self):
@@ -156,12 +165,22 @@ class NDim(TemplateVar):
         return name
 
     def __add__(self, number):
-        ts = _get_transonic_calling_module()
-        return type(self)(self.__name__, *self.values, shift=number, _ts=ts)
+        name_calling_module = get_name_calling_module()
+        return type(self)(
+            self.__name__,
+            *self.values,
+            shift=number,
+            name_calling_module=name_calling_module,
+        )
 
     def __sub__(self, number):
-        ts = _get_transonic_calling_module()
-        return type(self)(self.__name__, *self.values, shift=-number, _ts=ts)
+        name_calling_module = get_name_calling_module()
+        return type(self)(
+            self.__name__,
+            *self.values,
+            shift=-number,
+            name_calling_module=name_calling_module,
+        )
 
 
 class Shape(TemplateVar):
@@ -186,7 +205,7 @@ class UnionVar(TemplateVar):
 
 
 class ArrayMeta(type):
-    """Metaclass for the Array class used for type hints"""
+    """Metaclass for the Array class used for type hinname_calling_module"""
 
     def __getitem__(self, parameters):
 
@@ -231,7 +250,9 @@ class ArrayMeta(type):
                             "one string fixing the number of dimension. "
                             "Use for example NDim(2, 3)."
                         )
-                    param = ndim = NDim(tmp, _ts=_get_transonic_calling_module())
+                    param = ndim = NDim(
+                        tmp, name_calling_module=get_name_calling_module()
+                    )
 
             if isinstance(param, str):
                 raise ValueError(f"{param} cannot be interpretted...")
@@ -310,21 +331,21 @@ class ArrayMeta(type):
 
 
 class Array(metaclass=ArrayMeta):
-    """Represent a Numpy array in type hints"""
+    """Represent a Numpy array in type hinname_calling_module"""
 
     pass
 
 
 class UnionMeta(type):
-    """Metaclass for the Array class used for type hints"""
+    """Metaclass for the Array class used for type hinname_calling_module"""
 
     def __getitem__(self, types):
 
         if not isinstance(types, tuple):
             types = (types,)
 
-        ts = _get_transonic_calling_module()
-        template_var = UnionVar(*types, _ts=ts)
+        name_calling_module = get_name_calling_module()
+        template_var = UnionVar(*types, name_calling_module=name_calling_module)
 
         return type(
             "UnionBis", (Union,), {"types": types, "template_var": template_var}
@@ -548,7 +569,3 @@ def make_signatures_from_typehinted_func(func):
         )
 
     return signatures
-
-
-# we need to put this import here
-from .aheadoftime import _get_transonic_calling_module
