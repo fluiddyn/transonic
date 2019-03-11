@@ -612,15 +612,11 @@ def jit_class(cls, jit_methods):
         if mpi.rank == 0:
             python_path = mpi.PathSeq(python_path)
 
-            # quick fix to keep the "#transonic import" commands
-            transonic_imports = []
-            with open(module.__file__) as file:
-                for line in file:
-                    if line.startswith("# transonic ") and " import " in line:
-                        transonic_imports.append(line)
-                        transonic_imports.append(line[12:])
+            from transonic.justintime import _get_module_jit
 
-            python_code = "\n".join(transonic_imports) + "\n"
+            mod = _get_module_jit(5)
+
+            python_code = mod.codes_dependance_classes[cls_name] + "\n"
 
             python_code += produce_code_class(cls, jit=True)
 

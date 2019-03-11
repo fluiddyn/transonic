@@ -1,7 +1,11 @@
 from distutils.core import setup, Extension
 from pathlib import Path
 import numpy as np
-from transonic.dist import make_backend_files, init_pythran_extensions, ParallelBuildExt
+from transonic.dist import (
+    make_backend_files,
+    init_pythran_extensions,
+    ParallelBuildExt,
+)
 from transonic.compat import fspath
 
 

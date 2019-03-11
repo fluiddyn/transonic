@@ -106,12 +106,11 @@ class CaptureX(ast.NodeVisitor):
 
         # TODO: implement this for AugAssign etc
 
-
-def make_code_external(external, code_module=None):
-    code = []
-    for node in external:
-        code.append(extast.unparse(node).strip())
-    return "\n".join(code)
+    def make_code_external(self):
+        code = []
+        for node in self.external:
+            code.append(extast.unparse(node).strip())
+        return "\n".join(code)
 
 
 if __name__ == "__main__":
@@ -139,4 +138,4 @@ def bar():
     function = module.body[3]
     capturex = CaptureX((function,), module)
 
-    print(make_code_external(capturex.external))
+    print(capturex.make_code_external())

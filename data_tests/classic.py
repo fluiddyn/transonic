@@ -1,11 +1,6 @@
-
 import numpy as np
 
 from transonic import boost
-
-# TRANSONIC_NO_IMPORT
-
-# transonic import numpy as np
 
 # transonic def func(
 #  float[][],

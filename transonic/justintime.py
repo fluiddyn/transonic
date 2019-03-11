@@ -87,6 +87,8 @@ from . import mpi
 from .log import logger
 from .config import has_to_replace
 
+from transonic.analyses.justintime import analysis_jit
+
 modules = {}
 
 
@@ -122,6 +124,12 @@ class ModuleJIT:
         modules[self.module_name] = self
         self.used_functions = {}
         self.jit_functions = {}
+
+        source = self.get_source()
+
+        self.jitted_dicts, self.codes_dependance, self.codes_dependance_classes = analysis_jit(
+            source
+        )
 
     def record_used_function(self, func, names):
         if isinstance(names, str):
@@ -273,19 +281,8 @@ class JIT:
         src = None
 
         if has_to_write:
-            import_lines = [
-                line.split("# transonic ")[1]
-                for line in mod.get_source().split("\n")
-                if line.startswith("# transonic ") and "import" in line
-            ]
-            src = "\n".join(import_lines) + "\n\n"
-
+            src = mod.codes_dependance[func_name]
             src += get_source_without_decorator(func)
-
-            if func_name in mod.used_functions:
-                functions = mod.used_functions[func_name]
-                for function in functions:
-                    src += "\n" + get_source_without_decorator(function)
 
             if path_pythran.exists() and mpi.rank == 0:
                 with open(path_pythran) as file:

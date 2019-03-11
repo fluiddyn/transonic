@@ -3,7 +3,7 @@ develop:
 	pip install -e .[test]
 
 black:
-	black -l 82 transonic transonic_cl
+	black -l 82 transonic transonic_cl data_tests
 
 tests:
 	pytest transonic data_tests/ipynb

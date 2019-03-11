@@ -1,8 +1,6 @@
 import numpy as np
 
-# transonic import numpy as np
-
-from transonic import Transonic, boost, include, Array, Union
+from transonic import Transonic, boost, Array, Union
 
 
 # transonic def func(int, float)
@@ -13,7 +11,6 @@ def func(a, b):
     return a + b
 
 
-@include
 def func_tmp(arg):
     return arg ** 2
 

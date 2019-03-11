@@ -3,13 +3,13 @@ from pprint import pformat
 import gast as ast
 import beniget
 
+from transonic.log import logger
+
 from .util import filter_code_typevars, get_annotations
-from .capturex import CaptureX, make_code_external
+from .capturex import CaptureX
 from .blocks_if import get_block_definitions
 from .parser import parse_code
 from . import extast
-
-from ..log import logger
 
 
 def compute_ancestors_chains(module_node):
@@ -25,7 +25,7 @@ def compute_ancestors_chains(module_node):
     return ancestors, duc, udc
 
 
-def get_boosted_dicts(module, ancestors, duc):
+def get_boosted_dicts(module, ancestors, duc, decorator="boost"):
 
     kinds = ("functions", "methods", "classes")
     boosted_dicts = {kind: {} for kind in kinds}
@@ -56,14 +56,14 @@ def get_boosted_dicts(module, ancestors, duc):
                         for user1 in user.users():
                             if (
                                 isinstance(user1.node, ast.Attribute)
-                                and user1.node.attr == "boost"
+                                and user1.node.attr == decorator
                             ):
                                 definition_node = ancestors.parent(user1.node)
                                 add_definition(definition_node)
         elif isinstance(node, ast.ImportFrom):
             if node.module == "transonic":
                 for alias in node.names:
-                    if alias.name == "boost":
+                    if alias.name == decorator:
                         boost_def_node = alias
                         boost_def = duc.chains[boost_def_node]
                         for user in boost_def.users():
@@ -144,7 +144,7 @@ def analyse_aot(code):
         blocks=blocks_for_capturex,
     )
 
-    code_dependance = make_code_external(capturex.external)
+    code_dependance = capturex.make_code_external()
     debug(code_dependance)
 
     blocks_p, signatures_blocks_p, code_blocks_p, signatures_p = parse_code(code)

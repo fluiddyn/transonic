@@ -1,9 +1,5 @@
 import numpy as np
 
-# transonic import numpy as np
-
-# transonic blabla
-
 from transonic import Transonic
 
 ts = Transonic()
@@ -72,13 +68,16 @@ if __name__ == "__main__":
 
     ret0 = obj.compute(10)
 
-    print("(is_transpiled, is_compiling, is_compiled)", (ts.is_transpiled, ts.is_compiling, ts.is_compiled))
+    print(
+        "(is_transpiled, is_compiling, is_compiled)",
+        (ts.is_transpiled, ts.is_compiling, ts.is_compiled),
+    )
 
     if ts.is_transpiled:
         ret = obj.compute(10)
-        assert np.allclose(ret, ret0), (ret - ret0)
+        assert np.allclose(ret, ret0), ret - ret0
         ts.is_transpiled = False
         ret1 = obj.compute(10)
         ts.is_transpiled = True
-        assert np.allclose(ret, ret1), (ret - ret1)
+        assert np.allclose(ret, ret1), ret - ret1
         print("allclose OK")

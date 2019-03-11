@@ -1,17 +1,13 @@
 import numpy as np
 
-# transonic import numpy as np
-
-from transonic import jit, include, boost
+from transonic import jit, boost
 from .mpi import Path
 
 
-@include(used_by="func1")
 def func0(a):
     return 2 * a
 
 
-@include(used_by="func1")
 def func():
     return 1
 
@@ -23,7 +19,7 @@ def func1(a: "int[][] or float[]", l: "int list"):
     return result
 
 
-@jit()
+@jit
 def func2(a):
     return a
 
@@ -32,12 +28,12 @@ def func2(a):
 Path(__file__).touch()
 
 
-@jit()
+@jit
 def func2(a):
     return a
 
 
-@jit()
+@jit
 def func_dict(d: "str: float dict"):
     return d.popitem()
 
