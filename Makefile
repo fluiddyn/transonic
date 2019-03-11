@@ -24,9 +24,11 @@ clean:
 	rm -rf $(HOME)/.transonic/__jit__/__jit_classes__/transonic/
 	rm -rf transonic/__pythran__/
 
-tests_coverage:
+tests_coverage_short:
 	mkdir -p .coverage
 	coverage run -p -m pytest
+
+tests_coverage: tests_coverage_short
 	mpirun -np 2 coverage run -p -m pytest transonic
 
 report_coverage:
@@ -37,4 +39,5 @@ report_coverage:
 	@echo "Code coverage analysis complete. View detailed report:"
 	@echo "file://${PWD}/.coverage/index.html"
 
+coverage_short: tests_coverage_short report_coverage
 coverage: tests_coverage report_coverage

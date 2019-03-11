@@ -131,16 +131,6 @@ class ModuleJIT:
             source
         )
 
-    def record_used_function(self, func, names):
-        if isinstance(names, str):
-            names = (names,)
-
-        for name in names:
-            if name in self.used_functions:
-                self.used_functions[name].append(func)
-            else:
-                self.used_functions[name] = [func]
-
     def get_source(self):
         if self.is_dummy_file:
             return self._ipython_src

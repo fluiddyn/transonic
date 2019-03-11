@@ -11,8 +11,6 @@ Internal API
 
 .. autofunction:: make_pythran_file
 
-.. autofunction:: mock_modules
-
 """
 
 from tokenize import (
@@ -29,7 +27,6 @@ from tokenize import (
 from token import tok_name
 import inspect
 from io import BytesIO
-from runpy import run_module, run_path
 import sys
 from unittest.mock import MagicMock as Mock
 from contextlib import contextmanager
@@ -256,8 +253,7 @@ def make_pythran_file(
         logger.warning(f"File {path_pythran} already up-to-date.")
         return
 
-    with mock_modules(mocked_modules):
-        code_pythran = make_pythran_code(path_py)
+    code_pythran = make_pythran_code(path_py)
 
     if not code_pythran:
         return
@@ -327,25 +323,17 @@ class _MyMock(Mock):
 
 @contextmanager
 def mock_modules(modules):
-    """Context manager to mock modules
-
-    Examples
-    --------
-
-    .. code::
-
-        with mock_modules(("h5py", "reikna.fft", "reikna.transformations")):
-            code_pythran = make_pythran_code(path_py)
+    """Context manager to mock modules (obsolete)
 
     """
-    if modules is not None:
-        modules = set(modules)
-        modules.difference_update(set(sys.modules.keys()))
-        sys.modules.update((mod_name, _MyMock()) for mod_name in modules)
+    from warnings import warn
+
+    warn(
+        "mock_modules is obsolete (and useless for transonic). " "Don't use it.",
+        DeprecationWarning,
+    )
 
     try:
         yield None
     finally:
-        if modules is not None:
-            for mod_name in modules:
-                sys.modules.pop(mod_name)
+        pass

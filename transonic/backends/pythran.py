@@ -19,7 +19,7 @@ from transonic.analyses import analyse_aot
 from transonic.analyses import extast
 
 
-def get_code_function(fdef, code_module):
+def get_code_function(fdef):
 
     transformed = TypeHintRemover().visit(fdef)
     # convert the AST back to source code
@@ -31,9 +31,9 @@ def get_code_function(fdef, code_module):
     return code
 
 
-def produce_new_code_method(fdef, class_def, code_module):
+def produce_new_code_method(fdef, class_def):
 
-    src = get_code_function(fdef, code_module)
+    src = get_code_function(fdef)
 
     tokens = []
     attributes = set()
@@ -99,17 +99,13 @@ def produce_new_code_method(fdef, class_def, code_module):
 
 
 def produce_code_for_method(
-    fdef, class_def, code_module, annotations, annotations_class
+    fdef, class_def, annotations_meth, annotations_class, jit=False
 ):
-
-    jit = False
 
     class_name = class_def.name
     meth_name = fdef.name
 
-    new_code, attributes, name_new_func = produce_new_code_method(
-        fdef, class_def, code_module
-    )
+    new_code, attributes, name_new_func = produce_new_code_method(fdef, class_def)
 
     types_attrs = []
 
@@ -120,11 +116,7 @@ def produce_code_for_method(
             )
     types_attrs = [annotations_class[attr] for attr in attributes]
 
-    types_func = []
-    if (class_name, meth_name) in annotations["methods"]:
-        types_func = list(
-            annotations["methods"][(class_name, meth_name)].values()
-        )
+    types_func = list(annotations_meth.values())
 
     types_pythran = types_attrs + types_func
 
@@ -240,7 +232,7 @@ def make_pythran_code(path_py):
 
         code.append("\n".join(signatures_func))
 
-        code.append(get_code_function(fdef, code_module))
+        code.append(get_code_function(fdef))
 
     for (class_name, meth_name), fdef in boosted_dicts["methods"].items():
 
@@ -257,7 +249,7 @@ def make_pythran_code(path_py):
             annotations_meth = {}
 
         code_for_meth = produce_code_for_method(
-            fdef, class_def, code_module, annotations, annotations_class
+            fdef, class_def, annotations_meth, annotations_class
         )
 
         code.append(code_for_meth)

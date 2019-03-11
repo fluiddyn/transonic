@@ -113,20 +113,9 @@ def boost(obj):
 
 
 def make_signature(func, **kwargs):
-    """Create signature for a function with values for the template types
-
-    Parameters
-    ----------
-
-    func: a function
-
-    kwargs : dict
-
-      The template types and their value
-
-    """
+    """(obsolete)"""
     raise DeprecationWarning(
-        "make_signature is deprecated and has been removed in transonic 0.2"
+        "make_signature is obsolete and has been removed in transonic 0.2"
     )
 
 
@@ -205,7 +194,6 @@ class Transonic:
             self.functions = {}
             self.classes = {}
             self.signatures_func = {}
-            self.included_functions = []
             self.is_transpiled = False
             self.is_compiled = False
             return
@@ -403,7 +391,6 @@ class Transonic:
 
         """
         if is_transpiling:
-            self.classes[cls.__name__] = cls
             return cls
 
         jit_methods = {
@@ -449,21 +436,10 @@ class Transonic:
 
         return cls
 
-    def make_signature(self, func, _signature=None, **kwargs):
-        """Create signature for a function with values for the template types
-
-        Parameters
-        ----------
-
-        func: a function
-
-        kwargs : dict
-
-          The template types and their value
-
-        """
+    def make_signature(self, *args, **kwargs):
+        """(obsolete)"""
         raise DeprecationWarning(
-            "make_signature is deprecated and has been removed in transonic 0.2"
+            "make_signature is obsolete and has been removed in transonic 0.2"
         )
 
     def use_block(self, name):
@@ -504,7 +480,10 @@ class Transonic:
         return func(*arguments)
 
     def include(self, func):
-        self.included_functions.append(func)
+        warn(
+            "include is obsolete and will be removed in transonic 0.2",
+            DeprecationWarning,
+        )
 
 
 class TransonicTemporaryMethod:
@@ -521,53 +500,10 @@ class TransonicTemporaryMethod:
 
 
 def include(func=None, used_by=None):
-    """Decorator to record that the function has to be included in a Pythran file
-
-    """
-    if func is not None and used_by is None:
-        if not callable(func):
-            func, used_by = used_by, func
-
-    decor = Include(used_by=used_by)
-    if callable(func):
-        decor._decorator_no_arg = True
-        return decor(func)
-    else:
-        return decor
-
-
-class Include:
-    """Decorator used internally by the public include decorator
-
-    @include
-
-    @include(used_by=("func0", "func1")
-
-    """
-
-    def __init__(self, used_by=None):
-        self.used_by = used_by
-        self._decorator_no_arg = False
-
-    def __call__(self, func):
-
-        if self._decorator_no_arg:
-            index_frame = 3
-        else:
-            index_frame = 2
-
-        if self.used_by is not None:
-            from .justintime import _get_module_jit
-
-            jit_mod = _get_module_jit(index_frame)
-            jit_mod.record_used_function(func, self.used_by)
-
-        if not is_transpiling:
-            return func
-
-        ts = _get_transonic_calling_module(index_frame)
-        ts.include(func)
-        return func
+    warn(
+        "include is obsolete and will be removed in transonic 0.2",
+        DeprecationWarning,
+    )
 
 
 class TransonicTemporaryJITMethod:
