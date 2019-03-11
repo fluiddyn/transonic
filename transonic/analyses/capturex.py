@@ -1,6 +1,7 @@
 import gast as ast
 import beniget
-import astunparse
+
+from transonic.analyses import extast
 
 
 class CaptureX(ast.NodeVisitor):
@@ -109,7 +110,7 @@ class CaptureX(ast.NodeVisitor):
 def make_code_external(external, code_module=None):
     code = []
     for node in external:
-        code.append(astunparse.unparse(node).strip())
+        code.append(extast.unparse(node).strip())
     return "\n".join(code)
 
 
@@ -134,7 +135,7 @@ def bar():
 
     """
 
-    module = ast.parse(code)
+    module = extast.parse(code)
     function = module.body[3]
     capturex = CaptureX((function,), module)
 

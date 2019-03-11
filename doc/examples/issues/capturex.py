@@ -1,6 +1,5 @@
 import gast as ast
 import beniget
-import astunparse
 
 
 class CaptureX(ast.NodeVisitor):
@@ -49,6 +48,8 @@ class CaptureX(ast.NodeVisitor):
 
 if __name__ == "__main__":
 
+    from transonic.analyses import extast
+
     code = "a = 1; b = [a, a]\ndef foo():\n return b"
     # code = "a = 1; b = len([a, a])\ndef foo():\n return b"
     # code = "import numpy as np\na = np.int(1)\ndef foo():\n return np.zeros(a)"
@@ -58,9 +59,13 @@ if __name__ == "__main__":
 a = 1
 
 def fooo():
+    # comment fooo
     return 1
 
+# comment in module
+
 def foo():
+    # comment in foo
     return a + fooo()
 
 def bar():
@@ -69,11 +74,11 @@ def bar():
     """
 
 
-    module = ast.parse(code)
+    module = extast.parse(code)
     function = module.body[3]
     capturex = CaptureX(module, function)
 
     capturex.visit(function)
     for node in capturex.external:
         # print(astunparse.dump(node))
-        print(astunparse.unparse(node).strip())
+        print(extast.unparse(node).strip())

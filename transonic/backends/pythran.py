@@ -1,10 +1,7 @@
 from tokenize import tokenize, untokenize, NAME, OP
 from io import BytesIO
 from token import tok_name
-import re
 from textwrap import indent
-
-import astunparse
 
 
 try:
@@ -16,29 +13,22 @@ import transonic
 from transonic.compat import open
 from transonic.log import logger
 from transonic.util import TypeHintRemover
-from transonic.analyses.util import gather_rawcode_comments
 from transonic.annotation import compute_pythran_types_from_valued_types
 
 from transonic.analyses import analyse_aot
+from transonic.analyses import extast
 
 
 def get_code_function(fdef, code_module):
 
     transformed = TypeHintRemover().visit(fdef)
     # convert the AST back to source code
-    striped_code = astunparse.unparse(transformed)
-
-    raw_code, comments = gather_rawcode_comments(fdef, code_module)
+    code = extast.unparse(transformed)
 
     if black:
-        raw_code = black.format_str(raw_code, line_length=82)
+        code = black.format_str(code, line_length=82)
 
-    # bad hack to conserve the comments...
-    sep = ":(\n)+    "
-    head = re.split(sep, striped_code, maxsplit=1)[0]
-    body = re.split(sep, raw_code, maxsplit=1)[-1]
-
-    return head + ":\n    " + body
+    return code
 
 
 def produce_new_code_method(fdef, class_def, code_module):
@@ -180,7 +170,7 @@ def produce_code_for_method(
         if ind < nb_no_defaults:
             str_args_value_func.append(f"{name}")
         else:
-            default = astunparse.unparse(defaults[ind_default]).strip()
+            default = extast.unparse(defaults[ind_default]).strip()
             str_args_value_func.append(f"{name}={default}")
             ind_default += 1
 
@@ -288,7 +278,7 @@ def make_pythran_code(path_py):
 
         code.append(f"\ndef {block.name}({str_variables}):\n")
 
-        code_block = indent(astunparse.unparse(block.ast_code), "    ")
+        code_block = indent(extast.unparse(block.ast_code), "    ")
 
         code.append(code_block)
 

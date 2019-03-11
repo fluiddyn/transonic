@@ -7,7 +7,7 @@ from .util import filter_code_typevars, get_annotations
 from .capturex import CaptureX, make_code_external
 from .blocks_if import get_block_definitions
 from .parser import parse_code
-
+from . import extast
 
 from ..log import logger
 
@@ -77,8 +77,8 @@ def analyse_aot(code):
 
     debug = logger.debug
 
-    debug("ast.parse")
-    module = ast.parse(code)
+    debug("extast.parse")
+    module = extast.parse(code)
 
     debug("compute ancestors and chains")
     ancestors, duc, udc = compute_ancestors_chains(module)

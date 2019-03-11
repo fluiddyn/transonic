@@ -1,23 +1,23 @@
 from textwrap import dedent
 
 import gast as ast
-import astunparse
+from transonic.analyses import extast
 
 
 def print_dumped(source):
     if isinstance(source, str):
-        module = ast.parse(source)
+        module = extast.parse(source)
         if len(module.body) == 1:
             node = module.body[0]
         else:
             node = module
     else:
         node = source
-    print(astunparse.dump(node))
+    print(ast.dump(node))
 
 
 def print_unparsed(node):
-    print(astunparse.unparse(node))
+    print(extast.unparse(node))
 
 
 def _fill_ast_annotations_function(function_def, ast_annotations):
@@ -65,7 +65,7 @@ def get_annotations(object_def, namespace):
 
     # print_dump(ast_annotations)
 
-    source = astunparse.unparse(ast_annotations)
+    source = extast.unparse(ast_annotations)
 
     try:
         del namespace["__builtins__"]
@@ -105,7 +105,7 @@ def filter_code_typevars(module, duc, ancestors):
         elif isinstance(node, (ast.Assign, ast.AugAssign)):
             kept.append(node)
 
-    return astunparse.unparse(module_filtered)
+    return extast.unparse(module_filtered)
 
 
 class AnalyseLines(ast.NodeVisitor):
