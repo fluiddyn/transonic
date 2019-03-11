@@ -21,10 +21,10 @@ In this very simple mode, transonic does not need to import the module to
 produce the Pythran files. If we do not want transonic to import the module,
 we can use the command :code:`# TRANSONIC_NO_IMPORT`.
 
-:code:`include` decorator
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Function calls
+~~~~~~~~~~~~~~
 
 .. literalinclude:: classic_include.py
 
-Note that no Pythran signatures or annotations are needed for "included"
-functions.
+Note that no Pythran signatures or annotations are needed for functions called
+in boosted functions.

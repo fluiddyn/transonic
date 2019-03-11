@@ -1,5 +1,4 @@
 import numpy as np
-# transonic import numpy as np
 
 from transonic import Transonic, Type, NDim, Array
 
@@ -24,8 +23,8 @@ class MyClass:
         if ts.is_transpiled:
             result = ts.use_block("block0")
         else:
-            # transonic block (A a, b; A1 c; int n) -> result
-            # transonic block (int a, b, c; float n) -> result
+            # transonic block (A a, b; A1 c; int n)
+            # transonic block (int a, b, c; float n)
 
             result = np.zeros_like(a)
             for _ in range(n):

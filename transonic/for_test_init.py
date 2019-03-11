@@ -35,8 +35,7 @@ def func1(a, b):
         # transonic block (
         #     float a, b;
         #     int n
-        # ) -> (result, a)
-        # blabla
+        # )
 
         result = 0.0
         for _ in range(n):

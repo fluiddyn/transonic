@@ -4,6 +4,7 @@ import astunparse
 
 from capturex import CaptureX
 
+
 def dump(node):
     print(astunparse.dump(node))
 

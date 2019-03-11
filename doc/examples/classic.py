@@ -5,10 +5,6 @@ from fluiddyn.util import mpi
 
 from transonic import boost
 
-# TRANSONIC_NO_IMPORT
-
-# transonic import numpy as np
-
 # transonic def func(float[][], float[][])
 # transonic def func(int[][], float[][])
 

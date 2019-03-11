@@ -5,8 +5,6 @@ from skimage.filters import sobel
 
 from transonic import boost
 
-# transonic import numpy as np
-
 # transonic def func(float[][], float[][])
 # transonic def func(int[][], float[][])
 

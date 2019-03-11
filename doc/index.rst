@@ -28,8 +28,8 @@ Examples
 Modules Reference
 -----------------
 
-Here is presented the general organization of the package and the documentation
-of the modules, classes and functions.
+Here is presented the organization of the package and the documentation of the
+modules, classes and functions.
 
 .. autosummary::
    :toctree: generated/

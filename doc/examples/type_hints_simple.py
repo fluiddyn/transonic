@@ -4,6 +4,7 @@ import mpi4py
 
 from transonic import boost
 
+
 @boost
 def myfunc(a: int, b: float):
     return a * b

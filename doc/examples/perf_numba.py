@@ -1,7 +1,5 @@
 import numpy as np
 
-# transonic import numpy as np
-
 from transonic import jit, wait_for_all_extensions
 
 import numba

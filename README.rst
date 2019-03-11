@@ -1,7 +1,7 @@
-Transonic: Make your code fly at transonic speeds!
-==================================================
+Transonic: Make your Python code fly at transonic speeds!
+=========================================================
 
-|release| |docs| |coverage| |travis|
+|release| |docs| |coverage| |travis| |appveyor|
 
 .. |release| image:: https://img.shields.io/pypi/v/transonic.svg
    :target: https://pypi.python.org/pypi/transonic/
@@ -19,9 +19,9 @@ Transonic: Make your code fly at transonic speeds!
    :target: https://travis-ci.org/fluiddyn/transonic
    :alt: Travis CI status
 
-Transonic is a fork of `FluidPythran
-<https://bitbucket.org/fluiddyn/fluidpythran>`_ (now depreciated) by its
-authors.
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/i99h00kp0jliel8t?svg=true
+   :target: https://ci.appveyor.com/project/fluiddyn/transonic
+   :alt: AppVeyor status
 
 **Documentation**: https://transonic.readthedocs.io
 
@@ -36,7 +36,7 @@ speedup)!
 
 .. warning ::
 
-  Transonic is still in a very early stage. Remarks and suggestions are very
+  Transonic is still in a early stage. Remarks and suggestions are very
   welcome.
 
   In particular, Transonic is now only able to use the Pythran compiler! So you
@@ -196,14 +196,14 @@ the recommended syntaxes for ahead-of-time function acceleration:
 
 .. code :: python
 
+    import numpy as np
     import h5py
-    import mpi4py
 
     from transonic import boost
 
     @boost
-    def myfunc(a: int, b: float):
-        return a * b
+    def myfunc(a: float, d: int):
+        return a * np.ones(d * [10])
 
     ...
 
@@ -221,17 +221,12 @@ Just-In-Time mode. It is really the **easiest way to speedup a function with
 Pythran**, just by adding a decorator! And it also works `in notebooks
 <https://transonic.readthedocs.io/en/latest/ipynb/executed/demo_jit.html>`_!
 
-It is a "work in progress" so the API is not great, but it is a good start!
-
 .. code :: python
 
     import numpy as np
 
-    # transonic import numpy as numpy
+    from transonic import jit
 
-    from transonic import jit, include
-
-    @include(used_by="func1")
     def func0(a, b):
         return a + b
 
@@ -275,12 +270,12 @@ with lines that cannot be compiled by Pythran.
                 # transonic block (
                 #     float a, b;
                 #     int n
-                # ) -> result
+                # )
 
                 # transonic block (
                 #     complex a, b;
                 #     int n
-                # ) -> result
+                # )
 
                 result = a**n + b**n
 

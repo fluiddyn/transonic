@@ -1,7 +1,5 @@
 import numpy as np
 
-# transonic import numpy as np
-
 from transonic import boost
 
 

@@ -1,4 +1,4 @@
-"""Create Pythran signatures from type hinname_calling_module
+"""Create Pythran signatures from type hints
 ============================================
 
 User API

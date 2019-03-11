@@ -21,15 +21,12 @@ class MyClass:
             # transonic block (
             #     float[][] a, b;
             #     int n
-            # ) -> result
-            # blabla
-
-            # blibli
+            # )
 
             # transonic block (
             #     float[][][] a, b;
             #     int n
-            # ) -> result
+            # )
             result = np.zeros_like(a)
             for _ in range(n):
                 result += a ** 2 + b ** 3
@@ -42,15 +39,12 @@ class MyClass:
             # transonic block (
             #     float[][] a, b;
             #     int n
-            # ) -> (result)
-            # blabla
-
-            # blibli
+            # )
 
             # transonic block (
             #     float[][][] a, b;
             #     int n
-            # ) -> (result)
+            # )
             result = np.zeros_like(a)
             for _ in range(n):
                 result += a ** 2 + b ** 3

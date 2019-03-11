@@ -1,14 +1,11 @@
 import numpy as np
 
-from transonic import boost, include
-
-# transonic import numpy as np
+from transonic import boost
 
 # transonic def func(float[][], float[][])
 # transonic def func(int[][], float[][])
 
 
-@include
 def my_log(b):
     return np.log(b)
 

@@ -73,7 +73,6 @@ def bar():
 
     """
 
-
     module = extast.parse(code)
     function = module.body[3]
     capturex = CaptureX(module, function)

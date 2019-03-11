@@ -1,11 +1,11 @@
 import numpy as np
-# transonic import numpy as np
 
 from transonic import Transonic
 
 ts = Transonic()
 
 # don't define classes in Pythran file! Here, no problem...
+
 
 class MyClass:
     def __init__(self, a, b):
@@ -23,11 +23,11 @@ class MyClass:
             # transonic block (
             #     float[][] a, b;
             #     int n
-            # ) -> result
+            # )
             # transonic block (
             #     float[][][] a, b;
             #     int n
-            # ) -> result
+            # )
             result = np.zeros_like(a)
             for _ in range(n):
                 result += a ** 2 + b ** 3

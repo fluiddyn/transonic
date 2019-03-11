@@ -1,7 +1,6 @@
-from transonic import boost, include
+from transonic import boost
 
 
-@include
 def add(a, b):
     return a + b
 

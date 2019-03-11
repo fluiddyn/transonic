@@ -28,13 +28,6 @@ Note that the annotations in the command :code:`# transonic block` are different
 (and somehow easier to write) than in the standard command :code:`# pythran
 export`.
 
-.. note ::
-
-    Moreover, for the time being, one needs to explicitly write the "returned"
-    variables (after :code:`->`). However, it is a redundant information so we
-    could avoid this in future (see `issue #1
-    <https://bitbucket.org/fluiddyn/fluidpythran/issues/1/no-need-for-explicit-return-values-in>`_).
-
 .. warning ::
 
     The two branches of the :code:`if ts.is_transpiled` are not equivalent! The
@@ -46,7 +39,7 @@ export`.
         if ts.is_transpiled:
             a, b = ts.use_block("buggy_block")
         else:
-            # transonic block () -> (a, b)
+            # transonic block ()
             a = b = c = 1
 
         assert c == 1

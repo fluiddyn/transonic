@@ -30,9 +30,6 @@ Serge talked about @jit (see https://gist.github.com/serge-sans-paille/28c86d2b3
 
 It's indeed a good idea!
 
-With "# transonic import" and @include the implementation isn't
-too complicated.
-
 - At import time, we create one .py file per jit function.
 
 - At run time, we create (and complete when needed) a corresponding

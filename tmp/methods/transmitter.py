@@ -1,6 +1,5 @@
 
 import numpy as np
-# transonic import numpy as np
 
 
 class Transmitter():

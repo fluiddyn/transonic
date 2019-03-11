@@ -26,12 +26,12 @@ class MyClass:
             # transonic block (
             #     A a; A1 b;
             #     int n
-            # ) -> result
+            # )
 
             # transonic block (
             #     int[:] a, b;
             #     float n
-            # ) -> result
+            # )
 
             result = a ** 2 + b.mean() ** 3 + n
 

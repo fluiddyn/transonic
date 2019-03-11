@@ -1,15 +1,16 @@
 import numpy as np
-# transonic import numpy as np
 
-from transonic import jit, include
+from transonic import jit
 
-@include("func1")
+
 def func0(a, b):
     return a + b
 
-@jit()
+
+@jit
 def func1(a, b):
     return np.exp(a) * b * func0(a, b)
+
 
 if __name__ == "__main__":
 
@@ -21,5 +22,5 @@ if __name__ == "__main__":
         print(f"{i}, call with arrays", end=", ")
         func1(a, b)
         print("call with numbers")
-        func1(1, 1.)
+        func1(1, 1.0)
         sleep(1)

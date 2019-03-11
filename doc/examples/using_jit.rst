@@ -5,12 +5,7 @@ With Transonic, one can use the Ahead-Of-Time compiler Pythran in a
 Just-In-Time mode. It is really the **easiest way to speedup a function with
 Pythran**, just by adding a decorator! And it works also in notebooks!
 
-It is a "work in progress" so the API is not great, but it is a good start!
-
 .. literalinclude:: using_jit.py
-
-In the long terms, we won't need the :code:`#pythran import ...` and
-:code:`@include`...
 
 Note that it can be very convenient to use type hints **and**
 :code:`@jit` in order to avoid multiple warmup periods:
