@@ -2,6 +2,7 @@ from textwrap import dedent
 
 import gast as ast
 from transonic.analyses import extast
+import astunparse
 
 
 def print_dumped(source):
@@ -13,7 +14,7 @@ def print_dumped(source):
             node = module
     else:
         node = source
-    print(ast.dump(node))
+    print(astunparse.dump(node))
 
 
 def print_unparsed(node):

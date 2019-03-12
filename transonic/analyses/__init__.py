@@ -5,11 +5,18 @@ import beniget
 
 from transonic.log import logger
 
-from .util import filter_code_typevars, get_annotations
+from .util import (
+    filter_code_typevars,
+    get_annotations,
+    print_dumped,
+    print_unparsed,
+)
 from .capturex import CaptureX
 from .blocks_if import get_block_definitions
 from .parser import parse_code
 from . import extast
+
+__all__ = ["print_dumped", "print_unparsed"]
 
 
 def compute_ancestors_chains(module_node):
@@ -129,8 +136,15 @@ def analyse_aot(code):
     ]
 
     # remove the decorator (boost) to compute the code dependance
+    # + do not consider the class annotations
     for def_node in def_nodes:
         def_node.decorator_list = []
+        if isinstance(def_node, ast.ClassDef):
+            def_node.body = [
+                node
+                for node in def_node.body
+                if not isinstance(node, ast.AnnAssign)
+            ]
 
     blocks_for_capturex = [block.ast_code for block in blocks]
 
@@ -146,7 +160,7 @@ def analyse_aot(code):
 
     code_dependance = capturex.make_code_external()
     debug(code_dependance)
-
+    debug("parse_code")
     signatures_p = parse_code(code)
 
     annotations["comments"] = {}

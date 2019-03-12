@@ -42,7 +42,7 @@ def produce_new_code_method(fdef, class_def):
 
     g = tokenize(BytesIO(src.encode("utf-8")).readline)
     for toknum, tokval, a, b, c in g:
-        logger.debug((tok_name[toknum], tokval))
+        # logger.debug((tok_name[toknum], tokval))
 
         if using_self == "self":
             if toknum == OP and tokval == ".":
@@ -130,10 +130,10 @@ def produce_code_for_method(
         else:
             raise
 
-    pythran_signatures = "\n"
+    pythran_signatures = set()
 
     for types_string_signature in types_string_signatures:
-        pythran_signatures += (
+        pythran_signatures.add(
             "# pythran export "
             + name_new_func
             + "("
@@ -144,7 +144,7 @@ def produce_code_for_method(
     if jit:
         new_code = "from transonic import jit\n\n@jit\n" + new_code
 
-    python_code = pythran_signatures + "\n" + new_code
+    python_code = "\n".join(sorted(pythran_signatures)) + "\n" + new_code
 
     str_self_dot_attributes = ", ".join("self." + attr for attr in attributes)
     args_func = [arg.id for arg in fdef.args.args[1:]]
@@ -205,8 +205,7 @@ def make_pythran_code(path_py):
 
     for func_name, fdef in boosted_dicts["functions"].items():
 
-        # args = [name.id for name in fdef.args.args]
-        signatures_func = []
+        signatures_func = set()
 
         try:
             ann = annotations["functions"][func_name]
@@ -216,7 +215,7 @@ def make_pythran_code(path_py):
             typess = compute_pythran_types_from_valued_types(ann.values())
 
             for types in typess:
-                signatures_func.append(
+                signatures_func.add(
                     f"# pythran export {func_name}({', '.join(types)})"
                 )
 
@@ -226,11 +225,11 @@ def make_pythran_code(path_py):
             typess = compute_pythran_types_from_valued_types(ann.values())
 
             for types in typess:
-                signatures_func.append(
+                signatures_func.add(
                     f"# pythran export {func_name}({', '.join(types)})"
                 )
 
-        code.append("\n".join(signatures_func))
+        code.append("\n".join(sorted(signatures_func)))
 
         code.append(get_code_function(fdef))
 
@@ -255,16 +254,16 @@ def make_pythran_code(path_py):
         code.append(code_for_meth)
 
     for block in blocks:
-        signatures_block = []
+        signatures_block = set()
         for ann in block.signatures:
             typess = compute_pythran_types_from_valued_types(ann.values())
 
             for types in typess:
-                signatures_block.append(
+                signatures_block.add(
                     f"# pythran export {block.name}({', '.join(types)})"
                 )
 
-        code.extend(signatures_block)
+        code.extend(sorted(signatures_block))
 
         str_variables = ", ".join(block.signatures[0].keys())
 
