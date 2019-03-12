@@ -18,15 +18,19 @@ class MyClass:
         if ts.is_transpiled:
             result = ts.use_block("block0")
         else:
+            # foo
             # transonic block (
             #     float[][] a, b;
             #     int n
-            # )
+            # ) bar
+            # foo
 
             # transonic block (
             #     float[][][] a, b;
             #     int n
             # )
+            # foobar
+
             result = np.zeros_like(a)
             for _ in range(n):
                 result += a ** 2 + b ** 3

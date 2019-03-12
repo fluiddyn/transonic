@@ -90,14 +90,26 @@ def get_block_definitions(code, module, ancestors, duc, udc):
     return blocks
 
 
+def find_index_closing_parenthesis(string: str):
+    assert string.startswith("("), "string has to start with '('"
+    stack = []
+    for index, letter in enumerate(string):
+        if letter == "(":
+            stack.append(letter)
+        elif letter == ")":
+            stack.pop()
+            if not stack:
+                return index
+
+    raise SyntaxError(f"Transonic syntax error for string {string}")
+
+
 def get_signatures_from_comments(comments, namespace=None):
 
     if namespace is None:
         namespace = {}
 
     comments = comments.replace("#", "").replace("\n", "")
-
-    # todo: debug this buggy code! Use tokens...
 
     signatures_tmp = [
         sig.split("->", 1)[0].strip()
@@ -107,9 +119,7 @@ def get_signatures_from_comments(comments, namespace=None):
     signatures = []
     for sig in signatures_tmp:
         if sig.startswith("("):
-            if not sig.endswith(")"):
-                raise SyntaxError
-            sig = sig[1:-1]
+            sig = sig[1:find_index_closing_parenthesis(sig)]
         signatures.append(sig)
 
     tmp = signatures

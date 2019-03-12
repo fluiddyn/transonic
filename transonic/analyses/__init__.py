@@ -147,9 +147,7 @@ def analyse_aot(code):
     code_dependance = capturex.make_code_external()
     debug(code_dependance)
 
-    blocks_p, signatures_blocks_p, code_blocks_p, signatures_p = parse_code(code)
-
-    blocks_parsed = blocks_p, signatures_blocks_p, code_blocks_p
+    signatures_p = parse_code(code)
 
     annotations["comments"] = {}
 
@@ -169,4 +167,4 @@ def analyse_aot(code):
                 {arg_name: type_ for arg_name, type_ in zip(arg_names, types)}
             )
 
-    return boosted_dicts, code_dependance, annotations, blocks, blocks_parsed
+    return boosted_dicts, code_dependance, annotations, blocks
