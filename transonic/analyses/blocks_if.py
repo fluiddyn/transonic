@@ -119,7 +119,7 @@ def get_signatures_from_comments(comments, namespace=None):
     signatures = []
     for sig in signatures_tmp:
         if sig.startswith("("):
-            sig = sig[1:find_index_closing_parenthesis(sig)]
+            sig = sig[1 : find_index_closing_parenthesis(sig)]
         signatures.append(sig)
 
     tmp = signatures

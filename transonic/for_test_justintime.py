@@ -28,7 +28,7 @@ def func2(a):
 Path(__file__).touch()
 
 
-@jit
+@jit()
 def func2(a):
     return a
 
@@ -43,9 +43,13 @@ class MyClass:
     def __init__(self):
         self.attr0 = self.attr1 = 1
 
-    @jit
+    @jit()
     def myfunc(self, arg):
         return self.attr1 + self.attr0 + np.abs(arg)
+
+    @jit
+    def myfunc1(self):
+        return self.attr0
 
     def check(self):
         assert self.myfunc(1) == 3

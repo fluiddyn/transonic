@@ -38,6 +38,8 @@ def get_boosted_dicts(module, ancestors, duc, decorator="boost"):
     boosted_dicts = {kind: {} for kind in kinds}
 
     def add_definition(definition_node):
+        if isinstance(definition_node, ast.Call):
+            definition_node = ancestors.parent(definition_node)
         boosted_dict = None
         key = definition_node.name
         if isinstance(definition_node, ast.FunctionDef):

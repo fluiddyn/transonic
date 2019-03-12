@@ -112,13 +112,6 @@ def boost(obj):
     return ts.boost(obj)
 
 
-def make_signature(func, **kwargs):
-    """(obsolete)"""
-    raise DeprecationWarning(
-        "make_signature is obsolete and has been removed in transonic 0.2"
-    )
-
-
 class CheckCompiling:
     """Check if the module is being compiled and replace the module and the function"""
 
@@ -435,12 +428,6 @@ class Transonic:
                 setattr(cls, key, functools.wraps(func)(namespace["new_method"]))
 
         return cls
-
-    def make_signature(self, *args, **kwargs):
-        """(obsolete)"""
-        raise DeprecationWarning(
-            "make_signature is obsolete and has been removed in transonic 0.2"
-        )
 
     def use_block(self, name):
         """Use the pythranized version of a code block

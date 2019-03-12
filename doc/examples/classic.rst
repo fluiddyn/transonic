@@ -17,10 +17,6 @@ Most of this code looks familiar to Pythran users. The differences:
   Python function by the pythranized function if Transonic has been used to
   produced the associated Pythran file.
 
-In this very simple mode, transonic does not need to import the module to
-produce the Pythran files. If we do not want transonic to import the module,
-we can use the command :code:`# TRANSONIC_NO_IMPORT`.
-
 Function calls
 ~~~~~~~~~~~~~~
 
