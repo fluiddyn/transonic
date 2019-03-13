@@ -63,6 +63,7 @@ def test_jit():
 
 def fib():
     from .for_test_justintime import fib, use_fib
+
     fib2 = fib(2)
     result = use_fib()
     wait_for_all_extensions()

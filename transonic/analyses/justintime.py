@@ -1,3 +1,8 @@
+"""Analyses for ``@jit``
+========================
+
+"""
+
 from transonic.log import logger
 
 from transonic.analyses import extast
@@ -6,6 +11,7 @@ from transonic.analyses.capturex import CaptureX
 
 
 def analysis_jit(code):
+    """Gather the informations for ``@jit`` with an ast analysis"""
 
     debug = logger.debug
 

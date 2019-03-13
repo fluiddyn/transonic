@@ -1,3 +1,8 @@
+"""Utilities for the analyses
+=============================
+
+"""
+
 from textwrap import dedent
 
 import gast as ast
@@ -6,6 +11,7 @@ import astunparse
 
 
 def print_dumped(source):
+    """Pretty print the AST"""
     if isinstance(source, str):
         module = extast.parse(source)
         if len(module.body) == 1:
@@ -18,6 +24,7 @@ def print_dumped(source):
 
 
 def print_unparsed(node):
+    """Print the code corresponding to a tree or a node"""
     print(extast.unparse(node))
 
 
@@ -49,6 +56,7 @@ def _fill_ast_annotations_class(class_def, ast_annotations):
 
 
 def get_annotations(object_def, namespace):
+    """Create the annotations from a definition node"""
 
     # print_dump(object_def)
 
@@ -77,6 +85,7 @@ def get_annotations(object_def, namespace):
 
 
 def filter_code_typevars(module, duc, ancestors):
+    """Create a filtered code with what is needed to create the annotations"""
 
     module_filtered = ast.Module()
     kept = module_filtered.body = []
@@ -110,6 +119,8 @@ def filter_code_typevars(module, duc, ancestors):
 
 
 class AnalyseLines(ast.NodeVisitor):
+    """Analyse to find the last line of a node"""
+
     def __init__(self, main_node):
         if isinstance(main_node, ast.Module):
             self.line_start = 1
@@ -151,6 +162,7 @@ class AnalyseLines(ast.NodeVisitor):
 
 
 def gather_rawcode_comments(node, code_module):
+    """Get the comments in a node"""
     analysis = AnalyseLines(node)
     rawcode = dedent(analysis.get_code(code_module))
     comments = dedent(

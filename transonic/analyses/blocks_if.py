@@ -1,9 +1,16 @@
+"""Analyses for "if blocks"
+===========================
+
+"""
+
 import gast as ast
 
 from transonic.analyses.util import gather_rawcode_comments
 
 
 class BlockDefinition:
+    """Represent a block definition"""
+
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         self.__dict__.update(**kwargs)
@@ -16,7 +23,7 @@ class BlockDefinition:
 
 
 def get_block_definitions(code, module, ancestors, duc, udc):
-
+    """Get all "if" block definitions"""
     blocks = []
     node_transonic_obj = None
     for node in module.body:
@@ -91,6 +98,7 @@ def get_block_definitions(code, module, ancestors, duc, udc):
 
 
 def find_index_closing_parenthesis(string: str):
+    """Find the index of the closing parenthesis"""
     assert string.startswith("("), "string has to start with '('"
     stack = []
     for index, letter in enumerate(string):
@@ -105,6 +113,7 @@ def find_index_closing_parenthesis(string: str):
 
 
 def get_signatures_from_comments(comments, namespace=None):
+    """Get the blocks signatures for a block"""
 
     if namespace is None:
         namespace = {}

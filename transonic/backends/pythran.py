@@ -1,3 +1,9 @@
+"""Pythran Backend
+==================
+
+
+"""
+
 from tokenize import tokenize, untokenize, NAME, OP
 from io import BytesIO
 from token import tok_name

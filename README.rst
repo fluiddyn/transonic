@@ -360,7 +360,7 @@ setup.py like this:
     here = Path(__file__).parent.absolute()
 
     paths = ["fluidsim/base/time_stepping/pseudo_spect.py"]
-    make_backend_files([here / path for path in paths], mocked_modules=["h5py"])
+    make_backend_files([here / path for path in paths])
 
 Note that the function :code:`make_backend_files` does not use compile the file
 produced. The compilation has to be done after the call of this function (see

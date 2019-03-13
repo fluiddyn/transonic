@@ -1,3 +1,8 @@
+"""Parser using tokenize
+========================
+
+"""
+
 from tokenize import tokenize, COMMENT
 from io import BytesIO
 

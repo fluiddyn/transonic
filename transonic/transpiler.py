@@ -27,7 +27,7 @@ from tokenize import (
 from token import tok_name
 import inspect
 from io import BytesIO
-import sys
+from warnings import warn
 from unittest.mock import MagicMock as Mock
 from contextlib import contextmanager
 from pathlib import Path
@@ -223,12 +223,7 @@ def produce_code_class_func(cls, func_name, jit=False):
     return python_code
 
 
-def make_pythran_file(
-    path_py: Path,
-    force=False,
-    log_level=None,
-    mocked_modules: Optional[Iterable] = None,
-):
+def make_pythran_file(path_py: Path, force=False, log_level=None):
     """Create a Python file from a Python file (if necessary)"""
     if log_level is not None:
         logger.set_level(log_level)
@@ -289,14 +284,19 @@ def make_backend_files(
 
     assert backend is None
 
+    if mocked_modules is not None:
+        warn(
+            "The argument mocked_modules is deprecated. "
+            "It is now useless for Transonic.",
+            DeprecationWarning,
+        )
+
     if log_level is not None:
         logger.set_level(log_level)
 
     paths_out = []
     for path in paths:
-        path_out = make_pythran_file(
-            path, force=force, mocked_modules=mocked_modules
-        )
+        path_out = make_pythran_file(path, force=force)
         if path_out:
             paths_out.append(path_out)
 

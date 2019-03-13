@@ -12,6 +12,8 @@ import beniget
 
 
 class CommentLine(ast.AST):
+    """"New AST node representing a comment line"""
+
     _fields = ("s",)
 
     def __init__(self, s, lineno=None):
@@ -22,6 +24,8 @@ class CommentLine(ast.AST):
 
 
 class UnparserExtended(astunparse.Unparser):
+    """Unparser for extented AST"""
+
     def __init__(self, tree, file, with_comments=True):
         self.with_comments = with_comments
         super().__init__(tree, file=file)
@@ -32,18 +36,22 @@ class UnparserExtended(astunparse.Unparser):
 
 
 def parse(code, *args, **kwargs):
+    """Parse a code and produce the extended AST"""
     tree = ast.parse(code, *args, **kwargs)
     CommentInserter(tree, code)
     return tree
 
 
 def unparse(tree, with_comments=True):
+    """Unparse the extended AST"""
     v = StringIO()
     UnparserExtended(tree, file=v, with_comments=with_comments)
     return v.getvalue()
 
 
 class CommentInserter(ast.NodeVisitor):
+    """Insert the CommentLine nodes in an AST tree"""
+
     def __init__(self, tree, code):
         self.tree = tree
 

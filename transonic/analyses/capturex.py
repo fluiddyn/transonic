@@ -1,3 +1,7 @@
+"""Capture the external nodes used in functions
+===============================================
+"""
+
 import gast as ast
 import beniget
 
@@ -5,6 +9,8 @@ from transonic.analyses import extast
 
 
 class CaptureX(ast.NodeVisitor):
+    """Capture the external nodes used in functions, classes and blocks"""
+
     def __init__(
         self,
         functions,

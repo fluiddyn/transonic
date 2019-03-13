@@ -1,3 +1,18 @@
+"""Code analyses
+================
+
+.. autosummary::
+   :toctree:
+
+    blocks_if
+    capturex
+    extast
+    justintime
+    parser
+    util
+
+"""
+
 from pprint import pformat
 
 import gast as ast
@@ -20,6 +35,7 @@ __all__ = ["print_dumped", "print_unparsed"]
 
 
 def compute_ancestors_chains(module_node):
+    """Create Beniget objects"""
 
     ancestors = beniget.Ancestors()
     ancestors.visit(module_node)
@@ -33,6 +49,7 @@ def compute_ancestors_chains(module_node):
 
 
 def get_boosted_dicts(module, ancestors, duc, decorator="boost"):
+    """Get the definitions of the decorated functions and classes"""
 
     kinds = ("functions", "methods", "classes")
     boosted_dicts = {kind: {} for kind in kinds}
@@ -83,7 +100,7 @@ def get_boosted_dicts(module, ancestors, duc, decorator="boost"):
 
 
 def analyse_aot(code):
-
+    """Gather the informations for ``@boost`` and blocks"""
     debug = logger.debug
 
     debug("extast.parse")

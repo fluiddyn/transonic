@@ -34,6 +34,8 @@ modules, classes and functions.
 .. autosummary::
    :toctree: generated/
 
+    transonic.analyses
+    transonic.backends
     transonic.aheadoftime
     transonic.transpiler
     transonic.annotation
