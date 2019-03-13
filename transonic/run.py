@@ -92,7 +92,7 @@ def run():
         path = Path(path)
         pythran_path = path.parent / "__pythran__" / path.name
         ext_path = pythran_path.with_suffix(ext_suffix)
-        if has_to_build(ext_path, pythran_path):
+        if pythran_path.exists() and has_to_build(ext_path, pythran_path):
             pythran_paths.append(pythran_path)
 
     compile_extensions(

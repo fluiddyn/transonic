@@ -72,8 +72,9 @@ class CaptureX(ast.NodeVisitor):
                         ):
                             return
 
-                        self.visited_external.add(defining_node)
-                        self.external.append(defining_node)
+                        if defining_node not in self.visited_external:
+                            self.visited_external.add(defining_node)
+                            self.external.append(defining_node)
         elif (
             isinstance(node.ctx, (ast.Param, ast.Store))
             and self.consider_annotations
@@ -93,6 +94,9 @@ class CaptureX(ast.NodeVisitor):
 
     def rec(self, node):
         "walk definitions to find their operands's def"
+        if node is self.func:
+            return
+
         if isinstance(node, ast.Assign):
             self.visit(node.value)
         elif isinstance(node, ast.FunctionDef):

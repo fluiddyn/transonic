@@ -38,6 +38,8 @@ if mpi.rank == 0:
     delete_pythran_files("func1")
     delete_pythran_files("func2")
     delete_pythran_files("func_dict")
+    delete_pythran_files("fib")
+    delete_pythran_files("use_fib")
 
     if path_classes_dir.exists():
         rmtree(path_classes_dir)
@@ -57,6 +59,15 @@ def test_jit():
     for _ in range(2):
         func1(a, b)
         sleep(0.1)
+
+
+def fib():
+    from .for_test_justintime import fib, use_fib
+    fib2 = fib(2)
+    result = use_fib()
+    wait_for_all_extensions()
+    assert fib2 == fib(2)
+    assert result == use_fib()
 
 
 def test_jit_simple():

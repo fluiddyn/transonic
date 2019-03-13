@@ -7,6 +7,7 @@ Defines the transonic logger (variable :code:`logger`).
 
 import logging
 from types import MethodType
+import os
 
 logger = logging.getLogger("transonic")
 
@@ -69,4 +70,9 @@ logger.set_level = MethodType(set_level, logger)
 logger.get_level = MethodType(get_level, logger)
 logger.is_enable_for = MethodType(is_enable_for, logger)
 
-logger.set_level("info")
+if os.getenv("TRANSONIC_DEBUG"):
+    level = "debug"
+else:
+    level = "info"
+
+logger.set_level(level)

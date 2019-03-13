@@ -11,7 +11,6 @@ except ImportError:
 
 import transonic
 from transonic.compat import open
-from transonic.log import logger
 from transonic.util import TypeHintRemover
 from transonic.annotation import compute_pythran_types_from_valued_types
 

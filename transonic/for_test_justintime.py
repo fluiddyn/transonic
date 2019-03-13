@@ -38,6 +38,19 @@ def func_dict(d: "str: float dict"):
     return d.popitem()
 
 
+@jit
+def fib(n: int):
+    """fibonacci"""
+    if n < 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+
+@jit
+def use_fib():
+    return [fib(n) for n in [1, 3, 5]]
+
+
 @boost
 class MyClass:
     def __init__(self):
