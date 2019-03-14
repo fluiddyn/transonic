@@ -11,5 +11,3 @@ dependencies:
     - sphinx
     - numpydoc
     - fluiddyn
-    - gast
-    - git+https://github.com/serge-sans-paille/beniget#egg=beniget

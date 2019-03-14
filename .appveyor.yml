@@ -20,8 +20,7 @@ environment:
 install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - python -m pip install -U pip setuptools wheel
-  - python -m pip install -U pytest black numpy cython gast
-  - python -m pip install -U git+https://github.com/serge-sans-paille/beniget#egg=beniget
+  - python -m pip install -U pytest black numpy cython
 
 build_script:
   - pip install -e .
