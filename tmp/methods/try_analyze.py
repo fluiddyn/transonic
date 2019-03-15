@@ -3,12 +3,10 @@ from token import tok_name
 from io import BytesIO
 import inspect
 
-import black
-
 import numpy as np
 
 from transonic.log import logger
-from transonic.util import get_source_without_decorator
+from transonic.util import get_source_without_decorator, format_str
 from transonic.annotation import compute_pythran_types_from_valued_types
 
 
@@ -124,7 +122,7 @@ def produce_pythran_code_class_func(cls, func_name):
     tokens[index_func_name] = (NAME, name_pythran_func)
 
     new_code = untokenize(tokens).decode("utf-8")
-    new_code = black.format_str(new_code, line_length=82)
+    new_code = format_str(new_code)
 
     # args_pythran = attributes + args_func
     types_pythran = types_attrs + types_func

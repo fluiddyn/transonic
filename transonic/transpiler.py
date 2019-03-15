@@ -16,10 +16,6 @@ Internal API
 from tokenize import (
     tokenize,
     untokenize,
-    COMMENT,
-    INDENT,
-    DEDENT,
-    STRING,
     NAME,
     OP,
 )
@@ -34,14 +30,9 @@ from pathlib import Path
 
 from typing import Iterable, Optional
 
-try:
-    import black
-except ImportError:
-    black = False
-
 from .log import logger
 from .annotation import compute_pythran_types_from_valued_types
-from .util import has_to_build, get_source_without_decorator
+from .util import has_to_build, get_source_without_decorator, format_str
 from .compat import open, fspath
 
 from transonic.backends.pythran import make_pythran_code
@@ -217,8 +208,7 @@ def produce_code_class_func(cls, func_name, jit=False):
             '\n\n"""\n'
         )
 
-    if black:
-        python_code = black.format_str(python_code, line_length=82)
+    python_code = format_str(python_code)
 
     return python_code
 

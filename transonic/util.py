@@ -56,9 +56,27 @@ from typing import Callable
 import astunparse
 
 try:
+    # since black is still beta (in 03/2019), we can not impose a version :-(
     import black
 except ImportError:
-    black = False
+
+    def format_str(src_contents):
+        return src_contents
+
+
+else:
+    try:
+        _mode = black.FileMode(line_length=82)
+    except TypeError:
+
+        def format_str(src_contents: str):
+            return black.format_str(src_contents, line_length=82)
+
+    else:
+
+        def format_str(src_contents: str):
+            return black.format_str(src_contents, mode=_mode)
+
 
 try:
     import pythran
@@ -179,8 +197,7 @@ class TypeHintRemover(ast.NodeTransformer):
 def strip_typehints(source):
     """Strip the type hints from a function"""
 
-    if black:
-        source = black.format_str(source, line_length=82)
+    source = format_str(source)
 
     # parse the source code into an AST
     parsed_source = ast.parse(source)

@@ -6,7 +6,7 @@
 
 from tokenize import tokenize, untokenize, NAME, OP
 from io import BytesIO
-from token import tok_name
+# from token import tok_name
 from textwrap import indent
 
 
@@ -17,7 +17,7 @@ except ImportError:
 
 import transonic
 from transonic.compat import open
-from transonic.util import TypeHintRemover
+from transonic.util import TypeHintRemover, format_str
 from transonic.annotation import compute_pythran_types_from_valued_types
 
 from transonic.analyses import analyse_aot
@@ -30,8 +30,7 @@ def get_code_function(fdef):
     # convert the AST back to source code
     code = extast.unparse(transformed)
 
-    if black:
-        code = black.format_str(code, line_length=82)
+    code = format_str(code)
 
     return code
 
@@ -191,8 +190,7 @@ def produce_code_for_method(
             '\n\n"""\n'
         )
 
-    if black:
-        python_code = black.format_str(python_code, line_length=82)
+    python_code = format_str(python_code)
 
     return python_code
 
@@ -297,7 +295,6 @@ def make_pythran_code(path_py):
             f"__transonic__ = ('{transonic.__version__}',)"
         )
 
-    if black:
-        code = black.format_str(code, line_length=82)
+    code = format_str(code)
 
     return code
