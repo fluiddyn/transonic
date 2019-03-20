@@ -1,5 +1,5 @@
-Transonic: Make your Python code fly at transonic speeds!
-=========================================================
+Make your Python code fly at *transonic* speeds!
+================================================
 
 |release| |docs| |coverage| |travis| |appveyor|
 
@@ -56,6 +56,12 @@ speedup)!
 The long-term project
 ---------------------
 
+.. note ::
+
+  The context of the creation of Transonic is presented in these slices:
+  `Overview of the Python HPC landscape and zoom on Transonic
+  <http://www.legi.grenoble-inp.fr/people/Pierre.Augier/docs/ipynbslides/20190319_PySciDataGre_transonic/pres_20190319_PySciDataGre_transonic.slides.html>`_.
+
 Transonic targets Python end-users and library developers.
 
 It is based on the following principles:
@@ -76,8 +82,8 @@ It is based on the following principles:
   code specialized for only one of these tools.
 
 - Let's try to keep the code as it would be written without acceleration. For
-  example, with Transonic, we are able to accelerate (simple) methods of
-  classes even though most of the accelerators don't support classes.
+  example, with Transonic, we are able to accelerate (simple) methods of classes
+  even though some accelerators don't support classes.
 
 - Let's accelerate/compile only what needs to be accelerated, i.e. only the
   bottlenecks. Python and its interpreters are good for the rest. In most
@@ -100,7 +106,7 @@ It is based on the following principles:
   cache mechanism).
 
   In contrast, some JIT compilers cannot be used as AOT compilers. For these
-  tools, the AOT decorators are used in a JIT mode.
+  tools, the AOT decorators will be used in a JIT mode.
 
 To summarize, a **strategy to quickly develop a very efficient scientific
 application/library** with Python could be:
