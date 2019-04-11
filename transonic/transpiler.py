@@ -13,12 +13,7 @@ Internal API
 
 """
 
-from tokenize import (
-    tokenize,
-    untokenize,
-    NAME,
-    OP,
-)
+from tokenize import tokenize, untokenize, NAME, OP
 
 from token import tok_name
 import inspect

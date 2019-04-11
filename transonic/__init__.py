@@ -1,11 +1,6 @@
 from ._version import __version__
 from .justintime import jit, set_compile_jit
 
-try:
-    from ._path_data_tests import path_data_tests
-except ImportError:
-    pass
-
 from .annotation import Array, NDim, Type, Shape, Union
 
 from .aheadoftime import Transonic, boost, include
@@ -18,7 +13,6 @@ __all__ = [
     "Transonic",
     "boost",
     "include",
-    "path_data_tests",
     "Array",
     "NDim",
     "Type",

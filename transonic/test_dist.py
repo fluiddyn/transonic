@@ -13,7 +13,7 @@ from .dist import (
     ParallelBuildExt,
     get_logger,
 )
-from . import path_data_tests
+from .path_data_tests import path_data_tests
 
 
 can_actually_import_pythran = copy(dist.can_import_pythran)
@@ -23,6 +23,7 @@ def setup_module():
     dist.can_import_pythran = True
 
 
+@pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
 def test_detect_pythran_extensions():
 
@@ -45,6 +46,7 @@ def test_detect_pythran_extensions():
     shutil.rmtree(path_data_tests / "__pythran__", ignore_errors=True)
 
 
+@pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
 def test_modification_date():
 
@@ -52,6 +54,7 @@ def test_modification_date():
     get_logger("bar")
 
 
+@pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
 def test_build_ext():
     dist = Distribution()

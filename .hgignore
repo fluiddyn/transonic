@@ -29,5 +29,3 @@ doc/ipynb/*.rst
 *.egg-info/*
 
 **/__pythran__/*
-
-transonic/_path_data_tests.py

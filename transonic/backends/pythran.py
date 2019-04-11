@@ -6,6 +6,7 @@
 
 from tokenize import tokenize, untokenize, NAME, OP
 from io import BytesIO
+
 # from token import tok_name
 from textwrap import indent
 

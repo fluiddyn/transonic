@@ -5,7 +5,7 @@ import shutil
 from contextlib import suppress
 
 import pytest
-from . import path_data_tests
+from .path_data_tests import path_data_tests
 from .dist import make_backend_files
 from .mpi import nb_proc
 
@@ -19,6 +19,7 @@ def setup_module():
     make_backend_files(trasonic_src_paths)
 
 
+@pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No build_ext in MPI")
 def test_buildext():
     os.chdir(setup_dir)
