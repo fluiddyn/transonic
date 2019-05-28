@@ -1,6 +1,7 @@
 import sys
 import os
 from time import sleep
+from shutil import rmtree
 
 import numpy as np
 
@@ -13,7 +14,6 @@ from .util import path_jit_classes
 from .justintime import path_jit, modules
 from .pythranizer import scheduler, wait_for_all_extensions
 from . import mpi
-from .compat import rmtree
 
 scheduler.nb_cpus = 2
 

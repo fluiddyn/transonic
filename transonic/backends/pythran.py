@@ -17,7 +17,6 @@ except ImportError:
     black = False
 
 import transonic
-from transonic.compat import open
 from transonic.util import TypeHintRemover, format_str
 from transonic.annotation import compute_pythran_types_from_valued_types
 

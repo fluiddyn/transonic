@@ -20,7 +20,6 @@ from .transpiler import make_backend_files
 from .log import logger
 from .pythranizer import compile_extensions, ext_suffix
 from .util import has_to_build, clear_cached_extensions
-from .compat import fspath
 
 try:
     import pythran
@@ -75,7 +74,7 @@ def run():
         elif path.is_dir():
             paths = path.glob("*.py")
         else:
-            paths = glob(fspath(path))
+            paths = glob(str(path))
 
     if not paths:
         logger.error(f"No input file found (args.path = {args.path})")

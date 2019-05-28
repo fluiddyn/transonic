@@ -79,7 +79,6 @@ from .annotation import make_signatures_from_typehinted_func, normalize_type_nam
 
 from .aheadoftime import TransonicTemporaryJITMethod
 
-from .compat import open
 from . import mpi
 from .log import logger
 from .config import has_to_replace

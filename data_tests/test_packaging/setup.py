@@ -6,7 +6,6 @@ from transonic.dist import (
     init_pythran_extensions,
     ParallelBuildExt,
 )
-from transonic.compat import fspath
 
 
 path_sources = Path(__file__).parent.absolute()
@@ -19,10 +18,10 @@ except ImportError:
     extensions = [
         Extension(
             "add_cython",
-            include_dirs=[fspath(path_sources)] + include_dirs,
+            include_dirs=[str(path_sources)] + include_dirs,
             libraries=["m"],
             library_dirs=[],
-            sources=[fspath(path_sources / "add_cython.c")],
+            sources=[str(path_sources / "add_cython.c")],
         )
     ]
     print(extensions)

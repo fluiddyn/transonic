@@ -49,7 +49,6 @@ from .log import logger
 from . import mpi
 from .mpi import Path
 from .config import has_to_replace
-from .compat import fspath
 
 if mpi.nb_proc == 1:
     mpi.has_to_build = has_to_build
@@ -232,7 +231,7 @@ class Transonic:
                             "-m",
                             "transonic.run",
                             "-np",
-                            fspath(path_mod),
+                            str(path_mod),
                         ]
                     )
                     del os.environ["TRANSONIC_NO_MPI"]

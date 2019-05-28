@@ -1,8 +1,7 @@
 import importlib
+from shutil import rmtree
 
 from . import Transonic, mpi
-
-from .compat import rmtree
 from .mpi import Path
 
 

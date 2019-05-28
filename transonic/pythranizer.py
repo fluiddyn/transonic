@@ -33,7 +33,6 @@ import sys
 import os
 from datetime import datetime
 
-from .compat import open, implementation
 from . import mpi
 from .mpi import Path, PathSeq
 from .log import logger
@@ -188,9 +187,6 @@ class SchedulerPopen:
         words_command.extend(flags)
 
         cwd = path.parent
-        if implementation == "PyPy":
-            cwd = str(cwd)
-            words_command = [str(word) for word in words_command]
 
         self.block_until_avail(parallel)
 

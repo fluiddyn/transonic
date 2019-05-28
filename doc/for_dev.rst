@@ -5,3 +5,4 @@ For developers
    :maxdepth: 1
 
    todo
+   pypy

@@ -1,13 +1,13 @@
 import sys
 import time
 import os
+from shutil import rmtree
 
 import pytest
 
 from .path_data_tests import path_data_tests
 from .run import run
 from . import util
-from .compat import rmtree
 from .mpi import nb_proc
 
 path_dir_out = path_data_tests / "__pythran__"

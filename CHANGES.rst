@@ -6,6 +6,11 @@ Future
 - Alternative syntax for blocks (see `issue #29
   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_)
 
+0.2.1 (2019-04-11)
+------------------
+
+- bugfixes: specifying gast version (>= 0.2.2) + path_data_tests
+
 0.2.0 (2019-03-15)
 ------------------
 

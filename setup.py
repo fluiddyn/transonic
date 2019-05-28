@@ -1,16 +1,6 @@
 from setuptools import setup, find_packages
-from runpy import run_path as run_path_
+from runpy import run_path as run_path
 from pathlib import Path
-import platform
-
-if platform.python_implementation() == "PyPy":
-
-    def run_path(path):
-        return run_path_(str(path))
-
-
-else:
-    run_path = run_path_
 
 here = Path(__file__).parent.absolute()
 

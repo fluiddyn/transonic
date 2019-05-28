@@ -28,7 +28,6 @@ from typing import Iterable, Optional
 from .log import logger
 from .annotation import compute_pythran_types_from_valued_types
 from .util import has_to_build, get_source_without_decorator, format_str
-from .compat import open, fspath
 
 from transonic.backends.pythran import make_pythran_code
 
@@ -253,7 +252,7 @@ def make_pythran_file(path_py: Path, force=False, log_level=None):
     with open(path_pythran, "w") as file:
         file.write(code_pythran)
 
-    logger.info(f"File {fspath(path_pythran)} written")
+    logger.info(f"File {path_pythran} written")
 
     return path_pythran
 
