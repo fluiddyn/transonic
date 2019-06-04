@@ -30,6 +30,8 @@ class UnparserExtended(astunparse.Unparser):
         self.with_comments = with_comments
         super().__init__(tree, file=file)
 
+    boolops = {ast.And: "and", ast.Or: "or"}
+
     def _CommentLine(self, node):
         if self.with_comments:
             self.write(f"\n{'    '* self._indent}{node.s}")
