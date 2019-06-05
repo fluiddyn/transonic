@@ -6,15 +6,16 @@ Future
 - Alternative syntax for blocks (see `issue #29
   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_)
 
-0.2.2 (?)
----------
+0.2.2 (2019-06-05)
+------------------
 
-- bugfix `and` and `or`!
+- Bugfix `and` and `or`!
+- Fix issue #15 (selection code annotations)
 
 0.2.1 (2019-04-11)
 ------------------
 
-- bugfixes: specifying gast version (>= 0.2.2) + path_data_tests
+- Bugfixes: specifying gast version (>= 0.2.2) + path_data_tests
 
 0.2.0 (2019-03-15)
 ------------------
