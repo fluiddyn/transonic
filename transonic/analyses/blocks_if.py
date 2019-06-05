@@ -4,8 +4,10 @@
 """
 
 import gast as ast
-
+import beniget
+from transonic.analyses import extast
 from transonic.analyses.util import gather_rawcode_comments
+from transonic.analyses.capturex import CaptureX
 
 
 class BlockDefinition:
@@ -18,8 +20,10 @@ class BlockDefinition:
     def __repr__(self):
         return repr(self.kwargs)
 
-    def parse_comments(self, namespace=None):
-        self.signatures = get_signatures_from_comments(self.comments, namespace)
+    def parse_comments(self, namespace=None, info_analysis=None):
+        self.signatures = get_signatures_from_comments(
+            self.comments, namespace, info_analysis
+        )
 
 
 def get_block_definitions(code, module, ancestors, duc, udc):
@@ -112,9 +116,28 @@ def find_index_closing_parenthesis(string: str):
     raise SyntaxError(f"Transonic syntax error for string {string}")
 
 
-def get_signatures_from_comments(comments, namespace=None):
-    """Get the blocks signatures for a block"""
+def find_last_def_node(variable, module):
+    for node in module.body[::-1]:
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if target.id == variable:
+                    return node
+    raise RuntimeError
 
+
+def find_def_code(variable: str, module: dict, ancestors, udc, duc):
+
+    node_def_var = find_last_def_node(variable, module)
+
+    capturex = CaptureX(
+        [node_def_var], module, ancestors, defuse_chains=duc, usedef_chains=udc
+    )
+
+    return capturex.make_code_external() + extast.unparse(node_def_var)
+
+
+def get_signatures_from_comments(comments, namespace=None, info_analysis=None):
+    """Get the blocks signatures for a block"""
     if namespace is None:
         namespace = {}
 
@@ -133,25 +156,34 @@ def get_signatures_from_comments(comments, namespace=None):
 
     tmp = signatures
     signatures = []
-
     for sig_str in tmp:
         sig_dict = {}
         type_vars_strs = [tmp.strip() for tmp in sig_str.split(";")]
         type_vars_strs = [tmp for tmp in type_vars_strs if tmp]
         for type_vars_str in type_vars_strs:
             type_, vars_str = type_vars_str.strip().split(" ", 1)
-
             if type_ in namespace:
                 type_ = namespace[type_]
             else:
                 try:
                     type_ = eval(type_)
+                except NameError:
+                    code_def_var = find_def_code(
+                        type_,
+                        info_analysis["module"],
+                        info_analysis["ancestors"],
+                        info_analysis["udc"],
+                        info_analysis["duc"],
+                    )
+
+                    namespace = {}
+                    exec(code_def_var, namespace)
+                    type_ = namespace[type_]
+
                 except (SyntaxError, TypeError):
                     pass
-
             for var_str in vars_str.split(","):
                 var_str = var_str.strip()
                 sig_dict[var_str] = type_
         signatures.append(sig_dict)
-
     return signatures

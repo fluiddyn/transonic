@@ -118,12 +118,31 @@ def analyse_aot(code):
     debug(pformat(boosted_dicts))
 
     debug("compute the annotations")
-    namespace = {}
 
     from transonic import aheadoftime
 
     aheadoftime.is_transpiling = True
+
+    def_nodes = [
+        def_node
+        for boosted_dict in boosted_dicts.values()
+        for def_node in boosted_dict.values()
+    ]
+
+    capturex = CaptureX(
+        def_nodes,
+        module,
+        ancestors,
+        defuse_chains=duc,
+        usedef_chains=udc,
+        consider_annotations="only",
+    )
+
+    code_dependance_annotations = capturex.make_code_external()
+
+    namespace = {}
     exec(code_dependance_annotations, namespace)
+
     aheadoftime.is_transpiling = False
 
     annotations = {}
@@ -141,8 +160,15 @@ def analyse_aot(code):
     debug("get_block_definitions")
     blocks = get_block_definitions(code, module, ancestors, duc, udc)
 
+    info_analysis = {
+        "ancestors": ancestors,
+        "duc": duc,
+        "udc": udc,
+        "module": module,
+    }
+
     for block in blocks:
-        block.parse_comments(namespace)
+        block.parse_comments(namespace, info_analysis)
 
     debug(pformat(blocks))
 

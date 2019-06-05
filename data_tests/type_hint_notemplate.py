@@ -1,4 +1,7 @@
+from functools import partial
+
 import numpy as np
+
 import transonic as ts
 from transonic import Type, NDim, Array, Union
 
@@ -20,3 +23,6 @@ def compute(a: A, b: A, c: T, d: Union[A, A1], e: str):
     print(e)
     tmp = a + b
     return tmp > 1 and tmp > 2
+
+
+main = partial(lambda x: x, lambda x: x)
