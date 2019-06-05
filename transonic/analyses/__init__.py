@@ -165,6 +165,7 @@ def analyse_aot(code):
         "duc": duc,
         "udc": udc,
         "module": module,
+        "def_nodes": def_nodes,
     }
 
     for block in blocks:
@@ -173,12 +174,6 @@ def analyse_aot(code):
     debug(pformat(blocks))
 
     debug("compute code dependance")
-
-    def_nodes = [
-        def_node
-        for boosted_dict in boosted_dicts.values()
-        for def_node in boosted_dict.values()
-    ]
 
     # remove the decorator (boost) to compute the code dependance
     # + do not consider the class annotations

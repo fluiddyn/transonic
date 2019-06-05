@@ -125,15 +125,32 @@ def find_last_def_node(variable, module):
     raise RuntimeError
 
 
-def find_def_code(variable: str, module: dict, ancestors, udc, duc):
+def find_def_code(
+    variables: set, def_nodes: list, module: dict, ancestors, udc, duc
+):
 
-    node_def_var = find_last_def_node(variable, module)
+    nodes_def_vars = [
+        find_last_def_node(variable, module) for variable in variables
+    ]
 
     capturex = CaptureX(
-        [node_def_var], module, ancestors, defuse_chains=duc, usedef_chains=udc
+        list(nodes_def_vars) + def_nodes,
+        module,
+        ancestors,
+        defuse_chains=duc,
+        usedef_chains=udc,
     )
 
-    return capturex.make_code_external() + extast.unparse(node_def_var)
+    lines_ext = []
+    for node in capturex.external:
+        lines_ext.append(extast.unparse(node).strip())
+
+    for node in nodes_def_vars:
+        line = extast.unparse(node).strip()
+        if line not in lines_ext:
+            lines_ext.append(line)
+
+    return "\n".join(lines_ext)
 
 
 def get_signatures_from_comments(comments, namespace=None, info_analysis=None):
@@ -154,6 +171,35 @@ def get_signatures_from_comments(comments, namespace=None, info_analysis=None):
             sig = sig[1 : find_index_closing_parenthesis(sig)]
         signatures.append(sig)
 
+    types_NameError = set()
+    for sig_str in signatures:
+        type_vars_strs = [tmp.strip() for tmp in sig_str.split(";")]
+        type_vars_strs = [tmp for tmp in type_vars_strs if tmp]
+
+        for type_vars_str in type_vars_strs:
+            type_, vars_str = type_vars_str.strip().split(" ", 1)
+            if type_ not in namespace:
+                try:
+                    eval(type_)
+                except NameError:
+                    types_NameError.add(type_)
+                except (SyntaxError, TypeError):
+                    pass
+
+    if types_NameError:
+        # create a namespace for the variables defined at the module level
+        code_def_var = find_def_code(
+            types_NameError,
+            info_analysis["def_nodes"],
+            info_analysis["module"],
+            info_analysis["ancestors"],
+            info_analysis["udc"],
+            info_analysis["duc"],
+        )
+
+        namespace = {}
+        exec(code_def_var, namespace)
+
     tmp = signatures
     signatures = []
     for sig_str in tmp:
@@ -167,19 +213,6 @@ def get_signatures_from_comments(comments, namespace=None, info_analysis=None):
             else:
                 try:
                     type_ = eval(type_)
-                except NameError:
-                    code_def_var = find_def_code(
-                        type_,
-                        info_analysis["module"],
-                        info_analysis["ancestors"],
-                        info_analysis["udc"],
-                        info_analysis["duc"],
-                    )
-
-                    namespace = {}
-                    exec(code_def_var, namespace)
-                    type_ = namespace[type_]
-
                 except (SyntaxError, TypeError):
                     pass
             for var_str in vars_str.split(","):
