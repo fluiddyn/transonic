@@ -18,7 +18,7 @@ import sys
 from . import __version__
 from .transpiler import make_backend_files
 from .log import logger
-from .pythranizer import compile_extensions, ext_suffix
+from .pythranizer import compile_extensions, ext_suffix, wait_for_all_extensions
 from .util import has_to_build, clear_cached_extensions
 
 try:
@@ -98,6 +98,9 @@ def run():
         pythran_paths, args.pythran_flags, parallel=True, force=args.force
     )
 
+    if not args.no_blocking:
+        wait_for_all_extensions()
+
 
 def parse_args():
     """Parse the arguments"""
@@ -127,13 +130,20 @@ def parse_args():
     )
 
     parser.add_argument(
+        "-nb",
+        "--no-blocking",
+        help="launch the compilation in the background and return",
+        action="store_true",
+    )
+
+    parser.add_argument(
         "-pf",
         "--pythran-flags",
         help=(
             "Flags sent to Pythran. "
             'Default is "-march=native -DUSE_XSIMD". '
             "There has to be atleast one space in the passed string! "
-            'Example: transonic toto.py -pf "-march=native "\n'
+            'Example: transonic foo.py -pf "-march=native "\n'
         ),
         type=str,
         default="",
@@ -142,7 +152,7 @@ def parse_args():
     parser.add_argument(
         "-cc",
         "--clear-cache",
-        help=("Clear the cached extensions for a module"),
+        help=("clear the cached extensions for a module"),
         type=str,
         # default="",
     )
