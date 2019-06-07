@@ -6,7 +6,7 @@
 from transonic.log import logger
 
 from transonic.analyses import extast
-from transonic.analyses import compute_ancestors_chains, get_boosted_dicts
+from transonic.analyses import compute_ancestors_chains, get_decorated_dicts
 from transonic.analyses.capturex import CaptureX
 
 
@@ -21,7 +21,9 @@ def analysis_jit(code):
     debug("compute ancestors and chains")
     ancestors, duc, udc = compute_ancestors_chains(module)
 
-    jitted_dicts = get_boosted_dicts(module, ancestors, duc, decorator="jit")
+    # boosted_dicts = get_boosted_dicts(module, ancestors, duc)
+
+    jitted_dicts = get_decorated_dicts(module, ancestors, duc, decorator="jit")
 
     debug("compute code dependance")
 

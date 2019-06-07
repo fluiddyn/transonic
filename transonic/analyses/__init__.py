@@ -48,28 +48,41 @@ def compute_ancestors_chains(module_node):
     return ancestors, duc, udc
 
 
-def get_boosted_dicts(module, ancestors, duc, decorator="boost"):
+def find_decorated_function(module, function_name: str):
+    for node in module.body:
+        if isinstance(node, ast.FunctionDef):
+            if node.name == function_name:
+                return node
+    raise RuntimeError
+
+
+def get_decorated_dicts(module, ancestors, duc, decorator="boost"):
     """Get the definitions of the decorated functions and classes"""
 
     kinds = ("functions", "methods", "classes")
-    boosted_dicts = {kind: {} for kind in kinds}
+    decorated_dicts = {kind: {} for kind in kinds}
 
     def add_definition(definition_node):
         if isinstance(definition_node, ast.Call):
             definition_node = ancestors.parent(definition_node)
-        boosted_dict = None
-        key = definition_node.name
+        decorated_dict = None
+        if isinstance(definition_node, ast.Assign):
+            key = definition_node.value.args[0].id
+            definition_node = find_decorated_function(module, key)
+            decorated_dict = decorated_dicts["functions"]
+        else:
+            key = definition_node.name
         if isinstance(definition_node, ast.FunctionDef):
             parent = ancestors.parent(definition_node)
             if isinstance(parent, ast.ClassDef):
-                boosted_dict = boosted_dicts["methods"]
+                decorated_dict = decorated_dicts["methods"]
                 key = (parent.name, key)
             else:
-                boosted_dict = boosted_dicts["functions"]
+                decorated_dict = decorated_dicts["functions"]
         elif isinstance(definition_node, ast.ClassDef):
-            boosted_dict = boosted_dicts["classes"]
-        if boosted_dict is not None:
-            boosted_dict[key] = definition_node
+            decorated_dict = decorated_dicts["classes"]
+        if decorated_dict is not None:
+            decorated_dict[key] = definition_node
 
     # we first need to find the node where transonic.boost is defined...
     for node in module.body:
@@ -89,14 +102,14 @@ def get_boosted_dicts(module, ancestors, duc, decorator="boost"):
         elif isinstance(node, ast.ImportFrom):
             if node.module == "transonic":
                 for alias in node.names:
-                    if alias.name == decorator:
+                    if alias.name == decorator or alias.name == "jit":
                         boost_def_node = alias
                         boost_def = duc.chains[boost_def_node]
                         for user in boost_def.users():
                             definition_node = ancestors.parent(user.node)
                             add_definition(definition_node)
 
-    return boosted_dicts
+    return decorated_dicts
 
 
 def analyse_aot(code):
@@ -114,7 +127,7 @@ def analyse_aot(code):
     debug(code_dependance_annotations)
 
     debug("find boosted objects")
-    boosted_dicts = get_boosted_dicts(module, ancestors, duc)
+    boosted_dicts = get_decorated_dicts(module, ancestors, duc)
     debug(pformat(boosted_dicts))
 
     debug("compute the annotations")
