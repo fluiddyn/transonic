@@ -102,7 +102,7 @@ def get_decorated_dicts(module, ancestors, duc, decorator="boost"):
         elif isinstance(node, ast.ImportFrom):
             if node.module == "transonic":
                 for alias in node.names:
-                    if alias.name == decorator or alias.name == "jit":
+                    if alias.name == decorator:
                         boost_def_node = alias
                         boost_def = duc.chains[boost_def_node]
                         for user in boost_def.users():

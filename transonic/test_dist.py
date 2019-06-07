@@ -43,7 +43,7 @@ def test_detect_pythran_extensions():
 
     make_backend_files((path_data_tests / name for name in names))
     ext_names = detect_pythran_extensions(path_data_tests)
-    assert len(ext_names) == len(names) - 1
+    assert len(ext_names) == len(names) - 2
 
     shutil.rmtree(path_data_tests / "__pythran__", ignore_errors=True)
 
