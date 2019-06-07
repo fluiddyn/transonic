@@ -15,6 +15,13 @@ def func_tmp(arg):
     return arg ** 2
 
 
+def func0(a, b):
+    return a + b
+
+
+func0_boosted = boost(func0)
+
+
 A = Union[int, Array[int, "1d"]]
 
 

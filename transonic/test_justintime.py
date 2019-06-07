@@ -40,6 +40,7 @@ if mpi.rank == 0:
     delete_pythran_files("func_dict")
     delete_pythran_files("fib")
     delete_pythran_files("use_fib")
+    delete_pythran_files("func0")
 
     if path_classes_dir.exists():
         rmtree(path_classes_dir)
@@ -141,3 +142,13 @@ def test_jit_method():
     wait_for_all_extensions()
 
     obj.check()
+
+
+def test_func0():
+    from .for_test_justintime import func0, func0_jitted
+
+    func02 = func0(2)
+    result = func0_jitted(2)
+    wait_for_all_extensions()
+    assert func02 == func0(2)
+    assert result == func0(2)

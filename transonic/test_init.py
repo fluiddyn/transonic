@@ -3,6 +3,7 @@ from shutil import rmtree
 
 from . import Transonic, mpi
 from .mpi import Path
+from .pythranizer import wait_for_all_extensions
 
 
 def test_not_transonified():
@@ -28,3 +29,13 @@ def test_not_transonified():
 
 def test_use_pythran_false():
     Transonic(use_transonified=False)
+
+
+def test_assign_boosted_func():
+    from .for_test_init import func0, func0_boosted
+
+    func02 = func0(2, 6)
+    result = func0_boosted(2, 6)
+    wait_for_all_extensions()
+    assert func02 == func0(2, 6)
+    assert result == func0(2, 6)

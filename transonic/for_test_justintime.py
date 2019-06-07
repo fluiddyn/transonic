@@ -12,6 +12,9 @@ def func():
     return 1
 
 
+func0_jitted = jit(func0)
+
+
 @jit
 def func1(a: "int[][] or float[]", l: "int list"):
     tmp = np.exp(sum(l))

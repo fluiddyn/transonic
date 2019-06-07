@@ -21,8 +21,6 @@ def analysis_jit(code):
     debug("compute ancestors and chains")
     ancestors, duc, udc = compute_ancestors_chains(module)
 
-    # boosted_dicts = get_boosted_dicts(module, ancestors, duc)
-
     jitted_dicts = get_boosted_dicts(module, ancestors, duc, decorator="jit")
 
     debug("compute code dependance")

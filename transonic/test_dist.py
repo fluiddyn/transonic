@@ -37,6 +37,8 @@ def test_detect_pythran_extensions():
         "blocks_type_hints.py",
         "classic.py",
         "mixed_classic_type_hint.py",
+        "assign_func_boost.py",
+        "assign_func_jit.py",
     ]
 
     make_backend_files((path_data_tests / name for name in names))
