@@ -26,9 +26,30 @@ def test_create_pythran_files():
     sys.argv = f"transonic -np {path_data_tests}".split()
     run()
 
-    paths = path_data_tests.glob("*.py")
+    paths = tuple(path_data_tests.glob("*.py"))
     sys.argv = ["transonic", "-np"] + [str(path) for path in paths]
     run()
+
+    # At this point, we can compare the produced files with saved files.
+    no_compare = ["no_pythran_.py", "assign_func_jit.py"]
+    for path in paths:
+        if path.name in no_compare:
+            continue
+
+        __pythran__path = path.parent / "__pythran__" / path.name
+        assert __pythran__path.exists()
+        saved_path = path.parent / "saved__pythran__" / path.name
+        assert saved_path.exists()
+
+        with open(__pythran__path) as file:
+            code = file.read()
+        with open(saved_path) as file:
+            saved_code = file.read()
+
+        code = code.split("# pythran export __transonic__", 1)[0]
+        saved_code = saved_code.split("# pythran export __transonic__", 1)[0]
+        # warning: it is a strong requirement!
+        assert code == saved_code
 
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
