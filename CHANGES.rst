@@ -3,14 +3,22 @@ Future
 ------
 
 - Ability to use Cython and Numba (?)
-- Alternative syntax for blocks (see `issue #29
+- Alternative syntax for blocks (`issue #29
   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_)
+- Source in multiple files (`issue #14
+  <https://bitbucket.org/fluiddyn/fluidpythran/issues/14>`_)
+
+0.2.3 (2019-06-11)
+------------------
+
+- The command transonic now blocks until the end of a AOT compilation
+- Fix issue #13 (`jit(func)` and `boost(func)`, by Pierre Blanc-fatin)
 
 0.2.2 (2019-06-05)
 ------------------
 
-- Bugfix `and` and `or`!
-- Fix issue #15 (selection code annotations)
+- Bugfix `and` and `or` (gast)!
+- Fix issue #15 (selection code annotations, by Pierre Blanc-fatin)
 
 0.2.1 (2019-04-11)
 ------------------
