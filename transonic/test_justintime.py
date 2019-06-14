@@ -152,3 +152,12 @@ def test_func0():
     wait_for_all_extensions()
     assert func02 == func0(2)
     assert result == func0(2)
+
+
+# jitted function that uses a local function
+def test_main():
+    from .for_test_justintime import main
+
+    main_res = main(2)
+    wait_for_all_extensions()
+    assert main_res == 4

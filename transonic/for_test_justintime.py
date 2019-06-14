@@ -69,3 +69,15 @@ class MyClass:
 
     def check(self):
         assert self.myfunc(1) == 3
+
+
+from .exterior_import_jit import func_import, foo
+from numpy import pi
+
+foo = 1
+const = 1
+
+
+@jit
+def main(add):
+    return foo + add + func_import() + pi - pi
