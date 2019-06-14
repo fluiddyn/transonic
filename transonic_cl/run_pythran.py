@@ -88,7 +88,9 @@ def main():
     args.insert(0, "pythran")
     name_lock.touch()
     try:
-        completed_process = subprocess.run(args, stdout=stdout, stderr=stderr)
+        completed_process = subprocess.run(
+            args, stdout=stdout, stderr=stderr, universal_newlines=True
+        )
     except Exception:
         pass
     finally:
