@@ -160,4 +160,4 @@ def test_main():
 
     main_res = main(2)
     wait_for_all_extensions()
-    assert main_res == 4
+    assert main_res == 5

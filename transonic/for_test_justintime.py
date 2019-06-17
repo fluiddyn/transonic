@@ -74,10 +74,9 @@ class MyClass:
 from .exterior_import_jit import func_import, foo
 from numpy import pi
 
-foo = 1
 const = 1
 
 
 @jit
-def main(add):
+def main(add: int):
     return foo + add + func_import() + pi - pi
