@@ -1,6 +1,6 @@
 import h5py
 import numpy as np
-from .exterior_import_jit_2 import func_import_2
+from .for_test_exterior_import_jit_2 import func_import_2
 
 
 const = 1

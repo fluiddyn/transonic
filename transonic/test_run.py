@@ -31,7 +31,13 @@ def test_create_pythran_files():
     run()
 
     # At this point, we can compare the produced files with saved files.
-    no_compare = ["no_pythran_.py", "assign_func_jit.py"]
+    # For exterior files, we can't compare cause transonic changes their names
+    no_compare = [
+        "no_pythran_.py",
+        "assign_func_jit.py",
+        "exterior_import_boost.py",
+        "exterior_import_boost_2.py",
+    ]
     for path in paths:
         if path.name in no_compare:
             continue

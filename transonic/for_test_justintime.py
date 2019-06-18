@@ -71,7 +71,7 @@ class MyClass:
         assert self.myfunc(1) == 3
 
 
-from .exterior_import_jit import func_import, foo
+from .for_test_exterior_import_jit import func_import, foo
 from numpy import pi
 
 const = 1

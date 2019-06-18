@@ -17,7 +17,6 @@ from pprint import pformat
 
 import gast as ast
 import beniget
-
 from transonic.log import logger
 
 from .util import (
@@ -25,6 +24,8 @@ from .util import (
     get_annotations,
     print_dumped,
     print_unparsed,
+    find_path,
+    change_import_name,
 )
 from .capturex import CaptureX
 from .blocks_if import get_block_definitions
@@ -112,7 +113,7 @@ def get_decorated_dicts(module, ancestors, duc, decorator="boost"):
     return decorated_dicts
 
 
-def analyse_aot(code):
+def analyse_aot(code, pathfile):
     """Gather the informations for ``@boost`` and blocks"""
     debug = logger.debug
 
@@ -212,6 +213,99 @@ def analyse_aot(code):
     )
 
     code_dependance = capturex.make_code_external()
+
+    import sys
+
+    def filter_external_code(module: object, names: list):
+        """ Filter the module to keep only the necessary nodes 
+            needed by functions or class in the parameter names
+        """
+        import gast as ast
+
+        code_dependance_annotations = ""
+        code = ""
+        for node in module.body:
+            for name in names:
+                if isinstance(node, ast.FunctionDef):
+                    if node.name == extast.unparse(name).rstrip("\n\r"):
+                        ancestors, duc, udc = compute_ancestors_chains(module)
+                        capturex = CaptureX(
+                            [node],
+                            module,
+                            ancestors,
+                            defuse_chains=duc,
+                            usedef_chains=udc,
+                            consider_annotations=None,
+                        )
+                        code += " \n " + str(extast.unparse(node))
+                        code_dependance_annotations = (
+                            capturex.make_code_external()
+                        )
+                if isinstance(node, ast.Assign):
+                    if node.targets[0].id == extast.unparse(name).rstrip("\n\r"):
+                        code += str(extast.unparse(node))
+                if isinstance(node, ast.ClassDef):
+                    if node.name == extast.unparse(name).rstrip("\n\r"):
+                        print_dumped(node)
+                        code += str(extast.unparse(node))
+
+        return code_dependance_annotations + code
+
+    code_ext = {}
+
+    def get_exterior_code(codes_dependance: dict, previous_file_name=None):
+        """ Get all imported functions needed by jitted functions add multiple levels,
+            i.e get functions needed by functions needed by jitted function. 
+        """
+        for func, dep in codes_dependance.items():
+            if dep:
+                module_ext = extast.parse(dep)
+                for node in module_ext.body:
+                    if isinstance(node, ast.ImportFrom) or isinstance(
+                        node, ast.Import
+                    ):
+                        # get the path of the imported module
+                        file_name, file_path = find_path(node, pathfile)
+                        if file_name:
+                            file_name = "__" + func + "__" + file_name
+                            # get the content of the file
+                            with open(str(file_path), "r") as file:
+                                content = file.read()
+                            file.close()
+                            mod = extast.parse(content)
+                            # filter the code and add it to code_ext dict
+                            code_ext[file_name] = str(
+                                filter_external_code(mod, node.names)
+                            )
+                            # change imported module names
+                            codes_dependance[func] = change_import_name(
+                                codes_dependance[func], node, func
+                            )
+
+                            if not previous_file_name:
+                                code_dependance = change_import_name(
+                                    codes_dependance[func], node, func
+                                )
+                            # recursively get the exteriors codes
+                            if code_ext[file_name]:
+                                get_exterior_code(
+                                    {func: code_ext[file_name]}, file_name
+                                )
+                                if previous_file_name:
+                                    code_ext[
+                                        previous_file_name
+                                    ] = change_import_name(
+                                        code_ext[previous_file_name], node, func
+                                    )
+            # TODO see if there is a cleaner way :
+            if "code_dependance" in locals():
+                return code_dependance
+            else:
+                return None
+
+    cod_dep = get_exterior_code({"test": code_dependance})
+    if cod_dep:
+        code_dependance = cod_dep
     debug(code_dependance)
     debug("parse_code")
     signatures_p = parse_code(code)
@@ -234,4 +328,4 @@ def analyse_aot(code):
                 {arg_name: type_ for arg_name, type_ in zip(arg_names, types)}
             )
 
-    return boosted_dicts, code_dependance, annotations, blocks
+    return boosted_dicts, code_dependance, annotations, blocks, code_ext

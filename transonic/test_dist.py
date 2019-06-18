@@ -39,11 +39,14 @@ def test_detect_pythran_extensions():
         "mixed_classic_type_hint.py",
         "assign_func_boost.py",
         "assign_func_jit.py",
+        "boosted_func_use_import.py",
     ]
 
     make_backend_files((path_data_tests / name for name in names))
     ext_names = detect_pythran_extensions(path_data_tests)
-    assert len(ext_names) == len(names) - 2
+    assert len(ext_names) == len(
+        names
+    )  # -2 files (no_pythran.py and assign_fun_jit.py) +2 files (__test__exterior_import_boost.py and __test__exterior_import_boost_2.py)
 
     shutil.rmtree(path_data_tests / "__pythran__", ignore_errors=True)
 

@@ -2,9 +2,8 @@
 =============================
 
 """
-
+from pathlib import Path
 from textwrap import dedent
-
 import gast as ast
 from transonic.analyses import extast
 import astunparse
@@ -171,3 +170,44 @@ def gather_rawcode_comments(node, code_module):
         )
     )
     return rawcode, comments
+
+
+# FIXME find path in non local imports
+def find_path(node: object, pathfile: str):
+    """ Return the path of node (instance of ast.Import or ast.ImportFrom)
+    """
+    import gast as ast
+
+    name = str()
+    path = str()
+
+    if isinstance(node, ast.ImportFrom):
+        name = node.module
+        if name in ["numpy", "math", "functools", "cmath"]:
+            return None, None
+        else:
+            parent = parent = Path(pathfile).parent
+            path = parent / Path(str(name.replace(".", "/")) + ".py")
+
+    else:
+        # TODO complete the list
+        if node.names[0].name in ["numpy", "math", "functools", "cmath"]:
+            pass
+        else:
+            # TODO deal with an ast.Import
+            raise NotImplementedError
+    return name, path
+
+
+def change_import_name(code_dep: str, changed_node: object, func_name: str):
+    """ Change the name of changed_node in code_dep by adding "__"+func+"__" 
+        at the beginning of the imported module, and return the modified code
+    """
+    mod = extast.parse(code_dep)
+    for node in mod.body:
+        if extast.unparse(node) == extast.unparse(changed_node):
+            if isinstance(node, ast.ImportFrom):
+                node.module = "__" + func_name + "__" + node.module
+            elif isinstance(node, ast.Import):
+                node.names[0].name = "__" + func_name + "__" + node.names[0].name
+    return extast.unparse(mod)

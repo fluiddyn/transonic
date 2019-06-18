@@ -3,7 +3,6 @@
 
 """
 import gast as ast
-from path import Path
 
 from transonic.log import logger
 
@@ -12,6 +11,7 @@ from transonic.analyses import compute_ancestors_chains, get_decorated_dicts
 from transonic.analyses.capturex import CaptureX
 
 from transonic.analyses.util import print_dumped
+from .util import find_path, change_import_name
 
 
 def analysis_jit(code, pathfile):
@@ -87,8 +87,6 @@ def analysis_jit(code, pathfile):
         """ Filter the module to keep only the necessary nodes 
             needed by functions or class in the parameter names
         """
-        import gast as ast
-
         code_dependance_annotations = ""
         code = ""
         for node in module.body:
@@ -118,42 +116,6 @@ def analysis_jit(code, pathfile):
 
         return code_dependance_annotations + code
 
-    # FIXME find path in non local imports
-    def find_path(node: object):
-        """ Return the path of node in parameter (instance of ast.Import or ast.ImportFrom)
-        """
-        name = str()
-        path = str()
-        if isinstance(node, ast.ImportFrom):
-            name = node.module
-            if name in ["numpy", "math", "functools", "cmath"]:
-                return None, None
-            else:
-                parent = Path(pathfile).parent
-                path = parent / (name.replace(".", "/")) + ".py"
-
-        else:
-            # TODO complete the list
-            if node.names[0].name in ["numpy", "math", "functools", "cmath"]:
-                pass
-            else:
-                # TODO deal with an ast.Import
-                raise NotImplementedError
-        return name, path
-
-    def change_import_name(code_dep: str, changed_node: object, func: str):
-        """ Change the name of changed_node in code_dep by adding "__"+func+"__" 
-            at the beginning of the imported module, and return the modified code
-        """
-        mod = extast.parse(code_dep)
-        for node in mod.body:
-            if extast.unparse(node) == extast.unparse(changed_node):
-                if isinstance(node, ast.ImportFrom):
-                    node.module = "__" + func + "__" + node.module
-                elif isinstance(node, ast.Import):
-                    node.names[0].name = "__" + func + "__" + node.names[0].name
-        return extast.unparse(mod)
-
     code_ext = {}
 
     def get_exterior_code(codes_dependance: dict, previous_file_name=None):
@@ -168,7 +130,7 @@ def analysis_jit(code, pathfile):
                         node, ast.Import
                     ):
                         # get the path of the imported module
-                        file_name, file_path = find_path(node)
+                        file_name, file_path = find_path(node, pathfile)
                         if file_name:
                             file_name = "__" + func + "__" + file_name
                             # get the content of the file
