@@ -122,14 +122,42 @@ class ModuleJIT:
         self.jit_functions = {}
 
         source = self.get_source()
-        self.jitted_dicts, self.codes_dependance, self.codes_dependance_classes, self.code_ext = analysis_jit(
+        self.jitted_dicts, self.codes_dependance, self.codes_dependance_classes, self.code_ext, self.code_ext_cls = analysis_jit(
             source, self.filename
         )
-
+        # Write exterior code for functions
         for file_name, code in self.code_ext.items():
             path_ext = path_jit / self.module_name.replace(".", os.path.sep)
             path_ext_file = path_ext / (file_name.replace(".", "/") + ".py")
             path_ext_file.parent.mkdir(exist_ok=True, parents=True)
+            print(
+                "\033[33m",
+                "creation de ",
+                file_name,
+                " at ",
+                path_ext_file,
+                "\033[0m",
+            )
+            with open(path_ext_file, "w") as file:
+                file.write(code)
+
+        # Write exterior code for classes
+        for file_name, code in self.code_ext_cls.items():
+            path_ext = (
+                path_jit.parent
+                / "__jit_classes__"
+                / self.module_name.replace(".", os.path.sep)
+            )
+            path_ext_file = path_ext / (file_name.replace(".", "/") + ".py")
+            path_ext_file.parent.mkdir(exist_ok=True, parents=True)
+            print(
+                "\033[33m",
+                "creation de ",
+                file_name,
+                " at ",
+                path_ext_file,
+                "\033[0m",
+            )
             with open(path_ext_file, "w") as file:
                 file.write(code)
 

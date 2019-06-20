@@ -232,11 +232,22 @@ def make_pythran_file(path_py: Path, force=False, log_level=None):
         logger.warning(f"File {path_pythran} already up-to-date.")
         return
 
-    code_pythran, code_ext = make_pythran_code(path_py)
+    code_pythran, code_ext, code_ext_cls = make_pythran_code(path_py)
 
     for file_name, code in code_ext.items():
-        path_ext = path_dir
-        path_ext_file = path_ext / (file_name.replace(".", "/") + ".py")
+        print("\033[33m", "creation de", file_name, "\033[0m")
+        path_ext_file = path_dir / (file_name.replace(".", "/") + ".py")
+        path_ext_file.parent.mkdir(exist_ok=True, parents=True)
+        with open(path_ext_file, "w") as file:
+            file.write(code)
+
+    for file_name, code in code_ext_cls.items():
+        print("\033[33m", "creation de", file_name, "\033[0m")
+        path_ext_file = (
+            path_dir.parent
+            / "__jit_classes__"
+            / (file_name.replace(".", "/") + ".py")
+        )
         path_ext_file.parent.mkdir(exist_ok=True, parents=True)
         with open(path_ext_file, "w") as file:
             file.write(code)

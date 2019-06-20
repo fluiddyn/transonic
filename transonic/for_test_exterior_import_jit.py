@@ -8,7 +8,7 @@ foo = 1
 
 
 def func_import():
-    return const + func_import_2() + np.pi - np.pi
+    return const + np.pi - np.pi + func_import_2()
 
 
 def use_h5py():

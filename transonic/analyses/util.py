@@ -2,10 +2,12 @@
 =============================
 
 """
+import beniget
 from pathlib import Path
 from textwrap import dedent
 import gast as ast
 from transonic.analyses import extast
+from transonic.analyses.capturex import CaptureX
 import astunparse
 
 
@@ -176,8 +178,6 @@ def gather_rawcode_comments(node, code_module):
 def find_path(node: object, pathfile: str):
     """ Return the path of node (instance of ast.Import or ast.ImportFrom)
     """
-    import gast as ast
-
     name = str()
     path = str()
 
@@ -199,7 +199,9 @@ def find_path(node: object, pathfile: str):
     return name, path
 
 
-def change_import_name(code_dep: str, changed_node: object, func_name: str):
+def change_import_name(
+    code_dep: str, changed_node: object, func_name: str, cls: str = None
+):
     """ Change the name of changed_node in code_dep by adding "__"+func+"__" 
         at the beginning of the imported module, and return the modified code
     """
@@ -210,4 +212,42 @@ def change_import_name(code_dep: str, changed_node: object, func_name: str):
                 node.module = "__" + func_name + "__" + node.module
             elif isinstance(node, ast.Import):
                 node.names[0].name = "__" + func_name + "__" + node.names[0].name
+        if cls:
+            node.level = 0
     return extast.unparse(mod)
+
+
+def filter_external_code(module: object, names: list):
+    """ Filter the module to keep only the necessary nodes 
+        needed by functions or class in the parameter names
+    """
+    code_dependance_annotations = ""
+    code = ""
+    for node in module.body:
+        for name in names:
+            if isinstance(node, ast.FunctionDef):
+                if node.name == extast.unparse(name).rstrip("\n\r"):
+                    ancestors = beniget.Ancestors()
+                    ancestors.visit(module)
+                    duc = beniget.DefUseChains()
+                    duc.visit(module)
+                    udc = beniget.UseDefChains(duc)
+                    capturex = CaptureX(
+                        [node],
+                        module,
+                        ancestors,
+                        defuse_chains=duc,
+                        usedef_chains=udc,
+                        consider_annotations=None,
+                    )
+                    code += " \n " + str(extast.unparse(node))
+                    code_dependance_annotations = capturex.make_code_external()
+            if isinstance(node, ast.Assign):
+                if node.targets[0].id == extast.unparse(name).rstrip("\n\r"):
+                    code += str(extast.unparse(node))
+            if isinstance(node, ast.ClassDef):
+                if node.name == extast.unparse(name).rstrip("\n\r"):
+                    print_dumped(node)
+                    code += str(extast.unparse(node))
+
+    return code_dependance_annotations + code

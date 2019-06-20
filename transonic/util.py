@@ -274,6 +274,10 @@ def import_from_path(path: Path, module_name: str):
 
     spec = importlib.util.spec_from_file_location(module_name, path)
     module = importlib.util.module_from_spec(spec)
+    print(module.__file__)
+    print("Module existance ? ", Path(module.__file__).exists())
+    print("../../.transonic/__jit_classes__/transonic/for_test_justintime/__MyClass2__for_test_exterior_import_jit.py")
+    print("Module existance ? ", Path("../../.transonic/__jit_classes__/transonic/for_test_justintime/__MyClass2__for_test_exterior_import_jit.py").exists())    
     spec.loader.exec_module(module)
     return module
 

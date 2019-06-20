@@ -200,7 +200,7 @@ def make_pythran_code(path_py):
     with open(path_py) as file:
         code_module = file.read()
 
-    boosted_dicts, code_dependance, annotations, blocks, code_ext = analyse_aot(
+    boosted_dicts, code_dependance, annotations, blocks, code_ext, code_ext_cls = analyse_aot(
         code_module, path_py
     )
 
@@ -299,4 +299,4 @@ def make_pythran_code(path_py):
 
     code = format_str(code)
 
-    return code, code_ext
+    return code, code_ext, code_ext_cls
