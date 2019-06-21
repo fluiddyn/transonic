@@ -277,8 +277,13 @@ def import_from_path(path: Path, module_name: str):
     print(module.__file__)
     print("Module existance ? ", Path(module.__file__).exists())
     print("../../.transonic/__jit_classes__/transonic/for_test_justintime/__MyClass2__for_test_exterior_import_jit.py")
-    print("Module existance ? ", Path("../../.transonic/__jit_classes__/transonic/for_test_justintime/__MyClass2__for_test_exterior_import_jit.py").exists())    
+    print("Module existance ? ", Path("../../.transonic/__jit_classes__/transonic/for_test_justintime/__MyClass2__for_test_exterior_import_jit.py").exists())
+
+    # for potential "local imports" in the module
+    sys.path.insert(0, os.path.dirname(module.__file__))
     spec.loader.exec_module(module)
+    # clean sys.path
+    sys.path.pop(0)
     return module
 
 
