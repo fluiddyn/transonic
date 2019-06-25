@@ -217,14 +217,13 @@ def analyse_aot(code, pathfile):
 
     import sys
 
-    code_ext = {}
-    code_ext_cls = {}
+    code_ext = {"function": {}, "classe": {}}
 
     def get_exterior_code(
-        codes_dependance: dict, previous_file_name=None, cls: str = None
+        codes_dependance: dict, previous_file_name=None, classes: str = None
     ):
-        """ Get all imported functions needed by jitted functions add multiple levels,
-            i.e get functions needed by functions needed by jitted function. 
+        """ Get all imported functions needed by boosted functions and methods at multiple levels,
+            (i.e get functions needed by functions imported by boosted function) and add them into code_ext
         """
         for func, dep in codes_dependance.items():
             if dep:
@@ -240,73 +239,42 @@ def analyse_aot(code, pathfile):
                             # get the content of the file
                             with open(str(file_path), "r") as file:
                                 content = file.read()
-                            file.close()
                             mod = extast.parse(content)
                             # filter the code and add it to code_ext dict
-                            if cls:
-                                code_ext_cls[file_name] = str(
-                                    filter_external_code(mod, node.names)
+                            code_ext[classes][file_name] = str(
+                                filter_external_code(mod, node.names)
+                            )
+                            # change imported module names
+                            codes_dependance[func] = change_import_name(
+                                codes_dependance[func], node, func
+                            )
+                            # recursively get the exterior codes
+                            if code_ext[classes][file_name]:
+                                get_exterior_code(
+                                    {func: code_ext[classes][file_name]},
+                                    file_name,
+                                    classes,
                                 )
-                                # change imported module names
-                                codes_dependance[func] = change_import_name(
-                                    codes_dependance[func], node, func
-                                )
+                                if previous_file_name:
+                                    code_ext[classes][
+                                        previous_file_name
+                                    ] = change_import_name(
+                                        code_ext[classes][previous_file_name],
+                                        node,
+                                        func,
+                                    )
+            return codes_dependance[func]
 
-                                if not previous_file_name:
-                                    code_dependance = change_import_name(
-                                        codes_dependance[func], node, func
-                                    )
-                                # recursively get the exteriors codes
-                                if code_ext_cls[file_name]:
-                                    get_exterior_code(
-                                        {func: code_ext_cls[file_name]},
-                                        file_name,
-                                        cls="yes",
-                                    )
-                                    if previous_file_name:
-                                        code_ext_cls[
-                                            previous_file_name
-                                        ] = change_import_name(
-                                            code_ext_cls[previous_file_name],
-                                            node,
-                                            func,
-                                        )
-                            else:
-                                code_ext[file_name] = str(
-                                    filter_external_code(mod, node.names)
-                                )
-                                # change imported module names
-                                codes_dependance[func] = change_import_name(
-                                    codes_dependance[func], node, func
-                                )
-
-                                if not previous_file_name:
-                                    code_dependance = change_import_name(
-                                        codes_dependance[func], node, func
-                                    )
-                                # recursively get the exteriors codes
-                                if code_ext[file_name]:
-                                    get_exterior_code(
-                                        {func: code_ext[file_name]}, file_name
-                                    )
-                                    if previous_file_name:
-                                        code_ext[
-                                            previous_file_name
-                                        ] = change_import_name(
-                                            code_ext[previous_file_name],
-                                            node,
-                                            func,
-                                        )
-            # TODO see if there is a cleaner way :
-            if "code_dependance" in locals():
-                return code_dependance
-            else:
-                return None
-
-    cod_dep = get_exterior_code({"test": code_dependance})
-    get_exterior_code({"test": code_dependance}, cls="yes")
-    if cod_dep:
-        code_dependance = cod_dep
+    if boosted_dicts["functions"]:
+        func = next(iter(boosted_dicts["functions"]))
+        code_dependance = get_exterior_code(
+            {func: code_dependance}, classes="function"
+        )
+    if boosted_dicts["classes"]:
+        cls = next(iter(boosted_dicts["classes"]))
+        code_dependance = get_exterior_code(
+            {cls: code_dependance}, classes="classe"
+        )
     debug(code_dependance)
     debug("parse_code")
     signatures_p = parse_code(code)
@@ -328,12 +296,4 @@ def analyse_aot(code, pathfile):
             annotations_sign.append(
                 {arg_name: type_ for arg_name, type_ in zip(arg_names, types)}
             )
-
-    return (
-        boosted_dicts,
-        code_dependance,
-        annotations,
-        blocks,
-        code_ext,
-        code_ext_cls,
-    )
+    return boosted_dicts, code_dependance, annotations, blocks, code_ext

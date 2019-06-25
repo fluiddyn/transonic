@@ -106,7 +106,6 @@ def analysis_jit(code, pathfile):
                             # get the content of the file
                             with open(str(file_path), "r") as file:
                                 content = file.read()
-                            file.close()
                             mod = extast.parse(content)
                             if cls:
                                 # filter the code and add it to code_ext dict
@@ -114,8 +113,13 @@ def analysis_jit(code, pathfile):
                                     filter_external_code(mod, node.names)
                                 )
                                 # change imported module names
-                                codes_dependance[func] = change_import_name(
-                                    codes_dependance[func], node, func, cls="yes"
+                                codes_dependance_classes[
+                                    func
+                                ] = change_import_name(
+                                    codes_dependance_classes[func],
+                                    node,
+                                    func,
+                                    cls="yes",
                                 )
                                 # recursively get the exteriors codes
                                 if code_ext_cls[file_name]:
@@ -156,8 +160,9 @@ def analysis_jit(code, pathfile):
                                             func,
                                         )
 
+    if jitted_dicts["methods"]:
+        get_exterior_code(codes_dependance_classes, cls="yes")
     get_exterior_code(codes_dependance)
-    get_exterior_code(codes_dependance_classes, cls="yes")
     return (
         jitted_dicts,
         codes_dependance,

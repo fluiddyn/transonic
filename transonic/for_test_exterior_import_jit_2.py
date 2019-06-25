@@ -1,4 +1,4 @@
-import h5py
+import black
 import numpy as np
 
 
@@ -10,5 +10,5 @@ def func_import_2():
     return const
 
 
-def use_h5py():
-    print("use_h5py")
+def use_black():
+    print(black)

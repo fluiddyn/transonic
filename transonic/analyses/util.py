@@ -174,6 +174,7 @@ def gather_rawcode_comments(node, code_module):
     return rawcode, comments
 
 
+packages_supported_by_pythran = ["numpy", "math", "functools", "cmath"]
 # FIXME find path in non local imports
 def find_path(node: object, pathfile: str):
     """ Return the path of node (instance of ast.Import or ast.ImportFrom)
@@ -183,7 +184,7 @@ def find_path(node: object, pathfile: str):
 
     if isinstance(node, ast.ImportFrom):
         name = node.module
-        if name in ["numpy", "math", "functools", "cmath"]:
+        if name in packages_supported_by_pythran:
             return None, None
         else:
             parent = parent = Path(pathfile).parent
@@ -191,7 +192,7 @@ def find_path(node: object, pathfile: str):
 
     else:
         # TODO complete the list
-        if node.names[0].name in ["numpy", "math", "functools", "cmath"]:
+        if node.names[0].name in packages_supported_by_pythran:
             pass
         else:
             # TODO deal with an ast.Import
@@ -222,7 +223,7 @@ def filter_external_code(module: object, names: list):
         needed by functions or class in the parameter names
     """
     code_dependance_annotations = ""
-    code = ""
+    lines_code = []
     for node in module.body:
         for name in names:
             if isinstance(node, ast.FunctionDef):
@@ -240,14 +241,14 @@ def filter_external_code(module: object, names: list):
                         usedef_chains=udc,
                         consider_annotations=None,
                     )
-                    code += " \n " + str(extast.unparse(node))
+                    lines_code.append(str(extast.unparse(node)))
                     code_dependance_annotations = capturex.make_code_external()
             if isinstance(node, ast.Assign):
                 if node.targets[0].id == extast.unparse(name).rstrip("\n\r"):
-                    code += str(extast.unparse(node))
+                    lines_code.append(str(extast.unparse(node)))
             if isinstance(node, ast.ClassDef):
                 if node.name == extast.unparse(name).rstrip("\n\r"):
                     print_dumped(node)
-                    code += str(extast.unparse(node))
+                    lines_code.append(str(extast.unparse(node)))
 
-    return code_dependance_annotations + code
+    return code_dependance_annotations + "\n".join(lines_code)

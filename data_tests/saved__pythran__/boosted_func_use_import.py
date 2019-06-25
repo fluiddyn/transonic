@@ -1,5 +1,5 @@
 import numpy as np
-from __test__exterior_import_boost import func_import
+from __func__exterior_import_boost import func_import
 
 
 # pythran export func(float[][], float[][])

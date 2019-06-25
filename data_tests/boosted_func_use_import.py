@@ -3,7 +3,6 @@ import numpy as np
 from transonic import boost
 from exterior_import_boost import func_import
 
-# from transonic.exterior_import_jit import func_import
 # transonic def func(
 #  float[][],
 #  float[][]

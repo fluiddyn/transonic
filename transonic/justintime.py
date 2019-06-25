@@ -74,6 +74,7 @@ from .util import (
     import_from_path,
     pythran,
     is_method,
+    has_to_write,
 )
 from .annotation import make_signatures_from_typehinted_func, normalize_type_name
 
@@ -128,18 +129,12 @@ class ModuleJIT:
         # Write exterior code for functions
         for file_name, code in self.code_ext.items():
             path_ext = path_jit / self.module_name.replace(".", os.path.sep)
-            path_ext_file = path_ext / (file_name.replace(".", "/") + ".py")
+            path_ext_file = path_ext / (file_name + ".py")
             path_ext_file.parent.mkdir(exist_ok=True, parents=True)
-            print(
-                "\033[33m",
-                "creation de ",
-                file_name,
-                " at ",
-                path_ext_file,
-                "\033[0m",
-            )
-            with open(path_ext_file, "w") as file:
-                file.write(code)
+            logger.info(f"{path_ext_file} written")
+            if has_to_write(path_ext_file, code):
+                with open(path_ext_file, "w") as file:
+                    file.write(code)
 
         # Write exterior code for classes
         for file_name, code in self.code_ext_cls.items():
@@ -148,18 +143,12 @@ class ModuleJIT:
                 / "__jit_classes__"
                 / self.module_name.replace(".", os.path.sep)
             )
-            path_ext_file = path_ext / (file_name.replace(".", "/") + ".py")
+            path_ext_file = path_ext / (file_name + ".py")
             path_ext_file.parent.mkdir(exist_ok=True, parents=True)
-            print(
-                "\033[33m",
-                "creation de ",
-                file_name,
-                " at ",
-                path_ext_file,
-                "\033[0m",
-            )
-            with open(path_ext_file, "w") as file:
-                file.write(code)
+            logger.info(f"{path_ext_file} written")
+            if has_to_write(path_ext_file, code):
+                with open(path_ext_file, "w") as file:
+                    file.write(code)
 
     def get_source(self):
         if self.is_dummy_file:
