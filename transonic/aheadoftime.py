@@ -531,12 +531,11 @@ def jit_class(cls, jit_methods):
     python_path = python_path_dir / (cls_name + ".py")
 
     if mpi.has_to_build(python_path, module.__file__):
+        from transonic.justintime import _get_module_jit
+
+        mod = _get_module_jit(5)
         if mpi.rank == 0:
             python_path = mpi.PathSeq(python_path)
-
-            from transonic.justintime import _get_module_jit
-
-            mod = _get_module_jit(5)
 
             python_code = mod.codes_dependance_classes[cls_name] + "\n"
 
