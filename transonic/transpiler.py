@@ -31,7 +31,7 @@ from .util import (
     has_to_build,
     get_source_without_decorator,
     format_str,
-    has_to_write,
+    write_if_has_to_write,
 )
 
 from transonic.backends.pythran import make_pythran_code
@@ -245,10 +245,8 @@ def make_pythran_file(path_py: Path, force=False, log_level=None):
     for file_name, code in code_ext["function"].items():
         path_ext_file = path_dir / (file_name.replace(".", "/") + ".py")
         path_ext_file.parent.mkdir(exist_ok=True, parents=True)
-        if has_to_write(path_ext_file, code):
-            with open(path_ext_file, "w") as file:
-                file.write(code)
-        logger.info(f"{path_ext_file} written")
+        write_if_has_to_write(path_ext_file, code, logger.info)
+
     for file_name, code in code_ext["classe"].items():
         path_ext_file = (
             path_dir.parent
@@ -256,10 +254,7 @@ def make_pythran_file(path_py: Path, force=False, log_level=None):
             / (file_name.replace(".", "/") + ".py")
         )
         path_ext_file.parent.mkdir(exist_ok=True, parents=True)
-        if has_to_write(path_ext_file, code):
-            with open(path_ext_file, "w") as file:
-                file.write(code)
-                logger.info(f"{path_ext_file} written")
+        write_if_has_to_write(path_ext_file, code, logger.info)
 
     if path_pythran.exists() and not force:
         with open(path_pythran) as file:

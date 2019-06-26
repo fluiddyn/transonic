@@ -1,6 +1,6 @@
 
 develop:
-	pip install -e .[test]
+	pip install -e .[dev]
 
 black:
 	black -l 82 transonic transonic_cl data_tests

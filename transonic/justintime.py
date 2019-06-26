@@ -74,7 +74,7 @@ from .util import (
     import_from_path,
     pythran,
     is_method,
-    has_to_write,
+    write_if_has_to_write,
 )
 from .annotation import make_signatures_from_typehinted_func, normalize_type_name
 
@@ -130,11 +130,7 @@ class ModuleJIT:
         for file_name, code in self.code_ext.items():
             path_ext = path_jit / self.module_name.replace(".", os.path.sep)
             path_ext_file = path_ext / (file_name + ".py")
-            path_ext_file.parent.mkdir(exist_ok=True, parents=True)
-            logger.info(f"{path_ext_file} written")
-            if has_to_write(path_ext_file, code):
-                with open(path_ext_file, "w") as file:
-                    file.write(code)
+            write_if_has_to_write(path_ext_file, code, logger.info)
 
         # Write exterior code for classes
         for file_name, code in self.code_ext_cls.items():
@@ -144,11 +140,7 @@ class ModuleJIT:
                 / self.module_name.replace(".", os.path.sep)
             )
             path_ext_file = path_ext / (file_name + ".py")
-            path_ext_file.parent.mkdir(exist_ok=True, parents=True)
-            logger.info(f"{path_ext_file} written")
-            if has_to_write(path_ext_file, code):
-                with open(path_ext_file, "w") as file:
-                    file.write(code)
+            write_if_has_to_write(path_ext_file, code, logger.info)
 
     def get_source(self):
         if self.is_dummy_file:

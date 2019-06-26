@@ -38,6 +38,11 @@ Internal API
 .. autofunction:: clear_cached_extensions
 
 .. autofunction:: is_method
+
+.. autofunction:: has_to_write
+
+.. autofunction:: write_if_has_to_write
+
 """
 
 import os
@@ -369,9 +374,10 @@ def is_method(func):
     return answer
 
 
-def has_to_write(path_source_code: Path, new_code: str):
-    if path_source_code.exists():
-        with open(path_source_code, "r") as file:
+def has_to_write(path_file: Path, new_code: str):
+    """Check if a file exists and contains a code"""
+    if path_file.exists():
+        with open(path_file, "r") as file:
             source_code = file.read()
         if new_code == source_code:
             return False
@@ -379,3 +385,13 @@ def has_to_write(path_source_code: Path, new_code: str):
             return True
     else:
         return True
+
+
+def write_if_has_to_write(path_file: Path, new_code: str, logger=None):
+    """Write a file if it doesn't exist or doesn't contain a particular code"""
+    if has_to_write(path_file, new_code):
+        path_file.parent.mkdir(exist_ok=True, parents=True)
+        with open(path_file, "w") as file:
+            file.write(new_code)
+        if logger:
+            logger(f"{path_file} written")

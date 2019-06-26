@@ -38,6 +38,7 @@ from .util import (
     modification_date,
     is_method,
     path_jit_classes,
+    write_if_has_to_write,
 )
 
 from .pythranizer import compile_extension, name_ext_from_path_backend, ext_suffix
@@ -536,25 +537,9 @@ def jit_class(cls, jit_methods):
         mod = _get_module_jit(5)
         if mpi.rank == 0:
             python_path = mpi.PathSeq(python_path)
-
             python_code = mod.codes_dependance_classes[cls_name] + "\n"
-
             python_code += produce_code_class(cls, jit=True)
-
-            has_to_write = None
-            if python_path.exists():
-                with open(python_path, "r") as file:
-                    python_code_file = file.read()
-
-                if python_code_file != python_code:
-                    has_to_write = True
-            else:
-                has_to_write = True
-
-            if has_to_write:
-                python_path_dir.mkdir(exist_ok=True, parents=True)
-                with open(python_path, "w") as file:
-                    file.write(python_code)
+            write_if_has_to_write(python_path, python_code)
             python_path = mpi.Path(python_path)
         mpi.barrier()
 
