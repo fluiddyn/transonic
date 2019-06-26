@@ -96,7 +96,30 @@ def produce_new_code_method(fdef, class_def):
     index_func_name = tokens.index((NAME, func_name))
     name_new_func = f"__for_method__{class_def.name}__{func_name}"
     tokens[index_func_name] = (NAME, name_new_func)
-
+    # change recusive calls
+    if func_name in attributes:
+        attributes.remove(func_name)
+        index_rec_calls = [
+            index
+            for index, (name, value) in enumerate(tokens)
+            if value == "self_" + func_name
+        ]
+        # delete the occurence of "self_" + func_name in function parameter
+        del tokens[index_rec_calls[0] + 1]
+        del tokens[index_rec_calls[0]]
+        # consider the two deletes
+        offset = -2
+        # adapt all recurrence calls
+        for ind in index_rec_calls[1:]:
+            # adapt the index to the insertd and deletes
+            ind += offset
+            tokens[ind] = (tokens[ind][0], name_new_func)
+            # put the attributes in parameter
+            for attr in reversed(attributes):
+                tokens.insert(ind + 2, (1, ","))
+                tokens.insert(ind + 2, (1, "self_" + attr))
+            # consider the inserts
+            offset += len(attributes) * 2
     new_code = untokenize(tokens).decode("utf-8")
 
     return new_code, attributes, name_new_func
