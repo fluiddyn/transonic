@@ -174,7 +174,9 @@ def gather_rawcode_comments(node, code_module):
     return rawcode, comments
 
 
+# TODO complete the list
 packages_supported_by_pythran = ["numpy", "math", "functools", "cmath"]
+
 # FIXME find path in non local imports
 def find_path(node: object, pathfile: str):
     """ Return the path of node (instance of ast.Import or ast.ImportFrom)
@@ -187,11 +189,9 @@ def find_path(node: object, pathfile: str):
         if name in packages_supported_by_pythran:
             return None, None
         else:
-            parent = parent = Path(pathfile).parent
-            path = parent / Path(str(name.replace(".", "/")) + ".py")
-
+            parent = Path(pathfile).parent
+            path = parent / (str(name.replace(".", "/")) + ".py")
     else:
-        # TODO complete the list
         if node.names[0].name in packages_supported_by_pythran:
             pass
         else:
@@ -203,7 +203,7 @@ def find_path(node: object, pathfile: str):
 def change_import_name(
     code_dep: str, changed_node: object, func_name: str, cls: str = None
 ):
-    """ Change the name of changed_node in code_dep by adding "__"+func+"__" 
+    """ Change the name of changed_node in code_dep by adding "__" + func + "__"
         at the beginning of the imported module, and return the modified code
     """
     mod = extast.parse(code_dep)
@@ -219,7 +219,7 @@ def change_import_name(
 
 
 def filter_external_code(module: object, names: list):
-    """ Filter the module to keep only the necessary nodes 
+    """ Filter the module to keep only the necessary nodes
         needed by functions or class in the parameter names
     """
     code_dependance_annotations = ""

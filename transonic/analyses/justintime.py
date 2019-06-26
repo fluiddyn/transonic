@@ -81,8 +81,6 @@ def analysis_jit(code, pathfile):
 
         codes_dependance_classes[key] = capturex.make_code_external()
 
-    import sys
-
     code_ext = {}
     code_ext_cls = {}
 
@@ -90,75 +88,70 @@ def analysis_jit(code, pathfile):
         codes_dependance: dict, previous_file_name=None, cls=None
     ):
         """ Get all imported functions needed by jitted functions add multiple levels,
-            i.e get functions needed by functions needed by jitted function. 
+            i.e get functions needed by functions needed by jitted function.
         """
         for func, dep in codes_dependance.items():
-            if dep:
-                module_ext = extast.parse(dep)
-                for node in module_ext.body:
-                    if isinstance(node, ast.ImportFrom) or isinstance(
-                        node, ast.Import
-                    ):
-                        # get the path of the imported module
-                        file_name, file_path = find_path(node, pathfile)
-                        if file_name:
-                            file_name = "__" + func + "__" + file_name
-                            # get the content of the file
-                            with open(str(file_path), "r") as file:
-                                content = file.read()
-                            mod = extast.parse(content)
-                            if cls:
-                                # filter the code and add it to code_ext dict
-                                code_ext_cls[file_name] = str(
-                                    filter_external_code(mod, node.names)
-                                )
-                                # change imported module names
-                                codes_dependance_classes[
-                                    func
-                                ] = change_import_name(
-                                    codes_dependance_classes[func],
-                                    node,
-                                    func,
+            if not dep:
+                continue
+            module_ext = extast.parse(dep)
+            for node in module_ext.body:
+                if isinstance(node, (ast.ImportFrom, ast.Import)):
+                    # get the path of the imported module
+                    file_name, file_path = find_path(node, pathfile)
+                    if file_name:
+                        file_name = "__" + func + "__" + file_name
+                        # get the content of the file
+                        with open(str(file_path), "r") as file:
+                            content = file.read()
+                        mod = extast.parse(content)
+                        if cls:
+                            # filter the code and add it to code_ext dict
+                            code_ext_cls[file_name] = str(
+                                filter_external_code(mod, node.names)
+                            )
+                            # change imported module names
+                            codes_dependance_classes[func] = change_import_name(
+                                codes_dependance_classes[func],
+                                node,
+                                func,
+                                cls="yes",
+                            )
+                            # recursively get the exteriors codes
+                            if code_ext_cls[file_name]:
+                                get_exterior_code(
+                                    {func: code_ext_cls[file_name]},
+                                    file_name,
                                     cls="yes",
                                 )
-                                # recursively get the exteriors codes
-                                if code_ext_cls[file_name]:
-                                    get_exterior_code(
-                                        {func: code_ext_cls[file_name]},
-                                        file_name,
+                                if previous_file_name:
+                                    code_ext_cls[
+                                        previous_file_name
+                                    ] = change_import_name(
+                                        code_ext_cls[previous_file_name],
+                                        node,
+                                        func,
                                         cls="yes",
                                     )
-                                    if previous_file_name:
-                                        code_ext_cls[
-                                            previous_file_name
-                                        ] = change_import_name(
-                                            code_ext_cls[previous_file_name],
-                                            node,
-                                            func,
-                                            cls="yes",
-                                        )
-                            else:
-                                # filter the code and add it to code_ext dict
-                                code_ext[file_name] = str(
-                                    filter_external_code(mod, node.names)
+                        else:
+                            # filter the code and add it to code_ext dict
+                            code_ext[file_name] = str(
+                                filter_external_code(mod, node.names)
+                            )
+                            # change imported module names
+                            codes_dependance[func] = change_import_name(
+                                codes_dependance[func], node, func
+                            )
+                            # recursively get the exteriors codes
+                            if code_ext[file_name]:
+                                get_exterior_code(
+                                    {func: code_ext[file_name]}, file_name
                                 )
-                                # change imported module names
-                                codes_dependance[func] = change_import_name(
-                                    codes_dependance[func], node, func
-                                )
-                                # recursively get the exteriors codes
-                                if code_ext[file_name]:
-                                    get_exterior_code(
-                                        {func: code_ext[file_name]}, file_name
+                                if previous_file_name:
+                                    code_ext[
+                                        previous_file_name
+                                    ] = change_import_name(
+                                        code_ext[previous_file_name], node, func
                                     )
-                                    if previous_file_name:
-                                        code_ext[
-                                            previous_file_name
-                                        ] = change_import_name(
-                                            code_ext[previous_file_name],
-                                            node,
-                                            func,
-                                        )
 
     if jitted_dicts["methods"]:
         get_exterior_code(codes_dependance_classes, cls="yes")

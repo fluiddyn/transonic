@@ -215,8 +215,6 @@ def analyse_aot(code, pathfile):
 
     code_dependance = capturex.make_code_external()
 
-    import sys
-
     code_ext = {"function": {}, "classe": {}}
 
     def get_exterior_code(
@@ -229,9 +227,7 @@ def analyse_aot(code, pathfile):
             if dep:
                 module_ext = extast.parse(dep)
                 for node in module_ext.body:
-                    if isinstance(node, ast.ImportFrom) or isinstance(
-                        node, ast.Import
-                    ):
+                    if isinstance(node, (ast.ImportFrom, ast.Import)):
                         # get the path of the imported module
                         file_name, file_path = find_path(node, pathfile)
                         if file_name:

@@ -243,17 +243,11 @@ def make_pythran_file(path_py: Path, force=False, log_level=None):
         return
 
     for file_name, code in code_ext["function"].items():
-        path_ext_file = path_dir / (file_name.replace(".", "/") + ".py")
-        path_ext_file.parent.mkdir(exist_ok=True, parents=True)
+        path_ext_file = path_dir / (file_name + ".py")
         write_if_has_to_write(path_ext_file, code, logger.info)
 
     for file_name, code in code_ext["classe"].items():
-        path_ext_file = (
-            path_dir.parent
-            / "__pythran__"
-            / (file_name.replace(".", "/") + ".py")
-        )
-        path_ext_file.parent.mkdir(exist_ok=True, parents=True)
+        path_ext_file = path_dir.parent / "__pythran__" / (file_name + ".py")
         write_if_has_to_write(path_ext_file, code, logger.info)
 
     if path_pythran.exists() and not force:
