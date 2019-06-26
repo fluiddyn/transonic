@@ -149,10 +149,12 @@ Transonic is sensible to environment variables:
 - :code:`TRANSONIC_DIR` can be set to control where the cached files are
   saved.
 
+- :code:`TRANSONIC_DEBUG` triggers a verbose mode.
+
 - :code:`TRANSONIC_COMPILE_AT_IMPORT` can be set to enable a mode for which
   Transonic compiles at import time the Pythran file associated with the
-  imported module. This behavior can also be triggered programmatically by using
-  the function :code:`set_compile_at_import`.
+  imported module. This behavior can also be triggered programmatically
+  by using the function :code:`set_compile_at_import`.
 
 - :code:`TRANSONIC_NO_REPLACE` can be set to disable all code replacements.
   This is useful to compare execution times and when measuring code coverage.

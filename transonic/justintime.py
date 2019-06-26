@@ -417,14 +417,38 @@ class JIT:
                     assert hasattr(module_pythran, "__pythran__")
                     self.pythran_func = getattr(module_pythran, func_name)
 
+            error = False
             try:
                 return self.pythran_func(*args, **kwargs)
-            except TypeError:
+            except TypeError as err:
                 # need to compiled or recompile
-                pass
+                if self.pythran_func:
+                    error = str(err)
+                    if (
+                        error.startswith("Invalid call to pythranized function `")
+                        and " (reshaped)" in error
+                    ):
+                        logger.error(
+                            "It seems that a Pythran function has been called with "
+                            'a "reshaped" array which is not supported by Pythran.'
+                        )
+                        raise
 
             if self.compiling or not _COMPILE_JIT:
                 return func(*args, **kwargs)
+
+            if (
+                self.pythran_func
+                and error
+                and error.startswith("Invalid call to pythranized function `")
+            ):
+                logger.debug(error)
+                logger.info(
+                    f"Pythran function `{func_name}` called with new types."
+                )
+                logger.debug(
+                    "Transonic is going to recompute the function for the new types."
+                )
 
             arg_types = [
                 make_pythran_type_name(arg)
