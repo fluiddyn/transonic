@@ -130,8 +130,8 @@ class SchedulerPopen:
         self,
         path: Path,
         name_ext_file: Optional[str] = None,
-        native=True,
-        xsimd=True,
+        native=False,
+        xsimd=False,
         openmp=False,
         str_pythran_flags: Optional[str] = None,
         parallel=True,
@@ -224,8 +224,8 @@ def compile_extensions(
 def compile_extension(
     path: Union[Path, str],
     name_ext_file: Optional[str] = None,
-    native=True,
-    xsimd=True,
+    native=False,
+    xsimd=False,
     openmp=False,
 ):
     if not isinstance(path, Path):

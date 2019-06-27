@@ -341,7 +341,10 @@ class Transonic:
         try:
             func_tmp = getattr(self.module_pythran, func.__name__)
         except AttributeError:
-            logger.warning("Pythran file does not seem to be up-to-date.")
+            logger.warning(
+                "Pythran file does not seem to be up-to-date:\n"
+                f"{self.module_pythran}\nfunc: {func.__name__}"
+            )
             func_tmp = func
 
         if self.is_compiling:

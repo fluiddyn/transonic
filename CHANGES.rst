@@ -8,6 +8,13 @@ Future
 - Source in multiple files (`issue #14
   <https://bitbucket.org/fluiddyn/fluidpythran/issues/14>`_)
 
+
+0.2.4 (2019-06-27)
+------------------
+
+- Fix issues #8, #14, #17, #18, #19, #20!
+- Support source in multiple files (#14)
+
 0.2.3 (2019-06-11)
 ------------------
 

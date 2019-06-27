@@ -212,7 +212,7 @@ def make_pythran_type_name(obj: object):
     return name
 
 
-def jit(func=None, native=True, xsimd=True, openmp=False):
+def jit(func=None, native=False, xsimd=False, openmp=False):
     """Decorator to record that the function has to be jit compiled
 
     """
@@ -228,7 +228,7 @@ class JIT:
     """Decorator used internally by the public jit decorator
     """
 
-    def __init__(self, native=True, xsimd=True, openmp=False):
+    def __init__(self, native=False, xsimd=False, openmp=False):
         self.native = native
         self.xsimd = xsimd
         self.openmp = openmp
