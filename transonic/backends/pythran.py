@@ -246,7 +246,8 @@ def make_pythran_code(path_py):
                 )
 
         anns = annotations["comments"][func_name]
-
+        if not fdef.args.args:
+            signatures_func.add(f"# pythran export {func_name}()")
         for ann in anns:
             typess = compute_pythran_types_from_valued_types(ann.values())
 
