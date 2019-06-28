@@ -3,17 +3,19 @@ Future
 ------
 
 - Ability to use Cython and Numba (?)
-- Alternative syntax for blocks (`issue #29
-  <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_)
-- Source in multiple files (`issue #14
-  <https://bitbucket.org/fluiddyn/fluidpythran/issues/14>`_)
+- Alternative syntax for blocks (`issue #6
+  <https://bitbucket.org/fluiddyn/transonic/issues/6>`_)
 
 
-0.2.4 (2019-06-27)
+0.2.4 (2019-06-28)
 ------------------
 
-- Fix issues #8, #14, #17, #18, #19, #20!
-- Support source in multiple files (#14)
+- Support source in multiple files (`#14
+  <https://bitbucket.org/fluiddyn/transonic/issues/14>`_ and #21)
+- Fix issues #8 (Recursion for boosted method), #17 (Bad formating for Pythran
+  error), #18 (Improve logging jit), #19 (Change default arguments of jit
+  decorator) and #20 (No Pythran signature generated for boosted functions
+  without arguments)!
 
 0.2.3 (2019-06-11)
 ------------------
