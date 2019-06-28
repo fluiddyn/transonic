@@ -175,7 +175,7 @@ def gather_rawcode_comments(node, code_module):
 
 
 # TODO complete the list
-packages_supported_by_pythran = ["numpy", "math", "functools", "cmath"]
+packages_supported_by_pythran = ["numpy", "math", "functools", "cmath", "scipy"]
 
 # FIXME find path in non local imports
 def find_path(node: object, pathfile: str):
