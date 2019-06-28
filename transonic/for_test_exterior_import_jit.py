@@ -7,8 +7,12 @@ const = 1
 foo = 1
 
 
-def func_import():
+def func_import_multilevel():
     return const + np.pi - np.pi + func_import_2()
+
+
+def func_import():
+    return const + np.pi - np.pi
 
 
 def use_black():

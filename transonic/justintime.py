@@ -282,7 +282,13 @@ class JIT:
         src = None
 
         if has_to_write:
-            src = mod.codes_dependance[func_name]
+            # the function come from its module
+            if func_name in mod.codes_dependance:
+                src = mod.codes_dependance[func_name]
+            # the function come from an imported module
+            elif func_name in mod.jitted_dicts["functions_ext"].keys():
+                # write code dependance
+                src = mod.jitted_dicts["functions_ext"][func_name]
             src += get_source_without_decorator(func)
 
             if path_pythran.exists() and mpi.rank == 0:

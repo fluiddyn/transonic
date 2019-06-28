@@ -1,4 +1,5 @@
 import numpy as np
+from local_module import multiply
 
 from transonic import boost
 
@@ -12,4 +13,5 @@ def my_log(b):
 
 @boost
 def func(a, b):
-    return (a * my_log(b)).max()
+    c = multiply(a,b)
+    return (c * my_log(b)).max()

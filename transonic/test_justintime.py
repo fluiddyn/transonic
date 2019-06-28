@@ -177,3 +177,11 @@ def test_main():
     main_res = main(2)
     wait_for_all_extensions()
     assert main_res == 5
+
+
+def test_jit_imported():
+    from .for_test_justintime import jitted_func_import, func_import
+
+    result = jitted_func_import()
+    wait_for_all_extensions()
+    assert result == jitted_func_import() == func_import()

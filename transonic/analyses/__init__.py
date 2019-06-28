@@ -50,18 +50,30 @@ def compute_ancestors_chains(module_node):
     return ancestors, duc, udc
 
 
-def find_decorated_function(module, function_name: str):
+def find_decorated_function(module, function_name: str, pathfile: str = None):
+    ext_module = False
     for node in module.body:
         if isinstance(node, ast.FunctionDef):
             if node.name == function_name:
-                return node
+                return node, ext_module
+        # look for function_name in the imports of module
+        if isinstance(node, ast.ImportFrom):
+            for func in node.names:
+                if func.name == function_name:
+                    # find and read the imported module file
+                    name, path = find_path(node, pathfile)
+                    with open(path) as file:
+                        ext_module = extast.parse(file.read())
+                    # find the definition of function_name in the imported module
+                    node, _ = find_decorated_function(ext_module, function_name)
+                    return node, ext_module
     raise RuntimeError
 
 
-def get_decorated_dicts(module, ancestors, duc, decorator="boost"):
+def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"):
     """Get the definitions of the decorated functions and classes"""
 
-    kinds = ("functions", "methods", "classes")
+    kinds = ("functions", "functions_ext", "methods", "classes")
     decorated_dicts = {kind: {} for kind in kinds}
 
     def add_definition(definition_node):
@@ -70,21 +82,30 @@ def get_decorated_dicts(module, ancestors, duc, decorator="boost"):
         decorated_dict = None
         if isinstance(definition_node, ast.Assign):
             key = definition_node.value.args[0].id
-            definition_node = find_decorated_function(module, key)
+            definition_node, ext_module = find_decorated_function(
+                module, key, pathfile
+            )
             decorated_dict = decorated_dicts["functions"]
+            # if the definition node is in an imported module
+            if ext_module:
+                # add this node and its module in decorated_dict["functions_ext"]
+                decorated_dict = decorated_dicts["functions_ext"]
+                decorated_dict[key] = (definition_node, ext_module)
         else:
             key = definition_node.name
-        if isinstance(definition_node, ast.FunctionDef):
-            parent = ancestors.parent(definition_node)
-            if isinstance(parent, ast.ClassDef):
-                decorated_dict = decorated_dicts["methods"]
-                key = (parent.name, key)
-            else:
-                decorated_dict = decorated_dicts["functions"]
-        elif isinstance(definition_node, ast.ClassDef):
-            decorated_dict = decorated_dicts["classes"]
-        if decorated_dict is not None:
-            decorated_dict[key] = definition_node
+        # If the definition node is not imported
+        if decorated_dict is not decorated_dicts["functions_ext"]:
+            if isinstance(definition_node, ast.FunctionDef):
+                parent = ancestors.parent(definition_node)
+                if isinstance(parent, ast.ClassDef):
+                    decorated_dict = decorated_dicts["methods"]
+                    key = (parent.name, key)
+                else:
+                    decorated_dict = decorated_dicts["functions"]
+            elif isinstance(definition_node, ast.ClassDef):
+                decorated_dict = decorated_dicts["classes"]
+            if decorated_dict is not None:
+                decorated_dict[key] = definition_node
 
     # we first need to find the node where transonic.boost is defined...
     for node in module.body:
@@ -129,7 +150,7 @@ def analyse_aot(code, pathfile):
     debug(code_dependance_annotations)
 
     debug("find boosted objects")
-    boosted_dicts = get_decorated_dicts(module, ancestors, duc)
+    boosted_dicts = get_decorated_dicts(module, ancestors, duc, None)
     debug(pformat(boosted_dicts))
 
     debug("compute the annotations")

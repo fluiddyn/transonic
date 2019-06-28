@@ -26,7 +26,9 @@ def analysis_jit(code, pathfile):
 
     # boosted_dicts = get_boosted_dicts(module, ancestors, duc)
 
-    jitted_dicts = get_decorated_dicts(module, ancestors, duc, decorator="jit")
+    jitted_dicts = get_decorated_dicts(
+        module, ancestors, duc, pathfile, decorator="jit"
+    )
 
     debug("compute code dependance")
 
@@ -37,6 +39,16 @@ def analysis_jit(code, pathfile):
     }
 
     codes_dependance = {}
+
+    # get code dependance for a decorated function from a imported module
+    for func_name, (func_node, imported_module) in jitted_dicts[
+        "functions_ext"
+    ].items():
+        capturex = CaptureX(
+            (func_node,), imported_module, consider_annotations=False
+        )
+        # replace the tuple (func_node, imported_module) in jitted_dicts by the dependance of func_node
+        jitted_dicts["functions_ext"][func_name] = capturex.make_code_external()
 
     # remove the decorator (jit) to compute the code dependance
     for key, def_node in def_nodes_dict.items():
