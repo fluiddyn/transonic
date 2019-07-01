@@ -78,7 +78,7 @@ from numpy import pi
 
 const = 1
 
-# FIXME support multilevel support with jit(func_import)
+# FIXME support multilevel with jit(func_import)
 jitted_func_import = jit(func_import)
 
 

@@ -196,7 +196,9 @@ def produce_code_for_method(
     str_args_value_func = ", ".join(str_args_value_func)
 
     if str_self_dot_attributes:
-        str_args_pythran_func = ", ".join((str_self_dot_attributes, str_args_func))
+        str_args_pythran_func = ", ".join(
+            (str_self_dot_attributes, str_args_func)
+        )
     else:
         str_args_pythran_func = str_args_func
 

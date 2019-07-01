@@ -48,7 +48,7 @@ def analysis_jit(code, pathfile):
             (func_node,), imported_module, consider_annotations=False
         )
         # replace the tuple (func_node, imported_module) in jitted_dicts by the dependance of func_node
-        jitted_dicts["functions_ext"][func_name] = capturex.make_code_external()
+        codes_dependance[func_name] = capturex.make_code_external()
 
     # remove the decorator (jit) to compute the code dependance
     for key, def_node in def_nodes_dict.items():
@@ -96,6 +96,39 @@ def analysis_jit(code, pathfile):
     code_ext = {}
     code_ext_cls = {}
 
+    def adapt_code_dependance(func, codes_dependance: str):
+        module = extast.parse(codes_dependance)
+        module_body = module.body.copy()
+        jitted_functions = []
+        for node in module_body:
+            print(node)
+            # remove the transonic import
+            if isinstance(node, ast.ImportFrom):
+                if node.module == "transonic":
+                    module.body.remove(node)
+            # remove the jitted function by jit() (i.e. func = jit(func))
+            elif isinstance(node, ast.Assign):
+                if node.value.func.id == "jit":
+                    jitted_functions.append(node.targets[0].id)
+                    module.body.remove(node)
+                    module.body.insert(
+                        0,
+                        [
+                            extast.parse(
+                                "from "
+                                + node.value.args[0].id
+                                + " import "
+                                + node.value.args[0].id
+                            )
+                        ],
+                    )
+            # if in the module, remove the definition of the jitted function by jit()
+        for node in module_body:
+            if isinstance(node, ast.FunctionDef):
+                if node.name in jitted_functions:
+                    module.body.remove(node)
+        return extast.unparse(module)
+
     def get_exterior_code(
         codes_dependance: dict, previous_file_name=None, cls=None
     ):
@@ -110,7 +143,19 @@ def analysis_jit(code, pathfile):
                 if isinstance(node, (ast.ImportFrom, ast.Import)):
                     # get the path of the imported module
                     file_name, file_path = find_path(node, pathfile)
-                    if file_name:
+                    # a jitted function or method needs another jitted function
+                    if file_name == "transonic":
+                        if cls:
+                            codes_dependance_classes[
+                                func
+                            ] = adapt_code_dependance(
+                                func, codes_dependance_classes[func]
+                            )
+                        else:
+                            codes_dependance[func] = adapt_code_dependance(
+                                func, codes_dependance[func]
+                            )
+                    elif file_name:
                         file_name = "__" + func + "__" + file_name
                         # get the content of the file
                         with open(str(file_path), "r") as file:
