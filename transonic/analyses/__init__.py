@@ -27,6 +27,7 @@ from .util import (
     find_path,
     change_import_name,
     filter_external_code,
+    get_exterior_code,
 )
 from .capturex import CaptureX
 from .blocks_if import get_block_definitions
@@ -233,65 +234,20 @@ def analyse_aot(code, pathfile):
         consider_annotations=False,
         blocks=blocks_for_capturex,
     )
-
-    code_dependance = capturex.make_code_external()
-
     code_ext = {"function": {}, "classe": {}}
-
-    def get_exterior_code(
-        codes_dependance: dict, previous_file_name=None, classes: str = None
-    ):
-        """ Get all imported functions needed by boosted functions and methods at multiple levels,
-            (i.e get functions needed by functions imported by boosted function) and add them into code_ext
-        """
-        for func, dep in codes_dependance.items():
-            if dep:
-                module_ext = extast.parse(dep)
-                for node in module_ext.body:
-                    if isinstance(node, (ast.ImportFrom, ast.Import)):
-                        # get the path of the imported module
-                        file_name, file_path = find_path(node, pathfile)
-                        if file_name:
-                            file_name = "__" + func + "__" + file_name
-                            # get the content of the file
-                            with open(str(file_path), "r") as file:
-                                content = file.read()
-                            mod = extast.parse(content)
-                            # filter the code and add it to code_ext dict
-                            code_ext[classes][file_name] = str(
-                                filter_external_code(mod, node.names)
-                            )
-                            # change imported module names
-                            codes_dependance[func] = change_import_name(
-                                codes_dependance[func], node, func
-                            )
-                            # recursively get the exterior codes
-                            if code_ext[classes][file_name]:
-                                get_exterior_code(
-                                    {func: code_ext[classes][file_name]},
-                                    file_name,
-                                    classes,
-                                )
-                                if previous_file_name:
-                                    code_ext[classes][
-                                        previous_file_name
-                                    ] = change_import_name(
-                                        code_ext[classes][previous_file_name],
-                                        node,
-                                        func,
-                                    )
-            return codes_dependance[func]
-
+    code_dependance = capturex.make_code_external()
     if boosted_dicts["functions"]:
         func = next(iter(boosted_dicts["functions"]))
-        code_dependance = get_exterior_code(
-            {func: code_dependance}, classes="function"
+        code_dependance, code_ext = get_exterior_code(
+            {func: code_dependance}, pathfile, classes="function", relative=True
         )
+        code_dependance = code_dependance[func]
     if boosted_dicts["classes"]:
         cls = next(iter(boosted_dicts["classes"]))
-        code_dependance = get_exterior_code(
-            {cls: code_dependance}, classes="classe"
+        code_dependance, code_ext = get_exterior_code(
+            {cls: code_dependance}, pathfile, classes="classe", relative=True
         )
+        code_dependance = code_dependance[cls]
     debug(code_dependance)
     debug("parse_code")
     signatures_p = parse_code(code)
