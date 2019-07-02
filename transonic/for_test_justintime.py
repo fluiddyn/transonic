@@ -84,7 +84,15 @@ jitted_func_import = jit(func_import)
 
 @jit
 def main(add: int):
-    return foo + add + func_import_multilevel() + pi - pi
+    return (
+        foo
+        + add
+        + func_import_multilevel()
+        + pi
+        - pi
+        - jitted_func_import()
+        + func0_jitted(1 / 2)
+    )
 
 
 @boost

@@ -201,7 +201,7 @@ def find_path(node: object, pathfile: str):
 
 
 def change_import_name(
-    code_dep: str, changed_node: object, func_name: str, cls: str = None
+    code_dep: str, changed_node: object, func_name: str, relative: str = None
 ):
     """ Change the name of changed_node in code_dep by adding "__" + func + "__"
         at the beginning of the imported module, and return the modified code
@@ -213,7 +213,7 @@ def change_import_name(
                 node.module = "__" + func_name + "__" + node.module
             elif isinstance(node, ast.Import):
                 node.names[0].name = "__" + func_name + "__" + node.names[0].name
-        if cls:
+        if not relative:
             node.level = 0
     return extast.unparse(mod)
 

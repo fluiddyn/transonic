@@ -123,17 +123,17 @@ class ModuleJIT:
         self.jit_functions = {}
 
         source = self.get_source()
-        self.jitted_dicts, self.codes_dependance, self.codes_dependance_classes, self.code_ext, self.code_ext_cls = analysis_jit(
+        self.jitted_dicts, self.codes_dependance, self.codes_dependance_classes, self.code_ext = analysis_jit(
             source, self.filename
         )
         # Write exterior code for functions
-        for file_name, code in self.code_ext.items():
+        for file_name, code in self.code_ext["function"].items():
             path_ext = path_jit / self.module_name.replace(".", os.path.sep)
             path_ext_file = path_ext / (file_name + ".py")
             write_if_has_to_write(path_ext_file, code, logger.info)
 
         # Write exterior code for classes
-        for file_name, code in self.code_ext_cls.items():
+        for file_name, code in self.code_ext["classe"].items():
             path_ext = (
                 path_jit.parent
                 / "__jit_classes__"
