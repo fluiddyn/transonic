@@ -329,14 +329,26 @@ def get_exterior_code(
                         codes_dependance[func] = adapt_code_dependance(
                             func, codes_dependance[func]
                         )
-                    elif file_name:
-                        file_name = "__" + func + "__" + file_name
+
+    for func, dep in codes_dependance.items():
+        if dep:
+            module_ext = extast.parse(dep)
+            for node in module_ext.body:
+                if isinstance(node, (ast.ImportFrom, ast.Import)):
+                    # get the path of the imported module
+                    file_name, file_path = find_path(node, pathfile)
+                    # a jitted function or method needs another jitted function
+                    if file_name:
+                        new_file_name = "__" + func + "__" + file_name
                         # get the content of the file
-                        with open(str(file_path), "r") as file:
-                            content = file.read()
+                        try:
+                            with open(str(file_path), "r") as file:
+                                content = file.read()
+                        except:
+                            break
                         mod = extast.parse(content)
                         # filter the code and add it to code_ext dict
-                        code_ext[classes][file_name] = str(
+                        code_ext[classes][new_file_name] = str(
                             filter_external_code(mod, node.names)
                         )
                         # change imported module names
@@ -344,15 +356,14 @@ def get_exterior_code(
                             codes_dependance[func], node, func, relative
                         )
                         # recursively get the exterior codes
-                        if code_ext[classes][file_name]:
+                        if code_ext[classes][new_file_name]:
                             get_exterior_code(
-                                {func: code_ext[classes][file_name]},
+                                {func: code_ext[classes][new_file_name]},
                                 pathfile,
-                                file_name,
+                                new_file_name,
                                 classes,
                             )
                             if previous_file_name:
-                                print(code_ext)
                                 code_ext[classes][
                                     previous_file_name
                                 ] = change_import_name(
