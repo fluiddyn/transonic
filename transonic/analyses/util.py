@@ -2,6 +2,7 @@
 =============================
 
 """
+import re
 import beniget
 from pathlib import Path
 from textwrap import dedent
@@ -254,7 +255,7 @@ def filter_external_code(module: object, names: list):
     return code_dependance_annotations + "\n".join(lines_code)
 
 
-def adapt_code_dependance(func: str, codes_dependance: str):
+def adapt_code_dependance(func: str, codes_dependance: str, jitted_dicts: dict):
     """
     Adapt code_dependance to the call of a jitted function in a jitted function:
         - Remove the import transonic
@@ -262,6 +263,7 @@ def adapt_code_dependance(func: str, codes_dependance: str):
         - Add a import statement to the jitted function 
         - remove the definition of the jitted function if its on the file, or remove the import statement
     """
+    special = []
     module = extast.parse(codes_dependance)
     module_body = module.body.copy()
     jitted_functions = []
@@ -273,20 +275,39 @@ def adapt_code_dependance(func: str, codes_dependance: str):
         # remove the jitted function by jit() (i.e. func = jit(func))
         # and add the import statement for the jitted function
         elif isinstance(node, ast.Assign):
-            if node.value.func.id == "jit":
-                jitted_functions.append(node.targets[0].id)
-                module.body.remove(node)
-                module.body.insert(
-                    0,
-                    [
-                        extast.parse(
-                            "from "
-                            + node.value.args[0].id
-                            + " import "
-                            + node.value.args[0].id
-                        )
-                    ],
-                )
+            if isinstance(node.value, ast.Call):
+                if node.value.func.id == "jit":
+                    # if assigned name different from jitted function name
+                    if node.targets[0].id != node.value.args[0].id:
+                        # change function names in jitted dict
+                        # The list "special" contains functions that has to be write from jitted_dicts
+                        # see transonic.justintime:287
+                        def_func = extast.unparse(jitted_dicts["functions"][func])
+                        spl = re.split("(\W+)", def_func)
+                        spl = [
+                            node.value.args[0].id
+                            if x == node.targets[0].id
+                            else x
+                            for x in spl
+                        ]
+                        st = "".join(str(e) for e in spl)
+                        jitted_dicts["functions"][func] = extast.parse(st)
+                        special.append(func)
+                        jitted_functions.append(node.value.args[0].id)
+                    else:
+                        jitted_functions.append(node.targets[0].id)
+                    module.body.remove(node)
+                    module.body.insert(
+                        0,
+                        [
+                            extast.parse(
+                                "from "
+                                + node.value.args[0].id
+                                + " import "
+                                + node.value.args[0].id
+                            )
+                        ],
+                    )
     # remove the definition:
     for node in module_body:
         # of the jitted function in the file
@@ -301,7 +322,7 @@ def adapt_code_dependance(func: str, codes_dependance: str):
             # remove the importFrom if no function is imported
             if not node.names:
                 module.body.remove(node)
-    return extast.unparse(module)
+    return extast.unparse(module), jitted_dicts, special, jitted_functions
 
 
 code_ext = {"function": {}, "classe": {}}
@@ -313,10 +334,13 @@ def get_exterior_code(
     previous_file_name=None,
     classes: str = None,
     relative: bool = None,
+    jitted_dicts: dict = None,
 ):
     """ Get all imported functions needed by boosted functions and methods at multiple levels,
         (i.e get functions needed by functions imported by boosted function) and add them into code_ext
     """
+    special = []
+    treated = []
     for func, dep in codes_dependance.items():
         if dep:
             module_ext = extast.parse(dep)
@@ -326,9 +350,15 @@ def get_exterior_code(
                     file_name, file_path = find_path(node, pathfile)
                     # a jitted function or method needs another jitted function
                     if file_name == "transonic":
-                        codes_dependance[func] = adapt_code_dependance(
-                            func, codes_dependance[func]
+                        codes_dependance[
+                            func
+                        ], jitted_dicts, spe, treat = adapt_code_dependance(
+                            func, codes_dependance[func], jitted_dicts
                         )
+                        # the "special" list signals that jitted functions has to be written
+                        # from jitted_dicts (see transonic/justintime.py:287)
+                        special = special + spe
+                        treated = treated + treat
 
     for func, dep in codes_dependance.items():
         if dep:
@@ -338,14 +368,16 @@ def get_exterior_code(
                     # get the path of the imported module
                     file_name, file_path = find_path(node, pathfile)
                     # a jitted function or method needs another jitted function
-                    if file_name:
+                    if file_name and not file_name in treated:
                         new_file_name = "__" + func + "__" + file_name
                         # get the content of the file
                         try:
                             with open(str(file_path), "r") as file:
                                 content = file.read()
                         except:
-                            break
+                            raise NotImplementedError(
+                                file_name + " can no be found"
+                            )
                         mod = extast.parse(content)
                         # filter the code and add it to code_ext dict
                         code_ext[classes][new_file_name] = str(
@@ -372,4 +404,4 @@ def get_exterior_code(
                                     func,
                                     relative,
                                 )
-    return codes_dependance, code_ext
+    return codes_dependance, code_ext, jitted_dicts, special

@@ -170,7 +170,8 @@ def test_func0():
     assert result == func0(2)
 
 
-# jitted function that uses a local function
+# jitted function that uses a local function, a jitted local function
+# and a jitted imported function (with a different name)
 def test_main():
     from .for_test_justintime import main
 

@@ -47,6 +47,7 @@ Note: During the compilation (the "warmup" of the JIT), the Python function is
 used.
 
 """
+from transonic.analyses import extast
 
 import inspect
 import itertools
@@ -123,7 +124,7 @@ class ModuleJIT:
         self.jit_functions = {}
 
         source = self.get_source()
-        self.jitted_dicts, self.codes_dependance, self.codes_dependance_classes, self.code_ext = analysis_jit(
+        self.jitted_dicts, self.codes_dependance, self.codes_dependance_classes, self.code_ext, self.special = analysis_jit(
             source, self.filename
         )
         # Write exterior code for functions
@@ -283,8 +284,15 @@ class JIT:
 
         if has_to_write:
             src = mod.codes_dependance[func_name]
-            src += get_source_without_decorator(func)
-
+            if func_name in mod.special:
+                if func_name in mod.jitted_dicts["functions"]:
+                    src += extast.unparse(
+                        mod.jitted_dicts["functions"][func_name]
+                    )
+                elif func_name in mod.jitted_dicts["methods"]:
+                    src += extast.unparse(mod.jitted_dicts["methods"][func_name])
+            else:
+                src += get_source_without_decorator(func)
             if path_pythran.exists() and mpi.rank == 0:
                 with open(path_pythran) as file:
                     src_old = file.read()

@@ -15,5 +15,9 @@ def func_import():
     return const + np.pi - np.pi
 
 
+def func_import2():
+    return const + np.pi - np.pi
+
+
 def use_black():
     print(black)

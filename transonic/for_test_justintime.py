@@ -71,28 +71,27 @@ class MyClass:
         assert self.myfunc(1) == 3
 
 
-# FIXME Support import in a single line
-from .for_test_exterior_import_jit import func_import_multilevel, foo
-from .for_test_exterior_import_jit import func_import
+# FIXME support multilevel imported jitted function call in a jitted function
+from .for_test_exterior_import_jit import foo, func_import, func_import2
 from numpy import pi
 
 const = 1
 
-# FIXME support multilevel with jit(func_import)
-# FIXME support a different name
 jitted_func_import = jit(func_import)
+jitted_func_import2 = jit(func_import2)
 
 
 @jit
 def main(add: int):
     return (
-        foo
-        + add
-        + func_import_multilevel()
+        add
+        + foo
         + pi
         - pi
         - jitted_func_import()
+        + func_import2()
         + func0_jitted(1 / 2)
+        + const
     )
 
 
@@ -103,7 +102,7 @@ class MyClass2:
 
     @jit()
     def myfunc(self, arg):
-        return self.attr1 + self.attr0 + np.abs(arg) + func_import_multilevel()
+        return self.attr1 + self.attr0 + np.abs(arg) + func_import()
 
     def check(self):
-        assert self.myfunc(1) == 5
+        assert self.myfunc(1) == 4

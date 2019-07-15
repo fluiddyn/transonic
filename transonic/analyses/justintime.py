@@ -29,8 +29,6 @@ def analysis_jit(code, pathfile):
     debug("compute ancestors and chains")
     ancestors, duc, udc = compute_ancestors_chains(module)
 
-    # boosted_dicts = get_boosted_dicts(module, ancestors, duc)
-
     jitted_dicts = get_decorated_dicts(
         module, ancestors, duc, pathfile, decorator="jit"
     )
@@ -97,19 +95,32 @@ def analysis_jit(code, pathfile):
 
         codes_dependance_classes[key] = capturex.make_code_external()
 
+    special = []
+    spe = []
     if jitted_dicts["methods"]:
-        codes_dependance_classes, code_ext = get_exterior_code(
+        codes_dependance_classes, code_ext, jitted_dicts, spe = get_exterior_code(
             codes_dependance_classes,
             pathfile,
             previous_file_name=None,
             classes="classe",
             relative=False,
+            jitted_dicts=jitted_dicts,
         )
-    codes_dependance, code_ext = get_exterior_code(
+    special = special + spe
+    codes_dependance, code_ext, jitted_dicts, spe = get_exterior_code(
         codes_dependance,
         pathfile,
         previous_file_name=None,
         classes="function",
         relative=False,
+        jitted_dicts=jitted_dicts,
     )
-    return (jitted_dicts, codes_dependance, codes_dependance_classes, code_ext)
+    special = special + spe
+
+    return (
+        jitted_dicts,
+        codes_dependance,
+        codes_dependance_classes,
+        code_ext,
+        special,
+    )
