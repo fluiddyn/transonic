@@ -39,11 +39,9 @@ else:
     build_ext_classes.insert(0, PythranBuildExt)
     can_import_pythran = True
 
-from .transpiler import make_backend_files
 from .util import modification_date
 
 __all__ = [
-    "make_backend_files",
     "PythranBuildExt",
     "PythranExtension",
     "can_import_pythran",
