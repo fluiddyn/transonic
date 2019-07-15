@@ -3,9 +3,11 @@
 
 """
 import re
+import inspect
 import beniget
 from pathlib import Path
 from textwrap import dedent
+from typing import Callable
 import gast as ast
 from transonic.analyses import extast
 from transonic.analyses.capturex import CaptureX

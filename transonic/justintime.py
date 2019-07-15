@@ -86,6 +86,7 @@ from .log import logger
 from .config import has_to_replace
 
 from transonic.analyses.justintime import analysis_jit
+from transonic.analyses.util import get_source_with_numba
 
 modules = {}
 
@@ -106,8 +107,9 @@ def set_compile_jit(value):
 class ModuleJIT:
     """Representation of a module using jit"""
 
-    def __init__(self, frame=None):
+    def __init__(self, backend, frame=None):
 
+        self.backend = backend
         if frame is None:
             frame = inspect.stack()[1]
 
@@ -155,7 +157,7 @@ class ModuleJIT:
             return inspect.getsource(mod)
 
 
-def _get_module_jit(index_frame: int = 2):
+def _get_module_jit(backend="pythran", index_frame: int = 2):
     """Get the ModuleJIT instance corresponding to the calling module
 
     Parameters
@@ -180,7 +182,7 @@ def _get_module_jit(index_frame: int = 2):
     if module_name in modules:
         return modules[module_name]
     else:
-        return ModuleJIT(frame=frame)
+        return ModuleJIT(backend=backend, frame=frame)
 
 
 def make_pythran_type_name(obj: object):
@@ -213,11 +215,11 @@ def make_pythran_type_name(obj: object):
     return name
 
 
-def jit(func=None, native=False, xsimd=False, openmp=False):
+def jit(func=None, backend="pythran", native=False, xsimd=False, openmp=False):
     """Decorator to record that the function has to be jit compiled
 
     """
-    decor = JIT(native=native, xsimd=xsimd, openmp=openmp)
+    decor = JIT(backend=backend, native=native, xsimd=xsimd, openmp=openmp)
     if callable(func):
         decor._decorator_no_arg = True
         return decor(func)
@@ -229,7 +231,8 @@ class JIT:
     """Decorator used internally by the public jit decorator
     """
 
-    def __init__(self, native=False, xsimd=False, openmp=False):
+    def __init__(self, backend, native=False, xsimd=False, openmp=False):
+        self.backend = backend
         self.native = native
         self.xsimd = xsimd
         self.openmp = openmp
@@ -239,10 +242,13 @@ class JIT:
         self.compiling = False
         self.process = None
 
-    def __call__(self, func):
+    def __call__(self, func, backend=None):
 
         if not has_to_replace:
             return func
+
+        if self.backend == "numba":
+            return self.numba_jit(func)
 
         if is_method(func):
             return TransonicTemporaryJITMethod(
@@ -259,7 +265,7 @@ class JIT:
         else:
             index_frame = 2
 
-        mod = _get_module_jit(index_frame)
+        mod = _get_module_jit(self.backend, index_frame)
         mod.jit_functions[func_name] = self
         module_name = mod.module_name
 
@@ -468,3 +474,8 @@ class JIT:
             return func(*args, **kwargs)
 
         return type_collector
+
+    def numba_jit(self, func):
+        src = get_source_with_numba(func)
+        print(src)
+        return func

@@ -61,7 +61,7 @@ def test_jit():
         sleep(0.1)
 
 
-def fib():
+def test_fib():
     from .for_test_justintime import fib, use_fib
 
     fib2 = fib(2)

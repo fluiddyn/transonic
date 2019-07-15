@@ -537,7 +537,7 @@ def jit_class(cls, jit_methods):
     if mpi.has_to_build(python_path, module.__file__):
         from transonic.justintime import _get_module_jit
 
-        mod = _get_module_jit(5)
+        mod = _get_module_jit(backend="pythran", index_frame=5)
         if mpi.rank == 0:
             python_path = mpi.PathSeq(python_path)
             python_code = mod.codes_dependance_classes[cls_name] + "\n"
