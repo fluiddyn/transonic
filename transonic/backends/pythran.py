@@ -38,11 +38,12 @@ from transonic.util import (
 
 
 class PythranBackend(Backend):
-    def __init__(self, paths_py=None):
-        super().__init__(paths_py)
+    def __init__(self):
+        pass
 
     def make_backend_files(
         self,
+        paths_py,
         force=False,
         log_level=None,
         mocked_modules: Optional[Iterable] = None,
@@ -63,7 +64,7 @@ class PythranBackend(Backend):
             logger.set_level(log_level)
 
         paths_out = []
-        for path in self.paths_py:
+        for path in paths_py:
             path_out = self.make_pythran_file(path, force=force)
             if path_out:
                 paths_out.append(path_out)

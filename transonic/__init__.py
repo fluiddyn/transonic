@@ -6,7 +6,7 @@ from .annotation import Array, NDim, Type, Shape, Union
 from .aheadoftime import Transonic, boost, include
 
 from .util import set_compile_at_import
-from .pythranizer import wait_for_all_extensions
+from transonic.backends.pythranizer import wait_for_all_extensions
 
 __all__ = [
     "__version__",

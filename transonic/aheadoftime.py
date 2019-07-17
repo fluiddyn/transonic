@@ -41,10 +41,12 @@ from .util import (
     write_if_has_to_write,
 )
 
-from .pythranizer import compile_extension, name_ext_from_path_backend, ext_suffix
-
-
-from .transpiler import produce_code_class
+from transonic.backends.pythranizer import (
+    compile_extension,
+    name_ext_from_path_backend,
+    ext_suffix,
+)
+from transonic.backends.transpiler import produce_code_class
 
 from .log import logger
 from . import mpi

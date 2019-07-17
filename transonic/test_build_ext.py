@@ -17,8 +17,8 @@ setup_dir = path_data_tests / "test_packaging"
 def setup_module():
     os.chdir(setup_dir)
     transonic_src_paths = [setup_dir / "add.py"]
-    pythranBE = PythranBackend(transonic_src_paths)
-    pythranBE.make_backend_files()
+    pythran_be = PythranBackend()
+    pythran_be.make_backend_files(transonic_src_paths)
 
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")

@@ -62,7 +62,7 @@ try:
 except ImportError:
     np = None
 
-from .pythranizer import compile_extension, ext_suffix
+from transonic.backends.pythranizer import compile_extension, ext_suffix
 
 from .util import (
     get_module_name,

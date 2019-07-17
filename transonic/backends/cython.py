@@ -22,11 +22,11 @@ from .backend import Backend
 
 
 class CythonBackend(Backend):
-    def __init__(self, paths_py):
-        super(CythonBackend, self).__init__(paths_py)
+    def __init__(self):
+        pass
 
-    def make_backend_files(self):
-        for path in self.paths_py:
+    def make_backend_files(self, paths_py):
+        for path in paths_py:
             self.make_cython_file(path)
 
     def make_cython_file(self, path_py):
@@ -92,17 +92,20 @@ class CythonBackend(Backend):
             #         )
 
             anns = annotations["comments"][func_name]
+            print(anns)
+            print_dumped(fdef.decorator_list)
             # change annotations
-            for name in fdef.args.args:
-                if name.annotation:
-                    name.id = name.annotation.id + " " + name.id
+            if fdef.decorator_list:
+                for name in fdef.args.args:
+                    if name.annotation:
+                        name.id = name.annotation.id + " " + name.id
 
-            # change type hints into cdef
-            for index, node in enumerate(fdef.body):
-                if isinstance(node, ast.AnnAssign):
-                    cdef = "cdef " + node.annotation.id + " " + node.target.id
-                    fdef.body[index] = extast.CommentLine(s=cdef)
+                # change type hints into cdef
+                for index, node in enumerate(fdef.body):
+                    if isinstance(node, ast.AnnAssign):
+                        cdef = "cdef " + node.annotation.id + " " + node.target.id
+                        fdef.body[index] = extast.CommentLine(s=cdef)
 
-            code.append(extast.unparse(fdef))
+                code.append(extast.unparse(fdef))
 
         return code, code_ext

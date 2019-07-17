@@ -9,7 +9,7 @@ except ImportError:
     pythran = False
 
 
-from .backends.pythran import PythranBackend
+from .backends.transpiler import make_pythran_file
 from .util import has_to_compile_at_import, ext_suffix, name_ext_from_path_backend
 from .aheadoftime import modules
 from . import mpi
@@ -74,9 +74,7 @@ class TestsInit(unittest.TestCase):
 
         print(mpi.rank, "before make_pythran_file(self.path_for_test)", flush=1)
         if mpi.rank == 0:
-            pythranBE = PythranBackend()
-            print(self.path_for_test)
-            pythranBE.make_pythran_file(self.path_for_test)
+            make_pythran_file(self.path_for_test)
 
         print(mpi.rank, "after make_pythran_file(self.path_for_test)", flush=1)
         mpi.barrier()

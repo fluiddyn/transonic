@@ -12,7 +12,7 @@ except ImportError:
 
 from .util import path_jit_classes
 from .justintime import path_jit, modules
-from .pythranizer import scheduler, wait_for_all_extensions
+from .backends.pythranizer import scheduler, wait_for_all_extensions
 from . import mpi
 
 scheduler.nb_cpus = 2

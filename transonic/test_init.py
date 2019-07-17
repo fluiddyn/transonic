@@ -3,13 +3,12 @@ from shutil import rmtree
 
 from . import Transonic, mpi
 from .mpi import Path
-from .pythranizer import wait_for_all_extensions
+from .backends.pythranizer import wait_for_all_extensions
 
 
 def test_not_transonified():
 
     path_for_test = Path(__file__).parent / "for_test_init.py"
-
     path_output = path_for_test.parent / "__pythran__"
 
     if path_output.exists() and mpi.rank == 0:

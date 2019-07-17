@@ -93,7 +93,7 @@ try:
 except ImportError:
     pass
 
-from .pythranizer import (
+from transonic.backends.pythranizer import (
     ext_suffix,
     name_ext_from_path_backend,
     make_hex,

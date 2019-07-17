@@ -27,8 +27,8 @@ else:
         Extension("add_cython", ["add_cython.pyx"], include_dirs=include_dirs)
     )
 
-pythranBE = PythranBackend([path_sources / "add.py"])
-pythranBE.make_backend_files()
+pythran_be = PythranBackend()
+pythran_be.make_backend_files([path_sources / "add.py"])
 extensions.extend(init_pythran_extensions(".", include_dirs=include_dirs))
 
 setup(

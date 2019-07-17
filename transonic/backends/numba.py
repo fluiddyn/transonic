@@ -7,6 +7,7 @@ from pathlib import Path
 
 from transonic.analyses import analyse_aot
 from transonic.analyses import extast
+from transonic.analyses.util import get_source_with_numba
 
 from transonic.util import (
     has_to_build,
@@ -21,13 +22,13 @@ from .backend import Backend
 
 
 class NumbaBackend(Backend):
-    def __init__(self, paths_py):
-        super.__init__(paths_py)
+    def __init__(self):
+        pass
 
-    def make_backend_files(self):
+    def make_backend_files(self, paths_py):
         """Create numba files from a list of Python files"""
         paths_out = []
-        for path in self.paths_py:
+        for path in paths_py:
             path_out = self.make_numba_file(path)
             if path_out:
                 paths_out.append(path_out)
@@ -109,4 +110,22 @@ class NumbaBackend(Backend):
             code_module, path_py
         )
 
-        print(boosted_dicts)
+        code = ["\n" + code_dependance + "\n"]
+        for func_name, fdef in boosted_dicts["functions"].items():
+
+            signatures_func = set()
+            try:
+                ann = annotations["functions"][func_name]
+            except KeyError:
+                pass
+            # else:
+            #     typess = compute_pythran_types_from_valued_types(ann.values())
+
+            #     for types in typess:
+            #         signatures_func.add(
+            #             f"# pythran export {func_name}({', '.join(types)})"
+            #         )
+
+            # code.append(get_source_with_numba(fdef))
+
+        return None, None

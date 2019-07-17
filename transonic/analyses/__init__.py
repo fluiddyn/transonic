@@ -272,13 +272,13 @@ def analyse_aot(code, pathfile):
     code_dependance = capturex.make_code_external()
     if boosted_dicts["functions"]:
         func = next(iter(boosted_dicts["functions"]))
-        code_dependance, code_ext, jitted_dicts, spe = get_exterior_code(
+        code_dependance, code_ext, _, _ = get_exterior_code(
             {func: code_dependance}, pathfile, classes="function", relative=True
         )
         code_dependance = code_dependance[func]
     if boosted_dicts["classes"]:
         cls = next(iter(boosted_dicts["classes"]))
-        code_dependance, code_ext, jitted_dicts, spe = get_exterior_code(
+        code_dependance, code_ext, _, _ = get_exterior_code(
             {cls: code_dependance}, pathfile, classes="classe", relative=True
         )
         code_dependance = code_dependance[cls]

@@ -6,8 +6,8 @@ from transonic.analyses import extast
 
 
 class Backend:
-    def __init__(self, paths_py=None):
-        self.paths_py = paths_py
+    def __init__(self):
+        pass
 
     def get_code_function(self, fdef):
 
