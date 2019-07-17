@@ -274,40 +274,40 @@ def adapt_code_dependance(func: str, codes_dependance: str, jitted_dicts: dict):
                 module.body.remove(node)
         # remove the jitted function by jit() (i.e. func = jit(func))
         # and add the import statement for the jitted function
-        elif isinstance(node, ast.Assign):
-            if isinstance(node.value, ast.Call):
-                if node.value.func.id == "jit":
-                    # if assigned name different from jitted function name
-                    if node.targets[0].id != node.value.args[0].id:
-                        # change function names in jitted dict
-                        # The list "special" contains functions that has to be write from jitted_dicts
-                        # see transonic.justintime:287
-                        def_func = extast.unparse(jitted_dicts["functions"][func])
-                        spl = re.split("(\W+)", def_func)
-                        spl = [
-                            node.value.args[0].id
-                            if x == node.targets[0].id
-                            else x
-                            for x in spl
-                        ]
-                        st = "".join(str(e) for e in spl)
-                        jitted_dicts["functions"][func] = extast.parse(st)
-                        special.append(func)
-                        jitted_functions.append(node.value.args[0].id)
-                    else:
-                        jitted_functions.append(node.targets[0].id)
-                    module.body.remove(node)
-                    module.body.insert(
-                        0,
-                        [
-                            extast.parse(
-                                "from "
-                                + node.value.args[0].id
-                                + " import "
-                                + node.value.args[0].id
-                            )
-                        ],
+        elif (
+            isinstance(node, ast.Assign)
+            and isinstance(node.value, ast.Call)
+            and node.value.func.id == "jit"
+        ):
+            # if assigned name different from jitted function name
+            if node.targets[0].id != node.value.args[0].id:
+                # change function names in jitted dict
+                # The list "special" contains functions that has to be write from jitted_dicts
+                # see transonic.justintime:287
+                def_func = extast.unparse(jitted_dicts["functions"][func])
+                spl = re.split(r"(\W+)", def_func)
+                spl = [
+                    node.value.args[0].id if x == node.targets[0].id else x
+                    for x in spl
+                ]
+                st = "".join(str(e) for e in spl)
+                jitted_dicts["functions"][func] = extast.parse(st)
+                special.append(func)
+                jitted_functions.append(node.value.args[0].id)
+            else:
+                jitted_functions.append(node.targets[0].id)
+            module.body.remove(node)
+            module.body.insert(
+                0,
+                [
+                    extast.parse(
+                        "from "
+                        + node.value.args[0].id
+                        + " import "
+                        + node.value.args[0].id
                     )
+                ],
+            )
     # remove the definition:
     for node in module_body:
         # of the jitted function in the file
@@ -342,66 +342,67 @@ def get_exterior_code(
     special = []
     treated = []
     for func, dep in codes_dependance.items():
-        if dep:
-            module_ext = extast.parse(dep)
-            for node in module_ext.body:
-                if isinstance(node, (ast.ImportFrom, ast.Import)):
-                    # get the path of the imported module
-                    file_name, file_path = find_path(node, pathfile)
-                    # a jitted function or method needs another jitted function
-                    if file_name == "transonic":
-                        codes_dependance[
-                            func
-                        ], jitted_dicts, spe, treat = adapt_code_dependance(
-                            func, codes_dependance[func], jitted_dicts
-                        )
-                        # the "special" list signals that jitted functions has to be written
-                        # from jitted_dicts (see transonic/justintime.py:287)
-                        special = special + spe
-                        treated = treated + treat
+        if not dep:
+            continue
+        module_ext = extast.parse(dep)
+        for node in module_ext.body:
+            if not isinstance(node, (ast.ImportFrom, ast.Import)):
+                continue
+            # get the path of the imported module
+            file_name, file_path = find_path(node, pathfile)
+            # a jitted function or method needs another jitted function
+            if file_name == "transonic":
+                codes_dependance[
+                    func
+                ], jitted_dicts, spe, treat = adapt_code_dependance(
+                    func, codes_dependance[func], jitted_dicts
+                )
+                # the "special" list signals that jitted functions has to be written
+                # from jitted_dicts (see transonic/justintime.py:287)
+                special = special + spe
+                treated = treated + treat
 
     for func, dep in codes_dependance.items():
-        if dep:
-            module_ext = extast.parse(dep)
-            for node in module_ext.body:
-                if isinstance(node, (ast.ImportFrom, ast.Import)):
-                    # get the path of the imported module
-                    file_name, file_path = find_path(node, pathfile)
-                    # a jitted function or method needs another jitted function
-                    if file_name and not file_name in treated:
-                        new_file_name = "__" + func + "__" + file_name
-                        # get the content of the file
-                        try:
-                            with open(str(file_path), "r") as file:
-                                content = file.read()
-                        except:
-                            raise NotImplementedError(
-                                file_name + " can no be found"
-                            )
-                        mod = extast.parse(content)
-                        # filter the code and add it to code_ext dict
-                        code_ext[classes][new_file_name] = str(
-                            filter_external_code(mod, node.names)
-                        )
-                        # change imported module names
-                        codes_dependance[func] = change_import_name(
-                            codes_dependance[func], node, func, relative
-                        )
-                        # recursively get the exterior codes
-                        if code_ext[classes][new_file_name]:
-                            get_exterior_code(
-                                {func: code_ext[classes][new_file_name]},
-                                pathfile,
-                                new_file_name,
-                                classes,
-                            )
-                            if previous_file_name:
-                                code_ext[classes][
-                                    previous_file_name
-                                ] = change_import_name(
-                                    code_ext[classes][previous_file_name],
-                                    node,
-                                    func,
-                                    relative,
-                                )
+        if not dep:
+            continue
+        module_ext = extast.parse(dep)
+        for node in module_ext.body:
+            if not isinstance(node, (ast.ImportFrom, ast.Import)):
+                continue
+            # get the path of the imported module
+            file_name, file_path = find_path(node, pathfile)
+            # a jitted function or method needs another jitted function
+            if not (file_name and not file_name in treated):
+                continue
+            new_file_name = "__" + func + "__" + file_name
+            # get the content of the file
+            try:
+                with open(str(file_path), "r") as file:
+                    content = file.read()
+            except:
+                raise NotImplementedError(file_name + " can no be found")
+            mod = extast.parse(content)
+            # filter the code and add it to code_ext dict
+            code_ext[classes][new_file_name] = str(
+                filter_external_code(mod, node.names)
+            )
+            # change imported module names
+            codes_dependance[func] = change_import_name(
+                codes_dependance[func], node, func, relative
+            )
+            # recursively get the exterior codes
+            if code_ext[classes][new_file_name]:
+                get_exterior_code(
+                    {func: code_ext[classes][new_file_name]},
+                    pathfile,
+                    new_file_name,
+                    classes,
+                )
+                if previous_file_name:
+                    code_ext[classes][previous_file_name] = change_import_name(
+                        code_ext[classes][previous_file_name],
+                        node,
+                        func,
+                        relative,
+                    )
     return codes_dependance, code_ext, jitted_dicts, special
