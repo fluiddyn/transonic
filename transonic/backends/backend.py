@@ -1,13 +1,82 @@
+from pathlib import Path
 from tokenize import tokenize, untokenize, NAME, OP
 from io import BytesIO
 
 from transonic.util import TypeHintRemover, format_str
 from transonic.analyses import extast
 
+from transonic.log import logger
+
+from transonic.util import (
+    has_to_build,
+    get_source_without_decorator,
+    format_str,
+    write_if_has_to_write,
+)
+
 
 class Backend:
-    def __init__(self):
-        pass
+    def __init__(self, backend_name):
+        self.backend_name = backend_name
+
+    def prepare_backend_file(self, path_py, force=False, log_level=None):
+        if log_level is not None:
+            logger.set_level(log_level)
+
+        path_py = Path(path_py)
+
+        if not path_py.exists():
+            raise FileNotFoundError(f"Input file {path_py} not found")
+
+        if path_py.absolute().parent.name == "__" + self.backend_name + "__":
+            logger.debug(f"skip file {path_py}")
+            return None, None, None
+        if not path_py.name.endswith(".py"):
+            raise ValueError(
+                "transonic only processes Python file. Cannot process {path_py}"
+            )
+
+        path_dir = path_py.parent / str("__" + self.backend_name + "__")
+        path_backend = path_dir / path_py.name
+
+        if not has_to_build(path_backend, path_py) and not force:
+            logger.warning(f"File {path_backend} already up-to-date.")
+            return None, None, None
+
+        return path_py, path_dir, path_backend
+
+    def write_code(self, code_backend, code_ext, path_dir, path_backend, force):
+
+        for file_name, code in code_ext["function"].items():
+            path_ext_file = path_dir / (file_name + ".py")
+            write_if_has_to_write(path_ext_file, code, logger.info)
+
+        if self.backend_name == "pythran":
+            for file_name, code in code_ext["classe"].items():
+                path_ext_file = (
+                    path_dir.parent / "__pythran__" / (file_name + ".py")
+                )
+                write_if_has_to_write(path_ext_file, code, logger.info)
+
+        code_pythran_old = ""
+        if path_backend.exists() and not force:
+            with open(path_backend) as file:
+                code_pythran_old = file.read()
+
+        if code_pythran_old == code_backend:
+            logger.warning(f"Code in file {path_backend} already up-to-date.")
+            return False
+
+        logger.debug(f"code_{self.backend_name}:\n{code_backend}")
+
+        path_dir.mkdir(exist_ok=True)
+
+        with open(path_backend, "w") as file:
+            file.write("".join(code_backend))
+
+        logger.info(f"File {path_backend} written")
+
+        return True
 
     def get_code_function(self, fdef):
 

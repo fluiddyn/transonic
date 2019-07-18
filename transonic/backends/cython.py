@@ -23,46 +23,27 @@ from .backend import Backend
 
 class CythonBackend(Backend):
     def __init__(self):
-        pass
+        super().__init__("cython")
 
-    def make_backend_file(self, path_py, analyse, force=None):
+    def make_backend_file(self, path_py, analyse, force=False, log_level=None):
         """Create a Python file from a Python file (if necessary)"""
-        # if log_level is not None:
-        #     logger.set_level(log_level)
 
-        path_py = Path(path_py)
+        path_py, path_dir, _ = super().prepare_backend_file(
+            path_py, force, log_level
+        )
 
-        if not path_py.exists():
-            raise FileNotFoundError(f"Input file {path_py} not found")
+        if not analyse:
+            with open(path_py) as f:
+                code = f.read()
+            analyse = analyse_aot(code, path_py)
 
-        if path_py.absolute().parent.name == "__pythran__":
-            logger.debug(f"skip file {path_py}")
-            return
-        if not path_py.name.endswith(".py"):
-            raise ValueError(
-                "transonic only processes Python file. Cannot process {path_py}"
-            )
-
-        path_dir = path_py.parent / "__cython__"
         path_cython = (path_dir / path_py.name).with_suffix(".pyx")
-
-        if not has_to_build(path_cython, path_py):  # and not force:
-            logger.warning(f"File {path_cython} already up-to-date.")
-            return
-
         code_cython, code_ext = self.make_cython_code(path_py, analyse)
 
         if not code_cython:
             return
 
-        for file_name, code in code_ext["function"].items():
-            path_ext_file = path_dir / (file_name + ".py")
-            write_if_has_to_write(path_ext_file, code, logger.info)
-
-        path_dir.mkdir(exist_ok=True)
-
-        with open(path_cython, "w") as file:
-            file.write("".join(code_cython))
+        super().write_code(code_cython, code_ext, path_dir, path_cython, force)
 
     def make_cython_code(self, path_py, analyse):
 
@@ -76,7 +57,6 @@ class CythonBackend(Backend):
 
         code = ["\n" + code_dependance + "\n"]
         for func_name, fdef in boosted_dicts["functions"].items():
-
             signatures_func = set()
             try:
                 ann = annotations["functions"][func_name]
@@ -91,19 +71,17 @@ class CythonBackend(Backend):
             #         )
 
             anns = annotations["comments"][func_name]
-            print_dumped(fdef.decorator_list)
             # change annotations
-            if fdef.decorator_list:
-                for name in fdef.args.args:
-                    if name.annotation:
-                        name.id = name.annotation.id + " " + name.id
+            for name in fdef.args.args:
+                if name.annotation:
+                    name.id = name.annotation.id + " " + name.id
 
-                # change type hints into cdef
-                for index, node in enumerate(fdef.body):
-                    if isinstance(node, ast.AnnAssign):
-                        cdef = "cdef " + node.annotation.id + " " + node.target.id
-                        fdef.body[index] = extast.CommentLine(s=cdef)
+            # change type hints into cdef
+            for index, node in enumerate(fdef.body):
+                if isinstance(node, ast.AnnAssign):
+                    cdef = "cdef " + node.annotation.id + " " + node.target.id
+                    fdef.body[index] = extast.CommentLine(s=cdef)
 
-                code.append(extast.unparse(fdef))
+            code.append(extast.unparse(fdef))
 
         return code, code_ext

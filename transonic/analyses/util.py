@@ -251,7 +251,6 @@ def filter_external_code(module: object, names: list):
                     lines_code.append(str(extast.unparse(node)))
             if isinstance(node, ast.ClassDef):
                 if node.name == extast.unparse(name).rstrip("\n\r"):
-                    print_dumped(node)
                     lines_code.append(str(extast.unparse(node)))
 
     return code_dependance_annotations + "\n".join(lines_code)

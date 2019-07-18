@@ -136,7 +136,6 @@ def make_backends_files(
             code = f.read()
         analyse = analyse_aot(code, path)
         for name, backend in backends.items():
-            print(backend)
             path_out = backend.make_backend_file(path, analyse, force=force)
             if path_out:
                 paths_out.append(path_out)
