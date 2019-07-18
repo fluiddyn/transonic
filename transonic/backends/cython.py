@@ -25,11 +25,7 @@ class CythonBackend(Backend):
     def __init__(self):
         pass
 
-    def make_backend_files(self, paths_py):
-        for path in paths_py:
-            self.make_cython_file(path)
-
-    def make_cython_file(self, path_py):
+    def make_backend_file(self, path_py, analyse, force=None):
         """Create a Python file from a Python file (if necessary)"""
         # if log_level is not None:
         #     logger.set_level(log_level)
@@ -54,7 +50,7 @@ class CythonBackend(Backend):
             logger.warning(f"File {path_cython} already up-to-date.")
             return
 
-        code_cython, code_ext = self.make_cython_code(path_py)
+        code_cython, code_ext = self.make_cython_code(path_py, analyse)
 
         if not code_cython:
             return
@@ -68,11 +64,14 @@ class CythonBackend(Backend):
         with open(path_cython, "w") as file:
             file.write("".join(code_cython))
 
-    def make_cython_code(self, path_py):
-        with open(path_py) as file:
-            code_module = file.read()
-        boosted_dicts, code_dependance, annotations, blocks, code_ext = analyse_aot(
-            code_module, path_py
+    def make_cython_code(self, path_py, analyse):
+
+        boosted_dicts, code_dependance, annotations, blocks, code_ext = analyse
+        boosted_dicts = dict(
+            functions=boosted_dicts["functions"]["cython"],
+            functions_ext=boosted_dicts["functions_ext"]["cython"],
+            methods=boosted_dicts["methods"]["cython"],
+            classes=boosted_dicts["classes"]["cython"],
         )
 
         code = ["\n" + code_dependance + "\n"]
@@ -92,7 +91,6 @@ class CythonBackend(Backend):
             #         )
 
             anns = annotations["comments"][func_name]
-            print(anns)
             print_dumped(fdef.decorator_list)
             # change annotations
             if fdef.decorator_list:

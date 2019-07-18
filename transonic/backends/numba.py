@@ -46,7 +46,9 @@ class NumbaBackend(Backend):
             )
         return paths_out
 
-    def make_numba_file(self, path_py: Path, force="force", log_level=None):
+    def make_backend_file(
+        self, path_py: Path, analyse=None, force="force", log_level=None
+    ):
         if log_level is not None:
             logger.set_level(log_level)
 

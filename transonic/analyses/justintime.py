@@ -33,6 +33,14 @@ def analysis_jit(code, pathfile):
         module, ancestors, duc, pathfile, decorator="jit"
     )
 
+    # TODO adpat justintime to cython and numba
+    jitted_dicts = dict(
+        functions=jitted_dicts["functions"]["pythran"],
+        functions_ext=jitted_dicts["functions_ext"]["pythran"],
+        methods=jitted_dicts["methods"]["pythran"],
+        classes=jitted_dicts["classes"]["pythran"],
+    )
+
     debug("compute code dependance")
 
     def_nodes_dict = {

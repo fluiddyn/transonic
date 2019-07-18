@@ -49,8 +49,7 @@ class PythranBackend(Backend):
         mocked_modules: Optional[Iterable] = None,
         backend=None,
     ):
-        """Create Pythran files from a list of Python files"""
-
+        """Create backend files from a list of Python files"""
         assert backend is None
 
         if mocked_modules is not None:
@@ -65,7 +64,10 @@ class PythranBackend(Backend):
 
         paths_out = []
         for path in paths_py:
-            path_out = self.make_pythran_file(path, force=force)
+            with open(path) as f:
+                code = f.read()
+            analyse = analyse_aot(code, path)
+            path_out = self.make_backend_file(path, analyse, force=force)
             if path_out:
                 paths_out.append(path_out)
 
@@ -83,12 +85,20 @@ class PythranBackend(Backend):
 
         return paths_out
 
-    def make_pythran_file(self, path_py: Path, force=False, log_level=None):
+    def make_backend_file(
+        self, path_py: Path, analyse=None, force=False, log_level=None
+    ):
         """Create a Python file from a Python file (if necessary)"""
+
         if log_level is not None:
             logger.set_level(log_level)
 
         path_py = Path(path_py)
+
+        if not analyse:
+            with open(path_py) as f:
+                code = f.read()
+            analyse = analyse_aot(code, path_py)
 
         if not path_py.exists():
             raise FileNotFoundError(f"Input file {path_py} not found")
@@ -108,7 +118,7 @@ class PythranBackend(Backend):
             logger.warning(f"File {path_pythran} already up-to-date.")
             return
 
-        code_pythran, code_ext = self.make_pythran_code(path_py)
+        code_pythran, code_ext = self.make_pythran_code(path_py, analyse)
 
         if not code_pythran:
             return
@@ -140,19 +150,23 @@ class PythranBackend(Backend):
 
         return path_pythran
 
-    def make_pythran_code(self, path_py):
+    def make_pythran_code(self, path_py, analyse):
         """Create a pythran code from a Python file"""
         with open(path_py) as file:
             code_module = file.read()
 
-        boosted_dicts, code_dependance, annotations, blocks, code_ext = analyse_aot(
-            code_module, path_py
+        boosted_dicts, code_dependance, annotations, blocks, code_ext = analyse
+
+        boosted_dicts = dict(
+            functions=boosted_dicts["functions"]["pythran"],
+            functions_ext=boosted_dicts["functions_ext"]["pythran"],
+            methods=boosted_dicts["methods"]["pythran"],
+            classes=boosted_dicts["classes"]["pythran"],
         )
 
         code = ["\n" + code_dependance + "\n"]
 
         for func_name, fdef in boosted_dicts["functions"].items():
-
             signatures_func = set()
 
             try:

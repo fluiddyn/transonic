@@ -14,6 +14,7 @@
 """
 
 from pprint import pformat
+import copy
 
 import gast as ast
 import beniget
@@ -75,36 +76,53 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
     """Get the definitions of the decorated functions and classes"""
 
     kinds = ("functions", "functions_ext", "methods", "classes")
-    decorated_dicts = {kind: {} for kind in kinds}
+    backends = dict(pythran={}, cython={}, numba={})
+    decorated_dicts = {kind: copy.deepcopy(backends) for kind in kinds}
 
     def add_definition(definition_node):
+        backend = "pythran"
         if isinstance(definition_node, ast.Call):
+            # FIXME see other element than the fisrt of the list
+            if (
+                definition_node.keywords
+                and definition_node.keywords[0].arg == "backend"
+            ):
+                backend = str(extast.unparse(definition_node.keywords[0].value))
+                backend = backend.replace("'", "").rstrip()
             definition_node = ancestors.parent(definition_node)
         decorated_dict = None
         if isinstance(definition_node, ast.Assign):
+            if (
+                definition_node.value.keywords
+                and definition_node.value.keywords[0].arg == "backend"
+            ):
+                backend = str(
+                    extast.unparse(definition_node.value.keywords[0].value)
+                )
+                backend = backend.replace("'", "").rstrip()
             key = definition_node.value.args[0].id
             definition_node, ext_module = find_decorated_function(
                 module, key, pathfile
             )
-            decorated_dict = decorated_dicts["functions"]
+            decorated_dict = decorated_dicts["functions"][backend]
             # if the definition node is in an imported module
             if ext_module:
-                # add this node and its module in decorated_dict["functions_ext"]
-                decorated_dict = decorated_dicts["functions_ext"]
+                decorated_dict = decorated_dicts["functions_ext"][backend]
                 decorated_dict[key] = (definition_node, ext_module)
         else:
             key = definition_node.name
         # If the definition node is not imported
-        if decorated_dict is not decorated_dicts["functions_ext"]:
+        if decorated_dict is not decorated_dicts["functions_ext"][backend]:
             if isinstance(definition_node, ast.FunctionDef):
                 parent = ancestors.parent(definition_node)
                 if isinstance(parent, ast.ClassDef):
-                    decorated_dict = decorated_dicts["methods"]
+
+                    decorated_dict = decorated_dicts["methods"][backend]
                     key = (parent.name, key)
                 else:
-                    decorated_dict = decorated_dicts["functions"]
+                    decorated_dict = decorated_dicts["functions"][backend]
             elif isinstance(definition_node, ast.ClassDef):
-                decorated_dict = decorated_dicts["classes"]
+                decorated_dict = decorated_dicts["classes"][backend]
             if decorated_dict is not None:
                 decorated_dict[key] = definition_node
 
@@ -197,7 +215,8 @@ def analyse_aot(code, pathfile):
     def_nodes = [
         def_node
         for boosted_dict in boosted_dicts.values()
-        for def_node in boosted_dict.values()
+        for backend in boosted_dict.values()
+        for def_node in backend.values()
     ]
 
     capturex = CaptureX(
@@ -220,11 +239,13 @@ def analyse_aot(code, pathfile):
 
     for kind, boosted_dict in boosted_dicts.items():
         annotations[kind] = {}
-
-        for key, definition in boosted_dict.items():
-            ann = get_annotations(definition, namespace)
-            if ann != {}:
-                annotations[kind][key] = get_annotations(definition, namespace)
+        for backend, backends in boosted_dict.items():
+            for key, definition in backends.items():
+                ann = get_annotations(definition, namespace)
+                if ann != {}:
+                    annotations[kind][key] = get_annotations(
+                        definition, namespace
+                    )
 
     debug(pformat(annotations))
 
@@ -270,14 +291,15 @@ def analyse_aot(code, pathfile):
     )
     code_ext = {"function": {}, "classe": {}}
     code_dependance = capturex.make_code_external()
-    if boosted_dicts["functions"]:
-        func = next(iter(boosted_dicts["functions"]))
+    # TODO implement class for new backends
+    if boosted_dicts["functions"]["pythran"]:
+        func = next(iter(boosted_dicts["functions"]["pythran"]))
         code_dependance, code_ext, _, _ = get_exterior_code(
             {func: code_dependance}, pathfile, classes="function", relative=True
         )
         code_dependance = code_dependance[func]
-    if boosted_dicts["classes"]:
-        cls = next(iter(boosted_dicts["classes"]))
+    if boosted_dicts["classes"]["pythran"]:
+        cls = next(iter(boosted_dicts["classes"]["pythran"]))
         code_dependance, code_ext, _, _ = get_exterior_code(
             {cls: code_dependance}, pathfile, classes="classe", relative=True
         )
@@ -288,17 +310,21 @@ def analyse_aot(code, pathfile):
 
     annotations["comments"] = {}
 
-    for name_func, fdef in boosted_dicts["functions"].items():
-        try:
-            signatures = signatures_p[name_func]
-        except KeyError:
-            signatures = tuple()
-        fdef = boosted_dicts["functions"][name_func]
-        arg_names = [arg.id for arg in fdef.args.args]
-        annotations_sign = annotations["comments"][name_func] = []
-        for sig in signatures:
-            types = get_types_from_transonic_signature(sig, fdef.name)
-            annotations_sign.append(
-                {arg_name: type_ for arg_name, type_ in zip(arg_names, types)}
-            )
+    for name_backend, backend in boosted_dicts["functions"].items():
+        for name_func, fdef in backend.items():
+            try:
+                signatures = signatures_p[name_func]
+            except KeyError:
+                signatures = tuple()
+            fdef = boosted_dicts["functions"][name_backend][name_func]
+            arg_names = [arg.id for arg in fdef.args.args]
+            annotations_sign = annotations["comments"][name_func] = []
+            for sig in signatures:
+                types = [
+                    type_.strip()
+                    for type_ in sig[len(fdef.name) + 1 : -1].split(",")
+                ]
+                annotations_sign.append(
+                    {arg_name: type_ for arg_name, type_ in zip(arg_names, types)}
+                )
     return boosted_dicts, code_dependance, annotations, blocks, code_ext

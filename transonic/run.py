@@ -14,9 +14,10 @@ import argparse
 from pathlib import Path
 from glob import glob
 import sys
+from typing import Iterable, Optional
+from warnings import warn
 
 from . import __version__
-from .backends.pythran import PythranBackend
 from .log import logger
 from transonic.backends.pythranizer import (
     compile_extensions,
@@ -24,6 +25,8 @@ from transonic.backends.pythranizer import (
     wait_for_all_extensions,
 )
 from .util import has_to_build, clear_cached_extensions
+
+from transonic.analyses import analyse_aot
 
 try:
     import pythran
@@ -86,8 +89,7 @@ def run():
 
     from .backends import backends
 
-    for key, backend in backends.items():
-        backend.make_backend_files(paths_py=paths)
+    make_backends_files(paths, backends)
 
     if not pythran or args.no_pythran:
         return
@@ -107,6 +109,51 @@ def run():
 
     if not args.no_blocking:
         wait_for_all_extensions()
+
+
+def make_backends_files(
+    paths_py,
+    backends=None,
+    force=False,
+    log_level=None,
+    mocked_modules: Optional[Iterable] = None,
+):
+    """Create backend files from a list of Python files"""
+
+    if mocked_modules is not None:
+        warn(
+            "The argument mocked_modules is deprecated. "
+            "It is now useless for Transonic.",
+            DeprecationWarning,
+        )
+
+    if log_level is not None:
+        logger.set_level(log_level)
+
+    paths_out = []
+    for path in paths_py:
+        with open(path) as f:
+            code = f.read()
+        analyse = analyse_aot(code, path)
+        for name, backend in backends.items():
+            print(backend)
+            path_out = backend.make_backend_file(path, analyse, force=force)
+            if path_out:
+                paths_out.append(path_out)
+
+    if paths_out:
+        nb_files = len(paths_out)
+        if nb_files == 1:
+            conjug = "s"
+        else:
+            conjug = ""
+
+        logger.warning(
+            f"{nb_files} files created or updated need{conjug}"
+            " to be pythranized"
+        )
+
+    return paths_out
 
 
 def parse_args():
