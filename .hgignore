@@ -29,3 +29,5 @@ doc/ipynb/*.rst
 *.egg-info/*
 
 **/__pythran__/*
+**/__cython__/*
+**/__numba__/*

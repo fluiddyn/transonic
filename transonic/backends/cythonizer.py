@@ -137,7 +137,7 @@ class SchedulerPopen:
         parallel=True,
         force=True,
     ):
-
+        print(path)
         if name_ext_file is None:
             name_ext_file = name_ext_from_path_backend(path)
 
@@ -178,7 +178,7 @@ class SchedulerPopen:
         words_command = [
             sys.executable,
             "-m",
-            "transonic_cl.run_pythran",
+            "transonic_cl.run_cython",
             path.name,
         ]
 
@@ -209,7 +209,7 @@ def wait_for_all_extensions():
     scheduler.wait_for_all_extensions()
 
 
-def compile_pythran_extensions(
+def compile_cython_extensions(
     paths: Iterable[Path], str_pythran_flags: str, parallel=True, force=True
 ):
     for path in paths:

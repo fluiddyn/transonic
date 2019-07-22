@@ -20,7 +20,13 @@ from warnings import warn
 from . import __version__
 from .log import logger
 from transonic.backends.pythranizer import (
-    compile_extensions,
+    compile_pythran_extensions,
+    ext_suffix,
+    wait_for_all_extensions,
+)
+
+from transonic.backends.cythonizer import (
+    compile_cython_extensions,
     ext_suffix,
     wait_for_all_extensions,
 )
@@ -95,16 +101,31 @@ def run():
         return
 
     # find pythran files not already compiled
-    pythran_paths = []
-    for path in paths:
-        path = Path(path)
-        pythran_path = path.parent / "__pythran__" / path.name
-        ext_path = pythran_path.with_suffix(ext_suffix)
-        if pythran_path.exists() and has_to_build(ext_path, pythran_path):
-            pythran_paths.append(pythran_path)
+    backends_path = {backend: [] for backend in backends}
 
-    compile_extensions(
-        pythran_paths, args.pythran_flags, parallel=True, force=args.force
+    for backend_name in backends:
+        for path in paths:
+            path = Path(path)
+            backend_path = (
+                path.parent / str("__" + backend_name + "__") / path.name
+            )
+            if backend_name == "cython":
+                backend_path = backend_path.with_suffix(".pyx")
+            ext_path = backend_path.with_suffix(ext_suffix)
+            if backend_path.exists() and has_to_build(ext_path, backend_path):
+                backends_path[backend_name].append(backend_path)
+
+    compile_pythran_extensions(
+        backends_path["pythran"],
+        args.pythran_flags,
+        parallel=True,
+        force=args.force,
+    )
+    compile_cython_extensions(
+        backends_path["cython"],
+        args.pythran_flags,
+        parallel=True,
+        force=args.force,
     )
 
     if not args.no_blocking:
@@ -136,9 +157,16 @@ def make_backends_files(
             code = f.read()
         analyse = analyse_aot(code, path)
         for name, backend in backends.items():
-            path_out = backend.make_backend_file(path, analyse, force=force)
-            if path_out:
-                paths_out.append(path_out)
+            if (
+                analyse[0]["functions"][backend.backend_name]
+                or analyse[0]["functions_ext"][backend.backend_name]
+                or analyse[0]["methods"][backend.backend_name]
+                or analyse[0]["classes"][backend.backend_name]
+                or analyse[3]
+            ):
+                path_out = backend.make_backend_file(path, analyse, force=force)
+                if path_out:
+                    paths_out.append(path_out)
 
     if paths_out:
         nb_files = len(paths_out)
