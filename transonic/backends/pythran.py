@@ -38,8 +38,7 @@ from transonic.util import (
 
 
 class PythranBackend(Backend):
-    def __init__(self):
-        super().__init__("pythran")
+    backend_name = "pythran"
 
     def make_backend_files(
         self,

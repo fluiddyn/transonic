@@ -62,7 +62,8 @@ try:
 except ImportError:
     np = None
 
-from transonic.backends.pythranizer import compile_extension, ext_suffix
+
+from transonic.compiler import compile_extension, ext_suffix
 
 from .util import (
     get_module_name,
@@ -86,7 +87,6 @@ from .log import logger
 from .config import has_to_replace
 
 from transonic.analyses.justintime import analysis_jit
-from transonic.analyses.util import get_source_with_numba
 
 modules = {}
 
@@ -244,11 +244,10 @@ class JIT:
 
     def __call__(self, func, backend=None):
 
+        from transonic.config import backend_default
+
         if not has_to_replace:
             return func
-
-        if self.backend == "numba":
-            return self.numba_jit(func)
 
         if is_method(func):
             return TransonicTemporaryJITMethod(
@@ -395,6 +394,7 @@ class JIT:
 
             self.process = compile_extension(
                 path_pythran,
+                backend_default,
                 name_ext_file,
                 native=self.native,
                 xsimd=self.xsimd,
@@ -474,8 +474,3 @@ class JIT:
             return func(*args, **kwargs)
 
         return type_collector
-
-    def numba_jit(self, func):
-        src = get_source_with_numba(func)
-        print(src)
-        return func

@@ -22,8 +22,7 @@ from .backend import Backend
 
 
 class CythonBackend(Backend):
-    def __init__(self):
-        super().__init__("cython")
+    backend_name = "cython"
 
     def make_backend_file(self, path_py, analyse, force=False, log_level=None):
         """Create a Python file from a Python file (if necessary)"""

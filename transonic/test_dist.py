@@ -6,10 +6,10 @@ import pytest
 from . import dist
 from .mpi import nb_proc
 
-from .backends.pythran import PythranBackend
 from .dist import (
-    detect_pythran_extensions,
+    detect_transonic_extensions,
     modification_date,
+    make_backend_files,
     ParallelBuildExt,
     get_logger,
 )
@@ -42,9 +42,8 @@ def test_detect_pythran_extensions():
         "boosted_func_use_import.py",
     ]
 
-    pythranBE = PythranBackend()
-    pythranBE.make_backend_files((path_data_tests / name for name in names))
-    ext_names = detect_pythran_extensions(path_data_tests)
+    make_backend_files((path_data_tests / name for name in names))
+    ext_names = detect_transonic_extensions(path_data_tests)
     # -2 files (no_pythran.py and assign_fun_jit.py) +2 files (__func__exterior_import_boost.py and __func__exterior_import_boost_2.py)
     assert len(ext_names) == len(names)
 

@@ -41,12 +41,12 @@ from .util import (
     write_if_has_to_write,
 )
 
-from transonic.backends.pythranizer import (
+from transonic.compiler import (
     compile_extension,
     name_ext_from_path_backend,
     ext_suffix,
 )
-from transonic.backends.transpiler import produce_code_class
+from transonic.transpiler import produce_code_class
 
 from .log import logger
 from . import mpi
@@ -166,6 +166,7 @@ class Transonic:
     """
 
     def __init__(self, use_transonified=True, frame=None, reuse=True):
+        from transonic.config import backend_default
 
         if frame is None:
             frame = inspect.stack()[1]
@@ -268,7 +269,6 @@ class Transonic:
         )
 
         self.path_extension = path_ext
-
         if (
             has_to_compile_at_import()
             and path_mod.exists()
@@ -277,7 +277,9 @@ class Transonic:
             if mpi.rank == 0:
                 print("Launching Pythran to compile a new extension...")
             self.process = compile_extension(
-                path_pythran, name_ext_file=self.path_extension.name
+                path_pythran,
+                backend_default,
+                name_ext_file=self.path_extension.name,
             )
             self.is_compiling = True
             self.is_compiled = False

@@ -41,11 +41,14 @@ else:
 
 from .util import modification_date
 
+from transonic.config import backend_default
+from transonic.transpiler import make_backend_files
+
 __all__ = [
     "PythranBuildExt",
     "PythranExtension",
     "can_import_pythran",
-    "detect_pythran_extensions",
+    "detect_transonic_extensions",
     "init_pythran_extensions",
     "get_logger",
     "ParallelBuildExt",
@@ -74,12 +77,16 @@ def get_logger(name):
     return logger
 
 
-def detect_pythran_extensions(name_package: str,) -> Iterable[str]:
+def detect_transonic_extensions(
+    name_package: str, backend: str = backend_default
+) -> Iterable[str]:
     """Recursively scans a package for Pythran extensions to build, and returns a
     list of strings, where each string is a module name. The package should be
     present in the current working directory.
 
     """
+    # TODO Deal with pyx
+    # TODO Filter exterior functions
     if not can_import_pythran:
         return []
     ext_names = []
@@ -89,11 +96,7 @@ def detect_pythran_extensions(name_package: str,) -> Iterable[str]:
     for root, dirs, files in os.walk(str(name_package)):
         path_dir = Path(root)
         for name in files:
-            if (
-                name.endswith("_pythran.py")
-                or path_dir.name == "__pythran__"
-                and name.endswith(".py")
-            ):
+            if path_dir.name == f"__{backend}__" and name.endswith(".py"):
                 path = path_dir / name
                 ext_names.append(
                     str(path).replace(os.path.sep, ".").split(".py")[0]
@@ -103,6 +106,19 @@ def detect_pythran_extensions(name_package: str,) -> Iterable[str]:
 
 def init_pythran_extensions(
     name_package: str,
+    include_dirs: Iterable[str] = (),
+    compile_args: Iterable[str] = (),
+    exclude_exts: Iterable[str] = (),
+    logger=None,
+):
+    return init_transonic_extensions(
+        name_package, "pythran", include_dirs, compile_args, exclude_exts, logger
+    )
+
+
+def init_transonic_extensions(
+    name_package: str,
+    backend: str = backend_default,
     include_dirs: Iterable[str] = (),
     compile_args: Iterable[str] = (),
     exclude_exts: Iterable[str] = (),
@@ -131,7 +147,7 @@ def init_pythran_extensions(
         Extensions to be excluded from the detected list.
 
     """
-    modules = detect_pythran_extensions(name_package)
+    modules = detect_transonic_extensions(name_package, backend)
     if not modules or not can_import_pythran:
         return []
 
@@ -164,7 +180,9 @@ def init_pythran_extensions(
                 )
 
             pext = PythranExtension(mod, [py_file])
-            pext.include_dirs.append(include_dirs)
+            if isinstance(include_dirs, str):
+                include_dirs = [include_dirs]
+            pext.include_dirs.extend(include_dirs)
             pext.extra_compile_args.extend(compile_args)
             extensions.append(pext)
 

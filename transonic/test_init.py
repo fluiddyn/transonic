@@ -3,7 +3,7 @@ from shutil import rmtree
 
 from . import Transonic, mpi
 from .mpi import Path
-from .backends.pythranizer import wait_for_all_extensions
+from .compiler import wait_for_all_extensions
 
 
 def test_not_transonified():

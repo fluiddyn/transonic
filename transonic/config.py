@@ -42,3 +42,11 @@ from distutils.util import strtobool
 path_root = Path(os.environ.get("TRANSONIC_DIR", Path.home() / ".transonic"))
 
 has_to_replace = not strtobool(os.environ.get("TRANSONIC_NO_REPLACE", "0"))
+
+supported_backends = ["pythran", "cython", "numba"]
+
+backend_default = os.environ.get("TRANSONIC_BACKEND", "pythran").lower()
+
+assert (
+    backend_default in supported_backends
+), f"backend {backend_default} not supported"

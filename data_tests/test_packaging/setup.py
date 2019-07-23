@@ -1,9 +1,11 @@
 from distutils.core import setup, Extension
 from pathlib import Path
 import numpy as np
-from transonic.dist import init_pythran_extensions, ParallelBuildExt
-from transonic.backends.pythran import PythranBackend
-
+from transonic.dist import (
+    make_backend_files,
+    init_transonic_extensions,
+    ParallelBuildExt,
+)
 
 path_sources = Path(__file__).parent.absolute()
 include_dirs = [np.get_include()]
@@ -27,9 +29,8 @@ else:
         Extension("add_cython", ["add_cython.pyx"], include_dirs=include_dirs)
     )
 
-pythran_be = PythranBackend()
-pythran_be.make_backend_files([path_sources / "add.py"])
-extensions.extend(init_pythran_extensions(".", include_dirs=include_dirs))
+make_backend_files([path_sources / "add.py"])
+extensions.extend(init_transonic_extensions(".", include_dirs=include_dirs))
 
 setup(
     name="add",

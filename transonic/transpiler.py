@@ -25,16 +25,31 @@ from pathlib import Path
 
 from typing import Iterable, Optional
 
-from ..log import logger
-from ..annotation import compute_pythran_types_from_valued_types
-from ..util import (
+from .log import logger
+from .annotation import compute_pythran_types_from_valued_types
+from .util import (
     has_to_build,
     get_source_without_decorator,
     format_str,
     write_if_has_to_write,
 )
+from .config import backend_default
 
-from . import backends
+from .backends import backends
+
+
+def make_backend_files(
+    paths: Iterable[Path],
+    force=False,
+    log_level=None,
+    mocked_modules: Optional[Iterable] = None,
+    backend=backend_default,
+):
+    """Create Pythran files from a list of Python files"""
+
+    backend = backends[backend]
+
+    backend.make_backend_files(paths, force, log_level, mocked_modules)
 
 
 def produce_code_class(cls, jit=False):

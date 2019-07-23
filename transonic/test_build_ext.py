@@ -8,7 +8,7 @@ import pytest
 from .path_data_tests import path_data_tests
 from .mpi import nb_proc
 
-from .backends.pythran import PythranBackend
+from transonic.dist import make_backend_files
 
 cwd = Path.cwd().absolute()
 setup_dir = path_data_tests / "test_packaging"
@@ -17,8 +17,7 @@ setup_dir = path_data_tests / "test_packaging"
 def setup_module():
     os.chdir(setup_dir)
     transonic_src_paths = [setup_dir / "add.py"]
-    pythran_be = PythranBackend()
-    pythran_be.make_backend_files(transonic_src_paths)
+    make_backend_files(transonic_src_paths)
 
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")

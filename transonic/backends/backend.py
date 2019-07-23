@@ -2,22 +2,22 @@ from pathlib import Path
 from tokenize import tokenize, untokenize, NAME, OP
 from io import BytesIO
 
-from transonic.util import TypeHintRemover, format_str
 from transonic.analyses import extast
 
 from transonic.log import logger
 
-from transonic.util import (
+from ..util import (
     has_to_build,
     get_source_without_decorator,
     format_str,
     write_if_has_to_write,
+    TypeHintRemover,
+    format_str,
 )
 
 
 class Backend:
-    def __init__(self, backend_name):
-        self.backend_name = backend_name
+    backend_name = "base"
 
     def prepare_backend_file(self, path_py, force=False, log_level=None):
         if log_level is not None:

@@ -33,9 +33,9 @@ import sys
 import os
 from datetime import datetime
 
-from .. import mpi
-from ..mpi import Path, PathSeq
-from ..log import logger
+from . import mpi
+from .mpi import Path, PathSeq
+from .log import logger
 
 ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 
@@ -80,7 +80,7 @@ def name_ext_from_path_backend(path_backend):
 
 
 class SchedulerPopen:
-    """Limit the number of Pythran compilations performed in parallel
+    """Limit the number of compilations performed in parallel
 
     """
 
@@ -129,6 +129,7 @@ class SchedulerPopen:
     def compile_extension(
         self,
         path: Path,
+        backend: str,
         name_ext_file: Optional[str] = None,
         native=False,
         xsimd=False,
@@ -145,14 +146,14 @@ class SchedulerPopen:
             path_out = path.with_name(name_ext_file)
             if not has_to_build(path_out, path):
                 logger.warning(
-                    f"Do not pythranize {path} because it seems up-to-date "
+                    f"Do not {backend}ize {path} because it seems up-to-date "
                     "(but the compilation options may have changed). "
                     "You can force the compilation with the option -f."
                 )
                 return
 
         if mpi.rank == 0:
-            logger.info(f"Schedule pythranization of file {path}")
+            logger.info(f"Schedule {backend}ization of file {path}")
 
         if str_pythran_flags is not None:
             flags = str_pythran_flags.strip().split()
@@ -178,8 +179,10 @@ class SchedulerPopen:
         words_command = [
             sys.executable,
             "-m",
-            "transonic_cl.run_pythran",
+            "transonic_cl.run_backend",
             path.name,
+            "-b",
+            backend,
         ]
 
         words_command.extend(("-o", name_ext_file))
@@ -209,12 +212,18 @@ def wait_for_all_extensions():
     scheduler.wait_for_all_extensions()
 
 
-def compile_pythran_extensions(
-    paths: Iterable[Path], str_pythran_flags: str, parallel=True, force=True
+def compile_extensions(
+    paths: Iterable[Path],
+    backend,
+    str_pythran_flags: str,
+    parallel=True,
+    force=True,
 ):
+    print("compile extension")
     for path in paths:
         scheduler.compile_extension(
             path,
+            backend,
             str_pythran_flags=str_pythran_flags,
             parallel=parallel,
             force=force,
@@ -223,15 +232,19 @@ def compile_pythran_extensions(
 
 def compile_extension(
     path: Union[Path, str],
+    backend: str,
     name_ext_file: Optional[str] = None,
     native=False,
     xsimd=False,
     openmp=False,
+    parallel=False,
+    force=False,
 ):
+    print("compile extension")
     if not isinstance(path, Path):
         path = Path(path)
 
     # return the process
     return scheduler.compile_extension(
-        path, name_ext_file, native=native, xsimd=xsimd, openmp=openmp
+        path, backend, name_ext_file, native=native, xsimd=xsimd, openmp=openmp
     )

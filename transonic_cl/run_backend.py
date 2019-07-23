@@ -25,12 +25,25 @@ ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 def main():
     """Minimal layer above the Pythran commandline"""
 
+    if "-b" in sys.argv:
+        if sys.argv[sys.argv.index("-b") + 1]:
+            index = sys.argv.index("-b")
+            backend = sys.argv[index + 1]
+            del sys.argv[index]
+            del sys.argv[index]
+        else:
+            raise ValueError("No backend is specified afert -b")
+    else:
+        raise ValueError("No backend is specified")
+
+    compiling_name = backend.capitalize() + "izing"
+
     assert sys.argv[0].endswith(
-        os.path.sep.join(("transonic_cl", "run_pythran.py"))
+        os.path.sep.join(("transonic_cl", "run_backend.py"))
     )
 
     args = sys.argv[1:]
-
+    print(args)
     name = args[0]
     path = Path.cwd() / name
 
@@ -84,8 +97,11 @@ def main():
     else:
         stdout = stderr = subprocess.PIPE
 
-    print(f"Pythranizing {path}", flush=True)
-    args.insert(0, "pythran")
+    print(f"{compiling_name} {path}", flush=True)
+    if backend == "pythran":
+        args.insert(0, "pythran")
+    elif backend == "cython":
+        args = ["cythonize", "-i", "-3", str(path)]
     name_lock.touch()
     try:
         completed_process = subprocess.run(
@@ -100,10 +116,10 @@ def main():
         path_tmp.rename(path_out)
 
     if path_out.exists():
-        print(f"File {path_out.absolute()} created by Pythran")
+        print(f"File {path_out.absolute()} created by {backend}")
     else:
         logger.error(
-            f"Error! File {path_out.absolute()} has not been created by Pythran"
+            f"Error! File {path_out.absolute()} has not been created by {backend}"
         )
         try:
             completed_process
@@ -111,9 +127,13 @@ def main():
             pass
         else:
             if completed_process.stdout:
-                print(f"Pythran stdout:\n{completed_process.stdout}")
+                print(
+                    f"{backend.capitalize()} stdout:\n{completed_process.stdout}"
+                )
             if completed_process.stderr:
-                logger.error(f"Pythran stderr:\n{completed_process.stderr}")
+                logger.error(
+                    f"{backend.capitalize()}stderr:\n{completed_process.stderr}"
+                )
 
 
 if __name__ == "__main__":

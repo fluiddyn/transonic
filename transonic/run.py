@@ -19,17 +19,13 @@ from warnings import warn
 
 from . import __version__
 from .log import logger
-from transonic.backends.pythranizer import (
-    compile_pythran_extensions,
+
+from transonic.compiler import (
+    compile_extensions,
     ext_suffix,
     wait_for_all_extensions,
 )
 
-from transonic.backends.cythonizer import (
-    compile_cython_extensions,
-    ext_suffix,
-    wait_for_all_extensions,
-)
 from .util import has_to_build, clear_cached_extensions
 
 from transonic.analyses import analyse_aot
@@ -94,36 +90,31 @@ def run():
         sys.exit(1)
 
     from .backends import backends
+    from transonic.config import backend_default
 
-    make_backends_files(paths, backends)
+    make_backends_files(paths, backends[backend_default])
 
     if not pythran or args.no_pythran:
         return
 
     # find pythran files not already compiled
-    backends_path = {backend: [] for backend in backends}
+    backends_paths = {backend: [] for backend in backends}
 
-    for backend_name in backends:
-        for path in paths:
-            path = Path(path)
-            backend_path = (
-                path.parent / str("__" + backend_name + "__") / path.name
-            )
-            if backend_name == "cython":
-                backend_path = backend_path.with_suffix(".pyx")
-            ext_path = backend_path.with_suffix(ext_suffix)
-            if backend_path.exists() and has_to_build(ext_path, backend_path):
-                backends_path[backend_name].append(backend_path)
+    for path in paths:
+        path = Path(path)
+        backend_path = (
+            path.parent / str("__" + backend_default + "__") / path.name
+        )
+        if backend_default == "cython":
+            backend_path = backend_path.with_suffix(".pyx")
+        ext_path = backend_path.with_suffix(ext_suffix)
+        if backend_path.exists() and has_to_build(ext_path, backend_path):
+            backends_paths[backend_default].append(backend_path)
 
-    compile_pythran_extensions(
-        backends_path["pythran"],
-        args.pythran_flags,
-        parallel=True,
-        force=args.force,
-    )
-    compile_cython_extensions(
-        backends_path["cython"],
-        args.pythran_flags,
+    compile_extensions(
+        backends_paths[backend_default],
+        backend_default,
+        str_pythran_flags=args.pythran_flags,
         parallel=True,
         force=args.force,
     )
@@ -134,7 +125,7 @@ def run():
 
 def make_backends_files(
     paths_py,
-    backends=None,
+    backend=None,
     force=False,
     log_level=None,
     mocked_modules: Optional[Iterable] = None,
@@ -156,17 +147,9 @@ def make_backends_files(
         with open(path) as f:
             code = f.read()
         analyse = analyse_aot(code, path)
-        for name, backend in backends.items():
-            if (
-                analyse[0]["functions"][backend.backend_name]
-                or analyse[0]["functions_ext"][backend.backend_name]
-                or analyse[0]["methods"][backend.backend_name]
-                or analyse[0]["classes"][backend.backend_name]
-                or analyse[3]
-            ):
-                path_out = backend.make_backend_file(path, analyse, force=force)
-                if path_out:
-                    paths_out.append(path_out)
+        path_out = backend.make_backend_file(path, analyse, force=force)
+        if path_out:
+            paths_out.append(path_out)
 
     if paths_out:
         nb_files = len(paths_out)
