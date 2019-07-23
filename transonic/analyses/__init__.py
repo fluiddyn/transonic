@@ -136,6 +136,40 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
     return decorated_dicts
 
 
+def get_types_from_transonic_signature(signature: str, function_name: str):
+    types = []
+    tmp = signature[len(function_name) + 1 : -1]
+
+    while tmp:
+        try:
+            index_comma = tmp.index(",")
+        except ValueError:
+            tmp = tmp.strip()
+            if tmp:
+                types.append(tmp)
+            break
+
+        try:
+            index_open_bracket = tmp.index("[")
+        except ValueError:
+            index_open_bracket = None
+
+        if index_open_bracket is None or index_comma < index_open_bracket:
+            type_, tmp = tmp.split(",", 1)
+
+        else:
+            index_close_bracket = tmp.index("]")
+            # cover int[][] and int[:, :] but could be buggy!
+            type0 = tmp[:index_close_bracket]
+            type1, tmp = tmp[index_close_bracket:].split(",", 1)
+
+            type_ = type0 + type1
+
+        types.append(type_.strip())
+
+    return types
+
+
 def analyse_aot(code, pathfile):
     """Gather the informations for ``@boost`` and blocks"""
     debug = logger.debug
@@ -263,9 +297,7 @@ def analyse_aot(code, pathfile):
         arg_names = [arg.id for arg in fdef.args.args]
         annotations_sign = annotations["comments"][name_func] = []
         for sig in signatures:
-            types = [
-                type_.strip() for type_ in sig[len(fdef.name) + 1 : -1].split(",")
-            ]
+            types = get_types_from_transonic_signature(sig, fdef.name)
             annotations_sign.append(
                 {arg_name: type_ for arg_name, type_ in zip(arg_names, types)}
             )
