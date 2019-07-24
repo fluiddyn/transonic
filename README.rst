@@ -162,6 +162,9 @@ Transonic is sensible to environment variables:
 - :code:`TRANSONIC_COMPILE_JIT` can be set to false to disable the
   compilation of jited functions. This can be useful for unittests.
 
+- :code:`TRANSONIC_BACKEND` to choose between the supported backends, i.e. now
+  only "pythran"! The "cython" and "numba" backends should soon work!
+
 
 A short tour of Transonic syntaxes
 -------------------------------------
@@ -370,11 +373,11 @@ setup.py like this:
     paths = ["fluidsim/base/time_stepping/pseudo_spect.py"]
     make_backend_files([here / path for path in paths])
 
-Note that the function :code:`make_backend_files` does not use compile the file
-produced. The compilation has to be done after the call of this function (see
-for example how it is done in the example package `example_package_fluidpythran
-<https://bitbucket.org/fluiddyn/example_package_fluidpythran>`_ or in
-`fluidsim's setup.py
+Note that :code:`make_backend_files` does not compile the backend files. The
+compilation has to be done after the call of this function (see for example how
+it is done in the example package `pack_using_transonic
+<https://bitbucket.org/fluiddyn/transonic/src/default/doc/examples/pack_using_transonic/>`_
+or in `fluidsim's setup.py
 <https://bitbucket.org/fluiddyn/fluidsim/src/default/setup.py>`_).
 
 License
