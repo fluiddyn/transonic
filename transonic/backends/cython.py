@@ -6,6 +6,9 @@
 from pathlib import Path
 import gast as ast
 
+from typing import Iterable, Optional
+from warnings import warn
+
 from transonic.analyses import analyse_aot, extast
 from transonic.analyses.util import print_dumped
 
@@ -43,6 +46,7 @@ class CythonBackend(Backend):
             return
 
         super().write_code(code_cython, code_ext, path_dir, path_cython, force)
+        return path_cython
 
     def make_cython_code(self, path_py, analyse):
 

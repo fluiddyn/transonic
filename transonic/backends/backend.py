@@ -2,7 +2,10 @@ from pathlib import Path
 from tokenize import tokenize, untokenize, NAME, OP
 from io import BytesIO
 
-from transonic.analyses import extast
+from typing import Iterable, Optional
+from warnings import warn
+
+from transonic.analyses import extast, analyse_aot
 
 from transonic.log import logger
 
@@ -18,6 +21,55 @@ from ..util import (
 
 class Backend:
     backend_name = "base"
+
+    def make_backend_files(
+        self,
+        paths_py,
+        force=False,
+        log_level=None,
+        mocked_modules: Optional[Iterable] = None,
+        backend=None,
+    ):
+        """Create backend files from a list of Python files"""
+        assert backend is None
+
+        if mocked_modules is not None:
+            warn(
+                "The argument mocked_modules is deprecated. "
+                "It is now useless for Transonic.",
+                DeprecationWarning,
+            )
+
+        if log_level is not None:
+            logger.set_level(log_level)
+
+        paths_out = []
+        for path in paths_py:
+            with open(path) as f:
+                code = f.read()
+            analyse = analyse_aot(code, path)
+            path_out = self.make_backend_file(path, analyse, force=force)
+            if path_out:
+                paths_out.append(path_out)
+
+        if paths_out:
+            nb_files = len(paths_out)
+            if nb_files == 1:
+                conjug = "s"
+            else:
+                conjug = ""
+
+            logger.warning(
+                f"{nb_files} files created or updated need{conjug}"
+                " to be {self.backend_name}ized"
+            )
+
+        return paths_out
+
+    # overrited in childs
+    def make_backend_file(self, path, analyse, force=None):
+        raise RuntimeError
+        return "Parent"
 
     def prepare_backend_file(self, path_py, force=False, log_level=None):
         if log_level is not None:
