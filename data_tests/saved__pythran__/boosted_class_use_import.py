@@ -1,5 +1,5 @@
 import numpy as np
-from __MyClass2__exterior_import_boost import func_import
+from __ext__MyClass2__exterior_import_boost import func_import
 
 
 # pythran export __for_method__MyClass2__myfunc(int, int, int)

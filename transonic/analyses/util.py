@@ -213,9 +213,11 @@ def change_import_name(
     for node in mod.body:
         if extast.unparse(node) == extast.unparse(changed_node):
             if isinstance(node, ast.ImportFrom):
-                node.module = "__" + func_name + "__" + node.module
+                node.module = "__ext__" + func_name + "__" + node.module
             elif isinstance(node, ast.Import):
-                node.names[0].name = "__" + func_name + "__" + node.names[0].name
+                node.names[0].name = (
+                    "__ext__" + func_name + "__" + node.names[0].name
+                )
         if not relative:
             node.level = 0
     return extast.unparse(mod)
@@ -375,7 +377,7 @@ def get_exterior_code(
             # a jitted function or method needs another jitted function
             if not (file_name and not file_name in treated):
                 continue
-            new_file_name = "__" + func + "__" + file_name
+            new_file_name = "__ext__" + func + "__" + file_name
             # get the content of the file
             try:
                 with open(str(file_path), "r") as file:
@@ -407,17 +409,3 @@ def get_exterior_code(
                         relative,
                     )
     return codes_dependance, code_ext, jitted_dicts, special
-
-
-def get_source_with_numba(func: Callable):
-    """Get the source and adapt to numba"""
-    src = inspect.getsource(func)
-    src = dedent(src)
-    mod = extast.parse(src)
-    for node in mod.body:
-        node.decorator_list[0].keywords = [
-            ast.keyword("nopython", value=ast.Str("True")),
-            ast.keyword("nogil", value=ast.Str("True")),
-        ]
-    src = "\nfrom numba import jit \n" + extast.unparse(mod) + "\n"
-    return src

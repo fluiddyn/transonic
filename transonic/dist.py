@@ -85,21 +85,28 @@ def detect_transonic_extensions(
     present in the current working directory.
 
     """
-    # TODO Deal with pyx
-    # TODO Filter exterior functions
     if not can_import_pythran:
         return []
     ext_names = []
     if not os.path.exists(str(name_package)):
         raise FileNotFoundError(f"Check the name of the package: {name_package}")
 
+    if backend == "cython":
+        extension = ".pyx"
+    else:
+        extension = ".py"
+
     for root, dirs, files in os.walk(str(name_package)):
         path_dir = Path(root)
         for name in files:
-            if path_dir.name == f"__{backend}__" and name.endswith(".py"):
+            if (
+                path_dir.name == f"__{backend}__"
+                and name.endswith(extension)
+                and not name.startswith("__ext__")
+            ):
                 path = path_dir / name
                 ext_names.append(
-                    str(path).replace(os.path.sep, ".").split(".py")[0]
+                    str(path).replace(os.path.sep, ".").split(extension)[0]
                 )
     return ext_names
 

@@ -44,8 +44,8 @@ def test_detect_pythran_extensions():
 
     make_backend_files((path_data_tests / name for name in names))
     ext_names = detect_transonic_extensions(path_data_tests)
-    # -2 files (no_pythran.py and assign_fun_jit.py) +2 files (__func__exterior_import_boost.py and __func__exterior_import_boost_2.py)
-    assert len(ext_names) == len(names)
+    # -2 files (no_pythran.py and assign_fun_jit.py)
+    assert len(ext_names) == len(names) - 2
 
     shutil.rmtree(path_data_tests / "__pythran__", ignore_errors=True)
 
