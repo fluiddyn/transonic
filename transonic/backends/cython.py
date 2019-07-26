@@ -5,6 +5,7 @@
 """
 from pathlib import Path
 import gast as ast
+from textwrap import indent
 
 from typing import Iterable, Optional
 from warnings import warn
@@ -56,3 +57,14 @@ class CythonBackend(Backend):
                 name.id = name_args[0] + " " + name.id
                 del name_args[0]
         return signatures_func, fdef
+
+    def get_code_meths(self, boosted_dicts, annotations):
+
+        code = []
+        previous_cls = ""
+        for (class_name, meth_name), meth in boosted_dicts["methods"].items():
+            if previous_cls != class_name:
+                code.append(f"cdef class {class_name}:")
+            previous_cls = class_name
+            code.append(indent(extast.unparse(meth), prefix="  "))
+        return code

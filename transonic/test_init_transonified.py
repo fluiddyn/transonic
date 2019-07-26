@@ -14,6 +14,8 @@ from .util import has_to_compile_at_import, ext_suffix, name_ext_from_path_backe
 from .aheadoftime import modules
 from . import mpi
 
+from transonic.config import backend_default
+
 module_name = "transonic.for_test_init"
 
 
@@ -25,7 +27,9 @@ class TestsInit(unittest.TestCase):
         assert cls.path_for_test.exists()
 
         cls.path_pythran = path_pythran = (
-            cls.path_for_test.parent / "__pythran__" / cls.path_for_test.name
+            cls.path_for_test.parent
+            / f"__{backend_default}__"
+            / cls.path_for_test.name
         )
         cls.path_ext = path_pythran.with_name(
             name_ext_from_path_backend(path_pythran)
@@ -83,6 +87,8 @@ class TestsInit(unittest.TestCase):
 
         importlib.reload(for_test_init)
 
+        if backend_default == "cython":
+            self.path_pythran = self.path_pythran.with_suffix(".pyx")
         assert self.path_pythran.exists()
         assert for_test_init.ts.is_transpiled
 
@@ -121,6 +127,8 @@ class TestsInit(unittest.TestCase):
 
         assert module_name in modules, modules
 
+        if backend_default == "cython":
+            self.path_pythran = self.path_pythran.with_suffix(".pyx")
         assert self.path_pythran.exists()
 
         ts = for_test_init.ts
