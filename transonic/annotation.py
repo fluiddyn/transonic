@@ -49,6 +49,7 @@ import itertools
 import inspect
 
 from transonic.util import get_name_calling_module
+from transonic.config import backend_default
 
 names_template_variables = {}
 
@@ -386,7 +387,10 @@ class Union(metaclass=UnionMeta):
     pass
 
 
-normalized_types = {"float": "float64", "complex": "complex128"}
+if backend_default == "cython":
+    normalized_types = {"float": "float", "complex": "complex"}
+else:
+    normalized_types = {"float": "float64", "complex": "complex128"}
 
 
 def normalize_type_name(name):

@@ -14,6 +14,7 @@ import logging
 from pathlib import Path
 import sysconfig
 from time import time, sleep
+from shutil import copyfile
 import os
 
 logger = logging.getLogger("pythran_fluid")
@@ -43,7 +44,6 @@ def main():
     )
 
     args = sys.argv[1:]
-    print(args)
     name = args[0]
     path = Path.cwd() / name
 
@@ -56,8 +56,15 @@ def main():
     name_out_base = name_out.split(".", 1)[0]
 
     if "-o" in args:
-        name_tmp = name_out_base + ".tmp"
-        args[index_output] = name_tmp
+        if backend == "pythran":
+            name_tmp = name_out_base + ".tmp"
+            args[index_output] = name_tmp
+        elif backend == "cython":
+
+            name_tmp = name_out_base + ".pyx"
+            copyfile(name, name_tmp)
+            name = name_tmp
+
         path_tmp = Path(name_tmp)
         path_out = path_tmp.with_suffix(ext_suffix)
     else:
@@ -101,7 +108,7 @@ def main():
     if backend == "pythran":
         args.insert(0, "pythran")
     elif backend == "cython":
-        args = ["cythonize", "-i", "-3", str(path)]
+        args = ["cythonize", "-i", "-3", name]
     name_lock.touch()
     try:
         completed_process = subprocess.run(
@@ -112,8 +119,11 @@ def main():
     finally:
         name_lock.unlink()
 
-    if "-o" in args and path_tmp.exists():
+    if backend == "pythran" and "-o" in args and path_tmp.exists():
         path_tmp.rename(path_out)
+    elif backend == "cython":
+        path_tmp.with_suffix(".c").unlink()
+        path_tmp.unlink()
 
     if path_out.exists():
         print(f"File {path_out.absolute()} created by {backend}")

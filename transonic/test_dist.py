@@ -15,6 +15,8 @@ from .dist import (
 )
 from .path_data_tests import path_data_tests
 
+from transonic.config import backend_default
+
 
 can_actually_import_pythran = copy(dist.can_import_pythran)
 
@@ -27,7 +29,7 @@ def setup_module():
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
 def test_detect_pythran_extensions():
 
-    shutil.rmtree(path_data_tests / "__pythran__", ignore_errors=True)
+    shutil.rmtree(path_data_tests / f"__{backend_default}__", ignore_errors=True)
 
     names = [
         "block_fluidsim.py",
@@ -47,7 +49,7 @@ def test_detect_pythran_extensions():
     # -2 files (no_pythran.py and assign_fun_jit.py)
     assert len(ext_names) == len(names) - 2
 
-    shutil.rmtree(path_data_tests / "__pythran__", ignore_errors=True)
+    shutil.rmtree(path_data_tests / f"__{backend_default}__", ignore_errors=True)
 
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")

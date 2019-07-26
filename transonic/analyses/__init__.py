@@ -35,6 +35,8 @@ from .blocks_if import get_block_definitions
 from .parser import parse_code
 from . import extast
 
+from transonic.config import backend_default
+
 __all__ = ["print_dumped", "print_unparsed"]
 
 
@@ -80,7 +82,7 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
     decorated_dicts = {kind: copy.deepcopy(backends) for kind in kinds}
 
     def add_definition(definition_node):
-        backend = "pythran"
+        backend = backend_default
         if isinstance(definition_node, ast.Call):
             # FIXME see other element than the fisrt of the list
             if (

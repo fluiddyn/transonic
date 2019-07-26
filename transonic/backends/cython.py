@@ -11,6 +11,7 @@ from warnings import warn
 
 from transonic.analyses import analyse_aot, extast
 from transonic.analyses.util import print_dumped
+from transonic.annotation import compute_pythran_types_from_valued_types
 
 from transonic.util import (
     has_to_build,
@@ -26,65 +27,32 @@ from .backend import Backend
 
 class CythonBackend(Backend):
     backend_name = "cython"
+    suffix_backend = ".pyx"
 
-    def make_backend_file(self, path_py, analyse, force=False, log_level=None):
-        """Create a Python file from a Python file (if necessary)"""
+    def get_signatures(self, func_name, fdef, annotations):
 
-        path_py, path_dir, _ = super().prepare_backend_file(
-            path_py, force, log_level
-        )
-
-        if not analyse:
-            with open(path_py) as f:
-                code = f.read()
-            analyse = analyse_aot(code, path_py)
-
-        path_cython = (path_dir / path_py.name).with_suffix(".pyx")
-        code_cython, code_ext = self.make_cython_code(path_py, analyse)
-
-        if not code_cython:
-            return
-
-        super().write_code(code_cython, code_ext, path_dir, path_cython, force)
-        return path_cython
-
-    def make_cython_code(self, path_py, analyse):
-
-        boosted_dicts, code_dependance, annotations, blocks, code_ext = analyse
-        boosted_dicts = dict(
-            functions=boosted_dicts["functions"]["cython"],
-            functions_ext=boosted_dicts["functions_ext"]["cython"],
-            methods=boosted_dicts["methods"]["cython"],
-            classes=boosted_dicts["classes"]["cython"],
-        )
-
-        code = ["\n" + code_dependance + "\n"]
-        for func_name, fdef in boosted_dicts["functions"].items():
-            signatures_func = set()
-            try:
-                ann = annotations["functions"][func_name]
-            except KeyError:
-                pass
-            # else:
-            #     typess = compute_pythran_types_from_valued_types(ann.values())
-
-            #     for types in typess:
-            #         signatures_func.add(
-            #             f"# pythran export {func_name}({', '.join(types)})"
-            #         )
-
-            anns = annotations["comments"][func_name]
-            # change annotations
+        signatures_func = set()
+        try:
+            ann = annotations["functions"][func_name]
+        except KeyError:
+            pass
+        else:
+            # produce ctypedef
+            typess = compute_pythran_types_from_valued_types(ann.values())
+            index = 0
+            name_args = []
+            for arg, value in ann.items():
+                ctypedef = []
+                name_arg = "__" + func_name + "_" + arg
+                name_args.append(name_arg)
+                ctypedef.append(f"ctypedef fused {name_arg}:\n")
+                possible_types = [x[index] for x in typess]
+                for possible_type in list(set(possible_types)):
+                    ctypedef.append(f"   {possible_type}\n")
+                index += 1
+                signatures_func.add("".join(ctypedef))
+            # change function parameters
             for name in fdef.args.args:
-                if name.annotation:
-                    name.id = name.annotation.id + " " + name.id
-
-            # change type hints into cdef
-            for index, node in enumerate(fdef.body):
-                if isinstance(node, ast.AnnAssign):
-                    cdef = "cdef " + node.annotation.id + " " + node.target.id
-                    fdef.body[index] = extast.CommentLine(s=cdef)
-
-            code.append(extast.unparse(fdef))
-
-        return code, code_ext
+                name.id = name_args[0] + " " + name.id
+                del name_args[0]
+        return signatures_func, fdef

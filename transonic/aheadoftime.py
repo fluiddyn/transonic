@@ -57,6 +57,8 @@ if mpi.nb_proc == 1:
     mpi.has_to_build = has_to_build
     mpi.modification_date = modification_date
 
+from transonic.config import backend_default
+
 is_transpiling = False
 modules = {}
 
@@ -134,7 +136,7 @@ class CheckCompiling:
             ts.module_pythran = import_from_path(
                 ts.path_extension, ts.module_pythran.__name__
             )
-            assert hasattr(self.ts.module_pythran, "__pythran__")
+            assert hasattr(self.ts.module_pythran, f"__{backend_default}__")
             ts.is_compiled = True
 
         if not ts.is_compiling:
@@ -208,11 +210,17 @@ class Transonic:
             module_short_name = module_name
             module_pythran_name = ""
 
-        module_pythran_name += "__pythran__." + module_short_name
+        module_pythran_name += f"__{backend_default}__." + module_short_name
 
         self.path_mod = path_mod = Path(frame.filename)
+
+        suffix = ".py"
+        if backend_default == "cython":
+            suffix = ".pyx"
         self.path_pythran = path_pythran = (
-            path_mod.parent / "__pythran__" / (module_short_name + ".py")
+            path_mod.parent
+            / f"__{backend_default}__"
+            / (module_short_name + suffix)
         )
 
         path_ext = None
@@ -294,7 +302,9 @@ class Transonic:
         self.reload_module_pythran(module_pythran_name)
 
         if self.is_transpiled:
-            self.is_compiled = hasattr(self.module_pythran, "__pythran__")
+            self.is_compiled = hasattr(
+                self.module_pythran, f"__{backend_default}__"
+            )
             if self.is_compiled:
                 module = inspect.getmodule(frame[0])
                 # module can be None if (at least) it has been run with runpy
@@ -458,7 +468,7 @@ class Transonic:
             self.module_pythran = import_from_path(
                 self.path_extension, self.module_pythran.__name__
             )
-            assert hasattr(self.module_pythran, "__pythran__")
+            assert hasattr(self.module_pythran, f"__{backend_default}__")
             self.is_compiled = True
 
         func = getattr(self.module_pythran, name)
@@ -541,7 +551,7 @@ def jit_class(cls, jit_methods):
     if mpi.has_to_build(python_path, module.__file__):
         from transonic.justintime import _get_module_jit
 
-        mod = _get_module_jit(backend="pythran", index_frame=5)
+        mod = _get_module_jit(backend=backend_default, index_frame=5)
         if mpi.rank == 0:
             python_path = mpi.PathSeq(python_path)
             python_code = mod.codes_dependance_classes[cls_name] + "\n"

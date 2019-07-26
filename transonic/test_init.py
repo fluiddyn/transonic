@@ -5,11 +5,13 @@ from . import Transonic, mpi
 from .mpi import Path
 from .compiler import wait_for_all_extensions
 
+from transonic.config import backend_default
+
 
 def test_not_transonified():
 
     path_for_test = Path(__file__).parent / "for_test_init.py"
-    path_output = path_for_test.parent / "__pythran__"
+    path_output = path_for_test.parent / f"__{backend_default}__"
 
     if path_output.exists() and mpi.rank == 0:
         rmtree(path_output)
