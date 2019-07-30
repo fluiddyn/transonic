@@ -3,10 +3,25 @@ import unittest
 import os
 import time
 
-try:
-    import pythran
-except ImportError:
-    pythran = False
+from transonic.config import backend_default
+
+
+can_import_accelerator = True
+
+if backend_default == "pythran":
+    try:
+        import pythran
+    except ImportError:
+        can_import_accelerator = False
+
+elif backend_default == "cython":
+    try:
+        import cython
+    except ImportError:
+        can_import_accelerator = False
+
+else:
+    raise NotImplementedError
 
 
 from .backends import backends
@@ -26,18 +41,19 @@ class TestsInit(unittest.TestCase):
 
         assert cls.path_for_test.exists()
 
-        cls.path_pythran = path_pythran = (
+        cls.path_backend = path_backend = (
             cls.path_for_test.parent
             / f"__{backend_default}__"
             / cls.path_for_test.name
         )
-        cls.path_ext = path_pythran.with_name(
-            name_ext_from_path_backend(path_pythran)
+
+        cls.path_ext = path_backend.with_name(
+            name_ext_from_path_backend(path_backend)
         )
 
     @classmethod
     def tearDownClass(cls):
-        # cls.path_pythran.unlink()
+        # cls.path_backend.unlink()
         if cls.path_ext.exists():
             cls.path_ext.unlink()
 
@@ -68,19 +84,19 @@ class TestsInit(unittest.TestCase):
 
         assert not has_to_compile_at_import()
 
-        print(mpi.rank, "before if self.path_pythran.exists()", flush=1)
+        print(mpi.rank, "before if self.path_backend.exists()", flush=1)
 
-        if self.path_pythran.exists():
+        if self.path_backend.exists():
 
-            print(mpi.rank, "before self.path_pythran.unlink()", flush=1)
+            print(mpi.rank, "before self.path_backend.unlink()", flush=1)
 
-            self.path_pythran.unlink()
+            self.path_backend.unlink()
 
-        print(mpi.rank, "before make_pythran_file(self.path_for_test)", flush=1)
+        print(mpi.rank, "before make_backend_file(self.path_for_test)", flush=1)
         if mpi.rank == 0:
-            backends["pythran"].make_backend_file(self.path_for_test)
+            backends[backend_default].make_backend_file(self.path_for_test)
 
-        print(mpi.rank, "after make_pythran_file(self.path_for_test)", flush=1)
+        print(mpi.rank, "after make_backend_file(self.path_for_test)", flush=1)
         mpi.barrier()
 
         from . import for_test_init
@@ -88,8 +104,8 @@ class TestsInit(unittest.TestCase):
         importlib.reload(for_test_init)
 
         if backend_default == "cython":
-            self.path_pythran = self.path_pythran.with_suffix(".pyx")
-        assert self.path_pythran.exists()
+            self.path_backend = self.path_backend.with_suffix(".pyx")
+        assert self.path_backend.exists()
         assert for_test_init.ts.is_transpiled
 
         for_test_init.func(1, 3.14)
@@ -97,7 +113,8 @@ class TestsInit(unittest.TestCase):
         for_test_init.check_class()
 
     @unittest.skipIf(
-        not pythran, "Pythran is required for TRANSONIC_COMPILE_AT_IMPORT"
+        not can_import_accelerator,
+        f"{backend_default} is required for TRANSONIC_COMPILE_AT_IMPORT",
     )
     def test_pythranize(self):
 
@@ -110,8 +127,8 @@ class TestsInit(unittest.TestCase):
 
         assert has_to_compile_at_import()
 
-        if self.path_pythran.exists():
-            self.path_pythran.unlink()
+        if self.path_backend.exists():
+            self.path_backend.unlink()
 
         if self.path_ext.exists():
             self.path_ext.unlink()
@@ -128,8 +145,8 @@ class TestsInit(unittest.TestCase):
         assert module_name in modules, modules
 
         if backend_default == "cython":
-            self.path_pythran = self.path_pythran.with_suffix(".pyx")
-        assert self.path_pythran.exists()
+            self.path_backend = self.path_backend.with_suffix(".pyx")
+        assert self.path_backend.exists()
 
         ts = for_test_init.ts
 

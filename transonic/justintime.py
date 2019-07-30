@@ -443,8 +443,8 @@ class JIT:
                         and " (reshaped)" in error
                     ):
                         logger.error(
-                            "It seems that a Pythran function has been called with "
-                            'a "reshaped" array which is not supported by Pythran.'
+                            "It seems that a jitted Pythran function has been called "
+                            'with a "reshaped" array which is not supported by Pythran.'
                         )
                         raise
 
