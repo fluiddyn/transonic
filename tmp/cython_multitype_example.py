@@ -10,4 +10,5 @@ def func(m : T, n : T2):
 
 @boost
 def func1(m : T, n : float = 2):
-    return np.add(1,n)
+    t : int = 5.5
+    return np.add(1,n) + t

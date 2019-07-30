@@ -18,6 +18,8 @@ from .util import (
     get_exterior_code,
 )
 
+from transonic.config import backend_default
+
 
 def analysis_jit(code, pathfile):
     """Gather the informations for ``@jit`` with an ast analysis"""
@@ -35,10 +37,10 @@ def analysis_jit(code, pathfile):
 
     # TODO adpat justintime to cython and numba
     jitted_dicts = dict(
-        functions=jitted_dicts["functions"]["pythran"],
-        functions_ext=jitted_dicts["functions_ext"]["pythran"],
-        methods=jitted_dicts["methods"]["pythran"],
-        classes=jitted_dicts["classes"]["pythran"],
+        functions=jitted_dicts["functions"][backend_default],
+        functions_ext=jitted_dicts["functions_ext"][backend_default],
+        methods=jitted_dicts["methods"][backend_default],
+        classes=jitted_dicts["classes"][backend_default],
     )
 
     debug("compute code dependance")

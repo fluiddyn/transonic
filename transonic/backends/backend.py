@@ -277,15 +277,15 @@ class Backend:
         # Deal with functions
         for func_name, fdef in boosted_dicts["functions"].items():
 
-            signatures_func, boosted_dicts["functions"][
-                func_name
-            ] = self.get_signatures(func_name, fdef, annotations)
+            signatures_func, code_function = self.get_signatures(
+                func_name, fdef, annotations
+            )
 
             code.append("\n".join(sorted(signatures_func)))
-            code.append(self.get_code_function(fdef))
+            code.append(code_function)
 
         # Deal with methods
-        code_for_meths = self.get_code_meths(boosted_dicts, annotations)
+        code_for_meths = self.get_code_meths(boosted_dicts, annotations, path_py)
         code = code + code_for_meths
 
         # Deal with blocks

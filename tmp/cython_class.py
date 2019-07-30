@@ -23,9 +23,12 @@ class MyClass2:
         self.a = a
     @boost
     def method(self, b : int):
-        return self.a + b
+        o : int
+        return self.a + b + o
 
     @boost
     def method2(self, b : int):
         return self.a + b
 
+    def method3(self, b : int):
+        return self.a + b

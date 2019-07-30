@@ -64,9 +64,9 @@ class PythranBackend(Backend):
                 signatures_func.add(
                     f"# pythran export {func_name}({', '.join(types)})"
                 )
-        return signatures_func, fdef
+        return signatures_func, self.get_code_function(fdef)
 
-    def get_code_meths(self, boosted_dicts, annotations):
+    def get_code_meths(self, boosted_dicts, annotations, path_py):
         meths_code = []
         for (class_name, meth_name), fdef in boosted_dicts["methods"].items():
 
