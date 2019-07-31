@@ -107,7 +107,13 @@ class Backend:
                 code = file.read()
             analyse = analyse_aot(code, path_py)
 
-        code_backend, code_ext = self.make_backend_code(path_py, analyse)
+        if self.backend_name == "pythran":
+            code_backend, code_ext = self.make_backend_code(path_py, analyse)
+        elif self.backend_name == "cython":
+            path_backend_pxd = (path_dir / path_py.name).with_suffix(".pxd")
+            code_backend, code_ext, code_signature = self.make_backend_code(
+                path_py, analyse
+            )
 
         if not code_backend:
             return
@@ -137,7 +143,9 @@ class Backend:
 
         with open(path_backend, "w") as file:
             file.write("".join(code_backend))
-
+        if self.backend_name == "cython":
+            with open(path_backend_pxd, "w") as file:
+                file.write("".join(code_signature))
         logger.info(f"File {path_backend} written")
 
         return path_backend
@@ -274,19 +282,26 @@ class Backend:
         )
 
         code = ["\n" + code_dependance + "\n"]
+        signature_pxd = []
         # Deal with functions
         for func_name, fdef in boosted_dicts["functions"].items():
 
-            signatures_func, code_function = self.get_signatures(
-                func_name, fdef, annotations
-            )
-
-            code.append("\n".join(sorted(signatures_func)))
+            code_function = self.get_code_function(fdef)
+            signatures_func = self.get_signatures(func_name, fdef, annotations)
+            if self.backend_name == "pythran":
+                code.append("\n".join(sorted(signatures_func)))
+            elif self.backend_name == "cython":
+                if signatures_func:
+                    signature_pxd = signature_pxd + signatures_func
             code.append(code_function)
 
         # Deal with methods
-        code_for_meths = self.get_code_meths(boosted_dicts, annotations, path_py)
+        signature, code_for_meths = self.get_code_meths(
+            boosted_dicts, annotations, path_py
+        )
         code = code + code_for_meths
+        if signature:
+            signature_pxd = signature_pxd + signature
 
         # Deal with blocks
         for block in blocks:
@@ -332,5 +347,8 @@ class Backend:
 
         if self.backend_name != "cython":
             code = format_str(code)
+
+        if self.backend_name == "cython":
+            return code, code_ext, signature_pxd
 
         return code, code_ext

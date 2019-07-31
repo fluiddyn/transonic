@@ -103,8 +103,6 @@ class TestsInit(unittest.TestCase):
 
         importlib.reload(for_test_init)
 
-        if backend_default == "cython":
-            self.path_backend = self.path_backend.with_suffix(".pyx")
         assert self.path_backend.exists()
         assert for_test_init.ts.is_transpiled
 
@@ -143,9 +141,6 @@ class TestsInit(unittest.TestCase):
             importlib.reload(for_test_init)
 
         assert module_name in modules, modules
-
-        if backend_default == "cython":
-            self.path_backend = self.path_backend.with_suffix(".pyx")
         assert self.path_backend.exists()
 
         ts = for_test_init.ts

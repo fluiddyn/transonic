@@ -106,8 +106,6 @@ def run():
         backend_path = (
             path.parent / str("__" + backend_default + "__") / path.name
         )
-        if backend_default == "cython":
-            backend_path = backend_path.with_suffix(".pyx")
         ext_path = backend_path.with_suffix(ext_suffix)
         if backend_path.exists() and has_to_build(ext_path, backend_path):
             backends_paths[backend_default].append(backend_path)

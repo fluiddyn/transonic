@@ -60,8 +60,7 @@ def main():
             name_tmp = name_out_base + ".tmp"
             args[index_output] = name_tmp
         elif backend == "cython":
-
-            name_tmp = name_out_base + ".pyx"
+            name_tmp = name_out_base + ".py"
             copyfile(name, name_tmp)
             name = name_tmp
 
@@ -118,7 +117,6 @@ def main():
         pass
     finally:
         name_lock.unlink()
-
     if backend == "pythran" and "-o" in args and path_tmp.exists():
         path_tmp.rename(path_out)
     elif backend == "cython":

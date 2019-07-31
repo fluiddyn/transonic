@@ -215,8 +215,6 @@ class Transonic:
         self.path_mod = path_mod = Path(frame.filename)
 
         suffix = ".py"
-        if backend_default == "cython":
-            suffix = ".pyx"
         self.path_pythran = path_pythran = (
             path_mod.parent
             / f"__{backend_default}__"
@@ -326,10 +324,6 @@ class Transonic:
             self.module_pythran = import_from_path(
                 self.path_extension, module_pythran_name
             )
-        # elif self.path_pythran.exists() and backend_default == "cython":
-        #     self.module_pythran = import_from_path(
-        #         self.path_mod, module_pythran_name
-        #     )
         elif self.path_pythran.exists():
             self.module_pythran = import_from_path(
                 self.path_pythran, module_pythran_name
@@ -360,7 +354,7 @@ class Transonic:
             func_tmp = getattr(self.module_pythran, func.__name__)
         except AttributeError:
             logger.warning(
-                "Pythran file does not seem to be up-to-date:\n"
+                f"{backend_default.capitalize()} file does not seem to be up-to-date:\n"
                 f"{self.module_pythran}\nfunc: {func.__name__}"
             )
             func_tmp = func
@@ -427,27 +421,49 @@ class Transonic:
             func = value.func
             func_name = func.__name__
 
-            name_pythran_func = f"__for_method__{cls_name}__{func_name}"
-            name_var_code_new_method = (
-                f"__code_new_method__{cls_name}__{func_name}"
-            )
+            if backend_default == "pythran":
 
-            if not hasattr(self.module_pythran, name_pythran_func):
-                self.reload_module_pythran()
-
-            try:
-                pythran_func = getattr(self.module_pythran, name_pythran_func)
-                code_new_method = getattr(
-                    self.module_pythran, name_var_code_new_method
+                name_pythran_func = f"__for_method__{cls_name}__{func_name}"
+                name_var_code_new_method = (
+                    f"__code_new_method__{cls_name}__{func_name}"
                 )
-            except AttributeError:
-                logger.warning("Pythran file does not seem to be up-to-date.")
-                # setattr(cls, key, func)
-            else:
-                namespace = {"pythran_func": pythran_func}
-                exec(code_new_method, namespace)
-                setattr(cls, key, functools.wraps(func)(namespace["new_method"]))
 
+                if not hasattr(self.module_pythran, name_pythran_func):
+                    self.reload_module_pythran()
+
+                try:
+                    pythran_func = getattr(self.module_pythran, name_pythran_func)
+                    code_new_method = getattr(
+                        self.module_pythran, name_var_code_new_method
+                    )
+                except AttributeError:
+                    logger.warning(
+                        f"{backend_default} file does not seem to be up-to-date."
+                    )
+                    # setattr(cls, key, func)
+                else:
+                    namespace = {"pythran_func": pythran_func}
+                    exec(code_new_method, namespace)
+                    setattr(
+                        cls, key, functools.wraps(func)(namespace["new_method"])
+                    )
+            elif backend_default == "cython":
+                try:
+                    pythran_func = getattr(self.module_pythran, name_pythran_func)
+                    code_new_method = getattr(
+                        self.module_pythran, name_var_code_new_method
+                    )
+                except AttributeError:
+                    logger.warning(
+                        f"{backend_default} file does not seem to be up-to-date."
+                    )
+                    # setattr(cls, key, func)
+                else:
+                    namespace = {"pythran_func": pythran_func}
+                    exec(code_new_method, namespace)
+                    setattr(
+                        cls, key, functools.wraps(func)(namespace["new_method"])
+                    )
         return cls
 
     def use_block(self, name):

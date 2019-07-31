@@ -3,6 +3,7 @@
 
 
 """
+import copy
 from pathlib import Path
 import gast as ast
 from textwrap import indent
@@ -28,12 +29,11 @@ from .backend import Backend
 
 class CythonBackend(Backend):
     backend_name = "cython"
-    suffix_backend = ".pyx"
     special_methods = ["__call__"]
 
     def get_signatures(self, func_name, fdef, annotations):
-
-        signatures_func = set()
+        fdef2 = copy.deepcopy(fdef)
+        signatures_func = []
         try:
             ann = annotations["functions"][func_name]
         except KeyError:
@@ -52,33 +52,44 @@ class CythonBackend(Backend):
                 for possible_type in list(set(possible_types)):
                     ctypedef.append(f"   {possible_type}\n")
                 index += 1
-                signatures_func.add("".join(ctypedef))
+                signatures_func.append("".join(ctypedef))
             # change function parameters
-            for name in fdef.args.args:
+            for name in fdef2.args.args:
                 name.id = name_args[0] + " " + name.id
                 del name_args[0]
-            fdef = self.change_inner_annotations(fdef)
-        return signatures_func, "c" + (self.get_code_function(fdef)[2:])
+            # fdef2 = self.change_inner_annotations(fdef2)
+        signatures_func.append(
+            "c" + self.get_code_function(fdef2)[2:].splitlines()[0][:-1]
+        )
+        return signatures_func
 
     def get_code_meths(self, boosted_dicts, annotations, path_py):
 
         init_funcs = self.get_init_functions(path_py)
 
         code = []
+        signature_pxd = []
         previous_cls = ""
         for (class_name, meth_name), meth in boosted_dicts["methods"].items():
             if previous_cls != class_name:
-                code.append(f"cdef class {class_name}:")
+                signature_pxd.append(f"cdef class {class_name}:")
+                code.append(f"class {class_name}:")
             if class_name in init_funcs.keys():
                 code.append(indent(init_funcs[class_name], prefix="    "))
                 del init_funcs[class_name]
             previous_cls = class_name
-            meth = self.change_inner_annotations(meth)
+            # meth = self.change_inner_annotations(meth)
             if meth_name not in self.special_methods:
-                code.append(indent("c" + extast.unparse(meth)[2:], prefix="    "))
+                signature_pxd.append(
+                    indent(
+                        "c" + extast.unparse(meth)[2:].splitlines(0)[0][:-1],
+                        prefix="    ",
+                    )
+                )
+                code.append(indent(extast.unparse(meth), prefix="    "))
             else:
                 code.append(indent(extast.unparse(meth)[2:], prefix="    "))
-        return code
+        return signature_pxd, code
 
     def change_inner_annotations(self, fdef):
         # change type hints into cdef
