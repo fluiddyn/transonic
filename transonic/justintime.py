@@ -49,6 +49,7 @@ used.
 """
 from transonic.analyses import extast
 
+import re
 import inspect
 import itertools
 import os
@@ -90,8 +91,12 @@ from transonic.analyses.justintime import analysis_jit
 
 modules = {}
 
+from transonic.config import backend_default
 
-path_jit = mpi.Path(path_root) / "__jit__"
+path_jit = mpi.Path(path_root) / backend_default / "__jit__"
+
+from transonic.backends import backends
+
 if mpi.rank == 0:
     path_jit.mkdir(parents=True, exist_ok=True)
 mpi.barrier()
@@ -268,17 +273,22 @@ class JIT:
         mod.jit_functions[func_name] = self
         module_name = mod.module_name
 
-        path_pythran = path_jit / module_name.replace(".", os.path.sep)
+        path_backend = path_jit / module_name.replace(".", os.path.sep)
 
         if mpi.rank == 0:
-            path_pythran.mkdir(parents=True, exist_ok=True)
+            path_backend.mkdir(parents=True, exist_ok=True)
         mpi.barrier()
 
-        path_pythran = (path_pythran / func_name).with_suffix(".py")
-        path_pythran_header = path_pythran.with_suffix(".pythran")
+        if backend_default == "pythran":
+            suffix = ".pythran"
+        else:
+            suffix = ".pxd"
 
-        if path_pythran.exists():
-            if not mod.is_dummy_file and has_to_build(path_pythran, mod.filename):
+        path_backend = (path_backend / func_name).with_suffix(".py")
+        path_backend_header = path_backend.with_suffix(suffix)
+
+        if path_backend.exists():
+            if not mod.is_dummy_file and has_to_build(path_backend, mod.filename):
                 has_to_write = True
             else:
                 has_to_write = False
@@ -297,21 +307,25 @@ class JIT:
                 elif func_name in mod.jitted_dicts["methods"]:
                     src += extast.unparse(mod.jitted_dicts["methods"][func_name])
             else:
-                src += get_source_without_decorator(func)
-            if path_pythran.exists() and mpi.rank == 0:
-                with open(path_pythran) as file:
+                # TODO find a prettier solution to remove decorator for cython
+                # than doing two times a regex
+                src += re.sub(
+                    r"@.*?\sdef\s", "def ", get_source_without_decorator(func)
+                )
+            if path_backend.exists() and mpi.rank == 0:
+                with open(path_backend) as file:
                     src_old = file.read()
                 if src_old == src:
                     has_to_write = False
 
             if has_to_write and mpi.rank == 0:
-                logger.debug(f"write code in file {path_pythran}")
-                with open(path_pythran, "w") as file:
+                logger.debug(f"write code in file {path_backend}")
+                with open(path_backend, "w") as file:
                     file.write(src)
                     file.flush()
 
         if src is None and mpi.rank == 0:
-            with open(path_pythran) as file:
+            with open(path_backend) as file:
                 src = file.read()
 
         hex_src = None
@@ -320,7 +334,7 @@ class JIT:
             # hash from src (to produce the extension name)
             hex_src = make_hex(src)
             name_mod = ".".join(
-                path_pythran.absolute()
+                path_backend.absolute()
                 .relative_to(path_root)
                 .with_suffix("")
                 .parts
@@ -329,15 +343,20 @@ class JIT:
         hex_src = mpi.bcast(hex_src)
         name_mod = mpi.bcast(name_mod)
 
-        def pythranize_with_new_header(arg_types="no types"):
+        def backenize_with_new_header(arg_types="no types"):
+
+            if backend_default == "pythran":
+                keyword = "export "
+            elif backend_default == "cython":
+                keyword = "cdef "
 
             # Include signature comming from type hints
             signatures = make_signatures_from_typehinted_func(func)
-            exports = set("export " + signature for signature in signatures)
+            exports = set(keyword + signature for signature in signatures)
 
             if arg_types != "no types":
-                export_new = "export {}({})".format(
-                    func_name, ", ".join(arg_types)
+                export_new = "{}{}({})".format(
+                    keyword, func_name, ", ".join(arg_types)
                 )
                 if export_new not in exports:
                     exports.add(export_new)
@@ -346,7 +365,7 @@ class JIT:
                 return
 
             try:
-                path_pythran_header_exists = path_pythran_header.exists()
+                path_backend_header_exists = path_backend_header.exists()
             except TimeoutError:
                 raise RuntimeError(
                     f"A MPI communication in Transonic failed when compiling "
@@ -355,12 +374,12 @@ class JIT:
                     f"by one process (rank={mpi.rank})."
                 )
 
-            if path_pythran_header_exists:
+            if path_backend_header_exists:
                 # get the old signature(s)
 
                 exports_old = None
                 if mpi.rank == 0:
-                    with open(path_pythran_header) as file:
+                    with open(path_backend_header) as file:
                         exports_old = [
                             export.strip() for export in file.readlines()
                         ]
@@ -374,9 +393,9 @@ class JIT:
             mpi.barrier()
             if mpi.rank == 0:
                 logger.debug(
-                    f"write Pythran signature in file {path_pythran_header} with types\n{arg_types}"
+                    f"write {backend_default} signature in file {path_backend_header} with types\n{arg_types}"
                 )
-                with open(path_pythran_header, "w") as file:
+                with open(path_backend_header, "w") as file:
                     file.write(header)
                     file.flush()
 
@@ -388,12 +407,12 @@ class JIT:
             name_ext_file = (
                 func_name + "_" + hex_src + "_" + hex_header + ext_suffix
             )
-            self.path_extension = path_pythran.with_name(name_ext_file)
+            self.path_extension = path_backend.with_name(name_ext_file)
 
             self.compiling = True
 
             self.process = compile_extension(
-                path_pythran,
+                path_backend,
                 backend_default,
                 name_ext_file,
                 native=self.native,
@@ -405,18 +424,18 @@ class JIT:
         if mpi.rank == 0:
             glob_name_ext_file = func_name + "_" + hex_src + "_*" + ext_suffix
             ext_files = list(
-                mpi.PathSeq(path_pythran).parent.glob(glob_name_ext_file)
+                mpi.PathSeq(path_backend).parent.glob(glob_name_ext_file)
             )
         ext_files = mpi.bcast(ext_files)
 
         if not ext_files:
             if has_to_compile_at_import() and _COMPILE_JIT:
-                pythranize_with_new_header()
+                backenize_with_new_header()
             self.pythran_func = None
         else:
             path_ext = max(ext_files, key=lambda p: p.stat().st_ctime)
-            module_pythran = import_from_path(path_ext, name_mod)
-            self.pythran_func = getattr(module_pythran, func_name)
+            backend_module = import_from_path(path_ext, name_mod)
+            self.pythran_func = getattr(backend_module, func_name)
 
         @wraps(func)
         def type_collector(*args, **kwargs):
@@ -425,11 +444,11 @@ class JIT:
                 if not self.process.is_alive():
                     self.compiling = False
                     time.sleep(0.1)
-                    module_pythran = import_from_path(
+                    backend_module = import_from_path(
                         self.path_extension, name_mod
                     )
-                    assert hasattr(module_pythran, "__pythran__")
-                    self.pythran_func = getattr(module_pythran, func_name)
+                    assert hasattr(backend_module, f"__{backend_default}__")
+                    self.pythran_func = getattr(backend_module, func_name)
 
             error = False
             try:
@@ -469,8 +488,7 @@ class JIT:
                 for arg in itertools.chain(args, kwargs.values())
             ]
 
-            pythranize_with_new_header(arg_types)
-
+            backenize_with_new_header(arg_types)
             return func(*args, **kwargs)
 
         return type_collector

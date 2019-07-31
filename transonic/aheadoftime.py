@@ -326,11 +326,11 @@ class Transonic:
             self.module_pythran = import_from_path(
                 self.path_extension, module_pythran_name
             )
-        elif self.path_pythran.exists() and backend_default == "cython" :
-            self.module_pythran = import_from_path(
-                self.path_mod, module_pythran_name
-            )            
-        elif self.path_pythran.exists() :
+        # elif self.path_pythran.exists() and backend_default == "cython":
+        #     self.module_pythran = import_from_path(
+        #         self.path_mod, module_pythran_name
+        #     )
+        elif self.path_pythran.exists():
             self.module_pythran = import_from_path(
                 self.path_pythran, module_pythran_name
             )

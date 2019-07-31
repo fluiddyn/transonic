@@ -29,6 +29,7 @@ from transonic.compiler import (
 from .util import has_to_build, clear_cached_extensions
 
 from transonic.analyses import analyse_aot
+from transonic.config import backend_default
 
 try:
     import pythran
@@ -160,7 +161,7 @@ def make_backends_files(
 
         logger.warning(
             f"{nb_files} files created or updated need{conjug}"
-            " to be pythranized"
+            f" to be {backend_default}inzed"
         )
 
     return paths_out

@@ -115,7 +115,7 @@ from .config import path_root
 __all__ = ["modification_date", "has_to_build"]
 
 
-path_jit_classes = path_root / "__jit_classes__"
+path_jit_classes = path_root / backend_default / "__jit_classes__"
 
 
 def find_module_name_from_path(path_py: Path):
