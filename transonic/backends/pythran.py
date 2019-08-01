@@ -6,7 +6,8 @@
 
 
 from pathlib import Path
-
+from tokenize import tokenize, untokenize, NAME, OP
+from io import BytesIO
 from typing import Iterable, Optional
 from warnings import warn
 
@@ -75,6 +76,26 @@ class PythranBackend(Backend):
             )
             meths_code.append(code_for_meth)
         return "", meths_code
+
+    def get_code_meth(
+        self, class_name, fdef, meth_name, annotations, boosted_dicts
+    ):
+        class_def = boosted_dicts["classes"][class_name]
+
+        if class_name in annotations["classes"]:
+            annotations_class = annotations["classes"][class_name]
+        else:
+            annotations_class = {}
+
+        if (class_name, meth_name) in annotations["methods"]:
+            annotations_meth = annotations["methods"][(class_name, meth_name)]
+        else:
+            annotations_meth = {}
+
+        code_for_meth = self.produce_code_for_method(
+            fdef, class_def, annotations_meth, annotations_class
+        )
+        return code_for_meth
 
     def produce_code_for_method(
         self, fdef, class_def, annotations_meth, annotations_class, jit=False

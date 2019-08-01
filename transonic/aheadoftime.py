@@ -421,49 +421,28 @@ class Transonic:
             func = value.func
             func_name = func.__name__
 
-            if backend_default == "pythran":
+            name_pythran_func = f"__for_method__{cls_name}__{func_name}"
+            name_var_code_new_method = (
+                f"__code_new_method__{cls_name}__{func_name}"
+            )
 
-                name_pythran_func = f"__for_method__{cls_name}__{func_name}"
-                name_var_code_new_method = (
-                    f"__code_new_method__{cls_name}__{func_name}"
+            if not hasattr(self.module_pythran, name_pythran_func):
+                self.reload_module_pythran()
+
+            try:
+                pythran_func = getattr(self.module_pythran, name_pythran_func)
+                code_new_method = getattr(
+                    self.module_pythran, name_var_code_new_method
                 )
-
-                if not hasattr(self.module_pythran, name_pythran_func):
-                    self.reload_module_pythran()
-
-                try:
-                    pythran_func = getattr(self.module_pythran, name_pythran_func)
-                    code_new_method = getattr(
-                        self.module_pythran, name_var_code_new_method
-                    )
-                except AttributeError:
-                    logger.warning(
-                        f"{backend_default} file does not seem to be up-to-date."
-                    )
-                    # setattr(cls, key, func)
-                else:
-                    namespace = {"pythran_func": pythran_func}
-                    exec(code_new_method, namespace)
-                    setattr(
-                        cls, key, functools.wraps(func)(namespace["new_method"])
-                    )
-            elif backend_default == "cython":
-                try:
-                    pythran_func = getattr(self.module_pythran, name_pythran_func)
-                    code_new_method = getattr(
-                        self.module_pythran, name_var_code_new_method
-                    )
-                except AttributeError:
-                    logger.warning(
-                        f"{backend_default} file does not seem to be up-to-date."
-                    )
-                    # setattr(cls, key, func)
-                else:
-                    namespace = {"pythran_func": pythran_func}
-                    exec(code_new_method, namespace)
-                    setattr(
-                        cls, key, functools.wraps(func)(namespace["new_method"])
-                    )
+            except AttributeError:
+                logger.warning(
+                    f"{backend_default} file does not seem to be up-to-date."
+                )
+                # setattr(cls, key, func)
+            else:
+                namespace = {"pythran_func": pythran_func}
+                exec(code_new_method, namespace)
+                setattr(cls, key, functools.wraps(func)(namespace["new_method"]))
         return cls
 
     def use_block(self, name):

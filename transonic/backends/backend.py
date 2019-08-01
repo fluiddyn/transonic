@@ -1,6 +1,6 @@
-from pathlib import Path
 from tokenize import tokenize, untokenize, NAME, OP
 from io import BytesIO
+from pathlib import Path
 from textwrap import indent
 
 from typing import Iterable, Optional
@@ -150,26 +150,6 @@ class Backend:
 
         return path_backend
 
-    def get_code_meth(
-        self, class_name, fdef, meth_name, annotations, boosted_dicts
-    ):
-        class_def = boosted_dicts["classes"][class_name]
-
-        if class_name in annotations["classes"]:
-            annotations_class = annotations["classes"][class_name]
-        else:
-            annotations_class = {}
-
-        if (class_name, meth_name) in annotations["methods"]:
-            annotations_meth = annotations["methods"][(class_name, meth_name)]
-        else:
-            annotations_meth = {}
-
-        code_for_meth = self.produce_code_for_method(
-            fdef, class_def, annotations_meth, annotations_class
-        )
-        return code_for_meth
-
     def get_code_function(self, fdef):
 
         transformed = TypeHintRemover().visit(fdef)
@@ -179,6 +159,63 @@ class Backend:
         code = format_str(code)
 
         return code
+
+    def make_backend_code(self, path_py, analyse):
+        """Create a backend code from a Python file"""
+
+        boosted_dicts, code_dependance, annotations, blocks, code_ext = analyse
+
+        boosted_dicts = dict(
+            functions=boosted_dicts["functions"][self.backend_name],
+            functions_ext=boosted_dicts["functions_ext"][self.backend_name],
+            methods=boosted_dicts["methods"][self.backend_name],
+            classes=boosted_dicts["classes"][self.backend_name],
+        )
+
+        code = ["\n" + code_dependance + "\n"]
+        signature_pxd = []
+        # Deal with functions
+        for func_name, fdef in boosted_dicts["functions"].items():
+
+            code_function = self.get_code_function(fdef)
+            signatures_func = self.get_signatures(func_name, fdef, annotations)
+            if self.backend_name == "pythran":
+                code.append("\n".join(sorted(signatures_func)))
+            elif self.backend_name == "cython":
+                if signatures_func:
+                    signature_pxd = signature_pxd + signatures_func
+            code.append(code_function)
+
+        # Deal with methods
+        signature, code_for_meths = self.get_code_meths(
+            boosted_dicts, annotations, path_py
+        )
+        code = code + code_for_meths
+        if signature:
+            signature_pxd = signature_pxd + signature
+
+        # Deal with blocks
+
+        signature, code_blocks = self.get_code_blocks(blocks)
+        code += code_blocks
+        if signature:
+            signature_pxd += signature
+
+        code = "\n".join(code).strip()
+
+        if code:
+            code += (
+                "\n\n# pythran export __transonic__\n"
+                f"__transonic__ = ('{transonic.__version__}',)"
+            )
+
+        if self.backend_name != "cython":
+            code = format_str(code)
+
+        if self.backend_name == "cython":
+            return code, code_ext, signature_pxd
+
+        return code, code_ext
 
     def produce_new_code_method(self, fdef, class_def):
 
@@ -269,41 +306,8 @@ class Backend:
 
         return new_code, attributes, name_new_func
 
-    def make_backend_code(self, path_py, analyse):
-        """Create a backend code from a Python file"""
-
-        boosted_dicts, code_dependance, annotations, blocks, code_ext = analyse
-
-        boosted_dicts = dict(
-            functions=boosted_dicts["functions"][self.backend_name],
-            functions_ext=boosted_dicts["functions_ext"][self.backend_name],
-            methods=boosted_dicts["methods"][self.backend_name],
-            classes=boosted_dicts["classes"][self.backend_name],
-        )
-
-        code = ["\n" + code_dependance + "\n"]
-        signature_pxd = []
-        # Deal with functions
-        for func_name, fdef in boosted_dicts["functions"].items():
-
-            code_function = self.get_code_function(fdef)
-            signatures_func = self.get_signatures(func_name, fdef, annotations)
-            if self.backend_name == "pythran":
-                code.append("\n".join(sorted(signatures_func)))
-            elif self.backend_name == "cython":
-                if signatures_func:
-                    signature_pxd = signature_pxd + signatures_func
-            code.append(code_function)
-
-        # Deal with methods
-        signature, code_for_meths = self.get_code_meths(
-            boosted_dicts, annotations, path_py
-        )
-        code = code + code_for_meths
-        if signature:
-            signature_pxd = signature_pxd + signature
-
-        # Deal with blocks
+    def get_code_blocks(self, blocks):
+        code = []
         for block in blocks:
             signatures_block = set()
             for ann in block.signatures:
@@ -336,19 +340,4 @@ class Backend:
                 "# pythran export arguments_blocks\n"
                 f"arguments_blocks = {str(arguments_blocks)}\n"
             )
-
-        code = "\n".join(code).strip()
-
-        if code:
-            code += (
-                "\n\n# pythran export __transonic__\n"
-                f"__transonic__ = ('{transonic.__version__}',)"
-            )
-
-        if self.backend_name != "cython":
-            code = format_str(code)
-
-        if self.backend_name == "cython":
-            return code, code_ext, signature_pxd
-
-        return code, code_ext
+        return "", code
