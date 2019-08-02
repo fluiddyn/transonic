@@ -62,34 +62,27 @@ import astunparse
 
 from transonic.config import backend_default
 
-if backend_default == "cython":
+try:
+    # since black is still beta (in 03/2019), we can not impose a version :-(
+    import black
+except ImportError:
 
     def format_str(src_contents):
         return src_contents
 
 
 else:
-
     try:
-        # since black is still beta (in 03/2019), we can not impose a version :-(
-        import black
-    except ImportError:
+        _mode = black.FileMode(line_length=82)
+    except TypeError:
 
-        def format_str(src_contents):
-            return src_contents
+        def format_str(src_contents: str):
+            return black.format_str(src_contents, line_length=82)
 
     else:
-        try:
-            _mode = black.FileMode(line_length=82)
-        except TypeError:
 
-            def format_str(src_contents: str):
-                return black.format_str(src_contents, line_length=82)
-
-        else:
-
-            def format_str(src_contents: str):
-                return black.format_str(src_contents, mode=_mode)
+        def format_str(src_contents: str):
+            return black.format_str(src_contents, mode=_mode)
 
 
 try:

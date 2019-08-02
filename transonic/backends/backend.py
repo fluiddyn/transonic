@@ -19,7 +19,6 @@ from ..util import (
     format_str,
     write_if_has_to_write,
     TypeHintRemover,
-    format_str,
 )
 
 
@@ -150,13 +149,14 @@ class Backend:
 
         return path_backend
 
-    def get_code_function(self, fdef):
+    def get_code_function(self, fdef, black=True):
 
         transformed = TypeHintRemover().visit(fdef)
         # convert the AST back to source code
         code = extast.unparse(transformed)
 
-        code = format_str(code)
+        if black:
+            code = format_str(code)
 
         return code
 
@@ -209,8 +209,7 @@ class Backend:
                 f"__transonic__ = ('{transonic.__version__}',)"
             )
 
-        if self.backend_name != "cython":
-            code = format_str(code)
+        code = format_str(code)
 
         if self.backend_name == "cython":
             return code, code_ext, signature_pxd

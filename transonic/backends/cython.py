@@ -60,7 +60,9 @@ class CythonBackend(Backend):
                 del name_args[0]
             # fdef2 = self.change_inner_annotations(fdef2)
         signatures_func.append(
-            "c" + self.get_code_function(fdef2)[2:].splitlines()[0][:-1] + "\n"
+            "c"
+            + self.get_code_function(fdef2, black=False)[2:].splitlines()[0][:-1]
+            + "\n"
         )
         return signatures_func
 
