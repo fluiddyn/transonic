@@ -96,9 +96,7 @@ class CythonBackend(Backend):
 
         # TODO do something with argument blocks ?
         if arguments_blocks:
-            code.append(
-                f"arguments_blocks = {str(arguments_blocks)}\n"
-            )
+            code.append(f"arguments_blocks = {str(arguments_blocks)}\n")
 
         return signatures, code
 

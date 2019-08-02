@@ -1,0 +1,1 @@
+cdef func(a, b)

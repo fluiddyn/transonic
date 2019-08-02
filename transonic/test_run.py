@@ -10,7 +10,9 @@ from .run import run
 from . import util
 from .mpi import nb_proc
 
-path_dir_out = path_data_tests / "__pythran__"
+from transonic.config import backend_default
+
+path_dir_out = path_data_tests / f"__{backend_default}__"
 
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
@@ -42,12 +44,14 @@ def test_create_pythran_files():
         if path.name in no_compare:
             continue
 
-        __pythran__path = path.parent / "__pythran__" / path.name
-        assert __pythran__path.exists()
-        saved_path = path.parent / "saved__pythran__" / path.name
+        __backend__path = path.parent / f"__{backend_default}__" / path.name
+        assert __backend__path.exists()
+        saved_path = (
+            path.parent / "saved__backend__" / backend_default / path.name
+        )
         assert saved_path.exists()
 
-        with open(__pythran__path) as file:
+        with open(__backend__path) as file:
             code = file.read()
         with open(saved_path) as file:
             saved_code = file.read()
@@ -91,7 +95,7 @@ def test_create_trans_classic():
 
     run()
 
-    path_file_pythran = path_data_tests / "__pythran__/classic.py"
+    path_file_pythran = path_data_tests / f"__{backend_default}__/classic.py"
     path_file_pythran.unlink()
 
     print("after unlink")

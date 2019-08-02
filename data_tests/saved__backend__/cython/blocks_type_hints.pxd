@@ -1,0 +1,5 @@
+cdef block0(complex[:, :], complex[:, :, :], int)
+cdef block0(complex[:], complex[:, :], int)
+cdef block0(float[:, :], float[:, :, :], int)
+cdef block0(float[:], float[:, :], int)
+cdef block0(int[:], int[:], float)

@@ -32,23 +32,26 @@ def test_detect_pythran_extensions():
     shutil.rmtree(path_data_tests / f"__{backend_default}__", ignore_errors=True)
 
     names = [
-        "block_fluidsim.py",
-        "class_blocks.py",
-        "no_pythran_.py",
-        "type_hint_notemplate.py",
-        "blocks_type_hints.py",
-        "classic.py",
-        "mixed_classic_type_hint.py",
         "assign_func_boost.py",
         "assign_func_jit.py",
+        "block_fluidsim.py",
+        "blocks_type_hints.py",
         "boosted_func_use_import.py",
+        "class_blocks.py",
+        "classic.py",
+        "mixed_classic_type_hint.py",
+        "type_hint_notemplate.py",
+        "no_pythran_.py",
     ]
 
     make_backend_files((path_data_tests / name for name in names))
     ext_names = detect_transonic_extensions(path_data_tests)
-    # -2 files (no_pythran.py and assign_fun_jit.py)
-    assert len(ext_names) == len(names) - 2
-
+    if backend_default == "cython":
+        # -2 files (no_pythran.py and assign_fun_jit.py) + 1 test_packaging.__cython__.add
+        assert len(ext_names) == len(names) - 1
+    else:
+        # -2 files (no_pythran.py and assign_fun_jit.py)
+        assert len(ext_names) == len(names) - 2
     shutil.rmtree(path_data_tests / f"__{backend_default}__", ignore_errors=True)
 
 

@@ -470,7 +470,7 @@ class Transonic:
                 self.path_extension, self.module_pythran.__name__
             )
             # TODO: implement a correct check for other backends
-            if backend_default == "pythran":    
+            if backend_default == "pythran":
                 assert hasattr(self.module_pythran, f"__{backend_default}__")
             self.is_compiled = True
 
