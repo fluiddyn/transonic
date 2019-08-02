@@ -96,7 +96,9 @@ class CythonBackend(Backend):
 
         # TODO do something with argument blocks ?
         if arguments_blocks:
-            pass
+            code.append(
+                f"arguments_blocks = {str(arguments_blocks)}\n"
+            )
 
         return signatures, code
 
@@ -125,13 +127,15 @@ class CythonBackend(Backend):
 
     def get_code_meths(self, boosted_dicts, annotations, path_py):
         meths_code = []
+        signatures = []
         for (class_name, meth_name), fdef in boosted_dicts["methods"].items():
 
             signature, code_for_meth = self.get_code_meth(
                 class_name, fdef, meth_name, annotations, boosted_dicts
             )
             meths_code.append(code_for_meth)
-        return signature, meths_code
+            signatures += signature
+        return signatures, meths_code
 
     def get_code_meth(
         self, class_name, fdef, meth_name, annotations, boosted_dicts

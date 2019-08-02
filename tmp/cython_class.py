@@ -24,6 +24,7 @@ class MyClass2:
     @boost
     def method(self, b : int):
         o : int
+        o = 1
         return self.a + b + o
 
     @boost

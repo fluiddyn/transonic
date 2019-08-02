@@ -136,7 +136,9 @@ class CheckCompiling:
             ts.module_pythran = import_from_path(
                 ts.path_extension, ts.module_pythran.__name__
             )
-            assert hasattr(self.ts.module_pythran, f"__{backend_default}__")
+            # TODO: implement a correct check for other backends
+            if backend_default == "pythran":
+                assert hasattr(self.ts.module_pythran, f"__{backend_default}__")
             ts.is_compiled = True
 
         if not ts.is_compiling:
@@ -467,7 +469,9 @@ class Transonic:
             self.module_pythran = import_from_path(
                 self.path_extension, self.module_pythran.__name__
             )
-            assert hasattr(self.module_pythran, f"__{backend_default}__")
+            # TODO: implement a correct check for other backends
+            if backend_default == "pythran":    
+                assert hasattr(self.module_pythran, f"__{backend_default}__")
             self.is_compiled = True
 
         func = getattr(self.module_pythran, name)

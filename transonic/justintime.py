@@ -447,7 +447,10 @@ class JIT:
                     backend_module = import_from_path(
                         self.path_extension, name_mod
                     )
-                    assert hasattr(backend_module, f"__{backend_default}__")
+                    # TODO: implement a correct check for other backends
+                    if backend_default == "pythran":
+                        assert hasattr(backend_module, f"__{backend_default}__")
+                        self.pythran_func = getattr(backend_module, func_name)
                     self.pythran_func = getattr(backend_module, func_name)
 
             error = False

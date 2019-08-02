@@ -192,7 +192,7 @@ class Backend:
         )
         code = code + code_for_meths
         if signature:
-            signature_pxd = signature_pxd + signature
+            signature_pxd += signature
 
         # Deal with blocks
 
