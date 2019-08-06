@@ -93,7 +93,7 @@ def _get_transonic_calling_module(index_frame: int = 2):
             or ts._compile_at_import_at_creation != has_to_compile_at_import()
             or hasattr(ts, "path_mod")
             and ts.path_mod.exists()
-            and mpi.has_to_build(ts.path_pythran, ts.path_mod)
+            and mpi.has_to_build(ts.path_backend, ts.path_mod)
         ):
             ts = Transonic(frame=frame, reuse=False)
     else:
@@ -133,16 +133,16 @@ class CheckCompiling:
         if ts.is_compiling and not ts.process.is_alive():
             ts.is_compiling = False
             time.sleep(0.1)
-            ts.module_pythran = import_from_path(
-                ts.path_extension, ts.module_pythran.__name__
+            ts.module_backend = import_from_path(
+                ts.path_extension, ts.module_backend.__name__
             )
             # TODO: implement a correct check for other backends
             if backend_default == "pythran":
-                assert hasattr(self.ts.module_pythran, f"__{backend_default}__")
+                assert hasattr(self.ts.module_backend, f"__{backend_default}__")
             ts.is_compiled = True
 
         if not ts.is_compiling:
-            self.func = getattr(ts.module_pythran, self.func.__name__)
+            self.func = getattr(ts.module_backend, self.func.__name__)
             self.has_been_replaced = True
 
         return self.func(*args, **kwargs)
@@ -207,17 +207,17 @@ class Transonic:
 
         if "." in module_name:
             package, module_short_name = module_name.rsplit(".", 1)
-            module_pythran_name = package + "."
+            module_backend_name = package + "."
         else:
             module_short_name = module_name
-            module_pythran_name = ""
+            module_backend_name = ""
 
-        module_pythran_name += f"__{backend_default}__." + module_short_name
+        module_backend_name += f"__{backend_default}__." + module_short_name
 
         self.path_mod = path_mod = Path(frame.filename)
 
         suffix = ".py"
-        self.path_pythran = path_pythran = (
+        self.path_backend = path_backend = (
             path_mod.parent
             / f"__{backend_default}__"
             / (module_short_name + suffix)
@@ -226,11 +226,11 @@ class Transonic:
         path_ext = None
 
         if has_to_compile_at_import() and path_mod.exists():
-            if mpi.has_to_build(path_pythran, path_mod):
-                if path_pythran.exists():
-                    time_pythran = mpi.modification_date(path_pythran)
+            if mpi.has_to_build(path_backend, path_mod):
+                if path_backend.exists():
+                    time_backend = mpi.modification_date(path_backend)
                 else:
-                    time_pythran = 0
+                    time_backend = 0
 
                 returncode = None
                 if mpi.rank == 0:
@@ -258,22 +258,22 @@ class Transonic:
                 if mpi.rank == 0:
                     print("Done!")
 
-                path_ext = path_pythran.with_name(
-                    name_ext_from_path_backend(path_pythran)
+                path_ext = path_backend.with_name(
+                    name_ext_from_path_backend(path_backend)
                 )
 
-                time_pythran_after = mpi.modification_date(path_pythran)
+                time_backend_after = mpi.modification_date(path_backend)
                 # We have to touch the files to signal that they are up-to-date
-                if time_pythran_after == time_pythran and mpi.rank == 0:
-                    if not has_to_build(path_ext, path_pythran):
-                        path_pythran.touch()
+                if time_backend_after == time_backend and mpi.rank == 0:
+                    if not has_to_build(path_ext, path_backend):
+                        path_backend.touch()
                         if path_ext.exists():
                             path_ext.touch()
                     else:
-                        path_pythran.touch()
+                        path_backend.touch()
 
-        path_ext = path_ext or path_pythran.with_name(
-            name_ext_from_path_backend(path_pythran)
+        path_ext = path_ext or path_backend.with_name(
+            name_ext_from_path_backend(path_backend)
         )
 
         self.path_extension = path_ext
@@ -285,7 +285,7 @@ class Transonic:
             if mpi.rank == 0:
                 print("Launching Pythran to compile a new extension...")
             self.process = compile_extension(
-                path_pythran,
+                path_backend,
                 backend_default,
                 name_ext_file=self.path_extension.name,
             )
@@ -295,40 +295,41 @@ class Transonic:
         self.is_transpiled = True
 
         if not path_ext.exists() and not self.is_compiling:
-            path_ext_alt = path_pythran.with_suffix(ext_suffix)
+            path_ext_alt = path_backend.with_suffix(ext_suffix)
             if path_ext_alt.exists():
                 self.path_extension = path_ext = path_ext_alt
 
-        self.reload_module_pythran(module_pythran_name)
+        self.reload_module_backend(module_backend_name)
 
         if self.is_transpiled:
+            # TODO: fix bug other backends than Pythran
             self.is_compiled = hasattr(
-                self.module_pythran, f"__{backend_default}__"
+                self.module_backend, f"__{backend_default}__"
             )
             if self.is_compiled:
                 module = inspect.getmodule(frame[0])
                 # module can be None if (at least) it has been run with runpy
                 if module is not None:
-                    module.__pythran__ = self.module_pythran.__pythran__
-                    module.__transonic__ = self.module_pythran.__transonic__
+                    module.__pythran__ = self.module_backend.__pythran__
+                    module.__transonic__ = self.module_backend.__transonic__
 
-            if hasattr(self.module_pythran, "arguments_blocks"):
+            if hasattr(self.module_backend, "arguments_blocks"):
                 self.arguments_blocks = getattr(
-                    self.module_pythran, "arguments_blocks"
+                    self.module_backend, "arguments_blocks"
                 )
 
         modules[module_name] = self
 
-    def reload_module_pythran(self, module_pythran_name=None):
-        if module_pythran_name is None:
-            module_pythran_name = self.module_pythran.__name__
+    def reload_module_backend(self, module_backend_name=None):
+        if module_backend_name is None:
+            module_backend_name = self.module_backend.__name__
         if self.path_extension.exists() and not self.is_compiling:
-            self.module_pythran = import_from_path(
-                self.path_extension, module_pythran_name
+            self.module_backend = import_from_path(
+                self.path_extension, module_backend_name
             )
-        elif self.path_pythran.exists():
-            self.module_pythran = import_from_path(
-                self.path_pythran, module_pythran_name
+        elif self.path_backend.exists():
+            self.module_backend = import_from_path(
+                self.path_backend, module_backend_name
             )
         else:
             self.is_transpiled = False
@@ -349,15 +350,15 @@ class Transonic:
         if is_transpiling or not has_to_replace or not self.is_transpiled:
             return func
 
-        if not hasattr(self.module_pythran, func.__name__):
-            self.reload_module_pythran()
+        if not hasattr(self.module_backend, func.__name__):
+            self.reload_module_backend()
 
         try:
-            func_tmp = getattr(self.module_pythran, func.__name__)
+            func_tmp = getattr(self.module_backend, func.__name__)
         except AttributeError:
             logger.warning(
                 f"{backend_default.capitalize()} file does not seem to be up-to-date:\n"
-                f"{self.module_pythran}\nfunc: {func.__name__}"
+                f"{self.module_backend}\nfunc: {func.__name__}"
             )
             func_tmp = func
 
@@ -428,15 +429,16 @@ class Transonic:
                 f"__code_new_method__{cls_name}__{func_name}"
             )
 
-            if not hasattr(self.module_pythran, name_pythran_func):
-                self.reload_module_pythran()
+            if not hasattr(self.module_backend, name_pythran_func):
+                self.reload_module_backend()
 
             try:
-                pythran_func = getattr(self.module_pythran, name_pythran_func)
+                pythran_func = getattr(self.module_backend, name_pythran_func)
                 code_new_method = getattr(
-                    self.module_pythran, name_var_code_new_method
+                    self.module_backend, name_var_code_new_method
                 )
             except AttributeError:
+                # TODO: improve what happens in this case
                 logger.warning(
                     f"{backend_default} file does not seem to be up-to-date."
                 )
@@ -466,15 +468,15 @@ class Transonic:
         if self.is_compiling and not self.process.is_alive():
             self.is_compiling = False
             time.sleep(0.1)
-            self.module_pythran = import_from_path(
-                self.path_extension, self.module_pythran.__name__
+            self.module_backend = import_from_path(
+                self.path_extension, self.module_backend.__name__
             )
             # TODO: implement a correct check for other backends
             if backend_default == "pythran":
-                assert hasattr(self.module_pythran, f"__{backend_default}__")
+                assert hasattr(self.module_backend, f"__{backend_default}__")
             self.is_compiled = True
 
-        func = getattr(self.module_pythran, name)
+        func = getattr(self.module_backend, name)
         argument_names = self.arguments_blocks[name]
 
         frame = inspect.currentframe()
