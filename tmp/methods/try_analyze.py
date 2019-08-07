@@ -118,8 +118,8 @@ def produce_pythran_code_class_func(cls, func_name):
     tokens = tokens[:index_self] + tokens_attr + tokens[index_self + 2 :]
 
     index_func_name = tokens.index((NAME, func_name))
-    name_pythran_func = f"__for_method__{cls_name}__{func_name}"
-    tokens[index_func_name] = (NAME, name_pythran_func)
+    name_backend_func = f"__for_method__{cls_name}__{func_name}"
+    tokens[index_func_name] = (NAME, name_backend_func)
 
     new_code = untokenize(tokens).decode("utf-8")
     new_code = format_str(new_code)
@@ -134,7 +134,7 @@ def produce_pythran_code_class_func(cls, func_name):
     ):
         pythran_signatures += (
             "# pythran export "
-            + name_pythran_func
+            + name_backend_func
             + "("
             + ", ".join(types_string_signature)
             + ")\n"
@@ -151,7 +151,7 @@ def produce_pythran_code_class_func(cls, func_name):
         f"\n# pythran export {name_var_code_new_method}\n"
         f'\n{name_var_code_new_method} = """\n\n'
         f"def new_method(self, {str_args_func}):\n"
-        f"    return pythran_func({str_self_dot_attributes}, {str_args_func})"
+        f"    return backend_func({str_self_dot_attributes}, {str_args_func})"
         '\n\n"""\n'
     )
 

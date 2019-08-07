@@ -243,7 +243,7 @@ class JIT:
         self.openmp = openmp
         self._decorator_no_arg = False
 
-        self.pythran_func = None
+        self.backend_func = None
         self.compiling = False
         self.process = None
 
@@ -431,11 +431,11 @@ class JIT:
         if not ext_files:
             if has_to_compile_at_import() and _COMPILE_JIT:
                 backenize_with_new_header()
-            self.pythran_func = None
+            self.backend_func = None
         else:
             path_ext = max(ext_files, key=lambda p: p.stat().st_ctime)
             backend_module = import_from_path(path_ext, name_mod)
-            self.pythran_func = getattr(backend_module, func_name)
+            self.backend_func = getattr(backend_module, func_name)
 
         @wraps(func)
         def type_collector(*args, **kwargs):
@@ -450,15 +450,15 @@ class JIT:
                     # TODO: implement a correct check for other backends
                     if backend_default == "pythran":
                         assert hasattr(backend_module, f"__{backend_default}__")
-                        self.pythran_func = getattr(backend_module, func_name)
-                    self.pythran_func = getattr(backend_module, func_name)
+                        self.backend_func = getattr(backend_module, func_name)
+                    self.backend_func = getattr(backend_module, func_name)
 
             error = False
             try:
-                return self.pythran_func(*args, **kwargs)
+                return self.backend_func(*args, **kwargs)
             except TypeError as err:
                 # need to compiled or recompile
-                if self.pythran_func:
+                if self.backend_func:
                     error = str(err)
                     if (
                         error.startswith("Invalid call to pythranized function `")
@@ -474,7 +474,7 @@ class JIT:
                 return func(*args, **kwargs)
 
             if (
-                self.pythran_func
+                self.backend_func
                 and error
                 and error.startswith("Invalid call to pythranized function `")
             ):

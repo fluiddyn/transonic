@@ -9,7 +9,7 @@ def __for_method__MyClass2__myfunc(self_attr0, self_attr1, arg):
 __code_new_method__MyClass2__myfunc = """
 
 def new_method(self, arg):
-    return pythran_func(self.attr0, self.attr1, arg)
+    return backend_func(self.attr0, self.attr1, arg)
 
 """
 

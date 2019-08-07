@@ -13,7 +13,7 @@ def __for_method__Myclass__func(self_attr, self_attr2, arg):
 __code_new_method__Myclass__func = """
 
 def new_method(self, arg):
-    return pythran_func(self.attr, self.attr2, arg)
+    return backend_func(self.attr, self.attr2, arg)
 
 """
 

@@ -18,6 +18,6 @@ __code_new_method__Transmitter____call__ = """
 
 def new_method(self, inp):
     print("new_method")
-    return pythran_func(self.freq, inp)
+    return backend_func(self.freq, inp)
 
 """

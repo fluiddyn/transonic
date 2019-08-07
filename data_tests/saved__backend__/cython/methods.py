@@ -9,7 +9,7 @@ def __for_method__Transmitter____call__(self_arr, self_freq, inp):
 __code_new_method__Transmitter____call__ = """
 
 def new_method(self, inp):
-    return pythran_func(self.arr, self.freq, inp)
+    return backend_func(self.arr, self.freq, inp)
 
 """
 

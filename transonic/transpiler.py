@@ -218,7 +218,7 @@ def produce_code_class_func(cls, func_name, jit=False):
             f"\n# pythran export {name_var_code_new_method}\n"
             f'\n{name_var_code_new_method} = """\n\n'
             f"def new_method(self, {str_args_value_func}):\n"
-            f"    return pythran_func({str_self_dot_attributes}, {str_args_func})"
+            f"    return backend_func({str_self_dot_attributes}, {str_args_func})"
             '\n\n"""\n'
         )
 

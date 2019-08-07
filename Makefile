@@ -8,6 +8,12 @@ black:
 tests:
 	pytest transonic data_tests/ipynb
 
+tests_cython:
+	TRANSONIC_BACKEND="cython" pytest transonic data_tests/ipynb
+
+tests_numba:
+	TRANSONIC_BACKEND="numba" pytest transonic data_tests/ipynb
+
 tests_mpi:
 	mpirun -np 2 pytest transonic
 

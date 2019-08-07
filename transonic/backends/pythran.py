@@ -170,18 +170,18 @@ class PythranBackend(Backend):
         str_args_value_func = ", ".join(str_args_value_func)
 
         if str_self_dot_attributes:
-            str_args_pythran_func = ", ".join(
+            str_args_backend_func = ", ".join(
                 (str_self_dot_attributes, str_args_func)
             )
         else:
-            str_args_pythran_func = str_args_func
+            str_args_backend_func = str_args_func
 
         if jit:
             name_new_method = f"__new_method__{class_name}__{meth_name}"
             python_code += (
                 f"\ndef {name_new_method}"
                 f"(self, {str_args_value_func}):\n"
-                f"    return {name_new_func}({str_args_pythran_func})"
+                f"    return {name_new_func}({str_args_backend_func})"
                 "\n"
             )
         else:
@@ -192,7 +192,7 @@ class PythranBackend(Backend):
                 f"\n# pythran export {name_var_code_new_method}\n"
                 f'\n{name_var_code_new_method} = """\n\n'
                 f"def new_method(self, {str_args_value_func}):\n"
-                f"    return pythran_func({str_args_pythran_func})"
+                f"    return backend_func({str_args_backend_func})"
                 '\n\n"""\n'
             )
 

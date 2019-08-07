@@ -310,7 +310,8 @@ class Transonic:
                 module = inspect.getmodule(frame[0])
                 # module can be None if (at least) it has been run with runpy
                 if module is not None:
-                    module.__pythran__ = self.module_backend.__pythran__
+                    if backend_default == "pythran":
+                        module.__pythran__ = self.module_backend.__pythran__
                     module.__transonic__ = self.module_backend.__transonic__
 
             if hasattr(self.module_backend, "arguments_blocks"):
@@ -424,16 +425,16 @@ class Transonic:
             func = value.func
             func_name = func.__name__
 
-            name_pythran_func = f"__for_method__{cls_name}__{func_name}"
+            name_backend_func = f"__for_method__{cls_name}__{func_name}"
             name_var_code_new_method = (
                 f"__code_new_method__{cls_name}__{func_name}"
             )
 
-            if not hasattr(self.module_backend, name_pythran_func):
+            if not hasattr(self.module_backend, name_backend_func):
                 self.reload_module_backend()
 
             try:
-                pythran_func = getattr(self.module_backend, name_pythran_func)
+                backend_func = getattr(self.module_backend, name_backend_func)
                 code_new_method = getattr(
                     self.module_backend, name_var_code_new_method
                 )
@@ -444,7 +445,7 @@ class Transonic:
                 )
                 # setattr(cls, key, func)
             else:
-                namespace = {"pythran_func": pythran_func}
+                namespace = {"backend_func": backend_func}
                 exec(code_new_method, namespace)
                 setattr(cls, key, functools.wraps(func)(namespace["new_method"]))
         return cls

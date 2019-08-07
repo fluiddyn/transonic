@@ -27,13 +27,13 @@ def boost(cls):
         func = value.func
         func_name = func.__name__
 
-        name_pythran_func = f"__for_method__{cls_name}__{func_name}"
-        pythran_func = pythran_manual.__dict__[name_pythran_func]
+        name_backend_func = f"__for_method__{cls_name}__{func_name}"
+        backend_func = pythran_manual.__dict__[name_backend_func]
 
         name_var_code_new_method = f"__code_new_method__{cls_name}__{func_name}"
         code_new_method = pythran_manual.__dict__[name_var_code_new_method]
 
-        namespace = {"pythran_func": pythran_func}
+        namespace = {"backend_func": backend_func}
         exec(code_new_method, namespace)
         setattr(cls, key, wraps(func)(namespace["new_method"]))
 
