@@ -280,9 +280,9 @@ def import_from_path(path: Path, module_name: str):
             return module
 
     spec = importlib.util.spec_from_file_location(module_name, path)
-    module = importlib.util.module_from_spec(spec)
     # for potential "local imports" in the module
-    sys.path.insert(0, os.path.dirname(module.__file__))
+    sys.path.insert(0, str(path.parent))
+    module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     # clean sys.path
     sys.path.pop(0)

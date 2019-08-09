@@ -35,6 +35,7 @@ tests_coverage_short:
 	coverage run -p -m pytest
 
 tests_coverage: tests_coverage_short
+	TRANSONIC_BACKEND="cython" coverage run -p -m pytest
 	mpirun -np 2 coverage run -p -m pytest transonic
 
 report_coverage:

@@ -58,7 +58,6 @@ class CythonBackend(Backend):
             for name in fdef2.args.args:
                 name.id = name_args[0] + " " + name.id
                 del name_args[0]
-            # fdef2 = self.change_inner_annotations(fdef2)
         signatures_func.append(
             "c"
             + self.get_code_function(fdef2, black=False)[2:].splitlines()[0][:-1]
@@ -101,29 +100,6 @@ class CythonBackend(Backend):
             code.append(f"arguments_blocks = {str(arguments_blocks)}\n")
 
         return signatures, code
-
-    def change_inner_annotations(self, fdef):
-        # change type hints into cdef
-        for index, node in enumerate(fdef.body):
-            if isinstance(node, ast.AnnAssign):
-                cdef = "cdef " + node.annotation.id + " " + node.target.id
-                if node.value:
-                    cdef = cdef + "=" + extast.unparse(node.value)
-                fdef.body[index] = extast.CommentLine(s=cdef)
-        return fdef
-
-    def get_init_functions(self, path_py: Path):
-        init_funcs = dict()
-        with open(path_py) as file:
-            content = file.read()
-        mod = extast.parse(content)
-        for node in mod.body:
-            if isinstance(node, ast.ClassDef):
-                for sub_node in node.body:
-                    if isinstance(sub_node, ast.FunctionDef):
-                        if sub_node.name == "__init__":
-                            init_funcs[node.name] = extast.unparse(sub_node)
-        return init_funcs
 
     def get_code_meths(self, boosted_dicts, annotations, path_py):
         meths_code = []

@@ -163,7 +163,7 @@ Transonic is sensible to environment variables:
   compilation of jited functions. This can be useful for unittests.
 
 - :code:`TRANSONIC_BACKEND` to choose between the supported backends, i.e. now
-  only "pythran"! The "cython" and "numba" backends should soon work!
+  only "pythran" and "cython"! The "numba" backend should soon work!
 
 
 A short tour of Transonic syntaxes
