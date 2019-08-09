@@ -15,7 +15,6 @@ from transonic.log import logger
 
 from ..util import (
     has_to_build,
-    get_source_without_decorator,
     format_str,
     write_if_has_to_write,
     TypeHintRemover,
@@ -204,10 +203,12 @@ class Backend:
         code = "\n".join(code).strip()
 
         if code:
-            code += (
-                "\n\n# pythran export __transonic__\n"
-                f"__transonic__ = ('{transonic.__version__}',)"
-            )
+            lines = []
+            lines.append("\n")
+            if self.backend_name == "pythran":
+                lines.append("# pythran export __transonic__")
+            lines.append(f"__transonic__ = ('{transonic.__version__}',)")
+            code += "\n".join(lines)
 
         code = format_str(code)
 
@@ -292,7 +293,7 @@ class Backend:
             offset = -2
             # adapt all recurrence calls
             for ind in index_rec_calls[1:]:
-                # adapt the index to the insertd and deletes
+                # adapt the index to the inserts and deletes
                 ind += offset
                 tokens[ind] = (tokens[ind][0], name_new_func)
                 # put the attributes in parameter
@@ -340,3 +341,11 @@ class Backend:
                 f"arguments_blocks = {str(arguments_blocks)}\n"
             )
         return "", code
+
+
+class BackendAOT(Backend):
+    """Backend for ahead-of-time compilers"""
+
+
+class BackendJIT(Backend):
+    """Backend for just-in-time compilers"""

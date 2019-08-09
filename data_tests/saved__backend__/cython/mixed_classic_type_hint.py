@@ -9,5 +9,4 @@ def func1(a, b):
     return a * np.cos(b)
 
 
-# pythran export __transonic__
 __transonic__ = ("0.2.4",)

@@ -84,7 +84,7 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
     def add_definition(definition_node):
         backend = backend_default
         if isinstance(definition_node, ast.Call):
-            # FIXME see other element than the fisrt of the list
+            # FIXME see other element than the first of the list
             if (
                 definition_node.keywords
                 and definition_node.keywords[0].arg == "backend"

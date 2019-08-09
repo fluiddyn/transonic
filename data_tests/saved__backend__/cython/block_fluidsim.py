@@ -13,5 +13,4 @@ arguments_blocks = {
     "rk2_step0": ["state_spect_n12", "state_spect", "tendencies_n", "diss2", "dt"]
 }
 
-# pythran export __transonic__
 __transonic__ = ("0.2.4",)

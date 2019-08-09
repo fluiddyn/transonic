@@ -40,5 +40,4 @@ def block1(a, b, n):
 
 arguments_blocks = {"block0": ["a", "b", "n"], "block1": ["a", "b", "n"]}
 
-# pythran export __transonic__
 __transonic__ = ("0.2.4",)

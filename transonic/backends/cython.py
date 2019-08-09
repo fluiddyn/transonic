@@ -3,32 +3,17 @@
 
 
 """
-from tokenize import tokenize
 import copy
-from pathlib import Path
-import gast as ast
 from textwrap import indent
 
-from typing import Iterable, Optional
-from warnings import warn
-
-from transonic.analyses import analyse_aot, extast
-from transonic.analyses.util import print_dumped
+from transonic.analyses import extast
 from transonic.annotation import compute_pythran_types_from_valued_types
+from transonic.util import format_str
 
-from transonic.util import (
-    has_to_build,
-    get_source_without_decorator,
-    format_str,
-    write_if_has_to_write,
-)
-
-from transonic.log import logger
-
-from .backend import Backend
+from .backend import BackendAOT
 
 
-class CythonBackend(Backend):
+class CythonBackend(BackendAOT):
     backend_name = "cython"
     special_methods = ["__call__"]
 

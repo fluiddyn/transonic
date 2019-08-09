@@ -17,5 +17,4 @@ def new_method(self, arg):
 
 """
 
-# pythran export __transonic__
 __transonic__ = ("0.2.4",)

@@ -25,10 +25,8 @@ tests_cov:
 	pytest --cov-config setup.cfg --cov=transonic
 
 clean:
-	rm -rf $(HOME)/.transonic/__jit__/transonic/
-	rm -rf $(HOME)/.transonic/__jit_classes__/transonic/
-	rm -rf $(HOME)/.transonic/__jit__/__jit_classes__/transonic/
-	rm -rf transonic/__pythran__/
+	rm -rf $(HOME)/.transonic/*/*/transonic/
+	rm -rf $(HOME)/.transonic/*/*/*/transonic/
 
 tests_coverage_short:
 	mkdir -p .coverage
