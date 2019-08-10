@@ -159,7 +159,7 @@ def make_backends_files(
 
         logger.warning(
             f"{nb_files} files created or updated need{conjug}"
-            f" to be {backend_default}inzed"
+            f" to be {backend_default}ized"
         )
 
     return paths_out

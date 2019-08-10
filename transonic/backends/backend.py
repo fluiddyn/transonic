@@ -24,6 +24,10 @@ class Backend:
     backend_name = "base"
     suffix_backend = ".py"
 
+    def __init__(self):
+        self.name = self.backend_name
+        self.name_capitalized = self.name.capitalize()
+
     def make_backend_files(
         self,
         paths_py,
@@ -47,8 +51,8 @@ class Backend:
 
         paths_out = []
         for path in paths_py:
-            with open(path) as f:
-                code = f.read()
+            with open(path) as file:
+                code = file.read()
             analyse = analyse_aot(code, path)
             path_out = self.make_backend_file(path, analyse, force=force)
             if path_out:
@@ -63,7 +67,7 @@ class Backend:
 
             logger.warning(
                 f"{nb_files} files created or updated need{conjug}"
-                " to be {self.backend_name}ized"
+                " to be {self.name}ized"
             )
 
         return paths_out
@@ -81,7 +85,7 @@ class Backend:
         if not path_py.exists():
             raise FileNotFoundError(f"Input file {path_py} not found")
 
-        if path_py.absolute().parent.name == "__" + self.backend_name + "__":
+        if path_py.absolute().parent.name == "__" + self.name + "__":
             logger.debug(f"skip file {path_py}")
             return None, None, None
         if not path_py.name.endswith(".py"):
@@ -89,7 +93,7 @@ class Backend:
                 "transonic only processes Python file. Cannot process {path_py}"
             )
 
-        path_dir = path_py.parent / str("__" + self.backend_name + "__")
+        path_dir = path_py.parent / str("__" + self.name + "__")
         path_backend = (path_dir / path_py.name).with_suffix(self.suffix_backend)
 
         if not has_to_build(path_backend, path_py) and not force:
@@ -104,9 +108,9 @@ class Backend:
                 code = file.read()
             analyse = analyse_aot(code, path_py)
 
-        if self.backend_name == "pythran":
+        if self.name == "pythran":
             code_backend, code_ext = self.make_backend_code(path_py, analyse)
-        elif self.backend_name == "cython":
+        elif self.name == "cython":
             path_backend_pxd = (path_dir / path_py.name).with_suffix(".pxd")
             code_backend, code_ext, code_signature = self.make_backend_code(
                 path_py, analyse
@@ -121,7 +125,7 @@ class Backend:
 
         for file_name, code in code_ext["classe"].items():
             path_ext_file = (
-                path_dir.parent / f"__{self.backend_name}__" / (file_name + ".py")
+                path_dir.parent / f"__{self.name}__" / (file_name + ".py")
             )
             write_if_has_to_write(path_ext_file, code, logger.info)
 
@@ -134,13 +138,13 @@ class Backend:
             logger.warning(f"Code in file {path_backend} already up-to-date.")
             return
 
-        logger.debug(f"code_{self.backend_name}:\n{code_backend}")
+        logger.debug(f"code_{self.name}:\n{code_backend}")
 
         path_dir.mkdir(exist_ok=True)
 
         with open(path_backend, "w") as file:
             file.write("".join(code_backend))
-        if self.backend_name == "cython":
+        if self.name == "cython":
             with open(path_backend_pxd, "w") as file:
                 file.write("".join(code_signature))
         logger.info(f"File {path_backend} written")
@@ -164,10 +168,10 @@ class Backend:
         boosted_dicts, code_dependance, annotations, blocks, code_ext = analyse
 
         boosted_dicts = dict(
-            functions=boosted_dicts["functions"][self.backend_name],
-            functions_ext=boosted_dicts["functions_ext"][self.backend_name],
-            methods=boosted_dicts["methods"][self.backend_name],
-            classes=boosted_dicts["classes"][self.backend_name],
+            functions=boosted_dicts["functions"][self.name],
+            functions_ext=boosted_dicts["functions_ext"][self.name],
+            methods=boosted_dicts["methods"][self.name],
+            classes=boosted_dicts["classes"][self.name],
         )
 
         code = ["\n" + code_dependance + "\n"]
@@ -177,9 +181,9 @@ class Backend:
 
             code_function = self.get_code_function(fdef)
             signatures_func = self.get_signatures(func_name, fdef, annotations)
-            if self.backend_name == "pythran":
+            if self.name == "pythran":
                 code.append("\n".join(sorted(signatures_func)))
-            elif self.backend_name == "cython":
+            elif self.name == "cython":
                 if signatures_func:
                     signature_pxd = signature_pxd + signatures_func
             code.append(code_function)
@@ -204,14 +208,14 @@ class Backend:
         if code:
             lines = []
             lines.append("\n")
-            if self.backend_name == "pythran":
+            if self.name == "pythran":
                 lines.append("# pythran export __transonic__")
             lines.append(f"__transonic__ = ('{transonic.__version__}',)")
             code += "\n".join(lines)
 
         code = format_str(code)
 
-        if self.backend_name == "cython":
+        if self.name == "cython":
             return code, code_ext, signature_pxd
 
         return code, code_ext

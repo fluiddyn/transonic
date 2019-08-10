@@ -248,7 +248,7 @@ class JIT:
     def __call__(self, func, backend=backend_default):
 
         if isinstance(backend, str):
-            backend = backends[backend_default]
+            backend = backends[backend]
 
         if not has_to_replace:
             return func
@@ -392,7 +392,7 @@ class JIT:
             mpi.barrier()
             if mpi.rank == 0:
                 logger.debug(
-                    f"write {backend_default} signature in file {path_backend_header} with types\n{arg_types}"
+                    f"write {backend.name} signature in file {path_backend_header} with types\n{arg_types}"
                 )
                 with open(path_backend_header, "w") as file:
                     file.write(header)
@@ -412,7 +412,7 @@ class JIT:
 
             self.process = compile_extension(
                 path_backend,
-                backend_default,
+                backend.name,
                 name_ext_file,
                 native=self.native,
                 xsimd=self.xsimd,

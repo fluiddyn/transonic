@@ -104,7 +104,7 @@ def _get_transonic_calling_module(index_frame: int = 2):
 
 
 def boost(obj):
-    """Decorator to declare that an object can "use" pythran
+    """Decorator to declare that an object can be accelerated
 
     Parameters
     ----------
@@ -169,7 +169,6 @@ class Transonic:
     """
 
     def __init__(self, use_transonified=True, frame=None, reuse=True):
-        from transonic.config import backend_default
 
         if frame is None:
             frame = inspect.stack()[1]
@@ -211,14 +210,14 @@ class Transonic:
             module_short_name = module_name
             module_backend_name = ""
 
-        module_backend_name += f"__{backend_default}__." + module_short_name
+        module_backend_name += f"__{backend.name}__." + module_short_name
 
         self.path_mod = path_mod = Path(frame.filename)
 
         suffix = ".py"
         self.path_backend = path_backend = (
             path_mod.parent
-            / f"__{backend_default}__"
+            / f"__{backend.name}__"
             / (module_short_name + suffix)
         )
 
@@ -250,7 +249,7 @@ class Transonic:
 
                 if returncode != 0:
                     raise RuntimeError(
-                        "transonic does not manage to produce the Pythran "
+                        "transonic does not manage to produce the {backend.name_capitalized} "
                         f"file for {path_mod}"
                     )
 
@@ -282,10 +281,10 @@ class Transonic:
             and not self.path_extension.exists()
         ):
             if mpi.rank == 0:
-                print("Launching Pythran to compile a new extension...")
+                print(f"Launching {backend.name_capitalized} to compile a new extension...")
             self.process = compile_extension(
                 path_backend,
-                backend_default,
+                backend.name,
                 name_ext_file=self.path_extension.name,
             )
             self.is_compiling = True
@@ -306,7 +305,7 @@ class Transonic:
                 module = inspect.getmodule(frame[0])
                 # module can be None if (at least) it has been run with runpy
                 if module is not None:
-                    if backend_default == "pythran":
+                    if backend.name == "pythran":
                         module.__pythran__ = self.module_backend.__pythran__
                     module.__transonic__ = self.module_backend.__transonic__
 
@@ -353,8 +352,9 @@ class Transonic:
         try:
             func_tmp = getattr(self.module_backend, func.__name__)
         except AttributeError:
+            # TODO: improve what happens in this case
             logger.warning(
-                f"{backend_default.capitalize()} file does not seem to be up-to-date:\n"
+                f"{backend.name_capitalized} file does not seem to be up-to-date:\n"
                 f"{self.module_backend}\nfunc: {func.__name__}"
             )
             func_tmp = func
@@ -437,7 +437,7 @@ class Transonic:
             except AttributeError:
                 # TODO: improve what happens in this case
                 logger.warning(
-                    f"{backend_default} file does not seem to be up-to-date."
+                    f"{backend.name_capitalized} file does not seem to be up-to-date."
                 )
                 # setattr(cls, key, func)
             else:
@@ -538,7 +538,7 @@ def jit_class(cls, jit_methods):
     if mpi.has_to_build(python_path, module.__file__):
         from transonic.justintime import _get_module_jit
 
-        mod = _get_module_jit(backend=backend_default, index_frame=5)
+        mod = _get_module_jit(backend=backend.name, index_frame=5)
         if mpi.rank == 0:
             python_path = mpi.PathSeq(python_path)
             python_code = mod.codes_dependance_classes[cls_name] + "\n"
