@@ -47,7 +47,6 @@ Note: During the compilation (the "warmup" of the JIT), the Python function is
 used.
 
 """
-from transonic.analyses import extast
 
 import re
 import inspect
@@ -64,9 +63,19 @@ except ImportError:
     np = None
 
 
+from transonic.analyses import extast
+from transonic.analyses.justintime import analysis_jit
+from transonic.annotation import (
+    make_signatures_from_typehinted_func,
+    normalize_type_name,
+)
+from transonic.aheadoftime import TransonicTemporaryJITMethod
+from transonic.backends import backends
 from transonic.compiler import compile_extension, ext_suffix
-
-from .util import (
+from transonic.config import has_to_replace, backend_default
+from transonic.log import logger
+from transonic import mpi
+from transonic.util import (
     get_module_name,
     has_to_build,
     get_source_without_decorator,
@@ -79,23 +88,12 @@ from .util import (
     is_method,
     write_if_has_to_write,
 )
-from .annotation import make_signatures_from_typehinted_func, normalize_type_name
 
-from .aheadoftime import TransonicTemporaryJITMethod
-
-from . import mpi
-from .log import logger
-from .config import has_to_replace
-
-from transonic.analyses.justintime import analysis_jit
 
 modules = {}
 
-from transonic.config import backend_default
-
 path_jit = mpi.Path(path_root) / backend_default / "__jit__"
 
-from transonic.backends import backends
 
 if mpi.rank == 0:
     path_jit.mkdir(parents=True, exist_ok=True)
@@ -247,9 +245,10 @@ class JIT:
         self.compiling = False
         self.process = None
 
-    def __call__(self, func, backend=None):
+    def __call__(self, func, backend=backend_default):
 
-        from transonic.config import backend_default
+        if isinstance(backend, str):
+            backend = backends[backend_default]
 
         if not has_to_replace:
             return func
@@ -447,10 +446,7 @@ class JIT:
                     backend_module = import_from_path(
                         self.path_extension, name_mod
                     )
-                    # TODO: implement a correct check for other backends
-                    if backend_default == "pythran":
-                        assert hasattr(backend_module, f"__{backend_default}__")
-                        self.backend_func = getattr(backend_module, func_name)
+                    assert backend.check_if_compiled(backend_module)
                     self.backend_func = getattr(backend_module, func_name)
 
             error = False

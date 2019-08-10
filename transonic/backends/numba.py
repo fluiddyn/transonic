@@ -3,7 +3,13 @@ from textwrap import dedent
 import inspect
 import gast as ast
 
-from ..analyses import extast
+from transonic.analyses import extast
+
+from .backend import BackendJIT
+
+
+class NumbaBackend(BackendJIT):
+    backend_name = "numba"
 
 
 def get_source_with_numba(func: Callable):

@@ -177,3 +177,6 @@ class PythranBackend(BackendAOT):
         python_code = format_str(python_code)
 
         return python_code
+
+    def check_if_compiled(self, module):
+        return hasattr(module, "__pythran__")

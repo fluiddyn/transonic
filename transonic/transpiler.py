@@ -18,24 +18,16 @@ from tokenize import tokenize, untokenize, NAME, OP
 from token import tok_name
 import inspect
 from io import BytesIO
-from warnings import warn
 from unittest.mock import MagicMock as Mock
-from contextlib import contextmanager
 from pathlib import Path
 
 from typing import Iterable, Optional
 
-from .log import logger
-from .annotation import compute_pythran_types_from_valued_types
-from .util import (
-    has_to_build,
-    get_source_without_decorator,
-    format_str,
-    write_if_has_to_write,
-)
-from .config import backend_default
-
-from .backends import backends
+from transonic.annotation import compute_pythran_types_from_valued_types
+from transonic.backends import backends
+from transonic.config import backend_default
+from transonic.log import logger
+from transonic.util import get_source_without_decorator, format_str
 
 
 def make_backend_files(
@@ -46,9 +38,7 @@ def make_backend_files(
     backend=backend_default,
 ):
     """Create Pythran files from a list of Python files"""
-
     backend = backends[backend]
-
     backend.make_backend_files(paths, force, log_level, mocked_modules)
 
 
@@ -231,21 +221,3 @@ class _MyMock(Mock):
     @classmethod
     def __getattr__(cls, name):
         return Mock()
-
-
-@contextmanager
-def mock_modules(modules):
-    """Context manager to mock modules (obsolete)
-
-    """
-    from warnings import warn
-
-    warn(
-        "mock_modules is obsolete (and useless for transonic). " "Don't use it.",
-        DeprecationWarning,
-    )
-
-    try:
-        yield None
-    finally:
-        pass

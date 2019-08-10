@@ -10,10 +10,9 @@ import transonic
 
 from transonic.analyses import extast, analyse_aot
 from transonic.annotation import compute_pythran_types_from_valued_types
-
 from transonic.log import logger
 
-from ..util import (
+from transonic.util import (
     has_to_build,
     format_str,
     write_if_has_to_write,
@@ -346,6 +345,17 @@ class Backend:
 class BackendAOT(Backend):
     """Backend for ahead-of-time compilers"""
 
+    def check_if_compiled(self, module):
+        try:
+            path = module.__file__
+        except AttributeError:
+            return True
+
+        return not path.endswith(".py")
+
 
 class BackendJIT(Backend):
     """Backend for just-in-time compilers"""
+
+    def check_if_compiled(self, module):
+        return True

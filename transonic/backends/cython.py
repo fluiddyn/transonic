@@ -15,7 +15,6 @@ from .backend import BackendAOT
 
 class CythonBackend(BackendAOT):
     backend_name = "cython"
-    special_methods = ["__call__"]
 
     def get_signatures(self, func_name, fdef, annotations):
         fdef2 = copy.deepcopy(fdef)

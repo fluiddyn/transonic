@@ -5,12 +5,15 @@
    :toctree:
 
    pythran
+   cython
+   numba
 
 """
 
-from transonic.analyses import analyse_aot
-
 from .pythran import PythranBackend
 from .cython import CythonBackend
+from .numba import NumbaBackend
 
-backends = dict(pythran=PythranBackend(), cython=CythonBackend())
+backends = dict(
+    pythran=PythranBackend(), cython=CythonBackend(), numba=NumbaBackend()
+)

@@ -28,9 +28,21 @@ import os
 import functools
 import sys
 
-from warnings import warn
+from transonic.backends import backends
 
-from .util import (
+from transonic.compiler import (
+    compile_extension,
+    name_ext_from_path_backend,
+    ext_suffix,
+)
+
+from transonic.config import has_to_replace, backend_default
+from transonic.log import logger
+from transonic import mpi
+from transonic.mpi import Path
+from transonic.transpiler import produce_code_class
+
+from transonic.util import (
     get_module_name,
     has_to_compile_at_import,
     import_from_path,
@@ -41,23 +53,12 @@ from .util import (
     write_if_has_to_write,
 )
 
-from transonic.compiler import (
-    compile_extension,
-    name_ext_from_path_backend,
-    ext_suffix,
-)
-from transonic.transpiler import produce_code_class
-
-from .log import logger
-from . import mpi
-from .mpi import Path
-from .config import has_to_replace
+backend = backends[backend_default]
 
 if mpi.nb_proc == 1:
     mpi.has_to_build = has_to_build
     mpi.modification_date = modification_date
 
-from transonic.config import backend_default
 
 is_transpiling = False
 modules = {}
@@ -136,9 +137,7 @@ class CheckCompiling:
             ts.module_backend = import_from_path(
                 ts.path_extension, ts.module_backend.__name__
             )
-            # TODO: implement a correct check for other backends
-            if backend_default == "pythran":
-                assert hasattr(self.ts.module_backend, f"__{backend_default}__")
+            assert backend.check_if_compiled(self.ts.module_backend)
             ts.is_compiled = True
 
         if not ts.is_compiling:
@@ -302,10 +301,7 @@ class Transonic:
         self.reload_module_backend(module_backend_name)
 
         if self.is_transpiled:
-            # TODO: fix bug other backends than Pythran
-            self.is_compiled = hasattr(
-                self.module_backend, f"__{backend_default}__"
-            )
+            self.is_compiled = backend.check_if_compiled(self.module_backend)
             if self.is_compiled:
                 module = inspect.getmodule(frame[0])
                 # module can be None if (at least) it has been run with runpy
@@ -472,9 +468,7 @@ class Transonic:
             self.module_backend = import_from_path(
                 self.path_extension, self.module_backend.__name__
             )
-            # TODO: implement a correct check for other backends
-            if backend_default == "pythran":
-                assert hasattr(self.module_backend, f"__{backend_default}__")
+            assert backend.check_if_compiled(self.module_backend)
             self.is_compiled = True
 
         func = getattr(self.module_backend, name)
@@ -489,12 +483,6 @@ class Transonic:
         arguments = [locals_caller[name] for name in argument_names]
         return func(*arguments)
 
-    def include(self, func):
-        warn(
-            "include is obsolete and will be removed in transonic 0.2",
-            DeprecationWarning,
-        )
-
 
 class TransonicTemporaryMethod:
     """Internal temporary class for methods"""
@@ -507,13 +495,6 @@ class TransonicTemporaryMethod:
             "Did you forget to decorate a class using methods decorated "
             "with transonic? Please decorate it with @boost."
         )
-
-
-def include(func=None, used_by=None):
-    warn(
-        "include is obsolete and will be removed in transonic 0.2",
-        DeprecationWarning,
-    )
 
 
 class TransonicTemporaryJITMethod:
