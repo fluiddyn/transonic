@@ -50,7 +50,7 @@ import sys
 import inspect
 import re
 from pathlib import Path
-import ast
+import gast as ast
 import importlib.util
 from distutils.util import strtobool
 import shutil
@@ -190,21 +190,29 @@ class TypeHintRemover(ast.NodeTransformer):
     from https://stackoverflow.com/a/42734810/1779806
     """
 
-    def visit_FunctionDef(self, node):
+    def visit_FunctionDef(self, fdef):
         # remove the return type defintion
-        node.returns = None
+        fdef.returns = None
         # remove all argument annotations
-        if node.args.args:
-            for arg in node.args.args:
+        if fdef.args.args:
+            for arg in fdef.args.args:
                 arg.annotation = None
-        return node
+
+        body = []
+        for node in fdef.body:
+            if isinstance(node, ast.AnnAssign):
+                if node.value is None:
+                    continue
+                node = ast.Assign(targets=[node.target], value=node.value)
+            body.append(node)
+        fdef.body = body
+
+        return fdef
 
 
 def strip_typehints(source):
     """Strip the type hints from a function"""
-
     source = format_str(source)
-
     # parse the source code into an AST
     parsed_source = ast.parse(source)
     # remove all type annotations, function return type definitions
@@ -212,12 +220,7 @@ def strip_typehints(source):
     transformed = TypeHintRemover().visit(parsed_source)
     # convert the AST back to source code
     striped_code = astunparse.unparse(transformed)
-
-    # bad hack to conserve the comments...
-    sep = ":(\n)+    "
-    head = re.split(sep, striped_code, maxsplit=1)[0]
-    body = re.split(sep, source, maxsplit=1)[-1]
-    return head + ":\n    " + body
+    return striped_code
 
 
 def get_ipython_input(last=True):

@@ -3,11 +3,9 @@
 
 """
 import re
-import inspect
 import beniget
 from pathlib import Path
 from textwrap import dedent
-from typing import Callable
 import gast as ast
 from transonic.analyses import extast
 from transonic.analyses.capturex import CaptureX
@@ -263,7 +261,7 @@ def adapt_code_dependance(func: str, codes_dependance: str, jitted_dicts: dict):
     Adapt code_dependance to the call of a jitted function in a jitted function:
         - Remove the import transonic
         - Remove the jitted function statement (i.e func = jit(func))
-        - Add a import statement to the jitted function 
+        - Add a import statement to the jitted function
         - remove the definition of the jitted function if its on the file, or remove the import statement
     """
     special = []

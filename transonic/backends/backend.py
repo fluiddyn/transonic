@@ -179,13 +179,14 @@ class Backend:
         # Deal with functions
         for func_name, fdef in boosted_dicts["functions"].items():
 
-            code_function = self.get_code_function(fdef)
             signatures_func = self.get_signatures(func_name, fdef, annotations)
             if self.name == "pythran":
                 code.append("\n".join(sorted(signatures_func)))
             elif self.name == "cython":
                 if signatures_func:
                     signature_pxd = signature_pxd + signatures_func
+
+            code_function = self.get_code_function(fdef)
             code.append(code_function)
 
         # Deal with methods

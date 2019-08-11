@@ -8,7 +8,10 @@ from transonic import Transonic, boost, Array, Union
 
 @boost
 def func(a, b):
-    return a + b
+    i: int
+    i = 2
+    c: float = 0.1 + i
+    return a + b + c
 
 
 def func_tmp(arg):

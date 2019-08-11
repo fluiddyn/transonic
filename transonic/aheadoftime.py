@@ -216,9 +216,7 @@ class Transonic:
 
         suffix = ".py"
         self.path_backend = path_backend = (
-            path_mod.parent
-            / f"__{backend.name}__"
-            / (module_short_name + suffix)
+            path_mod.parent / f"__{backend.name}__" / (module_short_name + suffix)
         )
 
         path_ext = None
@@ -281,11 +279,11 @@ class Transonic:
             and not self.path_extension.exists()
         ):
             if mpi.rank == 0:
-                print(f"Launching {backend.name_capitalized} to compile a new extension...")
+                print(
+                    f"Launching {backend.name_capitalized} to compile a new extension..."
+                )
             self.process = compile_extension(
-                path_backend,
-                backend.name,
-                name_ext_file=self.path_extension.name,
+                path_backend, backend.name, name_ext_file=self.path_extension.name
             )
             self.is_compiling = True
             self.is_compiled = False
