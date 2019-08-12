@@ -129,9 +129,13 @@ class ModuleJIT:
         self.jit_functions = {}
 
         source = self.get_source()
-        self.jitted_dicts, self.codes_dependance, self.codes_dependance_classes, self.code_ext, self.special = analysis_jit(
-            source, self.filename
-        )
+        (
+            self.jitted_dicts,
+            self.codes_dependance,
+            self.codes_dependance_classes,
+            self.code_ext,
+            self.special,
+        ) = analysis_jit(source, self.filename)
         # Write exterior code for functions
         for file_name, code in self.code_ext["function"].items():
             path_ext = path_jit / self.module_name.replace(".", os.path.sep)

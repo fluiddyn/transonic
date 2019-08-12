@@ -241,13 +241,11 @@ def analyse_aot(code, pathfile):
 
     for kind, boosted_dict in boosted_dicts.items():
         annotations[kind] = {}
-        for backend, backends in boosted_dict.items():
-            for key, definition in backends.items():
+        for boosted_dict_backend in boosted_dict.values():
+            for key, definition in boosted_dict_backend.items():
                 ann = get_annotations(definition, namespace)
                 if ann != {}:
-                    annotations[kind][key] = get_annotations(
-                        definition, namespace
-                    )
+                    annotations[kind][key] = ann
 
     debug(pformat(annotations))
 
