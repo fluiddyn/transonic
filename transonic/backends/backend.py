@@ -110,8 +110,9 @@ class Backend:
                 code = file.read()
             analyse = analyse_aot(code, path_py)
 
-
-        code_backend, code_ext, lines_pxd = self.make_backend_code(path_py, analyse)
+        code_backend, code_ext, lines_pxd = self.make_backend_code(
+            path_py, analyse
+        )
         if not code_backend:
             return
 
@@ -172,7 +173,11 @@ class Backend:
         )
 
         code = ["\n" + code_dependance + "\n"]
-        lines_pxd = ["import cython"]  # , "import numpy as np", "cimport numpy as np"]
+        lines_pxd = []
+        if self.name == "cython":
+            lines_pxd = [
+                "import cython\n\nimport numpy as np\ncimport numpy as np\n\n"
+            ]
         # Deal with functions
         for func_name, fdef in boosted_dicts["functions"].items():
 

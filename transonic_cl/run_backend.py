@@ -107,7 +107,7 @@ def main():
     if backend == "pythran":
         args.insert(0, "pythran")
     elif backend == "cython":
-        args = ["cythonize", "-i", "-3", name]
+        args = [sys.executable, "-m", "transonic_cl.cythonize", name]
     name_lock.touch()
     try:
         completed_process = subprocess.run(
