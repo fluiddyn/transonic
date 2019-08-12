@@ -110,14 +110,8 @@ class Backend:
                 code = file.read()
             analyse = analyse_aot(code, path_py)
 
-        if self.name == "pythran":
-            code_backend, code_ext = self.make_backend_code(path_py, analyse)
-        elif self.name == "cython":
-            path_backend_pxd = (path_dir / path_py.name).with_suffix(".pxd")
-            code_backend, code_ext, code_signature = self.make_backend_code(
-                path_py, analyse
-            )
 
+        code_backend, code_ext, lines_pxd = self.make_backend_code(path_py, analyse)
         if not code_backend:
             return
 
@@ -147,8 +141,9 @@ class Backend:
         with open(path_backend, "w") as file:
             file.write("".join(code_backend))
         if self.name == "cython":
+            path_backend_pxd = (path_dir / path_py.name).with_suffix(".pxd")
             with open(path_backend_pxd, "w") as file:
-                file.write("".join(code_signature))
+                file.write("".join(lines_pxd))
         logger.info(f"File {path_backend} written")
 
         return path_backend
@@ -177,7 +172,7 @@ class Backend:
         )
 
         code = ["\n" + code_dependance + "\n"]
-        signature_pxd = []
+        lines_pxd = ["import cython"]  # , "import numpy as np", "cimport numpy as np"]
         # Deal with functions
         for func_name, fdef in boosted_dicts["functions"].items():
 
@@ -186,7 +181,7 @@ class Backend:
                 code.append("\n".join(sorted(signatures_func)))
             elif self.name == "cython":
                 if signatures_func:
-                    signature_pxd = signature_pxd + signatures_func
+                    lines_pxd.extend(signatures_func)
 
             code_function = self.get_code_function(fdef)
             code.append(code_function)
@@ -197,14 +192,14 @@ class Backend:
         )
         code = code + code_for_meths
         if signature:
-            signature_pxd += signature
+            lines_pxd += signature
 
         # Deal with blocks
 
         signature, code_blocks = self.get_code_blocks(blocks)
         code += code_blocks
         if signature:
-            signature_pxd += signature
+            lines_pxd += signature
 
         code = "\n".join(code).strip()
 
@@ -217,11 +212,7 @@ class Backend:
             code += "\n".join(lines)
 
         code = format_str(code)
-
-        if self.name == "cython":
-            return code, code_ext, signature_pxd
-
-        return code, code_ext
+        return code, code_ext, lines_pxd
 
     def produce_new_code_method(self, fdef, class_def):
 

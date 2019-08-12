@@ -28,7 +28,7 @@ class CythonBackend(BackendAOT):
             typess = compute_pythran_types_from_valued_types(ann.values())
             index = 0
             name_args = []
-            for arg, value in ann.items():
+            for arg in ann.keys():
                 ctypedef = []
                 name_arg = "__" + func_name + "_" + arg
                 name_args.append(name_arg)
@@ -43,7 +43,7 @@ class CythonBackend(BackendAOT):
                 name.id = name_args[0] + " " + name.id
                 del name_args[0]
         signatures_func.append(
-            "c"
+            "cp"
             + self.get_code_function(fdef2, black=False)[2:].splitlines()[0][:-1]
             + "\n"
         )
@@ -59,7 +59,7 @@ class CythonBackend(BackendAOT):
 
                 for types in typess:
                     signatures_block.add(
-                        f"cdef {block.name}({', '.join(types)})\n"
+                        f"cpdef {block.name}({', '.join(types)})\n"
                     )
 
             signatures.extend(sorted(signatures_block))
@@ -156,11 +156,7 @@ class CythonBackend(BackendAOT):
 
         for types_string_signature in types_string_signatures:
             pythran_signatures.add(
-                "cdef "
-                + name_new_func
-                + "("
-                + ", ".join(types_string_signature)
-                + ")\n"
+                f"cpdef {name_new_func}({', '.join(types_string_signature)})\n"
             )
 
         if jit:

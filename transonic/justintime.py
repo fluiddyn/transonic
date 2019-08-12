@@ -347,7 +347,7 @@ class JIT:
             if backend_default == "pythran":
                 keyword = "export "
             elif backend_default == "cython":
-                keyword = "cdef "
+                keyword = "cpdef "
 
             # Include signature comming from type hints
             signatures = make_signatures_from_typehinted_func(func)
