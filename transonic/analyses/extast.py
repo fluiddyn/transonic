@@ -7,6 +7,7 @@ from io import StringIO
 
 import gast as ast
 import astunparse
+from copy import deepcopy
 
 import beniget
 
@@ -21,6 +22,13 @@ class CommentLine(ast.AST):
         self.s = s
         if lineno is not None:
             self.lineno = lineno
+
+    def __deepcopy__(self, memo):
+        try:
+            lineno = self.lineno
+        except AttributeError:
+            lineno = None
+        return self.__class__(deepcopy(self.s), lineno)
 
 
 class UnparserExtended(astunparse.Unparser):
