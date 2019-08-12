@@ -42,7 +42,7 @@ else:
 from .util import modification_date
 
 from transonic.config import backend_default
-from transonic.transpiler import make_backend_files
+from transonic.backends import make_backend_files
 
 __all__ = [
     "PythranBuildExt",
@@ -52,6 +52,7 @@ __all__ = [
     "init_pythran_extensions",
     "get_logger",
     "ParallelBuildExt",
+    "make_backend_files",
 ]
 
 

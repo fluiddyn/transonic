@@ -19,6 +19,8 @@ from transonic.util import (
     TypeHintRemover,
 )
 
+from .for_classes import produce_code_class
+
 
 class Backend:
     backend_name = "base"
@@ -345,6 +347,9 @@ class Backend:
                 f"arguments_blocks = {str(arguments_blocks)}\n"
             )
         return "", code
+
+    def produce_code_class(self, cls, jit=False):
+        return produce_code_class(cls, jit=jit)
 
 
 class BackendAOT(Backend):

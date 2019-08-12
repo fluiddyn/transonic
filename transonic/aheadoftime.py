@@ -40,7 +40,6 @@ from transonic.config import has_to_replace, backend_default
 from transonic.log import logger
 from transonic import mpi
 from transonic.mpi import Path
-from transonic.transpiler import produce_code_class
 
 from transonic.util import (
     get_module_name,
@@ -540,7 +539,7 @@ def jit_class(cls, jit_methods):
         if mpi.rank == 0:
             python_path = mpi.PathSeq(python_path)
             python_code = mod.codes_dependance_classes[cls_name] + "\n"
-            python_code += produce_code_class(cls, jit=True)
+            python_code += backend.produce_code_class(cls, jit=True)
             write_if_has_to_write(python_path, python_code)
             python_path = mpi.Path(python_path)
         mpi.barrier()

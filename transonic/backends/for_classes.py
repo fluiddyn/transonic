@@ -1,15 +1,7 @@
-"""Make the Pythran files for ahead-of-time compilation
-=======================================================
+"""Make the Pythran files for the classes
+=========================================
 
-User API
---------
-
-.. autofunction:: make_backend_files
-
-Internal API
-------------
-
-.. autofunction:: make_pythran_file
+TODO: This code should be put in the backends...
 
 """
 
@@ -18,28 +10,10 @@ from tokenize import tokenize, untokenize, NAME, OP
 from token import tok_name
 import inspect
 from io import BytesIO
-from unittest.mock import MagicMock as Mock
-from pathlib import Path
-
-from typing import Iterable, Optional
 
 from transonic.annotation import compute_pythran_types_from_valued_types
-from transonic.backends import backends
-from transonic.config import backend_default
 from transonic.log import logger
 from transonic.util import get_source_without_decorator, format_str
-
-
-def make_backend_files(
-    paths: Iterable[Path],
-    force=False,
-    log_level=None,
-    mocked_modules: Optional[Iterable] = None,
-    backend=backend_default,
-):
-    """Create Pythran files from a list of Python files"""
-    backend = backends[backend]
-    backend.make_backend_files(paths, force, log_level, mocked_modules)
 
 
 def produce_code_class(cls, jit=False):
@@ -215,9 +189,3 @@ def produce_code_class_func(cls, func_name, jit=False):
     python_code = format_str(python_code)
 
     return python_code
-
-
-class _MyMock(Mock):
-    @classmethod
-    def __getattr__(cls, name):
-        return Mock()
