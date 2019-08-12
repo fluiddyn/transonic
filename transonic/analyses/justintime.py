@@ -111,7 +111,7 @@ def analysis_jit(code, pathfile):
             codes_dependance_classes,
             pathfile,
             previous_file_name=None,
-            classes="classe",
+            classes="class",
             relative=False,
             jitted_dicts=jitted_dicts,
         )

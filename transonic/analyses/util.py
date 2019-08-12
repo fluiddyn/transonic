@@ -326,7 +326,7 @@ def adapt_code_dependance(func: str, codes_dependance: str, jitted_dicts: dict):
     return extast.unparse(module), jitted_dicts, special, jitted_functions
 
 
-code_ext = {"function": {}, "classe": {}}
+code_ext = {"function": {}, "class": {}}
 
 
 def get_exterior_code(

@@ -291,7 +291,7 @@ def analyse_aot(code, pathfile):
         consider_annotations=False,
         blocks=blocks_for_capturex,
     )
-    code_ext = {"function": {}, "classe": {}}
+    code_ext = {"function": {}, "class": {}}
     code_dependance = capturex.make_code_external()
     # TODO implement class for new backends
     if boosted_dicts["functions"]["pythran"]:
@@ -303,7 +303,7 @@ def analyse_aot(code, pathfile):
     if boosted_dicts["classes"]["pythran"]:
         cls = next(iter(boosted_dicts["classes"]["pythran"]))
         code_dependance, code_ext, _, _ = get_exterior_code(
-            {cls: code_dependance}, pathfile, classes="classe", relative=True
+            {cls: code_dependance}, pathfile, classes="class", relative=True
         )
         code_dependance = code_dependance[cls]
     debug(code_dependance)

@@ -139,7 +139,7 @@ class ModuleJIT:
             write_if_has_to_write(path_ext_file, code, logger.info)
 
         # Write exterior code for classes
-        for file_name, code in self.code_ext["classe"].items():
+        for file_name, code in self.code_ext["class"].items():
             path_ext = (
                 path_jit.parent
                 / "__jit_classes__"
