@@ -2,10 +2,8 @@
 Future
 ------
 
-- Ability to use Cython and Numba (?)
-- Alternative syntax for blocks (`issue #6
-  <https://bitbucket.org/fluiddyn/transonic/issues/6>`_)
-
+See the `ROADMAP.rst file
+<https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
 0.2.4 (2019-06-28)
 ------------------

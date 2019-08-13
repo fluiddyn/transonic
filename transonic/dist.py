@@ -7,7 +7,7 @@ User API
 Provides the classes PythranBuildExt and PythranExtension to be used in the
 setup.py.
 
-.. autofunction:: detect_pythran_extensions
+.. autofunction:: detect_transonic_extensions
 
 """
 

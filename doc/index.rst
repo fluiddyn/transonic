@@ -34,18 +34,18 @@ modules, classes and functions.
 .. autosummary::
    :toctree: generated/
 
-    transonic.analyses
-    transonic.backends
     transonic.aheadoftime
-    transonic.transpiler
+    transonic.analyses
     transonic.annotation
-    transonic.justintime
-    transonic.pythranizer
-    transonic.dist
-    transonic.run
-    transonic.log
-    transonic.util
+    transonic.backends
+    transonic.compiler
     transonic.config
+    transonic.dist
+    transonic.justintime
+    transonic.log
+    transonic.mpi
+    transonic.run
+    transonic.util
 
 More
 ----
@@ -56,6 +56,7 @@ More
    Transonic forge on Bitbucket <https://bitbucket.org/fluiddyn/transonic>
    Transonic in PyPI  <https://pypi.python.org/pypi/transonic/>
    changes
+   roadmap
    authors
    for_dev
 

@@ -36,12 +36,13 @@ speedup)!
 
 .. warning ::
 
-  Transonic is still in a early stage. Remarks and suggestions are very
-  welcome.
+  Transonic is still in a early stage (see our `roadmap
+  <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.). Remarks and
+  suggestions are very welcome.
 
-  In particular, Transonic is now only able to use the Pythran compiler! So you
-  are not going to be able to use for example Numba with this version of
-  Transonic.
+  In particular, Transonic is now only able to use the Pythran and Cython
+  compilers. So you are not going to be able to use Numba with this
+  version of Transonic.
 
   However, Transonic is now really usable, useful and used "in production" in
   `FluidSim <https://bitbucket.org/fluiddyn/fluidsim>`_ and `FluidFFT
@@ -82,8 +83,8 @@ It is based on the following principles:
   code specialized for only one of these tools.
 
 - Let's try to keep the code as it would be written without acceleration. For
-  example, with Transonic, we are able to accelerate (simple) methods of classes
-  even though some accelerators don't support classes.
+  example, with Transonic, we are able to accelerate (simple) methods of
+  classes even though some accelerators don't support classes.
 
 - Let's accelerate/compile only what needs to be accelerated, i.e. only the
   bottlenecks. Python and its interpreters are good for the rest. In most
@@ -102,11 +103,8 @@ It is based on the following principles:
   * JIT is simpler to use (no need for type annotations) and optimizations can
     be more hardware specific.
 
-  Note that with Transonic, AOT compilers can be used as JIT compilers (with a
-  cache mechanism).
-
-  In contrast, some JIT compilers cannot be used as AOT compilers. For these
-  tools, the AOT decorators will be used in a JIT mode.
+  Note that with Transonic, AOT compilers (Pythran and Cython) can be used as
+  JIT compilers (with a cache mechanism).
 
 To summarize, a **strategy to quickly develop a very efficient scientific
 application/library** with Python could be:
@@ -122,13 +120,14 @@ application/library** with Python could be:
 What we have now
 ----------------
 
-We start to have a good API to accelerate Python-Numpy code.
+We start to have a good API to accelerate Python-Numpy code (functions, methods
+and blocks of code).
 
-The only implemented Transonic backend uses Pythran and works well.
+The default Transonic backend uses Pythran and works well. `Here, we explain
+why Pythran is so great for Python users and why Transonic is great for Pythran
+users <https://transonic.readthedocs.io/en/latest/pythran_backend.html>`_
 
-`Here, we explain why Pythran is so great for Python users and why Transonic is
-great for Pythran users
-<https://transonic.readthedocs.io/en/latest/pythran_backend.html>`_
+Another backend using Cython starts to work.
 
 .. note ::
 

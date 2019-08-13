@@ -211,7 +211,6 @@ def analyse_aot(code, pathfile):
     debug("compute the annotations")
 
     from transonic import aheadoftime
-
     aheadoftime.is_transpiling = True
 
     def_nodes = [
@@ -265,7 +264,7 @@ def analyse_aot(code, pathfile):
 
     debug(pformat(blocks))
 
-    debug("compute code dependance")
+    debug("compute code dependance:")
 
     # remove the decorator (boost) to compute the code dependance
     # + do not consider the class annotations
@@ -291,7 +290,7 @@ def analyse_aot(code, pathfile):
     )
     code_ext = {"function": {}, "class": {}}
     code_dependance = capturex.make_code_external()
-    # TODO implement class for new backends
+    # TODO implement class for new backends + debug this code :-)
     if boosted_dicts["functions"]["pythran"]:
         func = next(iter(boosted_dicts["functions"]["pythran"]))
         code_dependance, code_ext, _, _ = get_exterior_code(
@@ -310,13 +309,12 @@ def analyse_aot(code, pathfile):
 
     annotations["comments"] = {}
 
-    for name_backend, backend in boosted_dicts["functions"].items():
-        for name_func, fdef in backend.items():
+    for functions_backend in boosted_dicts["functions"].values():
+        for name_func, fdef in functions_backend.items():
             try:
                 signatures = signatures_p[name_func]
             except KeyError:
                 signatures = tuple()
-            fdef = boosted_dicts["functions"][name_backend][name_func]
             arg_names = [arg.id for arg in fdef.args.args]
             annotations_sign = annotations["comments"][name_func] = []
             for sig in signatures:
