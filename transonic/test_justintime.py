@@ -5,10 +5,22 @@ from shutil import rmtree
 
 import numpy as np
 
-try:
-    import pythran
-except ImportError:
-    pythran = None
+from transonic.config import backend_default
+
+if backend_default == "pythran":
+    try:
+        import pythran
+        compiler_importable = True
+    except ImportError:
+        compiler_importable = False
+elif backend_default == "cython":
+    try:
+        import cython
+        compiler_importable = True
+    except ImportError:
+        compiler_importable = False
+else:
+    raise NotImplementedError
 
 from .util import path_jit_classes
 from .justintime import path_jit, modules
@@ -77,7 +89,7 @@ def test_jit_simple():
 
     func2(1)
 
-    if not pythran:
+    if not compiler_importable:
         return
 
     mod = modules[module_name]
@@ -105,7 +117,7 @@ def test_jit_dict():
     d = dict(a=1, b=2)
     func_dict(d)
 
-    if not pythran:
+    if not compiler_importable:
         return
 
     mod = modules[module_name]
@@ -132,7 +144,7 @@ def test_jit_method():
     obj = MyClass()
     obj.check()
 
-    if not pythran:
+    if not compiler_importable:
         return
 
     obj = MyClass()
@@ -149,7 +161,7 @@ def test_jit_method2():
     obj = MyClass2()
     obj.check()
 
-    if not pythran:
+    if not compiler_importable:
         return
 
     obj = MyClass2()
