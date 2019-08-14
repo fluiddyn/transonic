@@ -1,4 +1,4 @@
-# About Cython with Transonic
+# Cython backend
 
 Cython code is much more complicated than Pythran code... We won't be able to
 support all Cython!

@@ -1,18 +1,21 @@
 
-Cython backend (v0)
--------------------
+Cython backend (alpha version)
+------------------------------
 
 - Analyses: variable type annotations in functions and methods
 - Cython types for arrays (memory views, i.e. as ``np.float64_t[:]``)
 - Cython "locals" types
 - Doc Cython
 
-Cython backend (v1)
--------------------
+Cython backend (beta version)
+-----------------------------
 
-- Less bugs
+Less bugs and more Cython features...
+
+- Fused types rather than more than one signature
 - "exterior" functions + understand the tests
-- Recompile if pxd changed
+- Recompile if pxd changed + signature file for Pythran (``.pythran``) and
+  Cython (``.pxd``)
 
 setup.py & more than one backend at runtime
 -------------------------------------------
@@ -49,3 +52,8 @@ Alternative syntax for blocks
 -----------------------------
 
 See `issue #6 <https://bitbucket.org/fluiddyn/transonic/issues/6>`_
+
+Alternative implementations for specified backends
+--------------------------------------------------
+
+Which API?

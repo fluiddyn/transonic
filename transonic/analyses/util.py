@@ -178,10 +178,11 @@ def gather_rawcode_comments(node, code_module):
 # TODO complete the list
 packages_supported_by_pythran = ["numpy", "math", "functools", "cmath", "scipy"]
 
-# FIXME find path in non local imports
+
 def find_path(node: object, pathfile: str):
     """ Return the path of node (instance of ast.Import or ast.ImportFrom)
     """
+    # FIXME find path in non local imports
     name = str()
     path = str()
 

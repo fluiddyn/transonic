@@ -37,7 +37,7 @@ speedup)!
 .. warning ::
 
   Transonic is still in a early stage (see our `roadmap
-  <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.). Remarks and
+  <https://transonic.readthedocs.io/en/latest/roadmap.html>`_). Remarks and
   suggestions are very welcome.
 
   In particular, Transonic is now only able to use the Pythran and Cython
@@ -127,7 +127,7 @@ The default Transonic backend uses Pythran and works well. `Here, we explain
 why Pythran is so great for Python users and why Transonic is great for Pythran
 users <https://transonic.readthedocs.io/en/latest/pythran_backend.html>`_
 
-Another backend using Cython starts to work.
+There is also an alpha version of the Cython backend.
 
 .. note ::
 
@@ -162,7 +162,7 @@ Transonic is sensible to environment variables:
   compilation of jited functions. This can be useful for unittests.
 
 - :code:`TRANSONIC_BACKEND` to choose between the supported backends, i.e. now
-  only "pythran" and "cython"! The "numba" backend should soon work!
+  only "pythran" and "cython". The Numba backend should soon be available!
 
 
 A short tour of Transonic syntaxes
@@ -194,15 +194,15 @@ Most of this code looks familiar to Pythran users. The differences:
 - :code:`# transonic def` instead of :code:`# pythran export`.
 
 - A tiny bit of Python... The decorator :code:`@boost` replaces the
-  Python function by the pythranized function if Transonic has been used to
-  produced the associated Pythran file.
+  Python function by the compiled function if Transonic has been used to
+  produced the associated Pythran/Cython/Numba file.
 
 
 Pythran using type annotations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The previous example can be rewritten without :code:`# transonic def`. It is
-the recommended syntaxes for ahead-of-time function acceleration:
+the recommended syntaxes for ahead-of-time compilation:
 
 .. code :: python
 
@@ -351,8 +351,8 @@ given `here
 <https://transonic.readthedocs.io/en/latest/examples/methods.html>`__.
 
 
-Make the Pythran files
-----------------------
+Make the Pythran/Cython/Numba files
+-----------------------------------
 
 There is a command-line tool :code:`transonic` which makes the associated
 Pythran files from Python files with annotations and transonic code. By
