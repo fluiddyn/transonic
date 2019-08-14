@@ -211,6 +211,7 @@ def analyse_aot(code, pathfile):
     debug("compute the annotations")
 
     from transonic import aheadoftime
+
     aheadoftime.is_transpiling = True
 
     def_nodes = [

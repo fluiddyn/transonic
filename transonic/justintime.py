@@ -87,6 +87,7 @@ from transonic.util import (
     is_method,
     write_if_has_to_write,
     can_import_accelerator,
+    format_str,
 )
 
 
@@ -136,11 +137,12 @@ class ModuleJIT:
             self.code_ext,
             self.special,
         ) = analysis_jit(source, self.filename)
+        # TODO: check if these files have to be written here...
         # Write exterior code for functions
         for file_name, code in self.code_ext["function"].items():
             path_ext = path_jit / self.module_name.replace(".", os.path.sep)
             path_ext_file = path_ext / (file_name + ".py")
-            write_if_has_to_write(path_ext_file, code, logger.info)
+            write_if_has_to_write(path_ext_file, format_str(code), logger.info)
 
         # Write exterior code for classes
         for file_name, code in self.code_ext["class"].items():
@@ -150,7 +152,7 @@ class ModuleJIT:
                 / self.module_name.replace(".", os.path.sep)
             )
             path_ext_file = path_ext / (file_name + ".py")
-            write_if_has_to_write(path_ext_file, code, logger.info)
+            write_if_has_to_write(path_ext_file, format_str(code), logger.info)
 
     def get_source(self):
         if self.is_dummy_file:

@@ -374,7 +374,7 @@ def get_exterior_code(
             # get the path of the imported module
             file_name, file_path = find_path(node, pathfile)
             # a jitted function or method needs another jitted function
-            if not (file_name and not file_name in treated):
+            if not (file_name and file_name not in treated):
                 continue
             new_file_name = "__ext__" + func + "__" + file_name
             # get the content of the file

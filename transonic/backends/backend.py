@@ -118,13 +118,13 @@ class Backend:
 
         for file_name, code in code_ext["function"].items():
             path_ext_file = path_dir / (file_name + ".py")
-            write_if_has_to_write(path_ext_file, code, logger.info)
+            write_if_has_to_write(path_ext_file, format_str(code), logger.info)
 
         for file_name, code in code_ext["class"].items():
             path_ext_file = (
                 path_dir.parent / f"__{self.name}__" / (file_name + ".py")
             )
-            write_if_has_to_write(path_ext_file, code, logger.info)
+            write_if_has_to_write(path_ext_file, format_str(code), logger.info)
 
         code_pythran_old = ""
         if path_backend.exists() and not force:
