@@ -3,33 +3,17 @@ import unittest
 import os
 import time
 
+from transonic.backends import backends
 from transonic.config import backend_default
+from transonic.util import (
+    has_to_compile_at_import,
+    ext_suffix,
+    name_ext_from_path_backend,
+    can_import_accelerator,
+)
+from transonic.aheadoftime import modules
+from transonic import mpi
 
-
-can_import_accelerator = True
-
-if backend_default == "pythran":
-    try:
-        import pythran
-    except ImportError:
-        can_import_accelerator = False
-
-elif backend_default == "cython":
-    try:
-        import cython
-    except ImportError:
-        can_import_accelerator = False
-
-else:
-    raise NotImplementedError
-
-
-from .backends import backends
-from .util import has_to_compile_at_import, ext_suffix, name_ext_from_path_backend
-from .aheadoftime import modules
-from . import mpi
-
-from transonic.config import backend_default
 
 module_name = "transonic.for_test_init"
 
@@ -111,7 +95,7 @@ class TestsInit(unittest.TestCase):
         for_test_init.check_class()
 
     @unittest.skipIf(
-        not can_import_accelerator,
+        not can_import_accelerator(),
         f"{backend_default} is required for TRANSONIC_COMPILE_AT_IMPORT",
     )
     def test_pythranize(self):

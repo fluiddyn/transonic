@@ -84,9 +84,9 @@ from transonic.util import (
     make_hex,
     has_to_compile_at_import,
     import_from_path,
-    pythran,
     is_method,
     write_if_has_to_write,
+    can_import_accelerator,
 )
 
 
@@ -262,7 +262,7 @@ class JIT:
                 func, self.native, self.xsimd, self.openmp
             )
 
-        if not pythran:
+        if not can_import_accelerator():
             return func
 
         func_name = func.__name__

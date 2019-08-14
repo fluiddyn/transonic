@@ -5,27 +5,10 @@ from shutil import rmtree
 
 import numpy as np
 
-from transonic.config import backend_default
-
-if backend_default == "pythran":
-    try:
-        import pythran
-        compiler_importable = True
-    except ImportError:
-        compiler_importable = False
-elif backend_default == "cython":
-    try:
-        import cython
-        compiler_importable = True
-    except ImportError:
-        compiler_importable = False
-else:
-    raise NotImplementedError
-
-from .util import path_jit_classes
-from .justintime import path_jit, modules
-from .compiler import scheduler, wait_for_all_extensions
-from . import mpi
+from transonic.compiler import scheduler, wait_for_all_extensions
+from transonic.justintime import path_jit, modules
+from transonic import mpi
+from transonic.util import path_jit_classes, can_import_accelerator
 
 scheduler.nb_cpus = 2
 
@@ -89,7 +72,7 @@ def test_jit_simple():
 
     func2(1)
 
-    if not compiler_importable:
+    if not can_import_accelerator():
         return
 
     mod = modules[module_name]
@@ -117,7 +100,7 @@ def test_jit_dict():
     d = dict(a=1, b=2)
     func_dict(d)
 
-    if not compiler_importable:
+    if not can_import_accelerator():
         return
 
     mod = modules[module_name]
@@ -144,7 +127,7 @@ def test_jit_method():
     obj = MyClass()
     obj.check()
 
-    if not compiler_importable:
+    if not can_import_accelerator():
         return
 
     obj = MyClass()
@@ -161,7 +144,7 @@ def test_jit_method2():
     obj = MyClass2()
     obj.check()
 
-    if not compiler_importable:
+    if not can_import_accelerator():
         return
 
     obj = MyClass2()

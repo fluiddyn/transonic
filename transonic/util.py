@@ -86,11 +86,6 @@ else:
 
 
 try:
-    import pythran
-except ImportError:
-    pythran = False
-
-try:
     from IPython.core.getipython import get_ipython
 except ImportError:
     pass
@@ -106,6 +101,22 @@ from transonic.compiler import (
 from .config import path_root
 
 __all__ = ["modification_date", "has_to_build"]
+
+
+def can_import_accelerator(backend=backend_default):
+    if backend == "pythran":
+        try:
+            import pythran
+        except ImportError:
+            return False
+    elif backend == "cython":
+        try:
+            import cython
+        except ImportError:
+            return False
+    else:
+        raise NotImplementedError
+    return True
 
 
 path_jit_classes = path_root / backend_default / "__jit_classes__"

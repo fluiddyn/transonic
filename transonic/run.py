@@ -17,8 +17,8 @@ import sys
 from typing import Iterable, Optional
 from warnings import warn
 
-from . import __version__
-from .log import logger
+from transonic import __version__
+from transonic.analyses import analyse_aot
 
 from transonic.compiler import (
     compile_extensions,
@@ -26,16 +26,13 @@ from transonic.compiler import (
     wait_for_all_extensions,
 )
 
-from .util import has_to_build, clear_cached_extensions
-
-from transonic.analyses import analyse_aot
 from transonic.config import backend_default
-
-try:
-    import pythran
-except ImportError:
-    pythran = False
-
+from transonic.log import logger
+from transonic.util import (
+    has_to_build,
+    clear_cached_extensions,
+    can_import_accelerator,
+)
 
 doc = """
 transonic: easily speedup your Python code with Pythran
@@ -95,7 +92,7 @@ def run():
 
     make_backends_files(paths, backends[backend_default])
 
-    if not pythran or args.no_pythran:
+    if not can_import_accelerator() or args.no_pythran:
         return
 
     # find pythran files not already compiled
