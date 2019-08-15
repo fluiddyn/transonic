@@ -482,9 +482,7 @@ def compute_pythran_types_from_valued_types(types):
     pythran_types = []
     names = values_template_parameters.keys()
     for set_types in itertools.product(*values_template_parameters.values()):
-        template_variables = {
-            name: value for name, value in zip(names, set_types)
-        }
+        template_variables = dict(zip(names, set_types))
 
         pythran_types.append(
             compute_pythran_types_from_types(types, **template_variables)
@@ -563,9 +561,7 @@ def make_signatures_from_typehinted_func(func):
     names = values_template_parameters.keys()
     signatures = []
     for set_types in itertools.product(*values_template_parameters.values()):
-        template_variables = {
-            name: value for name, value in zip(names, set_types)
-        }
+        template_variables = dict(zip(names, set_types))
         signatures.extend(
             make_signature_from_template_variables(
                 func, _signature=_signature, **template_variables

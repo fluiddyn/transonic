@@ -412,3 +412,16 @@ def get_exterior_code(
                         relative,
                     )
     return codes_dependance, code_ext, jitted_dicts, special
+
+
+def extract_variable_annotations(fdef, namespace):
+    variable_types = {}
+
+    for node in fdef.body:
+        if isinstance(node, ast.AnnAssign):
+            name = node.target.id
+            source = extast.unparse(node.annotation)
+            result = eval(source, namespace)
+            variable_types[name] = result
+
+    return variable_types

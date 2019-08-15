@@ -33,7 +33,7 @@ class PythranBackend(BackendAOT):
                     f"# pythran export {func_name}({', '.join(types)})"
                 )
 
-        anns = annotations["comments"][func_name]
+        anns = annotations["__in_comments__"][func_name]
         if not fdef.args.args:
             signatures_func.add(f"# pythran export {func_name}()")
         for ann in anns:

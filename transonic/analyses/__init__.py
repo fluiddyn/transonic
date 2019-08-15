@@ -28,13 +28,12 @@ from .util import (
     print_dumped,
     print_unparsed,
     find_path,
-    change_import_name,
-    filter_external_code,
     get_exterior_code,
+    extract_variable_annotations,
 )
 from .capturex import CaptureX
 from .blocks_if import get_block_definitions
-from .parser import parse_code
+from .parser import parse_transonic_def_commands
 from . import extast
 
 
@@ -218,8 +217,8 @@ def analyse_aot(code, pathfile):
     def_nodes = [
         def_node
         for boosted_dict in boosted_dicts.values()
-        for backend in boosted_dict.values()
-        for def_node in backend.values()
+        for boosted_dict_backend in boosted_dict.values()
+        for def_node in boosted_dict_backend.values()
     ]
 
     capturex = CaptureX(
@@ -306,10 +305,12 @@ def analyse_aot(code, pathfile):
         )
         code_dependance = code_dependance[cls]
     debug(code_dependance)
-    debug("parse_code")
-    signatures_p = parse_code(code)
 
-    annotations["comments"] = {}
+    debug("parse_transonic_def_commands")
+    signatures_p = parse_transonic_def_commands(code)
+
+    annotations["__in_comments__"] = {}
+    annotations["__locals__"] = {}
 
     for functions_backend in boosted_dicts["functions"].values():
         for name_func, fdef in functions_backend.items():
@@ -318,13 +319,19 @@ def analyse_aot(code, pathfile):
             except KeyError:
                 signatures = tuple()
             arg_names = [arg.id for arg in fdef.args.args]
-            annotations_sign = annotations["comments"][name_func] = []
+            annotations_sign = annotations["__in_comments__"][name_func] = []
             for sig in signatures:
                 types = [
                     type_.strip()
                     for type_ in sig[len(fdef.name) + 1 : -1].split(",")
                 ]
-                annotations_sign.append(
-                    {arg_name: type_ for arg_name, type_ in zip(arg_names, types)}
-                )
+                annotations_sign.append(dict(zip(arg_names, types)))
+
+            # locals: variable annotations
+            annotations_locals = extract_variable_annotations(fdef, namespace)
+            if annotations_locals:
+                annotations["__locals__"][name_func] = annotations_locals
+
+    debug("annotations:\n" + pformat(annotations))
+
     return boosted_dicts, code_dependance, annotations, blocks, code_ext

@@ -7,7 +7,7 @@ from tokenize import tokenize, COMMENT
 from io import BytesIO
 
 
-def parse_code(code: str):
+def parse_transonic_def_commands(code: str):
     """Parse the code of a .py file and return data"""
 
     functions = set()
