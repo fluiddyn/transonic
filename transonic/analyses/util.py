@@ -11,7 +11,6 @@ import gast as ast
 import astunparse
 
 from transonic.analyses import extast
-from transonic.analyses.capturex import CaptureX
 
 
 def print_dumped(source):
@@ -30,6 +29,9 @@ def print_dumped(source):
 def print_unparsed(node):
     """Print the code corresponding to a tree or a node"""
     print(extast.unparse(node))
+
+
+from transonic.analyses.capturex import CaptureX
 
 
 def _fill_ast_annotations_function(function_def, ast_annotations):

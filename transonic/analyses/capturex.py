@@ -98,6 +98,15 @@ class CaptureX(ast.NodeVisitor):
                 self.visit(node)
                 self._annot = None
 
+    def visit_AnnAssign(self, node):
+        if self.consider_annotations:
+            self._annot = node.annotation
+            self.visit(node.annotation)
+            self._annot = None
+
+        if node.value is not None and self.consider_annotations != "only":
+            self.visit(node.value)
+
     def rec(self, node):
         "walk definitions to find their operands's def"
         if node is self.func:
