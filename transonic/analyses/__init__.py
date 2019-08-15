@@ -18,7 +18,9 @@ import copy
 
 import gast as ast
 import beniget
+
 from transonic.log import logger
+from transonic.config import backend_default
 
 from .util import (
     filter_code_typevars,
@@ -35,7 +37,6 @@ from .blocks_if import get_block_definitions
 from .parser import parse_code
 from . import extast
 
-from transonic.config import backend_default
 
 __all__ = ["print_dumped", "print_unparsed"]
 

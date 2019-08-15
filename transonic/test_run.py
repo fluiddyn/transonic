@@ -5,12 +5,12 @@ from shutil import rmtree
 
 import pytest
 
-from .path_data_tests import path_data_tests
-from .run import run
-from . import util
-from .mpi import nb_proc
-
+from transonic import util
 from transonic.config import backend_default
+from transonic.mpi import nb_proc
+from transonic.path_data_tests import path_data_tests
+from transonic.run import run
+
 
 path_dir_out = path_data_tests / f"__{backend_default}__"
 

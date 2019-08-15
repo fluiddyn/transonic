@@ -1,6 +1,5 @@
 from transonic.analyses.extast import parse
-
-from .util import print_dumped, print_unparsed
+from transonic.analyses.util import print_dumped, print_unparsed
 
 source = "def func(): return True"
 

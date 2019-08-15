@@ -1,11 +1,10 @@
 import importlib
 from shutil import rmtree
 
-from . import Transonic, mpi
-from .mpi import Path
-from .compiler import wait_for_all_extensions
-
+from transonic import Transonic, mpi
+from transonic.compiler import wait_for_all_extensions
 from transonic.config import backend_default
+from transonic.mpi import Path
 
 
 def test_not_transonified():

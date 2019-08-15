@@ -3,19 +3,19 @@ from distutils.core import Distribution
 from copy import copy
 import pytest
 
-from . import dist
-from .mpi import nb_proc
+from transonic import dist
+from transonic.config import backend_default
 
-from .dist import (
+from transonic.dist import (
     detect_transonic_extensions,
     modification_date,
     make_backend_files,
     ParallelBuildExt,
     get_logger,
 )
-from .path_data_tests import path_data_tests
 
-from transonic.config import backend_default
+from transonic.mpi import nb_proc
+from transonic.path_data_tests import path_data_tests
 
 
 can_actually_import_pythran = copy(dist.can_import_pythran)

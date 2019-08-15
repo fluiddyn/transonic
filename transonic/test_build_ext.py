@@ -5,10 +5,10 @@ import shutil
 from contextlib import suppress
 
 import pytest
-from .path_data_tests import path_data_tests
-from .mpi import nb_proc
 
 from transonic.dist import make_backend_files
+from transonic.mpi import nb_proc
+from transonic.path_data_tests import path_data_tests
 
 cwd = Path.cwd().absolute()
 setup_dir = path_data_tests / "test_packaging"

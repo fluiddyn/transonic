@@ -1,5 +1,5 @@
-from . import util
-from .util import query_yes_no
+from transonic import util
+from transonic.util import query_yes_no
 
 
 def test_query_yes_no():

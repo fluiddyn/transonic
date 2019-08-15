@@ -2,23 +2,14 @@
 ========================
 
 """
-import gast as ast
-
-from transonic.log import logger
 
 from transonic.analyses import extast
 from transonic.analyses import compute_ancestors_chains, get_decorated_dicts
 from transonic.analyses.capturex import CaptureX
 
-from transonic.analyses.util import print_dumped
-from .util import (
-    find_path,
-    change_import_name,
-    filter_external_code,
-    get_exterior_code,
-)
-
+from transonic.log import logger
 from transonic.config import backend_default
+from transonic.analyses.util import get_exterior_code
 
 
 def analysis_jit(code, pathfile):

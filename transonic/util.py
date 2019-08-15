@@ -98,7 +98,7 @@ from transonic.compiler import (
     has_to_build,
 )
 
-from .config import path_root
+from transonic.config import path_root
 
 __all__ = ["modification_date", "has_to_build"]
 

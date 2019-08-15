@@ -5,6 +5,7 @@
 
 import gast as ast
 import beniget
+
 from transonic.analyses import extast
 from transonic.analyses.util import gather_rawcode_comments
 from transonic.analyses.capturex import CaptureX

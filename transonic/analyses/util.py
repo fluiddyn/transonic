@@ -3,13 +3,15 @@
 
 """
 import re
-import beniget
 from pathlib import Path
 from textwrap import dedent
+
+import beniget
 import gast as ast
+import astunparse
+
 from transonic.analyses import extast
 from transonic.analyses.capturex import CaptureX
-import astunparse
 
 
 def print_dumped(source):

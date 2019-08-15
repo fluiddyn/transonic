@@ -1,12 +1,10 @@
-from ._version import __version__
-from .justintime import jit, set_compile_jit
+from transonic._version import __version__
 
-from .annotation import Array, NDim, Type, Shape, Union
-
-from .aheadoftime import Transonic, boost
-
-from .util import set_compile_at_import
+from transonic.aheadoftime import Transonic, boost
+from transonic.annotation import Array, NDim, Type, Shape, Union
 from transonic.compiler import wait_for_all_extensions
+from transonic.justintime import jit, set_compile_jit
+from transonic.util import set_compile_at_import
 
 __all__ = [
     "__version__",
