@@ -1,9 +1,16 @@
-
 Future
 ------
 
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
+
+0.3.0 (2019-08-17)
+------------------
+
+(Pierre Blanc-fatin intership)
+
+- Refactoring with backend classes
+- Cython backend (alpha version)
 
 0.2.4 (2019-06-28)
 ------------------

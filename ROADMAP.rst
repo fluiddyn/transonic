@@ -1,5 +1,3 @@
-
-
 Cython backend (beta version)
 -----------------------------
 
