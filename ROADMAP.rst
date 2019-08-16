@@ -1,13 +1,4 @@
 
-Cython backend (alpha version)
-------------------------------
-
-Mainly only for functions (no block and method)...
-
-- [done] Analyses: variable type annotations in functions and methods
-- [done] Cython types for arrays (memory views, i.e. as ``np.float64_t[:]``)
-- [done] Cython "locals" types
-- Doc Cython
 
 Cython backend (beta version)
 -----------------------------

@@ -226,6 +226,27 @@ signatures using in Transonic type variables and/or Pythran types in strings
 Moreover, it is possible to mix type hints and :code:`# transonic def`
 commands.
 
+
+More information when targetting Cython
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Cython needs to know the types of local variables to really speedup the
+computations.  Transonic is able to write fast Cython from such code:
+
+.. code :: python
+
+    from transonic import boost
+
+    @boost
+    def mysum(arr: "float[:]"):
+        i: int
+        n: int = arr.shape[0]
+        result: float = 0.0
+        for i in range(n):
+            result += arr[i]
+        return result
+
+
 Just-In-Time compilation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
