@@ -110,7 +110,7 @@ class Backend:
                 code = file.read()
             analyse = analyse_aot(code, path_py)
 
-        code_backend, code_ext, lines_pxd = self.make_backend_code(
+        code_backend, code_ext, lines_pxd = self._make_backend_code(
             path_py, analyse
         )
         if not code_backend:
@@ -149,7 +149,7 @@ class Backend:
 
         return path_backend
 
-    def get_code_function(self, fdef, black=True):
+    def _make_code_function(self, fdef, black=True):
 
         transformed = TypeHintRemover().visit(fdef)
         # convert the AST back to source code
@@ -160,7 +160,7 @@ class Backend:
 
         return code
 
-    def make_backend_code(self, path_py, analyse):
+    def _make_backend_code(self, path_py, analyse):
         """Create a backend code from a Python file"""
 
         boosted_dicts, code_dependance, annotations, blocks, code_ext = analyse
@@ -181,18 +181,18 @@ class Backend:
         # Deal with functions
         for func_name, fdef in boosted_dicts["functions"].items():
 
-            signatures_func = self.get_signatures(func_name, fdef, annotations)
+            signatures_func = self._make_signatures_1_function(func_name, fdef, annotations)
             if self.name == "pythran":
                 code.append("\n".join(sorted(signatures_func)))
             elif self.name == "cython":
                 if signatures_func:
                     lines_pxd.extend(signatures_func)
 
-            code_function = self.get_code_function(fdef)
+            code_function = self._make_code_function(fdef)
             code.append(code_function)
 
         # Deal with methods
-        signature, code_for_meths = self.get_code_meths(
+        signature, code_for_meths = self._make_code_methods(
             boosted_dicts, annotations, path_py
         )
         code = code + code_for_meths
@@ -201,7 +201,7 @@ class Backend:
 
         # Deal with blocks
 
-        signature, code_blocks = self.get_code_blocks(blocks)
+        signature, code_blocks = self._make_code_blocks(blocks)
         code += code_blocks
         if signature:
             lines_pxd += signature
@@ -219,9 +219,9 @@ class Backend:
         code = format_str(code)
         return code, code_ext, lines_pxd
 
-    def produce_new_code_method(self, fdef, class_def):
+    def _make_new_code_method(self, fdef, class_def):
 
-        src = self.get_code_function(fdef)
+        src = self._make_code_function(fdef)
 
         tokens = []
         attributes = set()
@@ -308,7 +308,7 @@ class Backend:
 
         return new_code, attributes, name_new_func
 
-    def get_code_blocks(self, blocks):
+    def _make_code_blocks(self, blocks):
         code = []
         for block in blocks:
             signatures_block = set()

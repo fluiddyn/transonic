@@ -37,7 +37,7 @@ def compute_cython_type_from_pythran_type(type_):
 class CythonBackend(BackendAOT):
     backend_name = "cython"
 
-    def get_signatures(self, func_name, fdef, annotations):
+    def _make_signatures_1_function(self, func_name, fdef, annotations):
         fdef = copy.deepcopy(fdef)
         signatures_func = []
         try:
@@ -83,7 +83,7 @@ class CythonBackend(BackendAOT):
         signatures_func.append("cp" + extast.unparse(fdef).strip()[:-1] + "\n")
         return signatures_func
 
-    def get_code_blocks(self, blocks):
+    def _make_code_blocks(self, blocks):
         code = []
         signatures = []
         for block in blocks:
@@ -119,19 +119,19 @@ class CythonBackend(BackendAOT):
 
         return signatures, code
 
-    def get_code_meths(self, boosted_dicts, annotations, path_py):
+    def _make_code_methods(self, boosted_dicts, annotations, path_py):
         meths_code = []
         signatures = []
         for (class_name, meth_name), fdef in boosted_dicts["methods"].items():
 
-            signature, code_for_meth = self.get_code_meth(
+            signature, code_for_meth = self._make_code_method(
                 class_name, fdef, meth_name, annotations, boosted_dicts
             )
             meths_code.append(code_for_meth)
             signatures += signature
         return signatures, meths_code
 
-    def get_code_meth(
+    def _make_code_method(
         self, class_name, fdef, meth_name, annotations, boosted_dicts
     ):
         class_def = boosted_dicts["classes"][class_name]
@@ -146,12 +146,12 @@ class CythonBackend(BackendAOT):
         else:
             annotations_meth = {}
 
-        signature, code_for_meth = self.produce_code_for_method(
+        signature, code_for_meth = self._make_code_for_method(
             fdef, class_def, annotations_meth, annotations_class
         )
         return signature, code_for_meth
 
-    def produce_code_for_method(
+    def _make_code_for_method(
         self, fdef, class_def, annotations_meth, annotations_class, jit=False
     ):
 
@@ -159,7 +159,7 @@ class CythonBackend(BackendAOT):
         class_name = class_def.name
         meth_name = fdef.name
 
-        new_code, attributes, name_new_func = self.produce_new_code_method(
+        new_code, attributes, name_new_func = self._make_new_code_method(
             fdef, class_def
         )
 

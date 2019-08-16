@@ -167,7 +167,7 @@ Transonic is sensible to environment variables:
 
 
 A short tour of Transonic syntaxes
--------------------------------------
+----------------------------------
 
 Decorator :code:`boost` and command :code:`# transonic def`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

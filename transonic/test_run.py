@@ -56,10 +56,10 @@ def test_create_pythran_files():
         with open(saved_path) as file:
             saved_code = file.read()
 
-        code = code.split("# pythran export __transonic__", 1)[0]
-        saved_code = saved_code.split("# pythran export __transonic__", 1)[0]
+        code = code.split("__transonic__ = ", 1)[0]
+        saved_code = saved_code.split("__transonic__ = ", 1)[0]
         # warning: it is a strong requirement!
-        assert code == saved_code
+        assert code == saved_code, path
 
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
