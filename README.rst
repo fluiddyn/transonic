@@ -162,7 +162,8 @@ Transonic is sensible to environment variables:
   compilation of jited functions. This can be useful for unittests.
 
 - :code:`TRANSONIC_BACKEND` to choose between the supported backends, i.e. now
-  only "pythran" and "cython". The Numba backend should soon be available!
+  only "pythran" (quite robust) and "cython" (prototype). The Numba backend
+  should soon be available.
 
 
 A short tour of Transonic syntaxes
@@ -198,8 +199,8 @@ Most of this code looks familiar to Pythran users. The differences:
   produced the associated Pythran/Cython/Numba file.
 
 
-Pythran using type annotations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+With type annotations
+~~~~~~~~~~~~~~~~~~~~~
 
 The previous example can be rewritten without :code:`# transonic def`. It is
 the recommended syntaxes for ahead-of-time compilation:
@@ -217,16 +218,18 @@ the recommended syntaxes for ahead-of-time compilation:
 
     ...
 
-Nice (shorter and clearer than with the Pythran command) but very limited... So
-one can also elegantly define many Pythran signatures using in the annotations
-type variables and Pythran types in strings (see `these examples
+Nice (shorter and clearer than with the Pythran command) but very limited (only
+simple types and only one signature)... So one can also elegantly define many
+signatures using in Transonic type variables and/or Pythran types in strings
+(see `these examples
 <https://transonic.readthedocs.io/en/latest/examples/type_hints.html>`_).
-Moreover, it is possible to mix type hints and :code:`# transonic def` commands.
+Moreover, it is possible to mix type hints and :code:`# transonic def`
+commands.
 
 Just-In-Time compilation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-With Transonic, one can use the Ahead-Of-Time compiler Pythran in a
+With Transonic, one can use the Ahead-Of-Time compilers Pythran and Cython in a
 Just-In-Time mode. It is really the **easiest way to speedup a function with
 Pythran**, just by adding a decorator! And it also works `in notebooks
 <https://transonic.readthedocs.io/en/latest/ipynb/executed/demo_jit.html>`_!
@@ -302,21 +305,21 @@ For blocks, we need a little bit more of Python.
   (i) at run time to choose between the two branches (:code:`is_transpiled` or
   not) and (ii) at compile time to detect the blocks.
 
-Note that the annotations in the command :code:`# transonic block` are different
-(and somehow easier to write) than in the standard command :code:`# pythran
-export`.
+Note that the annotations in the command :code:`# transonic block` are
+different (and somehow easier to write) than in the standard command :code:`#
+pythran export`.
 
-`Blocks can now also be defined with type hints!
+`Blocks can also be defined with type hints!
 <https://transonic.readthedocs.io/en/latest/examples/blocks.html>`_
 
 .. warning ::
 
-   I'm not satisfied by the syntax for Pythran blocks so I (PA) proposed an
+   I'm not satisfied by the syntax for blocks so I (PA) proposed an
    alternative syntax in `issue #29
    <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_.
 
 Python classes: :code:`@boost` and :code:`@jit` for methods
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For simple methods **only using attributes**, we can write:
 
@@ -344,7 +347,7 @@ For simple methods **only using attributes**, we can write:
 
 .. warning ::
 
-   Calling another method in a Pythranized method is not yet supported!
+   Calling another method in a boosted method is not yet supported!
 
 More examples of how to use Transonic for Object Oriented Programing are
 given `here
@@ -355,8 +358,9 @@ Make the Pythran/Cython/Numba files
 -----------------------------------
 
 There is a command-line tool :code:`transonic` which makes the associated
-Pythran files from Python files with annotations and transonic code. By
-default and if Pythran is available, the Pythran files are compiled.
+Pythran/Cython/Numba files from Python files with annotations and transonic
+code. By default and if the Python compiler is available, the files are
+compiled.
 
 There is also a function :code:`make_backend_files` that can be used in a
 setup.py like this:

@@ -16,7 +16,7 @@ Transonic has to do different things for different accelerators:
 
 .. code ::
 
-  .py -(transonify)-> .pyc -(cythonize)-> .so
+  .py -(transonify)-> (.py + .pxd) -(cythonize)-> .so
 
 - For Numba and Cupy:
 
@@ -26,9 +26,6 @@ Transonic has to do different things for different accelerators:
 
 For all backends, there is a "transonify" step, but the produced Python code is
 different and should be saved in different files.
-
-For Cython, the backend file is not a Python file and therefore cannot be
-imported.
 
 For Numba, it can be efficient to have more loops than with pure-Numpy and
 Pythran. So if Numba is not installed the Numba backend should use the original

@@ -3,26 +3,40 @@ import gast as ast
 
 from transonic.analyses.capturex import CaptureX
 from transonic.analyses import extast
-from transonic.analyses.util import print_dumped, print_unparsed, extract_variable_annotations
+from transonic.analyses import analyse_aot
+from transonic.analyses.util import print_dumped, print_unparsed
 
-with open("simple.py") as file:
+from transonic.backends import backends
+
+backend = backends["cython"]
+
+path_file = "simple.py"
+
+with open(path_file) as file:
     code = file.read()
 
+boosted_dicts, code_dependance, annotations, blocks, code_ext = analyse_aot(code, path_file)
 
 module = extast.parse(code)
-
-# print_dumped(module)
 
 for node in module.body:
     if isinstance(node, ast.FunctionDef):
         fdef = node
         break
 
-capturex = CaptureX([fdef], module, consider_annotations="only")
+# annotations_locals = annotations["__locals__"]
 
-code_dependance_annotations = capturex.make_code_external()
+# annot = annotations["functions"][fdef.name]
 
-namespace = {}
-exec(code_dependance_annotations, namespace)
+# fdef.body = []
+# fdef.decorator_list = []
 
-print(extract_variable_annotations(fdef, namespace))
+# print_unparsed(fdef)
+
+print("\n".join(backend.get_signatures(fdef.name, fdef, annotations)))
+
+# print_dumped("""
+# @cython.locals(result=np.float64_t, i=cython.int)
+# def mysum(arr_input):
+#     pass
+# """)

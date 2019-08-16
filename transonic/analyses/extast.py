@@ -44,6 +44,12 @@ class UnparserExtended(astunparse.Unparser):
         if self.with_comments:
             self.write(f"\n{'    '* self._indent}{node.s}")
 
+    def _Name(self, t):
+        self.write(t.id)
+        if t.annotation is not None:
+            self.write(": ")
+            self.dispatch(t.annotation)
+
 
 def parse(code, *args, **kwargs):
     """Parse a code and produce the extended AST"""

@@ -1,17 +1,16 @@
-from transonic import boost
+import numpy as np
 
-tmp = float
+from transonic import Type, NDim, Array, boost
 
-T = tmp
-T1 = int
-T2 = float
+T = Type(np.float64, np.complex128)
+N = NDim(1)
+A = Array[T, N]
 
-const = 1
-const_ann = 1
 
 @boost
-def func(a: T2):
-    i: T
-    i = const
-    ii: T1 = const_ann
-    return i * ii * a
+def func(a: A):
+    i: int
+    n: int = a.shape[0]
+
+    for i in range(n):
+        a[i] = a[i] + 1.

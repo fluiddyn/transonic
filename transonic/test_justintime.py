@@ -18,25 +18,13 @@ str_relative_path = module_name.replace(".", os.path.sep)
 
 path_jit = mpi.PathSeq(path_jit)
 
-path_pythran_dir = path_jit / str_relative_path
+path_jit_dir = path_jit / str_relative_path
 path_classes_dir = path_jit_classes / str_relative_path
 path_classes_dir1 = path_jit / path_jit_classes.name / str_relative_path
 
-
-def delete_pythran_files(func_name):
-    for path_pythran_file in path_pythran_dir.glob(func_name + "*"):
-        if path_pythran_file.exists():
-            path_pythran_file.unlink()
-
-
 if mpi.rank == 0:
-    delete_pythran_files("func1")
-    delete_pythran_files("func2")
-    delete_pythran_files("func_dict")
-    delete_pythran_files("fib")
-    delete_pythran_files("use_fib")
-    delete_pythran_files("func0")
-
+    if path_jit.exists():
+        rmtree(path_jit_dir, ignore_errors=True)
     if path_classes_dir.exists():
         rmtree(path_classes_dir)
     if path_classes_dir1.exists():
@@ -158,11 +146,11 @@ def test_jit_method2():
 def test_func0():
     from .for_test_justintime import func0, func0_jitted
 
-    func02 = func0(2)
-    result = func0_jitted(2)
+    func02 = func0(2.1)
+    result = func0_jitted(2.1)
     wait_for_all_extensions()
-    assert func02 == func0(2)
-    assert result == func0(2)
+    assert func02 == func0(2.1)
+    assert result == func0(2.1)
 
 
 # jitted function that uses a local function, a jitted local function

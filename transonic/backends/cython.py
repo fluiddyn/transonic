@@ -7,46 +7,80 @@ import copy
 from textwrap import indent
 
 from transonic.analyses import extast
-from transonic.annotation import compute_pythran_types_from_valued_types
+from transonic.annotation import (
+    compute_pythran_types_from_valued_types,
+    compute_pythran_type_from_type,
+)
 from transonic.util import format_str
 
 from .backend import BackendAOT
+
+
+def compute_cython_type_from_pythran_type(type_):
+
+    if isinstance(type_, type):
+        type_ = compute_pythran_type_from_type(type_)
+
+    if type_.endswith("]"):
+        start, end = type_.split("[")
+        if not start.startswith("np."):
+            start = "np." + start
+        return start + "_t[" + end
+
+    if any(type_.endswith(str(number)) for number in (32, 64, 128)):
+        return "np." + type_
+
+    return "cython." + type_
+
 
 
 class CythonBackend(BackendAOT):
     backend_name = "cython"
 
     def get_signatures(self, func_name, fdef, annotations):
-        fdef2 = copy.deepcopy(fdef)
+        fdef = copy.deepcopy(fdef)
         signatures_func = []
         try:
-            ann = annotations["functions"][func_name]
+            annot = annotations["functions"][func_name]
         except KeyError:
             pass
         else:
             # produce ctypedef
-            typess = compute_pythran_types_from_valued_types(ann.values())
+            typess = compute_pythran_types_from_valued_types(annot.values())
             index = 0
-            name_args = []
-            for arg in ann.keys():
+            name_type_args = []
+            for arg in annot.keys():
                 ctypedef = []
-                name_arg = "__" + func_name + "_" + arg
-                name_args.append(name_arg)
-                ctypedef.append(f"ctypedef fused {name_arg}:\n")
+                name_type_arg = "__" + func_name + "_" + arg
+                name_type_args.append(name_type_arg)
+                ctypedef.append(f"ctypedef fused {name_type_arg}:\n")
                 possible_types = [x[index] for x in typess]
                 for possible_type in list(set(possible_types)):
-                    ctypedef.append(f"   {possible_type}\n")
+                    ctypedef.append(
+                        f"   {compute_cython_type_from_pythran_type(possible_type)}\n"
+                    )
                 index += 1
                 signatures_func.append("".join(ctypedef))
             # change function parameters
-            for name in fdef2.args.args:
-                name.id = name_args[0] + " " + name.id
-                del name_args[0]
-        signatures_func.append(
-            "cp"
-            + self.get_code_function(fdef2, black=False)[2:].splitlines()[0][:-1]
-            + "\n"
-        )
+            for name in fdef.args.args:
+                name.annotation = None
+                name.id = name_type_args[0] + " " + name.id
+                del name_type_args[0]
+
+        fdef.body = []
+        fdef.decorator_list = []
+        try:
+            locals_types = annotations["__locals__"][func_name]
+        except KeyError:
+            pass
+        else:
+            locals_types = ", ".join(
+                f"{k}={compute_cython_type_from_pythran_type(v)}"
+                for k, v in locals_types.items()
+            )
+            signatures_func.append(f"@cython.locals({locals_types})\n")
+
+        signatures_func.append("cp" + extast.unparse(fdef).strip()[:-1] + "\n")
         return signatures_func
 
     def get_code_blocks(self, blocks):

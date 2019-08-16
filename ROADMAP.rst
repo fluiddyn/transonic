@@ -2,9 +2,11 @@
 Cython backend (alpha version)
 ------------------------------
 
-- Analyses: variable type annotations in functions and methods
-- Cython types for arrays (memory views, i.e. as ``np.float64_t[:]``)
-- Cython "locals" types
+Mainly only for functions (no block and method)...
+
+- [done] Analyses: variable type annotations in functions and methods
+- [done] Cython types for arrays (memory views, i.e. as ``np.float64_t[:]``)
+- [done] Cython "locals" types
 - Doc Cython
 
 Cython backend (beta version)
@@ -14,8 +16,7 @@ Less bugs and more Cython features...
 
 - Fused types rather than more than one signature
 - "exterior" functions + understand the tests
-- Recompile if pxd changed + signature file for Pythran (``.pythran``) and
-  Cython (``.pxd``)
+- Recompile if pxd changed + "signature file" also for Pythran (``.pythran``)
 
 setup.py & more than one backend at runtime
 -------------------------------------------
