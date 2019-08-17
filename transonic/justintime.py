@@ -130,6 +130,7 @@ class ModuleJIT:
         self.jit_functions = {}
 
         source = self.get_source()
+        # TODO: don't put these objects in self
         (
             self.jitted_dicts,
             self.codes_dependance,
@@ -303,6 +304,7 @@ class JIT:
         src = None
 
         if has_to_write:
+            # TODO: source generation for jit in backends
             src = mod.codes_dependance[func_name]
             if func_name in mod.special:
                 if func_name in mod.jitted_dicts["functions"]:
@@ -356,6 +358,7 @@ class JIT:
                 keyword = "cpdef "
 
             # Include signature comming from type hints
+            # TODO: this function should go into the backends
             signatures = make_signatures_from_typehinted_func(func)
             exports = set(keyword + signature for signature in signatures)
 
@@ -369,40 +372,10 @@ class JIT:
             if not exports:
                 return
 
-            try:
-                path_backend_header_exists = path_backend_header.exists()
-            except TimeoutError:
-                raise RuntimeError(
-                    f"A MPI communication in Transonic failed when compiling "
-                    f"function {func}. This usually arises when a jitted "
-                    "function has to be compiled in MPI and is only called "
-                    f"by one process (rank={mpi.rank})."
-                )
-
-            if path_backend_header_exists:
-                # get the old signature(s)
-
-                exports_old = None
-                if mpi.rank == 0:
-                    with open(path_backend_header) as file:
-                        exports_old = [
-                            export.strip() for export in file.readlines()
-                        ]
-                exports_old = mpi.bcast(exports_old)
-
-                # FIXME: what do we do with the old signatures?
-                exports.update(exports_old)
-
-            header = "\n".join(sorted(exports)) + "\n"
-
-            mpi.barrier()
-            if mpi.rank == 0:
-                logger.debug(
-                    f"write {backend.name} signature in file {path_backend_header} with types\n{arg_types}"
-                )
-                with open(path_backend_header, "w") as file:
-                    file.write(header)
-                    file.flush()
+            # TODO: go into the backends
+            header = write_new_header(
+                backend, path_backend_header, exports, func, arg_types
+            )
 
             # compute the new path of the extension
             hex_header = make_hex(header)
@@ -482,7 +455,7 @@ class JIT:
             ):
                 logger.debug(error)
                 logger.info(
-                    f"Pythran function `{func_name}` called with new types."
+                    f"{backend.name_capitalized} function `{func_name}` called with new types."
                 )
                 logger.debug(
                     "Transonic is going to recompute the function for the new types."
@@ -497,3 +470,42 @@ class JIT:
             return func(*args, **kwargs)
 
         return type_collector
+
+
+def write_new_header(backend, path_backend_header, exports, func, arg_types):
+
+    try:
+        path_backend_header_exists = path_backend_header.exists()
+    except TimeoutError:
+        raise RuntimeError(
+            f"A MPI communication in Transonic failed when compiling "
+            f"function {func}. This usually arises when a jitted "
+            "function has to be compiled in MPI and is only called "
+            f"by one process (rank={mpi.rank})."
+        )
+
+    if path_backend_header_exists:
+        # get the old signature(s)
+
+        exports_old = None
+        if mpi.rank == 0:
+            with open(path_backend_header) as file:
+                exports_old = [export.strip() for export in file.readlines()]
+        exports_old = mpi.bcast(exports_old)
+
+        # FIXME: what do we do with the old signatures?
+        exports.update(exports_old)
+
+    header = "\n".join(sorted(exports)) + "\n"
+
+    mpi.barrier()
+    if mpi.rank == 0:
+        logger.debug(
+            f"write {backend.name_capitalized} signature in file "
+            f"{path_backend_header} with types\n{arg_types}"
+        )
+        with open(path_backend_header, "w") as file:
+            file.write(header)
+            file.flush()
+
+    return header

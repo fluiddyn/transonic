@@ -5,7 +5,15 @@ Less bugs and more Cython features...
 
 - Fused types rather than more than one signature
 - "exterior" functions + understand the tests
+- test_run.py: also check signature files
 - Recompile if pxd changed + "signature file" also for Pythran (``.pythran``)
+- Refactore backends "for method"
+- Check/fix
+
+  * jit functions
+  * boost methods
+  * jit methods
+  * blocks
 
 setup.py & more than one backend at runtime
 -------------------------------------------
