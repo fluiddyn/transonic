@@ -1,5 +1,3 @@
-from tokenize import tokenize, untokenize, NAME, OP
-from io import BytesIO
 from pathlib import Path
 from textwrap import indent
 
@@ -20,15 +18,28 @@ from transonic.util import (
     TypeHintRemover,
 )
 
-from .for_classes import produce_code_class
-from .backend_jit import BackendJIT
+from .backend_jit import BackendJIT as _BackendJIT
+from .for_classes import make_new_code_method_from_nodes
+
+
+def _make_code_from_fdef_node(fdef, black=True):
+    transformed = TypeHintRemover().visit(fdef)
+    # convert the AST back to source code
+    code = extast.unparse(transformed)
+
+    if black:
+        code = format_str(code)
+
+    return code
 
 
 class Backend:
     backend_name = "base"
     suffix_backend = ".py"
+    suffix_header = None
     suffix_extension = ext_suffix
-    _BackendJIT = BackendJIT
+    keyword_export = "export"
+    _BackendJIT = _BackendJIT
 
     def __init__(self):
         self.name = self.backend_name
@@ -115,55 +126,49 @@ class Backend:
                 code = file.read()
             analyse = analyse_aot(code, path_py)
 
-        code_backend, code_ext, lines_pxd = self._make_backend_code(
+        code_backend, code_ext, lines_header = self._make_backend_code(
             path_py, analyse
         )
         if not code_backend:
             return
+        logger.debug(f"code_{self.name}:\n{code_backend}")
 
         for file_name, code in code_ext["function"].items():
             path_ext_file = path_dir / (file_name + ".py")
-            write_if_has_to_write(path_ext_file, format_str(code), logger.info)
+            write_if_has_to_write(
+                path_ext_file, format_str(code), logger.info, force
+            )
 
         for file_name, code in code_ext["class"].items():
             path_ext_file = (
                 path_dir.parent / f"__{self.name}__" / (file_name + ".py")
             )
-            write_if_has_to_write(path_ext_file, format_str(code), logger.info)
+            write_if_has_to_write(
+                path_ext_file, format_str(code), logger.info, force
+            )
 
-        code_pythran_old = ""
-        if path_backend.exists() and not force:
-            with open(path_backend) as file:
-                code_pythran_old = file.read()
+        written = write_if_has_to_write(
+            path_backend, format_str("".join(code_backend)), logger.info, force
+        )
 
-        if code_pythran_old == code_backend:
+        if not written:
             logger.warning(f"Code in file {path_backend} already up-to-date.")
             return
 
-        logger.debug(f"code_{self.name}:\n{code_backend}")
+        if self.suffix_header:
+            path_header = (path_dir / path_py.name).with_suffix(
+                self.suffix_header
+            )
+            write_if_has_to_write(
+                path_header, "\n".join(lines_header), logger.info, force
+            )
 
-        path_dir.mkdir(exist_ok=True)
-
-        with open(path_backend, "w") as file:
-            file.write("".join(code_backend))
-        if self.name == "cython":
-            path_backend_pxd = (path_dir / path_py.name).with_suffix(".pxd")
-            with open(path_backend_pxd, "w") as file:
-                file.write("".join(lines_pxd))
-        logger.info(f"File {path_backend} written")
+        logger.info(f"File {path_backend} updated")
 
         return path_backend
 
-    def _make_code_function(self, fdef, black=True):
-
-        transformed = TypeHintRemover().visit(fdef)
-        # convert the AST back to source code
-        code = extast.unparse(transformed)
-
-        if black:
-            code = format_str(code)
-
-        return code
+    def _make_first_lines_header(self):
+        return []
 
     def _make_backend_code(self, path_py, analyse):
         """Create a backend code from a Python file"""
@@ -178,165 +183,64 @@ class Backend:
         )
 
         code = ["\n" + code_dependance + "\n"]
-        lines_pxd = []
-        if self.name == "cython":
-            lines_pxd = [
-                "import cython\n\nimport numpy as np\ncimport numpy as np\n\n"
-            ]
+        lines_header = self._make_first_lines_header()
         # Deal with functions
         for func_name, fdef in boosted_dicts["functions"].items():
 
-            signatures_func = self._make_signatures_1_function(
+            signatures_func = self._make_header_1_function(
                 func_name, fdef, annotations
             )
-            if self.name == "pythran":
-                code.append("\n".join(sorted(signatures_func)))
-            elif self.name == "cython":
-                if signatures_func:
-                    lines_pxd.extend(signatures_func)
+            if signatures_func:
+                lines_header.extend(signatures_func)
 
-            code_function = self._make_code_function(fdef)
+            code_function = _make_code_from_fdef_node(fdef)
             code.append(code_function)
 
         # Deal with methods
-        signature, code_for_meths = self._make_code_methods(
+        signatures, code_for_meths = self._make_code_methods(
             boosted_dicts, annotations, path_py
         )
         code = code + code_for_meths
-        if signature:
-            lines_pxd += signature
+        if signatures:
+            lines_header += signatures
 
         # Deal with blocks
 
-        signature, code_blocks = self._make_code_blocks(blocks)
+        signatures, code_blocks = self._make_code_blocks(blocks)
         code += code_blocks
-        if signature:
-            lines_pxd += signature
+        if signatures:
+            lines_header.extend(signatures)
 
         code = "\n".join(code).strip()
 
         if code:
-            lines = []
-            lines.append("\n")
             if self.name == "pythran":
-                lines.append("# pythran export __transonic__")
-            lines.append(f"__transonic__ = ('{transonic.__version__}',)")
-            code += "\n".join(lines)
+                lines_header.append("export __transonic__\n")
+
+            code += f"\n\n__transonic__ = ('{transonic.__version__}',)"
 
         code = format_str(code)
-        return code, code_ext, lines_pxd
-
-    def _make_new_code_method(self, fdef, class_def):
-
-        src = self._make_code_function(fdef)
-
-        tokens = []
-        attributes = set()
-
-        using_self = False
-
-        g = tokenize(BytesIO(src.encode("utf-8")).readline)
-        for toknum, tokval, a, b, c in g:
-            # logger.debug((tok_name[toknum], tokval))
-
-            if using_self == "self":
-                if toknum == OP and tokval == ".":
-                    using_self = tokval
-                    continue
-                elif toknum == OP and tokval in (",", ")"):
-                    tokens.append((NAME, "self"))
-                    using_self = False
-                else:
-                    raise NotImplementedError(
-                        f"self{tokval} not supported by Transonic"
-                    )
-
-            if using_self == ".":
-                if toknum == NAME:
-                    using_self = False
-                    tokens.append((NAME, "self_" + tokval))
-                    attributes.add(tokval)
-                    continue
-                else:
-                    raise NotImplementedError
-
-            if toknum == NAME and tokval == "self":
-                using_self = "self"
-                continue
-
-            tokens.append((toknum, tokval))
-
-        attributes = sorted(attributes)
-
-        attributes_self = ["self_" + attr for attr in attributes]
-
-        index_self = tokens.index((NAME, "self"))
-
-        tokens_attr = []
-        for ind, attr in enumerate(attributes_self):
-            tokens_attr.append((NAME, attr))
-            tokens_attr.append((OP, ","))
-
-        if tokens[index_self + 1] == (OP, ","):
-            del tokens[index_self + 1]
-
-        tokens = tokens[:index_self] + tokens_attr + tokens[index_self + 1 :]
-
-        func_name = fdef.name
-
-        index_func_name = tokens.index((NAME, func_name))
-        name_new_func = f"__for_method__{class_def.name}__{func_name}"
-        tokens[index_func_name] = (NAME, name_new_func)
-        # change recusive calls
-        if func_name in attributes:
-            attributes.remove(func_name)
-            index_rec_calls = [
-                index
-                for index, (name, value) in enumerate(tokens)
-                if value == "self_" + func_name
-            ]
-            # delete the occurence of "self_" + func_name in function parameter
-            del tokens[index_rec_calls[0] + 1]
-            del tokens[index_rec_calls[0]]
-            # consider the two deletes
-            offset = -2
-            # adapt all recurrence calls
-            for ind in index_rec_calls[1:]:
-                # adapt the index to the inserts and deletes
-                ind += offset
-                tokens[ind] = (tokens[ind][0], name_new_func)
-                # put the attributes in parameter
-                for attr in reversed(attributes):
-                    tokens.insert(ind + 2, (1, ","))
-                    tokens.insert(ind + 2, (1, "self_" + attr))
-                # consider the inserts
-                offset += len(attributes) * 2
-        new_code = untokenize(tokens).decode("utf-8")
-
-        return new_code, attributes, name_new_func
+        return code, code_ext, lines_header
 
     def _make_code_blocks(self, blocks):
         code = []
+        signatures_blocks = []
         for block in blocks:
             signatures_block = set()
             for ann in block.signatures:
                 typess = compute_pythran_types_from_valued_types(ann.values())
-
                 for types in typess:
                     signatures_block.add(
-                        f"# pythran export {block.name}({', '.join(types)})"
+                        self.keyword_export + f" {block.name}({', '.join(types)})"
                     )
 
-            code.extend(sorted(signatures_block))
+            if signatures_block:
+                signatures_blocks.extend(sorted(signatures_block))
+                signatures_blocks[-1] = signatures_blocks[-1] + "\n"
 
             str_variables = ", ".join(block.signatures[0].keys())
-
             code.append(f"\ndef {block.name}({str_variables}):\n")
-
-            code_block = indent(extast.unparse(block.ast_code), "    ")
-
-            code.append(code_block)
-
+            code.append(indent(extast.unparse(block.ast_code), "    "))
             if block.results:
                 code.append(f"    return {', '.join(block.results)}\n")
 
@@ -345,14 +249,115 @@ class Backend:
         }
 
         if arguments_blocks:
-            code.append(
-                "# pythran export arguments_blocks\n"
-                f"arguments_blocks = {str(arguments_blocks)}\n"
-            )
-        return "", code
+            if self.name == "pythran":
+                signatures_blocks.append("export arguments_blocks\n")
+            code.append(f"arguments_blocks = {str(arguments_blocks)}\n")
+        return signatures_blocks, code
 
-    def produce_code_class(self, cls, jit=False):
-        return produce_code_class(cls, jit=jit)
+    def _make_code_methods(self, boosted_dicts, annotations, path_py):
+        meths_code = []
+        header_lines = []
+        for (class_name, meth_name), fdef in boosted_dicts["methods"].items():
+            signatures, code_for_meth = self._make_code_method(
+                class_name, fdef, meth_name, annotations, boosted_dicts
+            )
+            meths_code.append(code_for_meth)
+            header_lines.extend(signatures)
+        return header_lines, meths_code
+
+    def _make_code_method(
+        self, class_name, fdef, meth_name, annotations, boosted_dicts
+    ):
+        class_def = boosted_dicts["classes"][class_name]
+
+        if class_name in annotations["classes"]:
+            annotations_class = annotations["classes"][class_name]
+        else:
+            annotations_class = {}
+
+        if (class_name, meth_name) in annotations["methods"]:
+            annotations_meth = annotations["methods"][(class_name, meth_name)]
+        else:
+            annotations_meth = {}
+
+        meth_name = fdef.name
+        new_code, attributes, name_new_func = make_new_code_method_from_nodes(
+            class_def, fdef
+        )
+
+        types_attrs = []
+
+        for attr in attributes:
+            if attr not in annotations_class:
+                raise NotImplementedError(
+                    f"self.{attr} used but {attr} not in class annotations"
+                )
+        types_attrs = [annotations_class[attr] for attr in attributes]
+        types_func = list(annotations_meth.values())
+        types_pythran = types_attrs + types_func
+        types_string_signatures = compute_pythran_types_from_valued_types(
+            types_pythran
+        )
+
+        signatures_method = set()
+
+        for types_string_signature in types_string_signatures:
+            signatures_method.add(
+                self.keyword_export
+                + f" {name_new_func}("
+                + ", ".join(types_string_signature)
+                + ")"
+            )
+
+        signatures_method = sorted(signatures_method)
+        if signatures_method:
+            signatures_method[-1] = signatures_method[-1] + "\n"
+        python_code = new_code
+
+        str_self_dot_attributes = ", ".join("self." + attr for attr in attributes)
+        args_func = [arg.id for arg in fdef.args.args[1:]]
+        str_args_func = ", ".join(args_func)
+
+        defaults = fdef.args.defaults
+        nb_defaults = len(defaults)
+        nb_args = len(fdef.args.args)
+        nb_no_defaults = nb_args - nb_defaults - 1
+
+        str_args_value_func = []
+        ind_default = 0
+        for ind, arg in enumerate(fdef.args.args[1:]):
+            name = arg.id
+            if ind < nb_no_defaults:
+                str_args_value_func.append(f"{name}")
+            else:
+                default = extast.unparse(defaults[ind_default]).strip()
+                str_args_value_func.append(f"{name}={default}")
+                ind_default += 1
+
+        str_args_value_func = ", ".join(str_args_value_func)
+
+        if str_self_dot_attributes:
+            str_args_backend_func = ", ".join(
+                (str_self_dot_attributes, str_args_func)
+            )
+        else:
+            str_args_backend_func = str_args_func
+
+        name_var_code_new_method = f"__code_new_method__{class_name}__{meth_name}"
+        if self.name == "pythran":
+            signatures_method.append(f"export {name_var_code_new_method}\n")
+
+        python_code += (
+            f'\n{name_var_code_new_method} = """\n\n'
+            f"def new_method(self, {str_args_value_func}):\n"
+            f"    return backend_func({str_args_backend_func})"
+            '\n\n"""\n'
+        )
+
+        return signatures_method, format_str(python_code)
+
+    def _make_header_1_function(self, func_name, fdef, annotations):
+        raise NotImplementedError
 
 
 class BackendAOT(Backend):

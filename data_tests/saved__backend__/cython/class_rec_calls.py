@@ -17,4 +17,4 @@ def new_method(self, arg):
 
 """
 
-__transonic__ = ("0.2.4",)
+__transonic__ = ("0.3.0",)

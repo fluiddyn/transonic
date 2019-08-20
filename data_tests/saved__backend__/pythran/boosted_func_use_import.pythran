@@ -1,0 +1,4 @@
+export func(float[][], float[][])
+export func(int[][], float[][])
+
+export __transonic__

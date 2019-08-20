@@ -14,6 +14,8 @@ from transonic.log import logger
 from transonic import mpi
 from transonic.util import get_source_without_decorator
 
+from .for_classes import produce_code_class
+
 
 class BackendJIT:
     def __init__(self, name):
@@ -129,3 +131,6 @@ class BackendJIT:
             name = type(key).__name__ + ": " + type(value).__name__ + " dict"
 
         return name
+
+    def produce_code_class(self, cls):
+        return produce_code_class(cls)

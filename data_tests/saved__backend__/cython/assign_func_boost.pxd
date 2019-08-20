@@ -1,3 +1,9 @@
+import cython
+
+import numpy as np
+cimport numpy as np
+
 ctypedef fused __func_x:
-   int
-cdef func(__func_x x)
+   cython.int
+
+cpdef func(__func_x x)

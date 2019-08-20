@@ -22,7 +22,9 @@ T = Type(int, np.complex128)
 def compute(a: A, b: A, c: T, d: Union[A, A1], e: str):
     print(e)
     tmp = a + b
-    return tmp > 1 and tmp > 2
+    if 1 and 2:
+        tmp *= 2
+    return tmp
 
 
 main = partial(lambda x: x, lambda x: x)

@@ -246,7 +246,7 @@ class Transonic:
 
                 if returncode != 0:
                     raise RuntimeError(
-                        "transonic does not manage to produce the {backend.name_capitalized} "
+                        f"transonic does not manage to produce the {backend.name_capitalized} "
                         f"file for {path_mod}"
                     )
 
@@ -433,7 +433,7 @@ class Transonic:
                 )
             except AttributeError:
                 # TODO: improve what happens in this case
-                logger.warning(
+                raise RuntimeError(
                     f"{backend.name_capitalized} file does not seem to be up-to-date."
                 )
                 # setattr(cls, key, func)
@@ -541,7 +541,7 @@ def jit_class(cls, jit_methods):
             python_code = (
                 mod.info_analysis["codes_dependance_classes"][cls_name] + "\n"
             )
-            python_code += backend.produce_code_class(cls, jit=True)
+            python_code += backend.jit.produce_code_class(cls)
             write_if_has_to_write(python_path, python_code)
             python_path = mpi.Path(python_path)
         mpi.barrier()

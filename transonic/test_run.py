@@ -28,7 +28,7 @@ def test_create_pythran_files():
     sys.argv = f"transonic -np {path_data_tests}".split()
     run()
 
-    paths = tuple(path_data_tests.glob("*.py"))
+    paths = tuple(path_data_tests.glob("*.py*"))
     sys.argv = ["transonic", "-np"] + [str(path) for path in paths]
     run()
 

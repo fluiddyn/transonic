@@ -6,4 +6,4 @@ def func(a, b):
     return (a * np.log(b)).max() + func_import()
 
 
-__transonic__ = ("0.2.4",)
+__transonic__ = ("0.3.0",)

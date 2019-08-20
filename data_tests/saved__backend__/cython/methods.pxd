@@ -1,4 +1,8 @@
-cdef __for_method__Transmitter____call__(float[:, :], float, float[:])
+import cython
 
+import numpy as np
+cimport numpy as np
 
-# pythran export __code_new_method__Transmitter____call__
+export __for_method__Transmitter____call__(float[:, :], float, float[:])
+
+export __code_new_method__Transmitter____call__

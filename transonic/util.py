@@ -100,6 +100,7 @@ from transonic.compiler import (
 
 from transonic.config import path_root
 
+
 __all__ = ["modification_date", "has_to_build"]
 
 
@@ -232,6 +233,17 @@ def strip_typehints(source):
     # convert the AST back to source code
     striped_code = extast.unparse(transformed)
     return striped_code
+
+
+def make_code_from_fdef_node(fdef, black=True):
+    transformed = TypeHintRemover().visit(fdef)
+    # convert the AST back to source code
+    code = extast.unparse(transformed)
+
+    if black:
+        code = format_str(code)
+
+    return code
 
 
 def get_ipython_input(last=True):
@@ -403,11 +415,16 @@ def has_to_write(path_file: Path, new_code: str):
         return True
 
 
-def write_if_has_to_write(path_file: Path, new_code: str, logger=None):
+def write_if_has_to_write(
+    path_file: Path, new_code: str, logger=None, force=False
+):
     """Write a file if it doesn't exist or doesn't contain a particular code"""
-    if has_to_write(path_file, new_code):
+    written = False
+    if has_to_write(path_file, new_code) or force:
+        written = True
         path_file.parent.mkdir(exist_ok=True, parents=True)
         with open(path_file, "w") as file:
             file.write(new_code)
         if logger:
             logger(f"{path_file} written")
+    return written

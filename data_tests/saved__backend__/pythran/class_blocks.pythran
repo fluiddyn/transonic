@@ -1,0 +1,9 @@
+export block0(float[][], float[][], int)
+export block0(float[][][], float[][][], int)
+
+export block1(float[][], float[][], int)
+export block1(float[][][], float[][][], int)
+
+export arguments_blocks
+
+export __transonic__

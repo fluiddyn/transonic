@@ -40,4 +40,4 @@ def block1(a, b, n):
 
 arguments_blocks = {"block0": ["a", "b", "n"], "block1": ["a", "b", "n"]}
 
-__transonic__ = ("0.2.4",)
+__transonic__ = ("0.3.0",)

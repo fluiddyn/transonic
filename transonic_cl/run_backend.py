@@ -140,7 +140,7 @@ def main():
                 )
             if completed_process.stderr:
                 logger.error(
-                    f"{backend.capitalize()}stderr:\n{completed_process.stderr}"
+                    f"{backend.capitalize()} stderr:\n{completed_process.stderr}"
                 )
 
 
