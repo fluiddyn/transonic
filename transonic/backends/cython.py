@@ -33,7 +33,6 @@ def compute_cython_type_from_pythran_type(type_):
     return "cython." + type_
 
 
-
 class CythonBackend(BackendAOT):
     backend_name = "cython"
     suffix_header = ".pxd"

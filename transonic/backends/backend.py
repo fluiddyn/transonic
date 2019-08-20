@@ -21,16 +21,19 @@ from transonic.util import (
 )
 
 from .for_classes import produce_code_class
+from .backend_jit import BackendJIT
 
 
 class Backend:
     backend_name = "base"
     suffix_backend = ".py"
     suffix_extension = ext_suffix
+    _BackendJIT = BackendJIT
 
     def __init__(self):
         self.name = self.backend_name
         self.name_capitalized = self.name.capitalize()
+        self.jit = self._BackendJIT(self.name)
 
     def make_backend_files(
         self,
