@@ -21,7 +21,7 @@ Internal API
    :members:
    :private-members:
 
-.. autofunction:: make_pythran_type_name
+.. autofunction:: compute_typename_from_object
 
 Notes
 -----
@@ -129,24 +129,30 @@ class ModuleJIT:
         self.used_functions = {}
         self.jit_functions = {}
 
-        source = self.get_source()
-        # TODO: don't put these objects in self
         (
-            self.jitted_dicts,
-            self.codes_dependance,
-            self.codes_dependance_classes,
-            self.code_ext,
-            self.special,
-        ) = analysis_jit(source, self.filename)
+            jitted_dicts,
+            codes_dependance,
+            codes_dependance_classes,
+            code_ext,
+            special,
+        ) = analysis_jit(self.get_source(), self.filename)
+
+        self.info_analysis = {
+            "jitted_dicts": jitted_dicts,
+            "codes_dependance": codes_dependance,
+            "codes_dependance_classes": codes_dependance_classes,
+            "special": special,
+        }
+
         # TODO: check if these files have to be written here...
         # Write exterior code for functions
-        for file_name, code in self.code_ext["function"].items():
+        for file_name, code in code_ext["function"].items():
             path_ext = path_jit / self.module_name.replace(".", os.path.sep)
             path_ext_file = path_ext / (file_name + ".py")
             write_if_has_to_write(path_ext_file, format_str(code), logger.info)
 
         # Write exterior code for classes
-        for file_name, code in self.code_ext["class"].items():
+        for file_name, code in code_ext["class"].items():
             path_ext = (
                 path_jit.parent
                 / "__jit_classes__"
@@ -195,7 +201,7 @@ def _get_module_jit(backend="pythran", index_frame: int = 2):
         return ModuleJIT(backend=backend, frame=frame)
 
 
-def make_pythran_type_name(obj: object):
+def compute_typename_from_object(obj: object):
     """return the Pythran type name"""
     name = type(obj).__name__
     name = normalize_type_name(name)
@@ -266,6 +272,7 @@ class JIT:
             )
 
         if not can_import_accelerator():
+            # TODO: add a warning if backend is specified by user
             return func
 
         func_name = func.__name__
@@ -285,13 +292,11 @@ class JIT:
             path_backend.mkdir(parents=True, exist_ok=True)
         mpi.barrier()
 
-        if backend_default == "pythran":
-            suffix = ".pythran"
-        else:
-            suffix = ".pxd"
-
         path_backend = (path_backend / func_name).with_suffix(".py")
-        path_backend_header = path_backend.with_suffix(suffix)
+        if backend.suffix_header:
+            path_backend_header = path_backend.with_suffix(backend.suffix_header)
+        else:
+            path_backend_header = False
 
         if path_backend.exists():
             if not mod.is_dummy_file and has_to_build(path_backend, mod.filename):
@@ -305,14 +310,14 @@ class JIT:
 
         if has_to_write:
             # TODO: source generation for jit in backends
-            src = mod.codes_dependance[func_name]
-            if func_name in mod.special:
-                if func_name in mod.jitted_dicts["functions"]:
-                    src += extast.unparse(
-                        mod.jitted_dicts["functions"][func_name]
-                    )
-                elif func_name in mod.jitted_dicts["methods"]:
-                    src += extast.unparse(mod.jitted_dicts["methods"][func_name])
+            info_analysis = mod.info_analysis
+            jitted_dicts = info_analysis["jitted_dicts"]
+            src = info_analysis["codes_dependance"][func_name]
+            if func_name in info_analysis["special"]:
+                if func_name in jitted_dicts["functions"]:
+                    src += extast.unparse(jitted_dicts["functions"][func_name])
+                elif func_name in jitted_dicts["methods"]:
+                    src += extast.unparse(jitted_dicts["methods"][func_name])
             else:
                 # TODO find a prettier solution to remove decorator for cython
                 # than doing two times a regex
@@ -352,30 +357,17 @@ class JIT:
 
         def backenize_with_new_header(arg_types="no types"):
 
-            if backend_default == "pythran":
-                keyword = "export "
-            elif backend_default == "cython":
-                keyword = "cpdef "
-
-            # Include signature comming from type hints
             # TODO: this function should go into the backends
-            signatures = make_signatures_from_typehinted_func(func)
-            exports = set(keyword + signature for signature in signatures)
+            header_lines = make_new_header(backend, func, arg_types)
 
-            if arg_types != "no types":
-                export_new = "{}{}({})".format(
-                    keyword, func_name, ", ".join(arg_types)
-                )
-                if export_new not in exports:
-                    exports.add(export_new)
-
-            if not exports:
+            if not header_lines:
                 return
 
             # TODO: go into the backends
-            header = write_new_header(
-                backend, path_backend_header, exports, func, arg_types
+            header = merge_old_and_new_header(
+                backend, path_backend_header, header_lines, func
             )
+            write_new_header(backend, path_backend_header, header, arg_types)
 
             # compute the new path of the extension
             hex_header = make_hex(header)
@@ -387,8 +379,9 @@ class JIT:
             )
             self.path_extension = path_backend.with_name(name_ext_file)
 
+            # TODO: compile_extension in the backend
+            # self.compiling, self.process = backend.compiled_extension(path_backend, ...)
             self.compiling = True
-
             self.process = compile_extension(
                 path_backend,
                 backend.name,
@@ -462,7 +455,8 @@ class JIT:
                 )
 
             arg_types = [
-                make_pythran_type_name(arg)
+                # TODO: backend.compute_typename_from_object(arg)
+                compute_typename_from_object(arg)
                 for arg in itertools.chain(args, kwargs.values())
             ]
 
@@ -472,7 +466,26 @@ class JIT:
         return type_collector
 
 
-def write_new_header(backend, path_backend_header, exports, func, arg_types):
+def make_new_header(backend, func, arg_types):
+    # Include signature comming from type hints
+    signatures = make_signatures_from_typehinted_func(func)
+
+    if backend.name == "pythran":
+        keyword = "export "
+    elif backend.name == "cython":
+        keyword = "cpdef "
+    exports = set(keyword + signature for signature in signatures)
+
+    if arg_types != "no types":
+        export_new = "{}{}({})".format(
+            keyword, func.__name__, ", ".join(arg_types)
+        )
+        if export_new not in exports:
+            exports.add(export_new)
+    return exports
+
+
+def merge_old_and_new_header(backend, path_backend_header, exports, func):
 
     try:
         path_backend_header_exists = path_backend_header.exists()
@@ -498,6 +511,10 @@ def write_new_header(backend, path_backend_header, exports, func, arg_types):
 
     header = "\n".join(sorted(exports)) + "\n"
 
+    return header
+
+
+def write_new_header(backend, path_backend_header, header, arg_types):
     mpi.barrier()
     if mpi.rank == 0:
         logger.debug(
@@ -507,5 +524,3 @@ def write_new_header(backend, path_backend_header, exports, func, arg_types):
         with open(path_backend_header, "w") as file:
             file.write(header)
             file.flush()
-
-    return header

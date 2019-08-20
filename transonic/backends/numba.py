@@ -10,6 +10,7 @@ from .backend import BackendJIT
 
 class NumbaBackend(BackendJIT):
     backend_name = "numba"
+    suffix_header = False
 
 
 def get_source_with_numba(func: Callable):

@@ -538,7 +538,9 @@ def jit_class(cls, jit_methods):
         mod = _get_module_jit(backend=backend.name, index_frame=5)
         if mpi.rank == 0:
             python_path = mpi.PathSeq(python_path)
-            python_code = mod.codes_dependance_classes[cls_name] + "\n"
+            python_code = (
+                mod.info_analysis["codes_dependance_classes"][cls_name] + "\n"
+            )
             python_code += backend.produce_code_class(cls, jit=True)
             write_if_has_to_write(python_path, python_code)
             python_path = mpi.Path(python_path)

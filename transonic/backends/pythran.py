@@ -18,6 +18,7 @@ from .backend import BackendAOT
 
 class PythranBackend(BackendAOT):
     backend_name = "pythran"
+    suffix_header = ".pythran"
 
     def check_if_compiled(self, module):
         return hasattr(module, "__pythran__")

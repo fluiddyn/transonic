@@ -36,6 +36,7 @@ def compute_cython_type_from_pythran_type(type_):
 
 class CythonBackend(BackendAOT):
     backend_name = "cython"
+    suffix_header = ".pxd"
 
     def _make_signatures_1_function(self, func_name, fdef, annotations):
         fdef = copy.deepcopy(fdef)
