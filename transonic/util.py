@@ -58,8 +58,6 @@ from textwrap import dedent
 
 from typing import Callable
 
-import astunparse
-
 from transonic.config import backend_default
 
 try:
@@ -89,6 +87,8 @@ try:
     from IPython.core.getipython import get_ipython
 except ImportError:
     pass
+
+from transonic.analyses import extast
 
 from transonic.compiler import (
     ext_suffix,
@@ -230,7 +230,7 @@ def strip_typehints(source):
     # and import statements from 'typing'
     transformed = TypeHintRemover().visit(parsed_source)
     # convert the AST back to source code
-    striped_code = astunparse.unparse(transformed)
+    striped_code = extast.unparse(transformed)
     return striped_code
 
 
