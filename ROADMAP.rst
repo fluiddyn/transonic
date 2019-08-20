@@ -30,6 +30,27 @@ Numba backend
 
 Simpler but not so simple because no compilation!
 
+We could solve this by having 2 files. A "backend file" (mod.py):
+
+.. code:: python
+
+  #__protected__ import numba as nb
+
+  #__protected__ @nb.jit
+  def func(...):
+      ...
+
+
+and a "compiled file" (mod_[hash].py):
+
+.. code:: python
+
+  import numba as nb
+
+  @nb.jit
+  def func(...):
+      ...
+
 Specify backend in code
 -----------------------
 
@@ -45,6 +66,10 @@ Specify backend in code
 And same with ``boost``.
 
 - Rewrite the comparison Numba / Pythran with Transonic
+
+- A page on [this
+  case](https://stackoverflow.com/questions/57199248/memory-efficient-operations-between-arbitrary-columns-of-numpy-array)
+  in the documentation
 
 Alternative syntax for blocks
 -----------------------------

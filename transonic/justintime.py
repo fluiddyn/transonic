@@ -71,7 +71,6 @@ from transonic.annotation import (
 )
 from transonic.aheadoftime import TransonicTemporaryJITMethod
 from transonic.backends import backends
-from transonic.compiler import compile_extension, ext_suffix
 from transonic.config import has_to_replace, backend_default
 from transonic.log import logger
 from transonic import mpi
@@ -310,25 +309,9 @@ class JIT:
 
         if has_to_write:
             # TODO: source generation for jit in backends
-            info_analysis = mod.info_analysis
-            jitted_dicts = info_analysis["jitted_dicts"]
-            src = info_analysis["codes_dependance"][func_name]
-            if func_name in info_analysis["special"]:
-                if func_name in jitted_dicts["functions"]:
-                    src += extast.unparse(jitted_dicts["functions"][func_name])
-                elif func_name in jitted_dicts["methods"]:
-                    src += extast.unparse(jitted_dicts["methods"][func_name])
-            else:
-                # TODO find a prettier solution to remove decorator for cython
-                # than doing two times a regex
-                src += re.sub(
-                    r"@.*?\sdef\s", "def ", get_source_without_decorator(func)
-                )
-            if path_backend.exists() and mpi.rank == 0:
-                with open(path_backend) as file:
-                    src_old = file.read()
-                if src_old == src:
-                    has_to_write = False
+            src, has_to_write = make_backend_source(
+                backend, mod.info_analysis, func, path_backend
+            )
 
             if has_to_write and mpi.rank == 0:
                 logger.debug(f"write code in file {path_backend}")
@@ -375,16 +358,12 @@ class JIT:
             #     hex_header0 = mpi.bcast(hex_header)
             #     assert hex_header0 == hex_header
             name_ext_file = (
-                func_name + "_" + hex_src + "_" + hex_header + ext_suffix
+                func_name + "_" + hex_src + "_" + hex_header + backend.suffix_extension
             )
             self.path_extension = path_backend.with_name(name_ext_file)
 
-            # TODO: compile_extension in the backend
-            # self.compiling, self.process = backend.compiled_extension(path_backend, ...)
-            self.compiling = True
-            self.process = compile_extension(
+            self.compiling, self.process = backend.compile_extension(
                 path_backend,
-                backend.name,
                 name_ext_file,
                 native=self.native,
                 xsimd=self.xsimd,
@@ -393,7 +372,7 @@ class JIT:
 
         ext_files = None
         if mpi.rank == 0:
-            glob_name_ext_file = func_name + "_" + hex_src + "_*" + ext_suffix
+            glob_name_ext_file = func_name + "_" + hex_src + "_*" + backend.suffix_extension
             ext_files = list(
                 mpi.PathSeq(path_backend).parent.glob(glob_name_ext_file)
             )
@@ -464,6 +443,29 @@ class JIT:
             return func(*args, **kwargs)
 
         return type_collector
+
+
+def make_backend_source(backend, info_analysis, func, path_backend):
+    func_name = func.__name__
+    jitted_dicts = info_analysis["jitted_dicts"]
+    src = info_analysis["codes_dependance"][func_name]
+    if func_name in info_analysis["special"]:
+        if func_name in jitted_dicts["functions"]:
+            src += extast.unparse(jitted_dicts["functions"][func_name])
+        elif func_name in jitted_dicts["methods"]:
+            src += extast.unparse(jitted_dicts["methods"][func_name])
+    else:
+        # TODO find a prettier solution to remove decorator for cython
+        # than doing two times a regex
+        src += re.sub(r"@.*?\sdef\s", "def ", get_source_without_decorator(func))
+    has_to_write = True
+    if path_backend.exists() and mpi.rank == 0:
+        with open(path_backend) as file:
+            src_old = file.read()
+        if src_old == src:
+            has_to_write = False
+
+    return src, has_to_write
 
 
 def make_new_header(backend, func, arg_types):

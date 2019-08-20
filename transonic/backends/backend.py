@@ -11,6 +11,7 @@ import transonic
 from transonic.analyses import extast, analyse_aot
 from transonic.annotation import compute_pythran_types_from_valued_types
 from transonic.log import logger
+from transonic.compiler import compile_extension, ext_suffix
 
 from transonic.util import (
     has_to_build,
@@ -25,6 +26,7 @@ from .for_classes import produce_code_class
 class Backend:
     backend_name = "base"
     suffix_backend = ".py"
+    suffix_extension = ext_suffix
 
     def __init__(self):
         self.name = self.backend_name
@@ -181,7 +183,9 @@ class Backend:
         # Deal with functions
         for func_name, fdef in boosted_dicts["functions"].items():
 
-            signatures_func = self._make_signatures_1_function(func_name, fdef, annotations)
+            signatures_func = self._make_signatures_1_function(
+                func_name, fdef, annotations
+            )
             if self.name == "pythran":
                 code.append("\n".join(sorted(signatures_func)))
             elif self.name == "cython":
@@ -359,9 +363,41 @@ class BackendAOT(Backend):
 
         return not path.endswith(".py")
 
+    def compile_extension(
+        self, path_backend, name_ext_file, native=False, xsimd=False, openmp=False
+    ):
+        compiling = True
+        process = compile_extension(
+            path_backend,
+            self.name,
+            name_ext_file,
+            native=native,
+            xsimd=xsimd,
+            openmp=openmp,
+        )
+        return compiling, process
+
 
 class BackendJIT(Backend):
     """Backend for just-in-time compilers"""
 
+    suffix_extension = ".py"
+
     def check_if_compiled(self, module):
         return True
+
+    def compile_extension(
+        self, path_backend, name_ext_file, native=False, xsimd=False, openmp=False
+    ):
+
+        with open(path_backend) as file:
+            source = file.read()
+
+        source = source.replace("#__protected__ ", "")
+
+        with open(path_backend.with_name(name_ext_file), "w") as file:
+            file.write(source)
+
+        compiling = False
+        process = None
+        return compiling, process
