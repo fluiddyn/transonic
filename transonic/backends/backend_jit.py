@@ -49,22 +49,13 @@ class BackendJIT:
     def make_new_header(self, func, arg_types):
         # Include signature comming from type hints
         signatures = make_signatures_from_typehinted_func(func)
-
-        if self.name == "pythran":
-            keyword = "export "
-        elif self.name == "cython":
-            keyword = "cpdef "
-        exports = set(keyword + signature for signature in signatures)
+        exports = set(f"export {signature}" for signature in signatures)
 
         if arg_types != "no types":
-            export_new = "{}{}({})".format(
-                keyword, func.__name__, ", ".join(arg_types)
-            )
-            if export_new not in exports:
-                exports.add(export_new)
+            exports.add(f"export {func.__name__}({', '.join(arg_types)})")
         return exports
 
-    def merge_old_and_new_header(self, path_backend_header, exports, func):
+    def merge_old_and_new_header(self, path_backend_header, header, func):
 
         try:
             path_backend_header_exists = path_backend_header.exists()
@@ -78,19 +69,26 @@ class BackendJIT:
 
         if path_backend_header_exists:
             # get the old signature(s)
-
-            exports_old = None
-            if mpi.rank == 0:
-                with open(path_backend_header) as file:
-                    exports_old = [export.strip() for export in file.readlines()]
-            exports_old = mpi.bcast(exports_old)
-
+            header_old = self._load_old_header(path_backend_header)
             # FIXME: what do we do with the old signatures?
-            exports.update(exports_old)
+            header = self._merge_header_objects(header, header_old)
 
-        header = "\n".join(sorted(exports)) + "\n"
+        return self._make_header_code(header)
 
+    def _load_old_header(self, path_backend_header):
+        exports_old = None
+        if mpi.rank == 0:
+            with open(path_backend_header) as file:
+                exports_old = [export.strip() for export in file.readlines()]
+        exports_old = mpi.bcast(exports_old)
+        return exports_old
+
+    def _merge_header_objects(self, header, header_old):
+        header.update(header_old)
         return header
+
+    def _make_header_code(self, header):
+        return "\n".join(sorted(header)) + "\n"
 
     def write_new_header(self, path_backend_header, header, arg_types):
         mpi.barrier()
@@ -111,7 +109,7 @@ class BackendJIT:
         if np and isinstance(obj, np.ndarray):
             name = obj.dtype.name
             if obj.ndim != 0:
-                name += "[" + ", ".join([":"] * obj.ndim) + "]"
+                name += "[" + ", ".join(":" * obj.ndim) + "]"
 
         if name in ("list", "set", "dict"):
             if not obj:

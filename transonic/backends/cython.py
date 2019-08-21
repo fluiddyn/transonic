@@ -6,9 +6,13 @@
 import copy
 
 from transonic.analyses import extast
-from transonic.annotation import compute_pythran_type_from_type
+from transonic.annotation import (
+    compute_pythran_type_from_type,
+    make_signatures_from_typehinted_func,
+)
 
 from .backend import BackendAOT
+from .backend_jit import BackendJIT
 
 
 def compute_cython_type_from_pythran_type(type_):
@@ -20,18 +24,57 @@ def compute_cython_type_from_pythran_type(type_):
         start, end = type_.split("[", 1)
         if not start.startswith("np."):
             start = "np." + start
+
+        dim = end.count("[") + 1
+        if dim > 1:
+            end = ",".join(":" * dim) + "]"
+
+        if end == "]":
+            end = ":]"
+
         return start + "_t[" + end
 
     if any(type_.endswith(str(number)) for number in (32, 64, 128)):
-        return "np." + type_
+        return "np." + type_ + "_t"
 
     return "cython." + type_
+
+
+class CythonJIT(BackendJIT):
+    def compute_typename_from_object(self, obj: object):
+        """return the Pythran type name"""
+        return compute_cython_type_from_pythran_type(
+            super().compute_typename_from_object(obj)
+        )
+
+    def make_new_header(self, func, arg_types):
+        # Include signature comming from type hints
+        signatures = make_signatures_from_typehinted_func(func)
+
+    def _load_old_header(self, path_backend_header):
+        pass
+        # exports_old = None
+        # if mpi.rank == 0:
+        #     with open(path_backend_header) as file:
+        #         exports_old = [export.strip() for export in file.readlines()]
+        # exports_old = mpi.bcast(exports_old)
+        # return exports_old
+
+    def _merge_header_objects(self, header, header_old):
+        pass
+        # header.update(header_old)
+        # return header
+
+    def _make_header_code(self, header):
+        return ""
+        # return "\n".join(sorted(header)) + "\n"
 
 
 class CythonBackend(BackendAOT):
     backend_name = "cython"
     suffix_header = ".pxd"
     keyword_export = "cpdef"
+    _BackendJIT = CythonJIT
 
     def _make_first_lines_header(self):
         return ["import cython\n\nimport numpy as np\ncimport numpy as np\n"]

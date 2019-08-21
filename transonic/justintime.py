@@ -296,18 +296,20 @@ class JIT:
 
         def backenize_with_new_header(arg_types="no types"):
 
-            header_lines = backend.jit.make_new_header(func, arg_types)
+            header_object = backend.jit.make_new_header(func, arg_types)
 
-            if not header_lines:
+            if not header_object:
                 return
 
-            header = backend.jit.merge_old_and_new_header(
-                path_backend_header, header_lines, func
+            header_code = backend.jit.merge_old_and_new_header(
+                path_backend_header, header_object, func
             )
-            backend.jit.write_new_header(path_backend_header, header, arg_types)
+            backend.jit.write_new_header(
+                path_backend_header, header_code, arg_types
+            )
 
             # compute the new path of the extension
-            hex_header = make_hex(header)
+            hex_header = make_hex(header_code)
             # if mpi.nb_proc > 1:
             #     hex_header0 = mpi.bcast(hex_header)
             #     assert hex_header0 == hex_header

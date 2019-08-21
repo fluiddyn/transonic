@@ -62,6 +62,7 @@ def main():
         elif backend == "cython":
             name_tmp = name_out_base + ".py"
             copyfile(name, name_tmp)
+            copyfile(name.split(".", 1)[0] + ".pxd", name_out_base + ".pxd")
             name = name_tmp
 
         path_tmp = Path(name_tmp)
@@ -121,6 +122,7 @@ def main():
         path_tmp.rename(path_out)
     elif backend == "cython":
         path_tmp.with_suffix(".c").unlink()
+        path_tmp.with_suffix(".pxd").unlink()
         path_tmp.unlink()
 
     if path_out.exists():

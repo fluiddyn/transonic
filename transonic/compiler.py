@@ -71,6 +71,13 @@ def name_ext_from_path_backend(path_backend):
         if path_backend.exists():
             with open(path_backend) as file:
                 src = file.read()
+            # quick fix to recompile when the header has been changed
+            for suffix in (".pythran", ".pxd"):
+                path_header = path_backend.with_suffix(suffix)
+                if path_header.exists():
+                    print(path_header)
+                    with open(path_header) as file:
+                        src += file.read()
         else:
             src = ""
 

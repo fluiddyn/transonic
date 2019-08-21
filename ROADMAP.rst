@@ -5,6 +5,8 @@ Less bugs and more Cython features...
 
 - [done] Header also for Pythran (``.pythran``)
 - [done] Refactore backends "for method"
+- [done] Recompile if header changed
+- test_run.py: also check signature files
 - Fused types rather than more than one signature for
 
   * [done] boost functions
@@ -13,19 +15,22 @@ Less bugs and more Cython features...
   * jit functions
   * jit methods
 
-- Recompile if header changed
-- test_run.py: also check signature files
 - BackendJITCython
-- "exterior" functions + understand the tests
 
 - Check/fix
 
   * [done] boost methods
+  * [done] blocks
+  * jit functions
+  * jit methods
+
+- locals annotations for
+  * boost methods
   * blocks
   * jit functions
   * jit methods
 
-- locals annotations for boost methods, blocks and jit
+- "exterior" functions + understand the tests
 
 Options for the boost decorator
 -------------------------------
