@@ -3,19 +3,40 @@ Cython backend (beta version)
 
 Less bugs and more Cython features...
 
-- Header also for Pythran (``.pythran``)
-- Recompile if pxd changed
-- Refactore backends "for method"
-- BackendJITCython
-- Fused types rather than more than one signature
-- "exterior" functions + understand the tests
+- [done] Header also for Pythran (``.pythran``)
+- [done] Refactore backends "for method"
+- Fused types rather than more than one signature for
+
+  * [done] boost functions
+  * [done] boost methods
+  * blocks
+  * jit functions
+  * jit methods
+
+- Recompile if header changed
 - test_run.py: also check signature files
+- BackendJITCython
+- "exterior" functions + understand the tests
+
 - Check/fix
 
-  * jit functions
-  * boost methods
-  * jit methods
+  * [done] boost methods
   * blocks
+  * jit functions
+  * jit methods
+
+- locals annotations for boost methods, blocks and jit
+
+Options for the boost decorator
+-------------------------------
+
+To support things like:
+
+.. code:: python
+
+  @boost(inline=True)
+  def add(a, b):
+      return a + b
 
 setup.py & more than one backend at runtime
 -------------------------------------------
@@ -41,7 +62,6 @@ We could solve this by having 2 files. A "backend file" (mod.py):
   #__protected__ @nb.jit
   def func(...):
       ...
-
 
 and a "compiled file" (mod_[hash].py):
 
