@@ -9,7 +9,7 @@ from tokenize import tokenize, untokenize, NAME, OP
 import inspect
 from io import BytesIO
 
-from transonic.annotation import compute_pythran_types_from_valued_types
+from transonic.annotation import compute_signatures_from_typeobjects
 
 # from transonic.log import logger
 from transonic.util import (
@@ -52,27 +52,25 @@ def make_code_method_jit(cls, func_name):
     types_func = [param.annotation for param in signature.parameters.values()][1:]
     types_pythran = types_attrs + types_func
 
-    pythran_signatures = "\n"
+    transonic_signatures = "\n"
 
     try:
-        types_string_signatures = compute_pythran_types_from_valued_types(
+        signatures_as_lists_strings = compute_signatures_from_typeobjects(
             types_pythran
         )
     except ValueError:
-        types_string_signatures = []
+        signatures_as_lists_strings = []
 
-    for types_string_signature in types_string_signatures:
-        pythran_signatures += (
-            "# transonic def "
-            + name_new_func
-            + "("
-            + ", ".join(types_string_signature)
+    for signature_as_strings in signatures_as_lists_strings:
+        transonic_signatures += (
+            f"# transonic def {name_new_func}("
+            + ", ".join(signature_as_strings)
             + ")\n"
         )
 
     new_code = "from transonic import jit\n\n@jit\n" + new_code
 
-    python_code = pythran_signatures + "\n" + new_code
+    python_code = transonic_signatures + "\n" + new_code
 
     str_self_dot_attributes = ", ".join("self." + attr for attr in attributes)
     args_func = list(signature.parameters.keys())[1:]

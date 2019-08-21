@@ -7,7 +7,7 @@ from warnings import warn
 import transonic
 
 from transonic.analyses import extast, analyse_aot
-from transonic.annotation import compute_pythran_types_from_valued_types
+from transonic.annotation import compute_signatures_from_typeobjects
 from transonic.log import logger
 from transonic.compiler import compile_extension, ext_suffix
 
@@ -126,20 +126,20 @@ class Backend:
                 code = file.read()
             analyse = analyse_aot(code, path_py)
 
-        code_backend, code_ext, lines_header = self._make_backend_code(
+        code_backend, codes_ext, code_header = self._make_backend_code(
             path_py, analyse
         )
         if not code_backend:
             return
         logger.debug(f"code_{self.name}:\n{code_backend}")
 
-        for file_name, code in code_ext["function"].items():
+        for file_name, code in codes_ext["function"].items():
             path_ext_file = path_dir / (file_name + ".py")
             write_if_has_to_write(
                 path_ext_file, format_str(code), logger.info, force
             )
 
-        for file_name, code in code_ext["class"].items():
+        for file_name, code in codes_ext["class"].items():
             path_ext_file = (
                 path_dir.parent / f"__{self.name}__" / (file_name + ".py")
             )
@@ -148,7 +148,7 @@ class Backend:
             )
 
         written = write_if_has_to_write(
-            path_backend, format_str("".join(code_backend)), logger.info, force
+            path_backend, code_backend, logger.info, force
         )
 
         if not written:
@@ -159,9 +159,7 @@ class Backend:
             path_header = (path_dir / path_py.name).with_suffix(
                 self.suffix_header
             )
-            write_if_has_to_write(
-                path_header, "\n".join(lines_header), logger.info, force
-            )
+            write_if_has_to_write(path_header, code_header, logger.info, force)
 
         logger.info(f"File {path_backend} updated")
 
@@ -173,7 +171,7 @@ class Backend:
     def _make_backend_code(self, path_py, analyse):
         """Create a backend code from a Python file"""
 
-        boosted_dicts, code_dependance, annotations, blocks, code_ext = analyse
+        boosted_dicts, code_dependance, annotations, blocks, codes_ext = analyse
 
         boosted_dicts = dict(
             functions=boosted_dicts["functions"][self.name],
@@ -182,7 +180,7 @@ class Backend:
             classes=boosted_dicts["classes"][self.name],
         )
 
-        code = ["\n" + code_dependance + "\n"]
+        lines_code = ["\n" + code_dependance + "\n"]
         lines_header = self._make_first_lines_header()
         # Deal with functions
         for func_name, fdef in boosted_dicts["functions"].items():
@@ -194,24 +192,23 @@ class Backend:
                 lines_header.extend(signatures_func)
 
             code_function = _make_code_from_fdef_node(fdef)
-            code.append(code_function)
+            lines_code.append(code_function)
 
         # Deal with methods
         signatures, code_for_meths = self._make_code_methods(
             boosted_dicts, annotations, path_py
         )
-        code = code + code_for_meths
-        if signatures:
-            lines_header += signatures
-
-        # Deal with blocks
-
-        signatures, code_blocks = self._make_code_blocks(blocks)
-        code += code_blocks
+        lines_code.extend(code_for_meths)
         if signatures:
             lines_header.extend(signatures)
 
-        code = "\n".join(code).strip()
+        # Deal with blocks
+        signatures, code_blocks = self._make_code_blocks(blocks)
+        lines_code.extend(code_blocks)
+        if signatures:
+            lines_header.extend(signatures)
+
+        code = "\n".join(lines_code).strip()
 
         if code:
             if self.name == "pythran":
@@ -219,8 +216,10 @@ class Backend:
 
             code += f"\n\n__transonic__ = ('{transonic.__version__}',)"
 
-        code = format_str(code)
-        return code, code_ext, lines_header
+        return format_str(code), codes_ext, "\n".join(lines_header).strip() + "\n"
+
+    def _append_line_header_variable(self, lines_header, name_variable):
+        pass
 
     def _make_code_blocks(self, blocks):
         code = []
@@ -228,7 +227,7 @@ class Backend:
         for block in blocks:
             signatures_block = set()
             for ann in block.signatures:
-                typess = compute_pythran_types_from_valued_types(ann.values())
+                typess = compute_signatures_from_typeobjects(ann.values())
                 for types in typess:
                     signatures_block.add(
                         self.keyword_export + f" {block.name}({', '.join(types)})"
@@ -249,8 +248,9 @@ class Backend:
         }
 
         if arguments_blocks:
-            if self.name == "pythran":
-                signatures_blocks.append("export arguments_blocks\n")
+            self._append_line_header_variable(
+                signatures_blocks, "arguments_blocks"
+            )
             code.append(f"arguments_blocks = {str(arguments_blocks)}\n")
         return signatures_blocks, code
 
@@ -295,17 +295,17 @@ class Backend:
         types_attrs = [annotations_class[attr] for attr in attributes]
         types_func = list(annotations_meth.values())
         types_pythran = types_attrs + types_func
-        types_string_signatures = compute_pythran_types_from_valued_types(
+        signatures_as_lists_strings = compute_signatures_from_typeobjects(
             types_pythran
         )
 
         signatures_method = set()
 
-        for types_string_signature in types_string_signatures:
+        for signature_as_strings in signatures_as_lists_strings:
             signatures_method.add(
                 self.keyword_export
                 + f" {name_new_func}("
-                + ", ".join(types_string_signature)
+                + ", ".join(signature_as_strings)
                 + ")"
             )
 
@@ -344,9 +344,10 @@ class Backend:
             str_args_backend_func = str_args_func
 
         name_var_code_new_method = f"__code_new_method__{class_name}__{meth_name}"
-        if self.name == "pythran":
-            signatures_method.append(f"export {name_var_code_new_method}\n")
 
+        self._append_line_header_variable(
+            signatures_method, name_var_code_new_method
+        )
         python_code += (
             f'\n{name_var_code_new_method} = """\n\n'
             f"def new_method(self, {str_args_value_func}):\n"

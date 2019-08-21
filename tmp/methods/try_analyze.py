@@ -7,7 +7,7 @@ import numpy as np
 
 from transonic.log import logger
 from transonic.util import get_source_without_decorator, format_str
-from transonic.annotation import compute_pythran_types_from_valued_types
+from transonic.annotation import compute_signatures_from_typeobjects
 
 
 def trans_def_method(func):
@@ -129,7 +129,7 @@ def produce_pythran_code_class_func(cls, func_name):
 
     pythran_signatures = "\n"
 
-    for types_string_signature in compute_pythran_types_from_valued_types(
+    for types_string_signature in compute_signatures_from_typeobjects(
         types_pythran
     ):
         pythran_signatures += (

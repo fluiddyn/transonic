@@ -9,7 +9,7 @@ try:
 except ImportError:
     black = False
 
-from transonic.annotation import compute_pythran_types_from_valued_types
+from transonic.annotation import compute_signatures_from_typeobjects
 
 from .backend import BackendAOT
 
@@ -21,26 +21,37 @@ class PythranBackend(BackendAOT):
     def check_if_compiled(self, module):
         return hasattr(module, "__pythran__")
 
+    def _append_line_header_variable(self, lines_header, name_variable):
+        lines_header.append(f"export {name_variable}\n")
+
     def _make_header_1_function(self, func_name, fdef, annotations):
 
-        signatures_func = set()
         try:
-            ann = annotations["functions"][func_name]
+            annots = annotations["__in_comments__"][func_name]
+        except KeyError:
+            annots = []
+
+        try:
+            annot = annotations["functions"][func_name]
         except KeyError:
             pass
         else:
-            typess = compute_pythran_types_from_valued_types(ann.values())
-            for types in typess:
-                signatures_func.add(f"export {func_name}({', '.join(types)})")
+            annots.append(annot)
 
-        anns = annotations["__in_comments__"][func_name]
-        if not fdef.args.args:
+        signatures_as_lists_strings = []
+        for annot in annots:
+            signatures_as_lists_strings.extend(
+                compute_signatures_from_typeobjects(annot)
+            )
+
+        signatures_func = set()
+        for signature_as_strings in signatures_as_lists_strings:
+            signatures_func.add(
+                f"export {func_name}({', '.join(signature_as_strings)})"
+            )
+
+        if not fdef.args.args and not signatures_func:
             signatures_func.add(f"export {func_name}()")
-        for ann in anns:
-            typess = compute_pythran_types_from_valued_types(ann.values())
-
-            for types in typess:
-                signatures_func.add(f"export {func_name}({', '.join(types)})")
 
         signatures_func = sorted(signatures_func)
         if signatures_func:

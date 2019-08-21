@@ -319,13 +319,15 @@ def analyse_aot(code, pathfile):
             except KeyError:
                 signatures = tuple()
             arg_names = [arg.id for arg in fdef.args.args]
-            annotations_sign = annotations["__in_comments__"][name_func] = []
+            annotations_sign = []
             for sig in signatures:
                 types = [
                     type_.strip()
                     for type_ in sig[len(fdef.name) + 1 : -1].split(",")
                 ]
                 annotations_sign.append(dict(zip(arg_names, types)))
+            if annotations_sign:
+                annotations["__in_comments__"][name_func] = annotations_sign
 
             # locals: variable annotations
             annotations_locals = extract_variable_annotations(fdef, namespace)

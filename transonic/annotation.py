@@ -35,9 +35,9 @@ Internal API
    :members:
    :private-members:
 
-.. autofunction:: compute_pythran_types_from_types
+.. autofunction:: compute_signatures_from_typeobjects
 
-.. autofunction:: compute_pythran_types_from_valued_types
+.. autofunction:: compute_pythran_types_from_types
 
 .. autofunction:: make_signature_from_template_variables
 
@@ -47,6 +47,7 @@ Internal API
 
 import itertools
 import inspect
+from typing import List
 
 from transonic.util import get_name_calling_module
 from transonic.config import backend_default
@@ -441,10 +442,13 @@ def compute_pythran_types_from_types(types, **kwargs):
     return pythran_types
 
 
-def compute_pythran_types_from_valued_types(types):
-    """Compute a list of pythran types
+def compute_signatures_from_typeobjects(types) -> List[List[str]]:
+    """Compute a list of lists (signatures) of strings (pythran types)
 
     """
+    if isinstance(types, dict):
+        types = types.values()
+
     template_parameters = []
 
     for type_ in types:
@@ -467,7 +471,6 @@ def compute_pythran_types_from_valued_types(types):
                 "At least one annotation type lacking in a signature.\n"
                 f"types = {types}"
             )
-
         return (str_types,)
 
     if not all(param.values for param in template_parameters):
