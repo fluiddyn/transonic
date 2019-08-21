@@ -39,36 +39,25 @@ class CythonBackend(BackendAOT):
     def _make_first_lines_header(self):
         return ["import cython\n\nimport numpy as np\ncimport numpy as np\n"]
 
-    def _make_header_1_function(self, func_name, fdef, annotations):
+    def _make_header_from_fdef_signatures(
+        self, fdef, signatures_as_lists_strings, locals_types=None
+    ):
 
-        try:
-            annots = annotations["__in_comments__"][func_name]
-        except KeyError:
-            annots = []
-
-        try:
-            annot = annotations["functions"][func_name]
-        except KeyError:
-            pass
-        else:
-            annots.append(annot)
-
-        signatures_as_lists_strings = []
-        for annot in annots:
-            signatures_as_lists_strings.extend(
-                compute_signatures_from_typeobjects(annot)
-            )
-
-        fdef = extast.ast.FunctionDef(name=fdef.name, args=copy.deepcopy(fdef.args), body=[], decorator_list=[], returns=None)
-
+        fdef = extast.ast.FunctionDef(
+            name=fdef.name,
+            args=copy.deepcopy(fdef.args),
+            body=[],
+            decorator_list=[],
+            returns=None,
+        )
         signatures_func = []
         if signatures_as_lists_strings:
             # produce ctypedef
             index = 0
             name_type_args = []
-            for arg in annot.keys():
+            for arg in [name.id for name in fdef.args.args]:
                 ctypedef = []
-                name_type_arg = "__" + func_name + "_" + arg
+                name_type_arg = "__" + fdef.name + "_" + arg
                 name_type_args.append(name_type_arg)
                 ctypedef.append(f"ctypedef fused {name_type_arg}:\n")
                 possible_types = [x[index] for x in signatures_as_lists_strings]
@@ -85,11 +74,8 @@ class CythonBackend(BackendAOT):
                 name.id = name_type_args[0] + " " + name.id
                 del name_type_args[0]
 
-        try:
-            locals_types = annotations["__locals__"][func_name]
-        except KeyError:
-            pass
-        else:
+        if locals_types is not None and locals_types:
+            # TODO: fused types not supported here
             locals_types = ", ".join(
                 f"{k}={compute_cython_type_from_pythran_type(v)}"
                 for k, v in locals_types.items()

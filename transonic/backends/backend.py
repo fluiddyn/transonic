@@ -185,9 +185,7 @@ class Backend:
         # Deal with functions
         for func_name, fdef in boosted_dicts["functions"].items():
 
-            signatures_func = self._make_header_1_function(
-                func_name, fdef, annotations
-            )
+            signatures_func = self._make_header_1_function(fdef, annotations)
             if signatures_func:
                 lines_header.extend(signatures_func)
 
@@ -357,7 +355,7 @@ class Backend:
 
         return signatures_method, format_str(python_code)
 
-    def _make_header_1_function(self, func_name, fdef, annotations):
+    def _make_header_1_function(self, fdef, annotations):
         raise NotImplementedError
 
 
@@ -385,6 +383,35 @@ class BackendAOT(Backend):
             openmp=openmp,
         )
         return compiling, process
+
+    def _make_header_1_function(self, fdef, annotations):
+
+        try:
+            annots = annotations["__in_comments__"][fdef.name]
+        except KeyError:
+            annots = []
+
+        try:
+            annot = annotations["functions"][fdef.name]
+        except KeyError:
+            pass
+        else:
+            annots.append(annot)
+
+        signatures_as_lists_strings = []
+        for annot in annots:
+            signatures_as_lists_strings.extend(
+                compute_signatures_from_typeobjects(annot)
+            )
+
+        try:
+            locals_types = annotations["__locals__"][fdef.name]
+        except KeyError:
+            locals_types = None
+
+        return self._make_header_from_fdef_signatures(
+            fdef, signatures_as_lists_strings, locals_types
+        )
 
 
 class BackendJIT(Backend):
