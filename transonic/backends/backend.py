@@ -223,19 +223,26 @@ class Backend:
         code = []
         signatures_blocks = []
         for block in blocks:
-            signatures_block = set()
-            for ann in block.signatures:
-                typess = compute_signatures_from_typeobjects(ann.values())
-                for types in typess:
-                    signatures_block.add(
-                        self.keyword_export + f" {block.name}({', '.join(types)})"
-                    )
 
-            if signatures_block:
-                signatures_blocks.extend(sorted(signatures_block))
-                signatures_blocks[-1] = signatures_blocks[-1] + "\n"
+            signatures_as_lists_strings = []
+            for annot in block.signatures:
+                signatures_as_lists_strings.extend(
+                    compute_signatures_from_typeobjects(annot)
+                )
 
             str_variables = ", ".join(block.signatures[0].keys())
+            fdef_block = extast.ast.parse(
+                f"""def {block.name}({str_variables}):pass"""
+            ).body[0]
+
+            # TODO: locals_types for blocks
+            locals_types = None
+            signatures_blocks.extend(
+                self._make_header_from_fdef_signatures(
+                    fdef_block, signatures_as_lists_strings, locals_types
+                )
+            )
+
             code.append(f"\ndef {block.name}({str_variables}):\n")
             code.append(indent(extast.unparse(block.ast_code), "    "))
             if block.results:

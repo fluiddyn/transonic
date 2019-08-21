@@ -9,7 +9,7 @@ Less bugs and more Cython features...
 
   * [done] boost functions
   * [done] boost methods
-  * blocks
+  * [done] blocks
   * jit functions
   * jit methods
 

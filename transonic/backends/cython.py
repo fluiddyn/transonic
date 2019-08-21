@@ -6,10 +6,7 @@
 import copy
 
 from transonic.analyses import extast
-from transonic.annotation import (
-    compute_signatures_from_typeobjects,
-    compute_pythran_type_from_type,
-)
+from transonic.annotation import compute_pythran_type_from_type
 
 from .backend import BackendAOT
 
