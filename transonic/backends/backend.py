@@ -279,11 +279,9 @@ class Backend:
             annotations_meth = {}
 
         meth_name = fdef.name
-        new_code, attributes, name_new_func = make_new_code_method_from_nodes(
+        python_code, attributes, name_new_func = make_new_code_method_from_nodes(
             class_def, fdef
         )
-
-        types_attrs = []
 
         for attr in attributes:
             if attr not in annotations_class:
@@ -297,20 +295,13 @@ class Backend:
             types_pythran
         )
 
-        signatures_method = set()
-
-        for signature_as_strings in signatures_as_lists_strings:
-            signatures_method.add(
-                self.keyword_export
-                + f" {name_new_func}("
-                + ", ".join(signature_as_strings)
-                + ")"
-            )
-
-        signatures_method = sorted(signatures_method)
-        if signatures_method:
-            signatures_method[-1] = signatures_method[-1] + "\n"
-        python_code = new_code
+        # TODO: locals_types for methods
+        locals_types = None
+        signatures_method = self._make_header_from_fdef_signatures(
+            extast.parse(python_code).body[0],
+            signatures_as_lists_strings,
+            locals_types,
+        )
 
         str_self_dot_attributes = ", ".join("self." + attr for attr in attributes)
         args_func = [arg.id for arg in fdef.args.args[1:]]
@@ -356,6 +347,11 @@ class Backend:
         return signatures_method, format_str(python_code)
 
     def _make_header_1_function(self, fdef, annotations):
+        raise NotImplementedError
+
+    def _make_header_from_fdef_signatures(
+        self, fdef, signatures_as_lists_strings, locals_types=None
+    ):
         raise NotImplementedError
 
 
