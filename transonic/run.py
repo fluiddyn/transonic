@@ -14,18 +14,13 @@ import argparse
 from pathlib import Path
 from glob import glob
 import sys
-from typing import Iterable, Optional
-from warnings import warn
 
 from transonic import __version__
 from transonic.analyses import analyse_aot
 
-from transonic.compiler import (
-    compile_extensions,
-    ext_suffix,
-    wait_for_all_extensions,
-)
+from transonic.compiler import wait_for_all_extensions
 
+from .backends import backends
 from transonic.config import backend_default
 from transonic.log import logger
 from transonic.util import (
@@ -87,29 +82,24 @@ def run():
         logger.error(f"No input file found (args.path = {args.path})")
         sys.exit(1)
 
-    from .backends import backends
-    from transonic.config import backend_default
-
-    make_backends_files(paths, backends[backend_default])
+    backend = backends[backend_default]
+    make_backends_files(paths, backend)
 
     if not can_import_accelerator() or args.no_pythran:
         return
 
     # find pythran files not already compiled
-    backends_paths = {backend: [] for backend in backends}
+    backends_paths = {backend_name: [] for backend_name in backends}
 
     for path in paths:
         path = Path(path)
-        backend_path = (
-            path.parent / str("__" + backend_default + "__") / path.name
-        )
-        ext_path = backend_path.with_suffix(ext_suffix)
+        backend_path = path.parent / str("__" + backend.name + "__") / path.name
+        ext_path = backend_path.with_suffix(backend.suffix_extension)
         if backend_path.exists() and has_to_build(ext_path, backend_path):
-            backends_paths[backend_default].append(backend_path)
+            backends_paths[backend.name].append(backend_path)
 
-    compile_extensions(
-        backends_paths[backend_default],
-        backend_default,
+    backend.compile_extensions(
+        backends_paths[backend.name],
         str_pythran_flags=args.pythran_flags,
         parallel=True,
         force=args.force,
@@ -120,20 +110,12 @@ def run():
 
 
 def make_backends_files(
-    paths_py,
-    backend=None,
-    force=False,
-    log_level=None,
-    mocked_modules: Optional[Iterable] = None,
+    paths_py, backend=backend_default, force=False, log_level=None
 ):
     """Create backend files from a list of Python files"""
 
-    if mocked_modules is not None:
-        warn(
-            "The argument mocked_modules is deprecated. "
-            "It is now useless for Transonic.",
-            DeprecationWarning,
-        )
+    if isinstance(backend, str):
+        backend = backends[backend]
 
     if log_level is not None:
         logger.set_level(log_level)

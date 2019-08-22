@@ -1,7 +1,6 @@
 from pathlib import Path
 from textwrap import indent
 from typing import Iterable, Optional
-from warnings import warn
 
 import transonic
 
@@ -9,15 +8,18 @@ from transonic.analyses import extast, analyse_aot
 from transonic.annotation import compute_signatures_from_typeobjects
 from transonic.log import logger
 from transonic.compiler import compile_extension, ext_suffix
+from transonic import mpi
+from transonic.mpi import PathSeq
 
 from transonic.util import (
     has_to_build,
     format_str,
     write_if_has_to_write,
     TypeHintRemover,
+    make_hex,
 )
 
-from .backend_jit import BackendJIT as _BackendJIT
+from .base_jit import SubBackendJIT
 from .for_classes import make_new_code_method_from_nodes
 
 
@@ -38,30 +40,20 @@ class Backend:
     suffix_header = None
     suffix_extension = ext_suffix
     keyword_export = "export"
-    _BackendJIT = _BackendJIT
+    _SubBackendJIT = SubBackendJIT
+    needs_compilation = True
 
     def __init__(self):
         self.name = self.backend_name
         self.name_capitalized = self.name.capitalize()
-        self.jit = self._BackendJIT(self.name)
+        self.jit = self._SubBackendJIT(self.name)
 
     def make_backend_files(
-        self,
-        paths_py,
-        force=False,
-        log_level=None,
-        mocked_modules: Optional[Iterable] = None,
-        backend=None,
+        self, paths_py, force=False, log_level=None, backend=None
     ):
         """Create backend files from a list of Python files"""
-        assert backend is None
-
-        if mocked_modules is not None:
-            warn(
-                "The argument mocked_modules is deprecated. "
-                "It is now useless for Transonic.",
-                DeprecationWarning,
-            )
+        if backend is not None:
+            raise NotImplementedError
 
         if log_level is not None:
             logger.set_level(log_level)
@@ -82,10 +74,11 @@ class Backend:
             else:
                 conjug = ""
 
-            logger.warning(
-                f"{nb_files} files created or updated need{conjug}"
-                " to be {self.name}ized"
-            )
+            if self.needs_compilation:
+                logger.warning(
+                    f"{nb_files} files created or updated need{conjug}"
+                    f" to be {self.name}ized"
+                )
 
         return paths_out
 
@@ -356,6 +349,45 @@ class Backend:
     ):
         raise NotImplementedError
 
+    def name_ext_from_path_backend(self, path_backend):
+        """Return an extension name given the path of a Pythran file"""
+
+        name = None
+        if mpi.rank == 0:
+            path_backend = PathSeq(path_backend)
+            if path_backend.exists():
+                with open(path_backend) as file:
+                    src = file.read()
+                # quick fix to recompile when the header has been changed
+                for suffix in (".pythran", ".pxd"):
+                    path_header = path_backend.with_suffix(suffix)
+                    if path_header.exists():
+                        print(path_header)
+                        with open(path_header) as file:
+                            src += file.read()
+            else:
+                src = ""
+
+            name = path_backend.stem + "_" + make_hex(src) + self.suffix_extension
+
+        return mpi.bcast(name)
+
+    def compile_extensions(
+        self,
+        paths: Iterable[Path],
+        str_pythran_flags: str,
+        parallel=True,
+        force=True,
+    ):
+        print("compile extension")
+        for path in paths:
+            self.compile_extension(
+                path,
+                str_pythran_flags=str_pythran_flags,
+                parallel=parallel,
+                force=force,
+            )
+
 
 class BackendAOT(Backend):
     """Backend for ahead-of-time compilers"""
@@ -369,8 +401,19 @@ class BackendAOT(Backend):
         return not path.endswith(".py")
 
     def compile_extension(
-        self, path_backend, name_ext_file, native=False, xsimd=False, openmp=False
+        self,
+        path_backend,
+        name_ext_file=None,
+        native=False,
+        xsimd=False,
+        openmp=False,
+        str_pythran_flags: Optional[str] = None,
+        parallel=True,
+        force=True,
     ):
+        if name_ext_file is None:
+            name_ext_file = self.name_ext_from_path_backend(path_backend)
+
         compiling = True
         process = compile_extension(
             path_backend,
@@ -379,6 +422,9 @@ class BackendAOT(Backend):
             native=native,
             xsimd=xsimd,
             openmp=openmp,
+            str_pythran_flags=str_pythran_flags,
+            parallel=parallel,
+            force=force,
         )
         return compiling, process
 
@@ -416,6 +462,7 @@ class BackendJIT(Backend):
     """Backend for just-in-time compilers"""
 
     suffix_extension = ".py"
+    needs_compilation = False
 
     def check_if_compiled(self, module):
         return True
@@ -435,3 +482,14 @@ class BackendJIT(Backend):
         compiling = False
         process = None
         return compiling, process
+
+    def _make_header_1_function(self, fdef, annotations):
+        return []
+
+    def _make_first_lines_header(self):
+        return []
+
+    def _make_header_from_fdef_signatures(
+        self, fdef, signatures_as_lists_strings, locals_types=None
+    ):
+        return []

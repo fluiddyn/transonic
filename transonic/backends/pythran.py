@@ -9,7 +9,7 @@ try:
 except ImportError:
     black = False
 
-from .backend import BackendAOT
+from .base import BackendAOT
 
 
 class PythranBackend(BackendAOT):

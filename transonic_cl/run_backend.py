@@ -37,6 +37,9 @@ def main():
     else:
         raise ValueError("No backend is specified")
 
+    if backend in ("python", "numba"):
+        return
+
     compiling_name = backend.capitalize() + "izing"
 
     assert sys.argv[0].endswith(

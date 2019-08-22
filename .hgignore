@@ -31,3 +31,4 @@ doc/ipynb/*.rst
 **/__pythran__/*
 **/__cython__/*
 **/__numba__/*
+**/__python__/*

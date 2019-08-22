@@ -46,6 +46,6 @@ has_to_replace = not strtobool(os.environ.get("TRANSONIC_NO_REPLACE", "0"))
 
 backend_default = os.environ.get("TRANSONIC_BACKEND", "pythran").lower()
 
-supported_backends = ["pythran", "cython", "numba"]
+supported_backends = ["pythran", "cython", "numba", "python"]
 if backend_default not in supported_backends:
     raise ValueError(f"backend {backend_default} not supported")

@@ -12,8 +12,8 @@ from transonic.annotation import (
     make_signatures_from_typehinted_func,
 )
 
-from .backend import BackendAOT
-from .backend_jit import BackendJIT
+from .base import BackendAOT
+from .base_jit import SubBackendJIT
 
 
 def compute_cython_type_from_pythran_type(type_):
@@ -118,7 +118,7 @@ class HeaderFunction:
             self.types[key].update(value)
 
 
-class CythonJIT(BackendJIT):
+class SubCythonJIT(SubBackendJIT):
     def compute_typename_from_object(self, obj: object):
         """return the Pythran type name"""
         return compute_cython_type_from_pythran_type(
@@ -161,7 +161,7 @@ class CythonBackend(BackendAOT):
     backend_name = "cython"
     suffix_header = ".pxd"
     keyword_export = "cpdef"
-    _BackendJIT = CythonJIT
+    _SubBackendJIT = SubCythonJIT
 
     def _make_first_lines_header(self):
         return ["import cython\n\nimport numpy as np\ncimport numpy as np\n"]

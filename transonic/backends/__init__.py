@@ -20,12 +20,16 @@ from typing import Iterable, Optional
 
 from transonic.config import backend_default
 
+from .py import PythonBackend
 from .pythran import PythranBackend
 from .cython import CythonBackend
 from .numba import NumbaBackend
 
 backends = dict(
-    pythran=PythranBackend(), cython=CythonBackend(), numba=NumbaBackend()
+    pythran=PythranBackend(),
+    cython=CythonBackend(),
+    numba=NumbaBackend(),
+    python=PythonBackend(),
 )
 
 

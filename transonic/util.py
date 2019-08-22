@@ -92,7 +92,6 @@ from transonic.analyses import extast
 
 from transonic.compiler import (
     ext_suffix,
-    name_ext_from_path_backend,
     make_hex,
     modification_date,
     has_to_build,
@@ -115,6 +114,13 @@ def can_import_accelerator(backend=backend_default):
             import cython
         except ImportError:
             return False
+    elif backend == "numba":
+        try:
+            import numba
+        except ImportError:
+            return False
+    elif backend == "python":
+        return True
     else:
         raise NotImplementedError
     return True
@@ -344,7 +350,10 @@ def clear_cached_extensions(module_name: str, force: bool = False):
 
     """
 
-    from .justintime import path_jit
+    from transonic.justintime import path_jit
+    from transonic.backends import backends
+
+    backend = backends[backend_default]
 
     if module_name.endswith(".py"):
         module_name = module_name[:-3]
@@ -359,9 +368,11 @@ def clear_cached_extensions(module_name: str, force: bool = False):
     relative_path = Path(relative_path)
 
     path_pythran = relative_path.parent / (
-        "__pythran__/" + relative_path.name + ".py"
+        "__{backend.name}__/" + relative_path.name + ".py"
     )
-    path_ext = path_pythran.with_name(name_ext_from_path_backend(path_pythran))
+    path_ext = path_pythran.with_name(
+        backend.name_ext_from_path_backend(path_pythran)
+    )
 
     if not path_pythran_dir_jit.exists() and not (
         path_pythran.exists() or path_ext.exists()

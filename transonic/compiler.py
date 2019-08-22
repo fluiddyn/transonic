@@ -15,10 +15,6 @@ Internal API
    :members:
    :private-members:
 
-.. autofunction:: name_ext_from_path_backend
-
-.. autofunction:: compile_extensions
-
 .. autofunction:: compile_extension
 
 """
@@ -26,7 +22,7 @@ Internal API
 import multiprocessing
 import subprocess
 import time
-from typing import Union, Iterable, Optional
+from typing import Union, Optional
 import sysconfig
 import hashlib
 import sys
@@ -60,30 +56,6 @@ def has_to_build(output_file: Path, input_file: Path):
 def make_hex(src):
     """Produce a hash from a sting"""
     return hashlib.md5(src.encode("utf8")).hexdigest()
-
-
-def name_ext_from_path_backend(path_backend):
-    """Return an extension name given the path of a Pythran file"""
-
-    name = None
-    if mpi.rank == 0:
-        path_backend = PathSeq(path_backend)
-        if path_backend.exists():
-            with open(path_backend) as file:
-                src = file.read()
-            # quick fix to recompile when the header has been changed
-            for suffix in (".pythran", ".pxd"):
-                path_header = path_backend.with_suffix(suffix)
-                if path_header.exists():
-                    print(path_header)
-                    with open(path_header) as file:
-                        src += file.read()
-        else:
-            src = ""
-
-        name = path_backend.stem + "_" + make_hex(src) + ext_suffix
-
-    return mpi.bcast(name)
 
 
 class SchedulerPopen:
@@ -137,7 +109,7 @@ class SchedulerPopen:
         self,
         path: Path,
         backend: str,
-        name_ext_file: Optional[str] = None,
+        name_ext_file: str,
         native=False,
         xsimd=False,
         openmp=False,
@@ -145,9 +117,6 @@ class SchedulerPopen:
         parallel=True,
         force=True,
     ):
-
-        if name_ext_file is None:
-            name_ext_file = name_ext_from_path_backend(path)
 
         if not force:
             path_out = path.with_name(name_ext_file)
@@ -219,31 +188,14 @@ def wait_for_all_extensions():
     scheduler.wait_for_all_extensions()
 
 
-def compile_extensions(
-    paths: Iterable[Path],
-    backend,
-    str_pythran_flags: str,
-    parallel=True,
-    force=True,
-):
-    print("compile extension")
-    for path in paths:
-        scheduler.compile_extension(
-            path,
-            backend,
-            str_pythran_flags=str_pythran_flags,
-            parallel=parallel,
-            force=force,
-        )
-
-
 def compile_extension(
     path: Union[Path, str],
     backend: str,
-    name_ext_file: Optional[str] = None,
+    name_ext_file: str,
     native=False,
     xsimd=False,
     openmp=False,
+    str_pythran_flags: Optional[str] = None,
     parallel=False,
     force=False,
 ):
@@ -253,5 +205,13 @@ def compile_extension(
 
     # return the process
     return scheduler.compile_extension(
-        path, backend, name_ext_file, native=native, xsimd=xsimd, openmp=openmp
+        path,
+        backend,
+        name_ext_file,
+        native=native,
+        xsimd=xsimd,
+        openmp=openmp,
+        str_pythran_flags=str_pythran_flags,
+        parallel=parallel,
+        force=force,
     )

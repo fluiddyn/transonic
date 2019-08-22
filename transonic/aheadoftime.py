@@ -30,12 +30,6 @@ import sys
 
 from transonic.backends import backends
 
-from transonic.compiler import (
-    compile_extension,
-    name_ext_from_path_backend,
-    ext_suffix,
-)
-
 from transonic.config import has_to_replace, backend_default
 from transonic.log import logger
 from transonic import mpi
@@ -254,7 +248,7 @@ class Transonic:
                     print("Done!")
 
                 path_ext = path_backend.with_name(
-                    name_ext_from_path_backend(path_backend)
+                    backend.name_ext_from_path_backend(path_backend)
                 )
 
                 time_backend_after = mpi.modification_date(path_backend)
@@ -268,7 +262,7 @@ class Transonic:
                         path_backend.touch()
 
         path_ext = path_ext or path_backend.with_name(
-            name_ext_from_path_backend(path_backend)
+            backend.name_ext_from_path_backend(path_backend)
         )
 
         self.path_extension = path_ext
@@ -281,16 +275,15 @@ class Transonic:
                 print(
                     f"Launching {backend.name_capitalized} to compile a new extension..."
                 )
-            self.process = compile_extension(
-                path_backend, backend.name, name_ext_file=self.path_extension.name
+            self.is_compiling, self.process = backend.compile_extension(
+                path_backend, name_ext_file=self.path_extension.name
             )
-            self.is_compiling = True
-            self.is_compiled = False
+            self.is_compiled = not self.is_compiling
 
         self.is_transpiled = True
 
         if not path_ext.exists() and not self.is_compiling:
-            path_ext_alt = path_backend.with_suffix(ext_suffix)
+            path_ext_alt = path_backend.with_suffix(backend.suffix_extension)
             if path_ext_alt.exists():
                 self.path_extension = path_ext = path_ext_alt
 

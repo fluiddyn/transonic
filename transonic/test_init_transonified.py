@@ -8,12 +8,12 @@ from transonic.config import backend_default
 from transonic.util import (
     has_to_compile_at_import,
     ext_suffix,
-    name_ext_from_path_backend,
     can_import_accelerator,
 )
 from transonic.aheadoftime import modules
 from transonic import mpi
 
+backend = backends[backend_default]
 
 module_name = "transonic.for_test_init"
 
@@ -32,7 +32,7 @@ class TestsInit(unittest.TestCase):
         )
 
         cls.path_ext = path_backend.with_name(
-            name_ext_from_path_backend(path_backend)
+            backend.name_ext_from_path_backend(path_backend)
         )
 
     @classmethod
@@ -78,7 +78,7 @@ class TestsInit(unittest.TestCase):
 
         print(mpi.rank, "before make_backend_file(self.path_for_test)", flush=1)
         if mpi.rank == 0:
-            backends[backend_default].make_backend_file(self.path_for_test)
+            backend.make_backend_file(self.path_for_test)
 
         print(mpi.rank, "after make_backend_file(self.path_for_test)", flush=1)
         mpi.barrier()
@@ -96,7 +96,7 @@ class TestsInit(unittest.TestCase):
 
     @unittest.skipIf(
         not can_import_accelerator(),
-        f"{backend_default} is required for TRANSONIC_COMPILE_AT_IMPORT",
+        f"{backend.name} is required for TRANSONIC_COMPILE_AT_IMPORT",
     )
     def test_pythranize(self):
 
@@ -130,8 +130,11 @@ class TestsInit(unittest.TestCase):
         ts = for_test_init.ts
 
         assert ts.is_transpiled
-        assert ts.is_compiling
-        assert not ts.is_compiled
+        if backend.needs_compilation:
+            assert ts.is_compiling
+            assert not ts.is_compiled
+        else:
+            assert ts.is_compiled
 
         for_test_init.func(1, 3.14)
         for_test_init.func1(1.1, 2.2)

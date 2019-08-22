@@ -17,7 +17,7 @@ from transonic.util import get_source_without_decorator
 from .for_classes import produce_code_class
 
 
-class BackendJIT:
+class SubBackendJIT:
     def __init__(self, name):
         self.name = name
         self.name_capitalized = name.capitalize()

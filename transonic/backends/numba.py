@@ -5,7 +5,7 @@ import gast as ast
 
 from transonic.analyses import extast
 
-from .backend import BackendJIT
+from .base import BackendJIT
 
 
 class NumbaBackend(BackendJIT):

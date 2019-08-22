@@ -1,6 +1,8 @@
 import shutil
 from distutils.core import Distribution
 from copy import copy
+from pprint import pformat
+
 import pytest
 
 from transonic import dist
@@ -37,21 +39,33 @@ def test_detect_pythran_extensions():
         "block_fluidsim.py",
         "blocks_type_hints.py",
         "boosted_func_use_import.py",
+        # "boosted_class_use_import.py",  # was forgotten...
         "class_blocks.py",
         "classic.py",
+        # "class_rec_calls.py",
+        # "methods.py",
         "mixed_classic_type_hint.py",
+        # "no_arg.py",
         "type_hint_notemplate.py",
         "no_pythran_.py",
     ]
 
     make_backend_files((path_data_tests / name for name in names))
     ext_names = detect_transonic_extensions(path_data_tests)
-    if backend_default == "cython":
-        # -2 files (no_pythran.py and assign_fun_jit.py) + 1 test_packaging.__cython__.add
-        assert len(ext_names) == len(names) - 1
+
+    if backend_default in ("cython", "python"):
+        # -2 files (no_pythran.py and assign_fun_jit.py)
+        # + 1 test_packaging.__cython__.add
+        number_not_transonized = 1
     else:
         # -2 files (no_pythran.py and assign_fun_jit.py)
-        assert len(ext_names) == len(names) - 2
+        number_not_transonized = 2
+
+    if len(ext_names) != len(names) - number_not_transonized:
+        print("ext_names:\n", pformat(sorted(ext_names)), sep="")
+        print("names:\n", pformat(sorted(names)), sep="")
+        raise RuntimeError
+
     shutil.rmtree(path_data_tests / f"__{backend_default}__", ignore_errors=True)
 
 

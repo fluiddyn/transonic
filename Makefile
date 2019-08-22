@@ -14,6 +14,9 @@ tests_cython:
 tests_numba:
 	TRANSONIC_BACKEND="numba" pytest transonic data_tests/ipynb
 
+tests_python:
+	TRANSONIC_BACKEND="python" pytest transonic data_tests/ipynb
+
 tests_mpi:
 	mpirun -np 2 pytest transonic
 
@@ -30,6 +33,7 @@ clean:
 
 tests_coverage_short:
 	mkdir -p .coverage
+	TRANSONIC_BACKEND="python" coverage run -p -m pytest
 	coverage run -p -m pytest
 
 tests_coverage: tests_coverage_short

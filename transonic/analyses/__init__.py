@@ -78,7 +78,7 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
     """Get the definitions of the decorated functions and classes"""
 
     kinds = ("functions", "functions_ext", "methods", "classes")
-    backends = dict(pythran={}, cython={}, numba={})
+    backends = dict(pythran={}, cython={}, numba={}, python={})
     decorated_dicts = {kind: copy.deepcopy(backends) for kind in kinds}
 
     def add_definition(definition_node):
