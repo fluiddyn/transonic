@@ -53,6 +53,10 @@ def test_fib():
     assert fib2 == fib(2)
     assert result == use_fib()
 
+    fib15 = fib(1.5)
+    wait_for_all_extensions()
+    assert fib15 == fib(1.5)
+
 
 def test_jit_simple():
 

@@ -17,7 +17,7 @@ Less bugs and more Cython features...
 
 - [done] BackendJITCython
 
-- Check/fix
+- [done] Check/fix
 
   * [done] boost methods
   * [done] blocks
