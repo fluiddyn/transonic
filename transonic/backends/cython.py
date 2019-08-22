@@ -188,7 +188,7 @@ class CythonBackend(BackendAOT):
                 name_type_args.append(name_type_arg)
                 ctypedef.append(f"ctypedef fused {name_type_arg}:\n")
                 possible_types = [x[index] for x in signatures_as_lists_strings]
-                for possible_type in list(set(possible_types)):
+                for possible_type in sorted(set(possible_types)):
                     ctypedef.append(
                         f"   {compute_cython_type_from_pythran_type(possible_type)}\n"
                     )

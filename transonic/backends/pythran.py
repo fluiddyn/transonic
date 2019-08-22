@@ -9,8 +9,6 @@ try:
 except ImportError:
     black = False
 
-from transonic.annotation import compute_signatures_from_typeobjects
-
 from .backend import BackendAOT
 
 

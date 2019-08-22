@@ -6,7 +6,7 @@ Less bugs and more Cython features...
 - [done] Header also for Pythran (``.pythran``)
 - [done] Refactore backends "for method"
 - [done] Recompile if header changed
-- test_run.py: also check signature files
+- [done] test_run.py: also check signature files
 - [done] Fused types rather than more than one signature for
 
   * [done] boost functions
@@ -32,27 +32,6 @@ Less bugs and more Cython features...
 
 - "exterior" functions + understand the tests
 
-Options for the boost decorator
--------------------------------
-
-To support things like:
-
-.. code:: python
-
-  @boost(inline=True)
-  def add(a, b):
-      return a + b
-
-setup.py & more than one backend at runtime
--------------------------------------------
-
-- ``make_backend_files(backend_default="cython")``
-- More than one backend at runtime
-- "python" backend (equivalent to NO_REPLACE)
-- Warnings if file not compiled
-- ``TRANSONIC_BACKEND`` changes only ``backend_default``
-- Examples setup.py in documentation
-
 Numba backend
 -------------
 
@@ -77,6 +56,27 @@ and a "compiled file" (mod_[hash].py):
   @nb.jit
   def func(...):
       ...
+
+Options for the boost decorator
+-------------------------------
+
+To support things like:
+
+.. code:: python
+
+  @boost(inline=True)
+  def add(a, b):
+      return a + b
+
+setup.py & more than one backend at runtime
+-------------------------------------------
+
+- ``make_backend_files(backend_default="cython")``
+- More than one backend at runtime
+- "python" backend (equivalent to NO_REPLACE)
+- Warnings if file not compiled
+- ``TRANSONIC_BACKEND`` changes only ``backend_default``
+- Examples setup.py in documentation
 
 Specify backend in code
 -----------------------

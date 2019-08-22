@@ -197,7 +197,7 @@ class Shape(TemplateVar):
 
     def _is_correct_for_name(self, arg):
         raise NotImplementedError
-        return isinstance(arg, str)
+        # return isinstance(arg, str)
 
 
 class UnionVar(TemplateVar):

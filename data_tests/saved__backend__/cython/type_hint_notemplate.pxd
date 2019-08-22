@@ -16,16 +16,16 @@ ctypedef fused __compute_b:
    np.int_t[:]
 
 ctypedef fused __compute_c:
-   np.complex128
+   np.complex128_t
    cython.int
 
 ctypedef fused __compute_d:
+   np.complex128_t[:, :, :]
    np.complex128_t[:]
-   np.float32_t[:, :]
    np.float32_t[:, :, :, :]
+   np.float32_t[:, :]
    np.int_t[:, :, :]
    np.int_t[:]
-   np.complex128_t[:, :, :]
 
 ctypedef fused __compute_e:
    cython.str

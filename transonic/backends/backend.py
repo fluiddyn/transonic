@@ -1,6 +1,5 @@
 from pathlib import Path
 from textwrap import indent
-
 from typing import Iterable, Optional
 from warnings import warn
 
@@ -183,12 +182,10 @@ class Backend:
         lines_code = ["\n" + code_dependance + "\n"]
         lines_header = self._make_first_lines_header()
         # Deal with functions
-        for func_name, fdef in boosted_dicts["functions"].items():
-
+        for fdef in boosted_dicts["functions"].values():
             signatures_func = self._make_header_1_function(fdef, annotations)
             if signatures_func:
                 lines_header.extend(signatures_func)
-
             code_function = _make_code_from_fdef_node(fdef)
             lines_code.append(code_function)
 
@@ -209,9 +206,7 @@ class Backend:
         code = "\n".join(lines_code).strip()
 
         if code:
-            if self.name == "pythran":
-                lines_header.append("export __transonic__\n")
-
+            self._append_line_header_variable(lines_header, "__transonic__")
             code += f"\n\n__transonic__ = ('{transonic.__version__}',)"
 
         return format_str(code), codes_ext, "\n".join(lines_header).strip() + "\n"
@@ -286,7 +281,7 @@ class Backend:
             annotations_meth = {}
 
         meth_name = fdef.name
-        python_code, attributes, name_new_func = make_new_code_method_from_nodes(
+        python_code, attributes, _ = make_new_code_method_from_nodes(
             class_def, fdef
         )
 

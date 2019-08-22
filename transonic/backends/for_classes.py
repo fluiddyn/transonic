@@ -118,7 +118,7 @@ def make_new_code_method_from_source(source, func_name, cls_name):
     using_self = False
 
     g = tokenize(BytesIO(source.encode("utf-8")).readline)
-    for toknum, tokval, a, b, c in g:
+    for toknum, tokval, _, _, _ in g:
         # logger.debug((tok_name[toknum], tokval))
 
         if using_self == "self":

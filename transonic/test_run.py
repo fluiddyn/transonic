@@ -13,6 +13,7 @@ from transonic.run import run
 
 
 path_dir_out = path_data_tests / f"__{backend_default}__"
+header_suffixes = {"pythran": ".pythran", "cython": ".pxd"}
 
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
@@ -58,7 +59,21 @@ def test_create_pythran_files():
 
         code = code.split("__transonic__ = ", 1)[0]
         saved_code = saved_code.split("__transonic__ = ", 1)[0]
-        # warning: it is a strong requirement!
+
+        if backend_default in header_suffixes:
+            suffix = header_suffixes[backend_default]
+
+            header_path = __backend__path.with_suffix(suffix)
+            assert header_path.exists()
+            with open(header_path) as file:
+                code += file.read()
+
+            header_path = saved_path.with_suffix(suffix)
+            assert header_path.exists()
+            with open(header_path) as file:
+                saved_code += file.read()
+
+        # warning: it is a very strong requirement!
         assert code == saved_code, path
 
 
