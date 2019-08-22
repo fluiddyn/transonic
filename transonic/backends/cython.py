@@ -4,6 +4,7 @@
 
 """
 import copy
+import inspect
 
 from transonic.analyses import extast
 from transonic.annotation import (
@@ -37,7 +38,84 @@ def compute_cython_type_from_pythran_type(type_):
     if any(type_.endswith(str(number)) for number in (32, 64, 128)):
         return "np." + type_ + "_t"
 
+    if "dict" in type_:
+        return "dict"
+
     return "cython." + type_
+
+
+class HeaderFunction:
+    def __init__(
+        self,
+        path=None,
+        name=None,
+        arguments=None,
+        types: dict = None,
+        imports=None,
+    ):
+
+        if path is not None:
+            self.path = path
+            with open(path) as file:
+                lines = file.readlines()
+
+            last_line = lines[-1]
+            assert last_line.startswith("cpdef ")
+            name = last_line.split(" ", 1)[1].split("(", 1)[0]
+
+            parts = [
+                part.strip()
+                for part in "".join(lines[:-1]).split("ctypedef fused ")
+            ]
+            imports = parts[0]
+
+            types = {}
+
+            for part in parts[1:]:
+                assert part.startswith(f"__{name}_")
+                lines = part.split("\n")
+                arg_name = lines[0].split(f"__{name}_", 1)[1].split(":", 1)[0]
+                types[arg_name] = set(line.strip() for line in lines[1:])
+
+        if types is None:
+            if arguments is None:
+                raise ValueError
+            types = {key: set() for key in arguments}
+
+        if arguments is None:
+            arguments = types.keys()
+
+        self.arguments = arguments
+        self.name = name
+        self.types = types
+        self.imports = imports
+
+    def make_code(self):
+
+        bits = [self.imports + "\n\n"]
+
+        for arg, types in self.types.items():
+            bits.append(f"ctypedef fused __{self.name}_{arg}:\n")
+            for type_ in sorted(types):
+                bits.append(f"    {type_}\n")
+            bits.append("\n")
+
+        tmp = ", ".join(f"__{self.name}_{arg} {arg}" for arg in self.types)
+        bits.append(f"cpdef {self.name}({tmp})")
+        code = "".join(bits)
+        return code
+
+    def add_signature(self, new_types):
+        for new_type, set_types in zip(new_types, self.types.values()):
+            set_types.add(new_type)
+
+    def update_with_other_header(self, other):
+        if self.name != other.name:
+            raise ValueError
+        if self.types.keys() != other.types.keys():
+            raise ValueError
+        for key, value in other.types.items():
+            self.types[key].update(value)
 
 
 class CythonJIT(BackendJIT):
@@ -49,25 +127,34 @@ class CythonJIT(BackendJIT):
 
     def make_new_header(self, func, arg_types):
         # Include signature comming from type hints
-        signatures = make_signatures_from_typehinted_func(func)
+        header = HeaderFunction(
+            name=func.__name__,
+            arguments=list(inspect.signature(func).parameters.keys()),
+            imports="import cython\n\nimport numpy as np\ncimport numpy as np\n",
+        )
+
+        signatures = make_signatures_from_typehinted_func(func, as_list_str=True)
+
+        for signature in signatures:
+            header.add_signature(
+                compute_cython_type_from_pythran_type(type_)
+                for type_ in signature
+            )
+
+        if arg_types != "no types":
+            header.add_signature(arg_types)
+
+        return header
 
     def _load_old_header(self, path_backend_header):
-        pass
-        # exports_old = None
-        # if mpi.rank == 0:
-        #     with open(path_backend_header) as file:
-        #         exports_old = [export.strip() for export in file.readlines()]
-        # exports_old = mpi.bcast(exports_old)
-        # return exports_old
+        return HeaderFunction(path=path_backend_header)
 
     def _merge_header_objects(self, header, header_old):
-        pass
-        # header.update(header_old)
-        # return header
+        header.update_with_other_header(header_old)
+        return header
 
     def _make_header_code(self, header):
-        return ""
-        # return "\n".join(sorted(header)) + "\n"
+        return header.make_code()
 
 
 class CythonBackend(BackendAOT):

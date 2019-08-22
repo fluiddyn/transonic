@@ -76,11 +76,8 @@ from transonic.util import (
     format_str,
 )
 
-
 modules = {}
-
 path_jit = mpi.Path(path_root) / backend_default / "__jit__"
-
 
 if mpi.rank == 0:
     path_jit.mkdir(parents=True, exist_ok=True)
@@ -159,7 +156,7 @@ class ModuleJIT:
             return inspect.getsource(mod)
 
 
-def _get_module_jit(backend="pythran", index_frame: int = 2):
+def _get_module_jit(backend=backend_default, index_frame: int = 2):
     """Get the ModuleJIT instance corresponding to the calling module
 
     Parameters
@@ -187,7 +184,9 @@ def _get_module_jit(backend="pythran", index_frame: int = 2):
         return ModuleJIT(backend=backend, frame=frame)
 
 
-def jit(func=None, backend="pythran", native=False, xsimd=False, openmp=False):
+def jit(
+    func=None, backend=backend_default, native=False, xsimd=False, openmp=False
+):
     """Decorator to record that the function has to be jit compiled
 
     """
@@ -379,6 +378,7 @@ class JIT:
                             'with a "reshaped" array which is not supported by Pythran.'
                         )
                         raise
+                    logger.debug(error)
 
             if self.compiling or not _COMPILE_JIT:
                 return func(*args, **kwargs)

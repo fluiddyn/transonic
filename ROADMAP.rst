@@ -7,22 +7,22 @@ Less bugs and more Cython features...
 - [done] Refactore backends "for method"
 - [done] Recompile if header changed
 - test_run.py: also check signature files
-- Fused types rather than more than one signature for
+- [done] Fused types rather than more than one signature for
 
   * [done] boost functions
   * [done] boost methods
   * [done] blocks
-  * jit functions
-  * jit methods
+  * [done] jit functions
+  * [done] jit methods
 
-- BackendJITCython
+- [done] BackendJITCython
 
 - Check/fix
 
   * [done] boost methods
   * [done] blocks
-  * jit functions
-  * jit methods
+  * [done] jit functions
+  * [done] jit methods
 
 - locals annotations for
   * boost methods

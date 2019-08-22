@@ -494,7 +494,9 @@ def compute_signatures_from_typeobjects(types) -> List[List[str]]:
     return pythran_types
 
 
-def make_signature_from_template_variables(func, _signature=None, **kwargs):
+def make_signature_from_template_variables(
+    func, _signature=None, as_list_str=False, **kwargs
+):
     """Create signature for a function with values for the template types
 
     Parameters
@@ -520,12 +522,16 @@ def make_signature_from_template_variables(func, _signature=None, **kwargs):
     ]
     signatures = []
     for pythran_types in multi_pythran_types:
-        signatures.append(f"{func.__name__}(" + ", ".join(pythran_types) + ")")
+        if as_list_str:
+            signature = pythran_types
+        else:
+            signature = f"{func.__name__}(" + ", ".join(pythran_types) + ")"
+        signatures.append(signature)
 
     return signatures
 
 
-def make_signatures_from_typehinted_func(func):
+def make_signatures_from_typehinted_func(func, as_list_str=False):
     """Make the signatures from annotations if it is possible
 
     Useful when there are only "not templated" types.
@@ -550,7 +556,7 @@ def make_signatures_from_typehinted_func(func):
 
     if not template_parameters:
         signatures = make_signature_from_template_variables(
-            func, _signature=_signature
+            func, _signature=_signature, as_list_str=as_list_str
         )
         return signatures
 
@@ -567,7 +573,10 @@ def make_signatures_from_typehinted_func(func):
         template_variables = dict(zip(names, set_types))
         signatures.extend(
             make_signature_from_template_variables(
-                func, _signature=_signature, **template_variables
+                func,
+                _signature=_signature,
+                as_list_str=as_list_str,
+                **template_variables,
             )
         )
 
