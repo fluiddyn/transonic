@@ -27,11 +27,7 @@ def _make_code_from_fdef_node(fdef, black=True):
     transformed = TypeHintRemover().visit(fdef)
     # convert the AST back to source code
     code = extast.unparse(transformed)
-
-    if black:
-        code = format_str(code)
-
-    return code
+    return format_str(code)
 
 
 class Backend:
@@ -95,7 +91,7 @@ class Backend:
         if not path_py.exists():
             raise FileNotFoundError(f"Input file {path_py} not found")
 
-        if path_py.absolute().parent.name == "__" + self.name + "__":
+        if path_py.absolute().parent.name == f"__{self.name}__":
             logger.debug(f"skip file {path_py}")
             return None, None, None
         if not path_py.name.endswith(".py"):
@@ -103,7 +99,7 @@ class Backend:
                 "transonic only processes Python file. Cannot process {path_py}"
             )
 
-        path_dir = path_py.parent / str("__" + self.name + "__")
+        path_dir = path_py.parent / str(f"__{self.name}__")
         path_backend = (path_dir / path_py.name).with_suffix(self.suffix_backend)
 
         if not has_to_build(path_backend, path_py) and not force:

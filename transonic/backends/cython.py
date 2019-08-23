@@ -184,7 +184,7 @@ class CythonBackend(BackendAOT):
             name_type_args = []
             for arg in [name.id for name in fdef.args.args]:
                 ctypedef = []
-                name_type_arg = "__" + fdef.name + "_" + arg
+                name_type_arg = f"__{fdef.name}_{arg}"
                 name_type_args.append(name_type_arg)
                 ctypedef.append(f"ctypedef fused {name_type_arg}:\n")
                 possible_types = [x[index] for x in signatures_as_lists_strings]

@@ -209,18 +209,16 @@ def find_path(node: object, pathfile: str):
 def change_import_name(
     code_dep: str, changed_node: object, func_name: str, relative: str = None
 ):
-    """ Change the name of changed_node in code_dep by adding "__" + func + "__"
-        at the beginning of the imported module, and return the modified code
+    """Change the name of changed_node in code_dep by adding "__" + func + "__"
+    at the beginning of the imported module, and return the modified code
     """
     mod = extast.parse(code_dep)
     for node in mod.body:
         if extast.unparse(node) == extast.unparse(changed_node):
             if isinstance(node, ast.ImportFrom):
-                node.module = "__ext__" + func_name + "__" + node.module
+                node.module = f"__ext__{func_name}__{node.module}"
             elif isinstance(node, ast.Import):
-                node.names[0].name = (
-                    "__ext__" + func_name + "__" + node.names[0].name
-                )
+                node.names[0].name = f"__ext__{func_name}__{node.names[0].name}"
         if not relative:
             node.level = 0
     return extast.unparse(mod)
@@ -380,7 +378,7 @@ def get_exterior_code(
             # a jitted function or method needs another jitted function
             if not (file_name and file_name not in treated):
                 continue
-            new_file_name = "__ext__" + func + "__" + file_name
+            new_file_name = f"__ext__{func}__{file_name}"
             # get the content of the file
             try:
                 with open(str(file_path), "r") as file:
