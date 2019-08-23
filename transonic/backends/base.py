@@ -358,7 +358,6 @@ class Backend:
                 for suffix in (".pythran", ".pxd"):
                     path_header = path_backend.with_suffix(suffix)
                     if path_header.exists():
-                        print(path_header)
                         with open(path_header) as file:
                             src += file.read()
             else:
