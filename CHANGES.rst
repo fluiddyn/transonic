@@ -4,6 +4,12 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
+0.3.1 (2019-08-23)
+------------------
+
+- Much better Cython backend
+- Python and Numba backend
+
 0.3.0 (2019-08-17)
 ------------------
 

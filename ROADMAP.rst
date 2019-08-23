@@ -32,31 +32,6 @@ Less bugs and more Cython features...
 
 - "exterior" functions + understand the tests
 
-Numba backend
--------------
-
-Simpler but not so simple because no compilation!
-
-We could solve this by having 2 files. A "backend file" (mod.py):
-
-.. code:: python
-
-  #__protected__ import numba as nb
-
-  #__protected__ @nb.jit
-  def func(...):
-      ...
-
-and a "compiled file" (mod_[hash].py):
-
-.. code:: python
-
-  import numba as nb
-
-  @nb.jit
-  def func(...):
-      ...
-
 Options for the boost decorator
 -------------------------------
 

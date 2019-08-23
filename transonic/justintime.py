@@ -21,8 +21,6 @@ Internal API
    :members:
    :private-members:
 
-.. autofunction:: compute_typename_from_object
-
 Notes
 -----
 
