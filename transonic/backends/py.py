@@ -1,4 +1,5 @@
 from shutil import copyfile
+from typing import Optional
 
 from .base import BackendJIT
 from .base_jit import SubBackendJIT
@@ -20,8 +21,19 @@ class PythonBackend(BackendJIT):
     _SubBackendJIT = SubBackendJITPython
 
     def compile_extension(
-        self, path_backend, name_ext_file, native=False, xsimd=False, openmp=False
+        self,
+        path_backend,
+        name_ext_file=None,
+        native=False,
+        xsimd=False,
+        openmp=False,
+        str_pythran_flags: Optional[str] = None,
+        parallel=True,
+        force=True,
     ):
+        if name_ext_file is None:
+            name_ext_file = self.name_ext_from_path_backend(path_backend)
+
         copyfile(path_backend, path_backend.with_name(name_ext_file))
         compiling = False
         process = None

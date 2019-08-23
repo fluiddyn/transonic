@@ -36,13 +36,9 @@ speedup)!
 
 .. warning ::
 
-  Transonic is still in a early stage (see our `roadmap
+  Transonic is still in an active development stage (see our `roadmap
   <https://transonic.readthedocs.io/en/latest/roadmap.html>`_). Remarks and
   suggestions are very welcome.
-
-  In particular, Transonic is now only able to use the Pythran and Cython
-  compilers. So you are not going to be able to use Numba with this
-  version of Transonic.
 
   However, Transonic is now really usable, useful and used "in production" in
   `FluidSim <https://bitbucket.org/fluiddyn/fluidsim>`_ and `FluidFFT
@@ -127,7 +123,7 @@ The default Transonic backend uses Pythran and works well. `Here, we explain
 why Pythran is so great for Python users and why Transonic is great for Pythran
 users <https://transonic.readthedocs.io/en/latest/pythran_backend.html>`_
 
-There is also an alpha version of the Cython backend.
+There are also experimental backends for Cython and Numba.
 
 .. note ::
 
@@ -161,9 +157,9 @@ Transonic is sensible to environment variables:
 - :code:`TRANSONIC_COMPILE_JIT` can be set to false to disable the
   compilation of jited functions. This can be useful for unittests.
 
-- :code:`TRANSONIC_BACKEND` to choose between the supported backends, i.e. now
-  only "pythran" (quite robust) and "cython" (prototype). The Numba backend
-  should soon be available.
+- :code:`TRANSONIC_BACKEND` to choose between the supported backends. The
+  default backend "pythran" is quite robust. There are now 3 other backends:
+  "cython", "numba" and "python" (prototypes).
 
 
 A short tour of Transonic syntaxes
