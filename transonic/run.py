@@ -93,8 +93,10 @@ def run():
 
     for path in paths:
         path = Path(path)
-        backend_path = path.parent / str("__" + backend.name + "__") / path.name
-        ext_path = backend_path.with_suffix(backend.suffix_extension)
+        backend_path = path.parent / str(f"__{backend.name}__") / path.name
+        ext_path = backend_path.with_name(
+            backend.name_ext_from_path_backend(backend_path)
+        )
         if backend_path.exists() and has_to_build(ext_path, backend_path):
             backends_paths[backend.name].append(backend_path)
 

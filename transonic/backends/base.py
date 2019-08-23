@@ -388,6 +388,19 @@ class Backend:
                 force=force,
             )
 
+    def compile_extension(
+        self,
+        path_backend,
+        name_ext_file=None,
+        native=False,
+        xsimd=False,
+        openmp=False,
+        str_pythran_flags: Optional[str] = None,
+        parallel=True,
+        force=True,
+    ):
+        raise NotImplementedError
+
 
 class BackendAOT(Backend):
     """Backend for ahead-of-time compilers"""
@@ -466,22 +479,6 @@ class BackendJIT(Backend):
 
     def check_if_compiled(self, module):
         return True
-
-    def compile_extension(
-        self, path_backend, name_ext_file, native=False, xsimd=False, openmp=False
-    ):
-
-        with open(path_backend) as file:
-            source = file.read()
-
-        source = source.replace("#__protected__ ", "")
-
-        with open(path_backend.with_name(name_ext_file), "w") as file:
-            file.write(source)
-
-        compiling = False
-        process = None
-        return compiling, process
 
     def _make_header_1_function(self, fdef, annotations):
         return []

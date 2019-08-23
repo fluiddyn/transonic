@@ -1,27 +1,56 @@
-from typing import Callable
+from typing import Callable, Optional
 from textwrap import dedent
 import inspect
-import gast as ast
 
-from transonic.analyses import extast
+from transonic.analyses.extast import parse, unparse, CommentLine, ast
+from transonic.util import format_str
 
-from .base import BackendJIT
+from .py import PythonBackend
 
 
-class NumbaBackend(BackendJIT):
+class NumbaBackend(PythonBackend):
     backend_name = "numba"
-    suffix_header = False
 
+    def compile_extension(
+        self,
+        path_backend,
+        name_ext_file=None,
+        native=False,
+        xsimd=False,
+        openmp=False,
+        str_pythran_flags: Optional[str] = None,
+        parallel=True,
+        force=True,
+    ):
+        if name_ext_file is None:
+            name_ext_file = self.name_ext_from_path_backend(path_backend)
 
-def get_source_with_numba(func: Callable):
-    """Get the source and adapt to numba"""
-    src = inspect.getsource(func)
-    src = dedent(src)
-    mod = extast.parse(src)
-    for node in mod.body:
-        node.decorator_list[0].keywords = [
-            ast.keyword("nopython", value=ast.Str("True")),
-            ast.keyword("nogil", value=ast.Str("True")),
-        ]
-    src = "\nfrom numba import jit \n" + extast.unparse(mod) + "\n"
-    return src
+        with open(path_backend) as file:
+            source = file.read()
+
+        source = source.replace("#__protected__ ", "")
+
+        with open(path_backend.with_name(name_ext_file), "w") as file:
+            file.write(source)
+
+        compiling = False
+        process = None
+        return compiling, process
+
+    def _make_backend_code(self, path_py, analyse):
+        """Create a backend code from a Python file"""
+        code, codes_ext, header = super()._make_backend_code(path_py, analyse)
+
+        if not code:
+            return code, codes_ext, header
+
+        mod = parse(code)
+        new_body = [CommentLine("#__protected__ from numba import njit")]
+
+        for node in mod.body:
+            if isinstance(node, ast.FunctionDef):
+                new_body.append(CommentLine("#__protected__ @njit"))
+            new_body.append(node)
+
+        mod.body = new_body
+        return format_str(unparse(mod)), codes_ext, header

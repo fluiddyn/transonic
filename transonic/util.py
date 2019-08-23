@@ -66,6 +66,7 @@ try:
 except ImportError:
 
     def format_str(src_contents):
+        print("Please install black (pip install black) to use Transonic")
         return src_contents
 
 

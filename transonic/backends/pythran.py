@@ -4,11 +4,6 @@
 
 """
 
-try:
-    import black
-except ImportError:
-    black = False
-
 from .base import BackendAOT
 
 
