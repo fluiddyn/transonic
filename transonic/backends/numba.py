@@ -1,6 +1,4 @@
-from typing import Callable, Optional
-from textwrap import dedent
-import inspect
+from typing import Optional
 
 from transonic.analyses.extast import parse, unparse, CommentLine, ast
 from transonic.util import format_str
@@ -28,10 +26,10 @@ class NumbaBackend(PythonBackend):
         with open(path_backend) as file:
             source = file.read()
 
-        source = source.replace("#__protected__ ", "")
+        source = source.replace("# __protected__ ", "")
 
         with open(path_backend.with_name(name_ext_file), "w") as file:
-            file.write(source)
+            file.write(format_str(source))
 
         compiling = False
         process = None
@@ -45,11 +43,11 @@ class NumbaBackend(PythonBackend):
             return code, codes_ext, header
 
         mod = parse(code)
-        new_body = [CommentLine("#__protected__ from numba import njit")]
+        new_body = [CommentLine("# __protected__ from numba import njit")]
 
         for node in mod.body:
             if isinstance(node, ast.FunctionDef):
-                new_body.append(CommentLine("#__protected__ @njit"))
+                new_body.append(CommentLine("# __protected__ @njit"))
             new_body.append(node)
 
         mod.body = new_body
