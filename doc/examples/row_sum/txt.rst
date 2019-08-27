@@ -4,6 +4,9 @@ Unified code for different backends
 We demonstrate here how Transonic can be used to accelerate an unique code with
 different backends (Pythran, Cython and Numba).
 
+The code of the functions is taken from this `Stackoverflow question
+<https://stackoverflow.com/questions/57199248/memory-efficient-operations-between-arbitrary-columns-of-numpy-array>`_.
+
 As usual with Transonic, two modes are available: ahead-of-time compilation
 (with the :code:`boost` decorator) and just-in-time compilation (with the
 :code:`jit` decorator).
@@ -52,12 +55,16 @@ Then, on my PC, I get::
     row_sum_loops        0.27 s
     row_sum_transpose    0.76 s
 
-The fastest solutions are in this case the implementation with loops and the
-Numba and Pythran backends.
+The fastest solutions are in this case the implementation with explicit loops
+with the Numba and Pythran backends.
 
 As usual, Pythran gives quite good results with the high-level implementation,
 but in this case, it is still more than twice slower than the implementation
 with loops.
+
+There are rooms for improvements of the Cython backend (in particular,
+:code:`@cython.boundscheck(False) @cython.wraparound(False)` are currently not
+used), which could explain the lower performance of Cython.
 
 Just-in-time compilation
 ------------------------

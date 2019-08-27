@@ -10,6 +10,7 @@ T1 = "int[:]"
 def row_sum_loops(arr: T0, columns: T1):
     # locals type annotations are used only by Cython
     i: int
+    j: int
     sum_: int
     res: "int[]" = np.empty(arr.shape[0], dtype=arr.dtype)
     for i in range(arr.shape[0]):

@@ -1,3 +1,14 @@
+Options for the boost decorator
+-------------------------------
+
+To support things like:
+
+.. code:: python
+
+  @boost(inline=True)
+  def add(a, b):
+      return a + b
+
 Cython backend (beta version)
 -----------------------------
 
@@ -32,16 +43,8 @@ Less bugs and more Cython features...
 
 - "exterior" functions + understand the tests
 
-Options for the boost decorator
--------------------------------
-
-To support things like:
-
-.. code:: python
-
-  @boost(inline=True)
-  def add(a, b):
-      return a + b
+- Cython decorators (:code:`@cython.boundscheck(False)
+  @cython.wraparound(False)`)
 
 setup.py & more than one backend at runtime
 -------------------------------------------
@@ -68,10 +71,6 @@ Specify backend in code
 And same with ``boost``.
 
 - Rewrite the comparison Numba / Pythran with Transonic
-
-- A page on [this
-  case](https://stackoverflow.com/questions/57199248/memory-efficient-operations-between-arbitrary-columns-of-numpy-array)
-  in the documentation
 
 Alternative syntax for blocks
 -----------------------------
