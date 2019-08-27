@@ -121,7 +121,7 @@ and blocks of code).
 
 The default Transonic backend uses Pythran and works well. `Here, we explain
 why Pythran is so great for Python users and why Transonic is great for Pythran
-users <https://transonic.readthedocs.io/en/latest/pythran_backend.html>`_
+users <https://transonic.readthedocs.io/en/latest/backends/pythran.html>`_
 
 There are also experimental backends for Cython and Numba.
 

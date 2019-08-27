@@ -55,8 +55,8 @@ Then, on my PC, I get::
     row_sum_loops        0.27 s
     row_sum_transpose    0.76 s
 
-The fastest solutions are in this case the implementation with explicit loops
-with the Numba and Pythran backends.
+The fastest solutions are in this case the Numba and Pythran backends for the
+implementation with explicit loops.
 
 As usual, Pythran gives quite good results with the high-level implementation,
 but in this case, it is still more than twice slower than the implementation
@@ -70,7 +70,7 @@ Just-in-time compilation
 ------------------------
 
 For JIT, type annotations for the arguments are not needed and it does not
-really make sense to add type annotations for local variables.
+really make sense to add type annotations for all local variables.
 
 .. literalinclude:: row_sum_jit.py
 

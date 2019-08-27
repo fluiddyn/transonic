@@ -6,11 +6,6 @@ To do list
 
 - Type hints: `Shape <https://bitbucket.org/fluiddyn/fluidpythran/issues/12>`_
 
-.. toctree::
-   :maxdepth: 2
-
-   universal_booster
-
 Inline to do items
 ------------------
 
