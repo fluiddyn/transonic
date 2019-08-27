@@ -319,6 +319,8 @@ def import_from_path(path: Path, module_name: str):
     spec.loader.exec_module(module)
     # clean sys.path
     sys.path.pop(0)
+    # fix bug Numba
+    sys.modules[module_name] = module
     return module
 
 
