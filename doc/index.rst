@@ -23,6 +23,7 @@ Examples
    examples/using_jit
    examples/blocks
    examples/methods
+   examples/row_sum/txt
    ipynb/executed/demo_compile_at_import
    ipynb/executed/demo_jit
 

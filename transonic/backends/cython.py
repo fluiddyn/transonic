@@ -16,24 +16,44 @@ from .base import BackendAOT
 from .base_jit import SubBackendJIT
 
 
-def compute_cython_type_from_pythran_type(type_):
+def analyze_array_type(type_):
+    dtype, end = type_.split("[", 1)
+    if not dtype.startswith("np."):
+        dtype = "np." + dtype
+
+    if ":" in end:
+        ndim = end.count(":")
+    else:
+        ndim = end.count("[") + 1
+
+    return dtype, ndim
+
+
+def memoryview_type(type_):
+    dtype, ndim = analyze_array_type(type_)
+
+    if ndim > 1:
+        end = "[" + ", ".join(":" * ndim) + "]"
+    else:
+        end = "[:]"
+
+    return f"{dtype}_t{end}"
+
+
+def np_ndarray_type(type_):
+    dtype, ndim = analyze_array_type(type_)
+    return f"np.ndarray[{dtype + '_t'}, ndim={ndim}]"
+
+
+def compute_cython_type_from_pythran_type(type_, memoryview=False):
 
     if isinstance(type_, type):
         type_ = compute_pythran_type_from_type(type_)
 
     if type_.endswith("]"):
-        start, end = type_.split("[", 1)
-        if not start.startswith("np."):
-            start = "np." + start
-
-        dim = end.count("[") + 1
-        if dim > 1:
-            end = ",".join(":" * dim) + "]"
-
-        if end == "]":
-            end = ":]"
-
-        return start + "_t[" + end
+        if memoryview:
+            return memoryview_type(type_)
+        return np_ndarray_type(type_)
 
     if any(type_.endswith(str(number)) for number in (32, 64, 128)):
         return "np." + type_ + "_t"
@@ -203,8 +223,9 @@ class CythonBackend(BackendAOT):
 
         if locals_types is not None and locals_types:
             # TODO: fused types not supported here
+            # note: np.ndarray not supported by Cython in "locals"
             locals_types = ", ".join(
-                f"{k}={compute_cython_type_from_pythran_type(v)}"
+                f"{k}={compute_cython_type_from_pythran_type(v, memoryview=True)}"
                 for k, v in locals_types.items()
             )
             signatures_func.append(f"@cython.locals({locals_types})\n")

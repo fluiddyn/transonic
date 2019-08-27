@@ -295,9 +295,6 @@ class JIT:
 
             header_object = backend.jit.make_new_header(func, arg_types)
 
-            if not header_object:
-                return
-
             header_code = backend.jit.merge_old_and_new_header(
                 path_backend_header, header_object, func
             )
@@ -327,6 +324,12 @@ class JIT:
                 xsimd=self.xsimd,
                 openmp=self.openmp,
             )
+
+            # for backend like numba
+            if not self.compiling:
+                backend_module = import_from_path(self.path_extension, name_mod)
+                assert backend.check_if_compiled(backend_module)
+                self.backend_func = getattr(backend_module, func_name)
 
         ext_files = None
         if mpi.rank == 0:

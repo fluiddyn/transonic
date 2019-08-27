@@ -4,12 +4,12 @@ import numpy as np
 cimport numpy as np
 
 ctypedef fused __block0_a:
-   np.float_t[:,:]
-   np.float_t[:,:,:]
+   np.ndarray[np.float_t, ndim=2]
+   np.ndarray[np.float_t, ndim=3]
 
 ctypedef fused __block0_b:
-   np.float_t[:,:]
-   np.float_t[:,:,:]
+   np.ndarray[np.float_t, ndim=2]
+   np.ndarray[np.float_t, ndim=3]
 
 ctypedef fused __block0_n:
    cython.int
@@ -17,12 +17,12 @@ ctypedef fused __block0_n:
 cpdef block0(__block0_a a, __block0_b b, __block0_n n)
 
 ctypedef fused __block1_a:
-   np.float_t[:,:]
-   np.float_t[:,:,:]
+   np.ndarray[np.float_t, ndim=2]
+   np.ndarray[np.float_t, ndim=3]
 
 ctypedef fused __block1_b:
-   np.float_t[:,:]
-   np.float_t[:,:,:]
+   np.ndarray[np.float_t, ndim=2]
+   np.ndarray[np.float_t, ndim=3]
 
 ctypedef fused __block1_n:
    cython.int

@@ -4,28 +4,28 @@ import numpy as np
 cimport numpy as np
 
 ctypedef fused __compute_a:
-   np.complex128_t[:, :, :]
-   np.complex128_t[:]
-   np.int_t[:, :, :]
-   np.int_t[:]
+   np.ndarray[np.complex128_t, ndim=3]
+   np.ndarray[np.complex128_t, ndim=1]
+   np.ndarray[np.int_t, ndim=3]
+   np.ndarray[np.int_t, ndim=1]
 
 ctypedef fused __compute_b:
-   np.complex128_t[:, :, :]
-   np.complex128_t[:]
-   np.int_t[:, :, :]
-   np.int_t[:]
+   np.ndarray[np.complex128_t, ndim=3]
+   np.ndarray[np.complex128_t, ndim=1]
+   np.ndarray[np.int_t, ndim=3]
+   np.ndarray[np.int_t, ndim=1]
 
 ctypedef fused __compute_c:
    np.complex128_t
    cython.int
 
 ctypedef fused __compute_d:
-   np.complex128_t[:, :, :]
-   np.complex128_t[:]
-   np.float32_t[:, :, :, :]
-   np.float32_t[:, :]
-   np.int_t[:, :, :]
-   np.int_t[:]
+   np.ndarray[np.complex128_t, ndim=3]
+   np.ndarray[np.complex128_t, ndim=1]
+   np.ndarray[np.float32_t, ndim=4]
+   np.ndarray[np.float32_t, ndim=2]
+   np.ndarray[np.int_t, ndim=3]
+   np.ndarray[np.int_t, ndim=1]
 
 ctypedef fused __compute_e:
    cython.str

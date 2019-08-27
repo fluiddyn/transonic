@@ -5,12 +5,12 @@ cimport numpy as np
 
 ctypedef fused __func_a:
    cython.float
-   np.float_t[:,:]
-   np.int_t[:,:]
+   np.ndarray[np.float_t, ndim=2]
+   np.ndarray[np.int_t, ndim=2]
 
 ctypedef fused __func_b:
    cython.float
-   np.float_t[:,:]
+   np.ndarray[np.float_t, ndim=2]
 
 cpdef func(__func_a a, __func_b b)
 

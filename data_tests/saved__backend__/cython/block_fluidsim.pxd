@@ -4,16 +4,16 @@ import numpy as np
 cimport numpy as np
 
 ctypedef fused __rk2_step0_state_spect_n12:
-   np.complex128_t[:,:,:]
+   np.ndarray[np.complex128_t, ndim=3]
 
 ctypedef fused __rk2_step0_state_spect:
-   np.complex128_t[:,:,:]
+   np.ndarray[np.complex128_t, ndim=3]
 
 ctypedef fused __rk2_step0_tendencies_n:
-   np.complex128_t[:,:,:]
+   np.ndarray[np.complex128_t, ndim=3]
 
 ctypedef fused __rk2_step0_diss2:
-   np.float64_t[:,:]
+   np.ndarray[np.float64_t, ndim=2]
 
 ctypedef fused __rk2_step0_dt:
    cython.float
