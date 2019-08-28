@@ -1,3 +1,15 @@
+"""SubBackend class for Transonic JIT compilation
+=================================================
+
+Internal API
+------------
+
+.. autoclass:: SubBackendJIT
+   :members:
+   :private-members:
+
+"""
+
 import re
 
 try:
@@ -18,6 +30,8 @@ from .for_classes import produce_code_class
 
 
 class SubBackendJIT:
+    """Sub-class for Transonic JIT compilation"""
+
     def __init__(self, name):
         self.name = name
         self.name_capitalized = name.capitalize()

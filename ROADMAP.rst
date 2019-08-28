@@ -35,16 +35,19 @@ Less bugs and more Cython features...
   * [done] jit functions
   * [done] jit methods
 
+- Special function definitions (cdef, inline, nogil, return type)
+
+- Cython decorators (:code:`@cython.boundscheck(False)
+  @cython.wraparound(False)`)
+
 - locals annotations for
+
   * boost methods
   * blocks
   * jit functions
   * jit methods
 
 - "exterior" functions + understand the tests
-
-- Cython decorators (:code:`@cython.boundscheck(False)
-  @cython.wraparound(False)`)
 
 setup.py & more than one backend at runtime
 -------------------------------------------

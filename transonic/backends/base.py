@@ -1,3 +1,15 @@
+"""Base class for the Transonic backends
+========================================
+
+Internal API
+------------
+
+.. autoclass:: Backend
+   :members:
+   :private-members:
+
+"""
+
 from pathlib import Path
 from textwrap import indent
 from typing import Iterable, Optional
@@ -31,6 +43,8 @@ def _make_code_from_fdef_node(fdef, black=True):
 
 
 class Backend:
+    """Base class for the Transonic backends"""
+
     backend_name = "base"
     suffix_backend = ".py"
     suffix_header = None

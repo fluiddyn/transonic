@@ -4,9 +4,17 @@
 .. autosummary::
    :toctree:
 
+   base
+   base_jit
+   for_classes
+
+.. autosummary::
+   :toctree:
+
    pythran
    cython
    numba
+   py
 
 Internal API
 ------------

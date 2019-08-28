@@ -1,3 +1,19 @@
+"""Numba backend
+================
+
+Internal API
+------------
+
+.. autoclass:: SubBackendJITNumba
+   :members:
+   :private-members:
+
+.. autoclass:: NumbaBackend
+   :members:
+   :private-members:
+
+"""
+
 from typing import Optional
 
 from transonic.analyses.extast import parse, unparse, CommentLine, ast
@@ -7,6 +23,7 @@ from .py import PythonBackend, SubBackendJITPython
 
 
 def add_numba_comments(code):
+    """Add Numba code in Python comments"""
     mod = parse(code)
     new_body = [CommentLine("# __protected__ from numba import njit")]
 
@@ -32,6 +49,8 @@ class SubBackendJITNumba(SubBackendJITPython):
 
 
 class NumbaBackend(PythonBackend):
+    """Main class for the Numba backend"""
+
     backend_name = "numba"
     _SubBackendJIT = SubBackendJITNumba
 

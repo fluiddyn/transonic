@@ -8,7 +8,7 @@ T1 = "int[:]"
 
 @boost
 def row_sum_loops(arr: T0, columns: T1):
-    # locals type annotations are used only by Cython
+    # locals type annotations are used only for Cython
     i: int
     j: int
     sum_: int
@@ -30,11 +30,9 @@ if __name__ == "__main__":
 
     from util import check, bench
 
-    a = np.arange(1_000_000).reshape(1_000, 1_000)
+    functions = [row_sum_loops, row_sum_transpose]
+    arr = np.arange(1_000_000).reshape(1_000, 1_000)
     columns = np.arange(1, 1000, 2)
 
-
-    functions = [row_sum_loops, row_sum_transpose]
-
-    check(functions, a, columns)
-    bench(functions, a, columns)
+    check(functions, arr, columns)
+    bench(functions, arr, columns)

@@ -1,6 +1,12 @@
 """Pythran Backend
 ==================
 
+Internal API
+------------
+
+.. autoclass:: PythranBackend
+   :members:
+   :private-members:
 
 """
 
@@ -8,6 +14,8 @@ from .base import BackendAOT
 
 
 class PythranBackend(BackendAOT):
+    """Main class for the Pythran backend"""
+
     backend_name = "pythran"
     suffix_header = ".pythran"
 

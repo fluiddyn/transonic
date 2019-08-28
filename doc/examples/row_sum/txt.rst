@@ -1,8 +1,9 @@
 Unified code for different backends
 ===================================
 
-We demonstrate here how Transonic can be used to accelerate an unique code with
-different backends (Pythran, Cython and Numba).
+We demonstrate here how Transonic can be used to accelerate a unique code with
+different Python accelerators (so-called "backends", now, Pythran, Cython and
+Numba).
 
 The code of the functions is taken from this `Stackoverflow question
 <https://stackoverflow.com/questions/57199248/memory-efficient-operations-between-arbitrary-columns-of-numpy-array>`_.
@@ -62,7 +63,7 @@ As usual, Pythran gives quite good results with the high-level implementation,
 but in this case, it is still more than twice slower than the implementation
 with loops.
 
-There are rooms for improvements of the Cython backend (in particular,
+There are rooms for improvements for the Cython backend (in particular,
 :code:`@cython.boundscheck(False) @cython.wraparound(False)` are currently not
 used), which could explain the lower performance of Cython.
 
@@ -70,7 +71,8 @@ Just-in-time compilation
 ------------------------
 
 For JIT, type annotations for the arguments are not needed and it does not
-really make sense to add type annotations for all local variables.
+really make sense to add type annotations for all local variables. We thus
+remove all type annotations (which is bad for Cython).
 
 .. literalinclude:: row_sum_jit.py
 

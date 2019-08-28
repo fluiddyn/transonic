@@ -6,6 +6,8 @@ The main contributors are:
 
 - `Ashwin Vishnu <https://github.com/ashwinvis>`_ (KTH, Stockholm)
 
+- `Pierre Blanc-fatin <https://github.com/PierreBlancfat>`_ (UGA)
+
 with ideas from `Serge Sans Paille <https://github.com/serge-sans-paille/>`_
 and `Wolf Vollprecht <https://twitter.com/wuoulf>`_.
 

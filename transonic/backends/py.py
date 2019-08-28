@@ -1,3 +1,19 @@
+"""Python backend
+=================
+
+Internal API
+------------
+
+.. autoclass:: SubBackendJITPython
+   :members:
+   :private-members:
+
+.. autoclass:: PythonBackend
+   :members:
+   :private-members:
+
+"""
+
 from shutil import copyfile
 from typing import Optional
 
@@ -17,6 +33,8 @@ class SubBackendJITPython(SubBackendJIT):
 
 
 class PythonBackend(BackendJIT):
+    """Main class for the Python backend"""
+
     backend_name = "python"
     _SubBackendJIT = SubBackendJITPython
 

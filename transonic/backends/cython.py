@@ -1,6 +1,20 @@
 """Cython Backend
-==================
+=================
 
+Internal API
+------------
+
+.. autoclass:: HeaderFunction
+   :members:
+   :private-members:
+
+.. autoclass:: SubBackendJITCython
+   :members:
+   :private-members:
+
+.. autoclass:: CythonBackend
+   :members:
+   :private-members:
 
 """
 import copy
@@ -17,6 +31,7 @@ from .base_jit import SubBackendJIT
 
 
 def analyze_array_type(type_):
+    """Analyze an array type. return dtype, ndim"""
     dtype, end = type_.split("[", 1)
     if not dtype.startswith("np."):
         dtype = "np." + dtype
@@ -29,7 +44,7 @@ def analyze_array_type(type_):
     return dtype, ndim
 
 
-def memoryview_type(type_):
+def memoryview_type(type_) -> str:
     dtype, ndim = analyze_array_type(type_)
 
     if ndim > 1:
@@ -40,7 +55,7 @@ def memoryview_type(type_):
     return f"{dtype}_t{end}"
 
 
-def np_ndarray_type(type_):
+def np_ndarray_type(type_) -> str:
     dtype, ndim = analyze_array_type(type_)
     return f"np.ndarray[{dtype + '_t'}, ndim={ndim}]"
 
@@ -138,7 +153,7 @@ class HeaderFunction:
             self.types[key].update(value)
 
 
-class SubCythonJIT(SubBackendJIT):
+class SubBackendJITCython(SubBackendJIT):
     def compute_typename_from_object(self, obj: object):
         """return the Pythran type name"""
         return compute_cython_type_from_pythran_type(
@@ -178,10 +193,12 @@ class SubCythonJIT(SubBackendJIT):
 
 
 class CythonBackend(BackendAOT):
+    """Main class for the Cython backend"""
+
     backend_name = "cython"
     suffix_header = ".pxd"
     keyword_export = "cpdef"
-    _SubBackendJIT = SubCythonJIT
+    _SubBackendJIT = SubBackendJITCython
 
     def _make_first_lines_header(self):
         return ["import cython\n\nimport numpy as np\ncimport numpy as np\n"]
