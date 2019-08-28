@@ -4,11 +4,13 @@ from time import sleep
 from shutil import rmtree
 
 import numpy as np
+import pytest
 
 from transonic.compiler import scheduler, wait_for_all_extensions
 from transonic.justintime import path_jit, modules
 from transonic import mpi
 from transonic.util import path_jit_classes, can_import_accelerator
+from transonic.config import backend_default
 
 scheduler.nb_cpus = 2
 
@@ -33,6 +35,7 @@ if mpi.rank == 0:
 mpi.barrier()
 
 
+@pytest.mark.skipif(backend_default == "numba", reason="Not supported by Numba")
 def test_jit():
     from .for_test_justintime import func1
 
@@ -86,6 +89,7 @@ def test_jit_simple():
     func2(1)
 
 
+@pytest.mark.skipif(backend_default == "numba", reason="Not supported by Numba")
 def test_jit_dict():
     from .for_test_justintime import func_dict
 
@@ -130,6 +134,7 @@ def test_jit_method():
     obj.check()
 
 
+@pytest.mark.skipif(backend_default == "numba", reason="Not supported by Numba")
 def test_jit_method2():
     from .for_test_justintime import MyClass2
 

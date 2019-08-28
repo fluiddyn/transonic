@@ -34,6 +34,7 @@ clean:
 tests_coverage_short:
 	mkdir -p .coverage
 	TRANSONIC_BACKEND="python" coverage run -p -m pytest
+	TRANSONIC_BACKEND="numba" coverage run -p -m pytest
 	coverage run -p -m pytest
 
 tests_coverage: tests_coverage_short
