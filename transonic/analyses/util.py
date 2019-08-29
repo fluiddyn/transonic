@@ -423,3 +423,10 @@ def extract_variable_annotations(fdef, namespace):
             variable_types[name] = result
 
     return variable_types
+
+
+def extract_returns_annotation(returns, namespace):
+    if returns is None:
+        return
+    source = extast.unparse(returns)
+    return eval(source, namespace)

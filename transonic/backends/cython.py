@@ -20,7 +20,7 @@ Internal API
 import copy
 import inspect
 
-from transonic.analyses import extast
+from transonic.analyses.extast import unparse, ast
 from transonic.annotation import (
     compute_pythran_type_from_type,
     make_signatures_from_typehinted_func,
@@ -204,10 +204,15 @@ class CythonBackend(BackendAOT):
         return ["import cython\n\nimport numpy as np\ncimport numpy as np\n"]
 
     def _make_header_from_fdef_signatures(
-        self, fdef, signatures_as_lists_strings, locals_types=None
+        self,
+        fdef,
+        signatures_as_lists_strings,
+        locals_types=None,
+        returns=None,
+        inline=False,
     ):
 
-        fdef = extast.ast.FunctionDef(
+        fdef = ast.FunctionDef(
             name=fdef.name,
             args=copy.deepcopy(fdef.args),
             body=[],
@@ -233,6 +238,9 @@ class CythonBackend(BackendAOT):
                 signatures_func.append("".join(ctypedef))
 
             # change function parameters
+            if fdef.args.defaults:
+                name_start = ast.Name(id="*", ctx=ast.Param(), annotation=None)
+                fdef.args.defaults = [name_start] * len(fdef.args.defaults)
             for name in fdef.args.args:
                 name.annotation = None
                 name.id = name_type_args[0] + " " + name.id
@@ -247,5 +255,17 @@ class CythonBackend(BackendAOT):
             )
             signatures_func.append(f"@cython.locals({locals_types})\n")
 
-        signatures_func.append("cp" + extast.unparse(fdef).strip()[:-1] + "\n")
+        if inline:
+            inline = "inline "
+            def_keyword = "cdef"
+        else:
+            inline = ""
+            def_keyword = "cpdef"
+
+        if returns is not None:
+            returns = compute_cython_type_from_pythran_type(returns) + " "
+        else:
+            returns = ""
+
+        signatures_func.append(f"{def_keyword} {inline}{returns}{unparse(fdef).strip()[4:-1]}\n")
         return signatures_func

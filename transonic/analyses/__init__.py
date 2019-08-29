@@ -30,6 +30,7 @@ from .util import (
     find_path,
     get_exterior_code,
     extract_variable_annotations,
+    extract_returns_annotation,
 )
 from .capturex import CaptureX
 from .blocks_if import get_block_definitions
@@ -311,6 +312,7 @@ def analyse_aot(code, pathfile):
 
     annotations["__in_comments__"] = {}
     annotations["__locals__"] = {}
+    annotations["__returns__"] = {}
 
     for functions_backend in boosted_dicts["functions"].values():
         for name_func, fdef in functions_backend.items():
@@ -333,6 +335,11 @@ def analyse_aot(code, pathfile):
             annotations_locals = extract_variable_annotations(fdef, namespace)
             if annotations_locals:
                 annotations["__locals__"][name_func] = annotations_locals
+
+            if fdef.returns:
+                annotations["__returns__"][
+                    name_func
+                ] = extract_returns_annotation(fdef.returns, namespace)
 
     debug("annotations:\n" + pformat(annotations))
 

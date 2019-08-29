@@ -175,12 +175,9 @@ class Backend:
 
         boosted_dicts, code_dependance, annotations, blocks, codes_ext = analyse
 
-        boosted_dicts = dict(
-            functions=boosted_dicts["functions"][self.name],
-            functions_ext=boosted_dicts["functions_ext"][self.name],
-            methods=boosted_dicts["methods"][self.name],
-            classes=boosted_dicts["classes"][self.name],
-        )
+        boosted_dicts = {
+            key: value[self.name] for key, value in boosted_dicts.items()
+        }
 
         lines_code = ["\n" + code_dependance + "\n"]
         lines_header = self._make_first_lines_header()
@@ -355,7 +352,12 @@ class Backend:
         raise NotImplementedError
 
     def _make_header_from_fdef_signatures(
-        self, fdef, signatures_as_lists_strings, locals_types=None
+        self,
+        fdef,
+        signatures_as_lists_strings,
+        locals_types=None,
+        returns=None,
+        inline=False,
     ):
         raise NotImplementedError
 
@@ -470,13 +472,11 @@ class BackendAOT(Backend):
                 compute_signatures_from_typeobjects(annot)
             )
 
-        try:
-            locals_types = annotations["__locals__"][fdef.name]
-        except KeyError:
-            locals_types = None
+        locals_types = annotations["__locals__"].get(fdef.name, None)
+        returns = annotations["__returns__"].get(fdef.name, None)
 
         return self._make_header_from_fdef_signatures(
-            fdef, signatures_as_lists_strings, locals_types
+            fdef, signatures_as_lists_strings, locals_types, returns
         )
 
 
@@ -496,6 +496,11 @@ class BackendJIT(Backend):
         return []
 
     def _make_header_from_fdef_signatures(
-        self, fdef, signatures_as_lists_strings, locals_types=None
+        self,
+        fdef,
+        signatures_as_lists_strings,
+        locals_types=None,
+        returns=None,
+        inline=False,
     ):
         return []

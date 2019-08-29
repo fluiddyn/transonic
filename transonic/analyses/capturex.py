@@ -57,6 +57,13 @@ class CaptureX(ast.NodeVisitor):
     def visit_Name(self, node):
         # register load of identifiers not locally defined
         if isinstance(node.ctx, ast.Load):
+            try:
+                self.ud_chains.chains[node]
+            except KeyError:
+                from transonic.analyses import print_dumped
+                print(f"BUG Beniget? (node.id={node.id}) Still we continue!")
+                return
+
             for def_ in self.ud_chains.chains[node]:
                 try:
                     parents = self.ancestors.parents(def_.node)

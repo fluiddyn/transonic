@@ -5,8 +5,7 @@ T = int
 
 
 @boost(inline=True)
-def add(a: T, b: T):
-    # -> T:  # not yet supported
+def add(a: T, b: T) -> T:
     return a + b
 
 
