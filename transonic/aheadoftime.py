@@ -96,7 +96,7 @@ def _get_transonic_calling_module(index_frame: int = 2):
     return ts
 
 
-def boost(obj):
+def boost(obj=None, **kwargs):
     """Decorator to declare that an object can be accelerated
 
     Parameters
@@ -107,7 +107,12 @@ def boost(obj):
     """
 
     ts = _get_transonic_calling_module()
-    return ts.boost(obj)
+
+    decor = ts.boost(**kwargs)
+    if callable(obj) or isinstance(obj, type):
+        return decor(obj)
+    else:
+        return decor
 
 
 class CheckCompiling:
@@ -369,7 +374,14 @@ class Transonic:
 
         return TransonicTemporaryMethod(func)
 
-    def boost(self, obj):
+    def boost(self, **kwargs):
+        """Universal decorator for AOT compilation
+
+        Used for functions, methods and classes.
+        """
+        return self._boost_decor
+
+    def _boost_decor(self, obj):
         """Universal decorator for AOT compilation
 
         Used for functions, methods and classes.
