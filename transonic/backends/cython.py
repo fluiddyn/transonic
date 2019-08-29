@@ -267,5 +267,7 @@ class CythonBackend(BackendAOT):
         else:
             returns = ""
 
-        signatures_func.append(f"{def_keyword} {inline}{returns}{unparse(fdef).strip()[4:-1]}\n")
+        signatures_func.append(
+            f"{def_keyword} {inline}{returns}{unparse(fdef).strip()[4:-1]}\n"
+        )
         return signatures_func

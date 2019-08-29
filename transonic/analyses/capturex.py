@@ -61,6 +61,7 @@ class CaptureX(ast.NodeVisitor):
                 self.ud_chains.chains[node]
             except KeyError:
                 from transonic.analyses import print_dumped
+
                 print(f"BUG Beniget? (node.id={node.id}) Still we continue!")
                 return
 

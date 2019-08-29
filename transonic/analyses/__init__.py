@@ -14,7 +14,6 @@
 """
 
 from pprint import pformat
-import copy
 
 import gast as ast
 import beniget
@@ -79,55 +78,125 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
     """Get the definitions of the decorated functions and classes"""
 
     kinds = ("functions", "functions_ext", "methods", "classes")
-    backends = dict(pythran={}, cython={}, numba={}, python={})
-    decorated_dicts = {kind: copy.deepcopy(backends) for kind in kinds}
 
-    def add_definition(definition_node):
-        backend = backend_default
-        if isinstance(definition_node, ast.Call):
-            # FIXME see other element than the first of the list
-            if (
-                definition_node.keywords
-                and definition_node.keywords[0].arg == "backend"
-            ):
-                backend = str(extast.unparse(definition_node.keywords[0].value))
-                backend = backend.replace("'", "").rstrip()
-            definition_node = ancestors.parent(definition_node)
+    backend_names = ("pythran", "cython", "numba", "python")
+    decorated_dicts = {
+        kind: {name: {} for name in backend_names} for kind in kinds
+    }
+
+    def add_definition(node_using_decorator):
+        """
+
+        NotImplemented:
+
+        decor = boost(inline=1)
+
+        isinstance(node_using_decorator, ast.Call)
+        isinstance(node_parent, ast.Assign)
+        node_parent.value.keywords
+
+        """
+
+        backend_name = backend_default
         decorated_dict = None
-        if isinstance(definition_node, ast.Assign):
-            if (
-                definition_node.value.keywords
-                and definition_node.value.keywords[0].arg == "backend"
-            ):
-                backend = str(
-                    extast.unparse(definition_node.value.keywords[0].value)
+        ext_module = False
+        node_parent = ancestors.parent(node_using_decorator)
+
+        # first, get the keywords
+        if isinstance(node_using_decorator, ast.Call):
+            # decorator used in the form boost(...)
+            if node_using_decorator.keywords:
+                # decorator used in the form boost(key=value)
+                keywords = {
+                    keyword.arg: eval(extast.unparse(keyword.value))
+                    for keyword in node_using_decorator.keywords
+                }
+                # TODO: do something with the keywords dict!
+
+        if isinstance(
+            node_using_decorator, (ast.FunctionDef, ast.ClassDef)
+        ) and isinstance(node_parent, (ast.Module, ast.ClassDef)):
+            """case
+
+            @boost
+            def f():
+                ...
+
+            """
+            definition_node = node_using_decorator
+
+        elif isinstance(node_using_decorator, ast.Call) and isinstance(
+            node_parent, (ast.FunctionDef, ast.ClassDef)
+        ):
+            """
+            @boost(inline=1)
+            def f():
+                pass
+            """
+
+            definition_node = node_parent
+
+        elif isinstance(node_using_decorator, ast.Call) and isinstance(
+            node_parent, ast.Assign
+        ):
+            """
+            f1_ = boost(f1)
+            or
+            decor = boost(foo=True)
+            """
+
+            call = node_using_decorator
+            if call.keywords:
+                "decor = boost(foo=True)"
+                raise NotImplementedError
+            else:
+                "f1_ = boost(f1)"
+                if len(call.args) > 1:
+                    raise NotImplementedError
+                func_name = call.args[0].id
+
+                definition_node, ext_module = find_decorated_function(
+                    module, func_name, pathfile
                 )
-                backend = backend.replace("'", "").rstrip()
-            key = definition_node.value.args[0].id
+                # decorated_dict = decorated_dicts["functions"][backend_name]
+
+        elif isinstance(node_using_decorator, ast.Call) and isinstance(
+            node_parent, ast.Call
+        ):
+            """f1_ = boost(inline=1)(f1)"""
+
+            call = node_parent
+            if call.keywords or len(call.args) > 1:
+                raise NotImplementedError
+            func_name = call.args[0].id
             definition_node, ext_module = find_decorated_function(
-                module, key, pathfile
+                module, func_name, pathfile
             )
-            decorated_dict = decorated_dicts["functions"][backend]
-            # if the definition node is in an imported module
-            if ext_module:
-                decorated_dict = decorated_dicts["functions_ext"][backend]
-                decorated_dict[key] = (definition_node, ext_module)
+            # decorated_dict = decorated_dicts["functions"][backend_name]
+
         else:
-            key = definition_node.name
+            raise RuntimeError
+
+        # if the definition node is in an imported module
+        if ext_module:
+            decorated_dict = decorated_dicts["functions_ext"][backend_name]
+            decorated_dict[func_name] = (definition_node, ext_module)
         # If the definition node is not imported
-        if decorated_dict is not decorated_dicts["functions_ext"][backend]:
+        else:
+            func_name = definition_node.name
             if isinstance(definition_node, ast.FunctionDef):
                 parent = ancestors.parent(definition_node)
                 if isinstance(parent, ast.ClassDef):
-
-                    decorated_dict = decorated_dicts["methods"][backend]
-                    key = (parent.name, key)
+                    decorated_dict = decorated_dicts["methods"][backend_name]
+                    func_name = (parent.name, func_name)
                 else:
-                    decorated_dict = decorated_dicts["functions"][backend]
+                    decorated_dict = decorated_dicts["functions"][backend_name]
             elif isinstance(definition_node, ast.ClassDef):
-                decorated_dict = decorated_dicts["classes"][backend]
+                decorated_dict = decorated_dicts["classes"][backend_name]
+            else:
+                raise RuntimeError
             if decorated_dict is not None:
-                decorated_dict[key] = definition_node
+                decorated_dict[func_name] = definition_node
 
     # we first need to find the node where transonic.boost is defined...
     for node in module.body:
