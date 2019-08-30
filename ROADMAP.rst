@@ -1,14 +1,3 @@
-Options for the boost decorator
--------------------------------
-
-To support things like:
-
-.. code:: python
-
-  @boost(inline=True)
-  def add(a, b):
-      return a + b
-
 Cython backend (beta version)
 -----------------------------
 
@@ -35,7 +24,11 @@ Less bugs and more Cython features...
   * [done] jit functions
   * [done] jit methods
 
-- Special function definitions (cdef, inline, nogil, return type)
+- Special function definitions
+
+  * [done] inline
+  * [done] return type
+  * nogil
 
 - Cython decorators (:code:`@cython.boundscheck(False)
   @cython.wraparound(False)`)

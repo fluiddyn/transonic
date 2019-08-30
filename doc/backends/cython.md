@@ -63,6 +63,27 @@ def mysum(arr_input: "float[]"):
 
 ```
 
+## Cython syntaxes nearly supported
+
+### Function definition (cdef, cpdef, inline, nogil, return type)
+
+```python
+from transonic import boost
+
+@boost(inline=True, nogil=True)
+def func(a: "float[]", n: int) -> "void":
+    ...
+```
+
+which would translate in Cython as something like:
+
+```cython
+cdef inline void func(np.float_t[:] a, cython.int n) nogil
+```
+
+`boost(inline=True)` is supported for functions, see [this
+example](https://transonic.readthedocs.io/en/latest/examples/inlined/txt.html).
+
 ## Cython syntaxes that can be supported quite easily
 
 ### ctypedef, fused types and contiguous arrays
@@ -125,23 +146,6 @@ from transonic import boost
 @boost
 def func(arr: "float[]", index: "Py_ssize_t"):
     ...
-
-```
-
-### Function definition (cdef, cpdef, inline, nogil, return type)
-
-```python
-from transonic import boost
-
-@boost(cython_options=["cdef", "inline", "nogil"])
-def func(a: "float[]", n: int) -> "void":
-    ...
-```
-
-which would translate in Cython as something like:
-
-```cython
-cdef inline void func(np.float_t[:] a, cython.int n) nogil
 
 ```
 

@@ -23,6 +23,7 @@ Examples
    examples/methods
    ipynb/executed/demo_compile_at_import
    ipynb/executed/demo_jit
+   examples/inlined/txt
 
 Modules Reference
 -----------------
