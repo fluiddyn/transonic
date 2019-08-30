@@ -60,9 +60,15 @@ class CaptureX(ast.NodeVisitor):
             try:
                 self.ud_chains.chains[node]
             except KeyError:
-                from transonic.analyses import print_dumped
+                parent_node = self.ancestors.parents(node)[-1]
+                if not (
+                    isinstance(parent_node, ast.FunctionDef)
+                    and node == parent_node.returns
+                ):
+                    raise
+                from warnings import warn
 
-                print(f"BUG Beniget? (node.id={node.id}) Still we continue!")
+                warn(f"BUG Beniget (node.id={node.id}), but we try to continue!")
                 return
 
             for def_ in self.ud_chains.chains[node]:
