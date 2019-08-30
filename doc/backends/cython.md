@@ -17,7 +17,6 @@ written in the .pxd file.
 
 Therefore, we first need examples of Cython code written in this mode.
 
-
 ## Cython syntaxes already supported
 
 ### Simple fused types, memory views
@@ -62,6 +61,15 @@ def mysum(arr_input: "float[]"):
     return result
 
 ```
+
+### Cython decorators
+
+```cython
+@cython.boundscheck(False)
+@cython.wraparound(False)
+```
+
+Currently only for simple functions (no methods).
 
 ## Cython syntaxes nearly supported
 
@@ -114,15 +122,6 @@ Note that for Pythran, we could also support:
 A_fixed_dim = Array[np_floats, "[:, :, 3]"]
 ```
 
-### Cython decorators
-
-```cython
-@cython.boundscheck(False)
-@cython.wraparound(False)
-```
-
-Unfortunately, it seems that we can't put these decorators in the .pxd file!
-
 ### Special C types
 
 For example `Py_ssize_t`
@@ -168,7 +167,6 @@ def func(n: int):
 
 Of course there is no equivalent in Pythran, so the Pythran backend would have
 to suppress the `with nogil()`.
-
 
 ## Cython syntaxes that will be difficult to support
 

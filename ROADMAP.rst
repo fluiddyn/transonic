@@ -30,7 +30,7 @@ Less bugs and more Cython features...
   * [done] return type
   * nogil
 
-- Cython decorators (:code:`@cython.boundscheck(False)
+- [done] Cython decorators (:code:`@cython.boundscheck(False)
   @cython.wraparound(False)`)
 
 - locals annotations for
