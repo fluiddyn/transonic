@@ -13,7 +13,6 @@ include_dirs = [np.get_include()]
 try:
     from Cython.Build import cythonize
 except ImportError:
-    # from setuptools import Extension
     extensions = [
         Extension(
             "add_cython",

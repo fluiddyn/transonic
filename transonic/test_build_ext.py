@@ -33,7 +33,7 @@ def test_buildext():
 
 def teardown_module():
     os.chdir(cwd)
-    for namedir in ("build", "__pythran__", "__pycache__"):
+    for namedir in ("build", f"__{backend_default}__", "__pycache__"):
         with suppress(FileNotFoundError):
             shutil.rmtree(setup_dir / namedir)
 

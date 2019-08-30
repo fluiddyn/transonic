@@ -1,11 +1,9 @@
 import shutil
 from distutils.core import Distribution
-from copy import copy
 from pprint import pformat
 
 import pytest
 
-from transonic import dist
 from transonic.config import backend_default
 
 from transonic.dist import (
@@ -18,18 +16,12 @@ from transonic.dist import (
 
 from transonic.mpi import nb_proc
 from transonic.path_data_tests import path_data_tests
-
-
-can_actually_import_pythran = copy(dist.can_import_pythran)
-
-
-def setup_module():
-    dist.can_import_pythran = True
+from transonic.util import can_import_accelerator
 
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
-def test_detect_pythran_extensions():
+def test_detect_backend_extensions():
 
     shutil.rmtree(path_data_tests / f"__{backend_default}__", ignore_errors=True)
 
@@ -53,18 +45,14 @@ def test_detect_pythran_extensions():
     make_backend_files((path_data_tests / name for name in names))
     ext_names = detect_transonic_extensions(path_data_tests)
 
-    if backend_default in ("cython", "numba"):
-        # -2 files (no_pythran.py and assign_fun_jit.py)
-        # + 1 test_packaging.__cython__.add
-        number_not_transonized = 1
-    else:
+    if can_import_accelerator():
         # -2 files (no_pythran.py and assign_fun_jit.py)
         number_not_transonized = 2
 
-    if len(ext_names) != len(names) - number_not_transonized:
-        print("ext_names:\n", pformat(sorted(ext_names)), sep="")
-        print("names:\n", pformat(sorted(names)), sep="")
-        raise RuntimeError
+        if len(ext_names) != len(names) - number_not_transonized:
+            print("ext_names:\n", pformat(sorted(ext_names)), sep="")
+            print("names:\n", pformat(sorted(names)), sep="")
+            raise RuntimeError
 
     shutil.rmtree(path_data_tests / f"__{backend_default}__", ignore_errors=True)
 
@@ -86,7 +74,3 @@ def test_build_ext():
     build_ext.initialize_options()
     build_ext.parallel = 1
     build_ext.finalize_options()
-
-
-def teardown_module():
-    dist.can_import_pythran = can_actually_import_pythran

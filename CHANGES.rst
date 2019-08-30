@@ -4,6 +4,11 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
+0.3.3 (2019-08-30)
+------------------
+
+- Keywords for the boost decorator: inline, boundscheck and wraparound
+
 0.3.2 (2019-08-27)
 ------------------
 

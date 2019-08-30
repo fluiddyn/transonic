@@ -19,9 +19,11 @@ from typing import Iterable
 from concurrent.futures import ThreadPoolExecutor as Pool
 
 from distutils.command.build_ext import build_ext as DistutilsBuildExt
+from distutils.core import Extension
 
 try:
     from Cython.Distutils.build_ext import build_ext as CythonBuildExt
+    from Cython.Build import cythonize
 except ImportError:
     build_ext_classes = [DistutilsBuildExt]
     can_import_cython = False
@@ -43,6 +45,7 @@ from .util import modification_date
 
 from transonic.config import backend_default
 from transonic.backends import make_backend_files
+from transonic.util import can_import_accelerator
 
 __all__ = [
     "PythranBuildExt",
@@ -86,7 +89,7 @@ def detect_transonic_extensions(
     present in the current working directory.
 
     """
-    if not can_import_pythran:
+    if not can_import_accelerator(backend):
         return []
     ext_names = []
     if not os.path.exists(str(name_package)):
@@ -153,7 +156,14 @@ def init_transonic_extensions(
 
     """
     modules = detect_transonic_extensions(name_package, backend)
-    if not modules or not can_import_pythran:
+    if not modules:
+        return []
+
+    if backend == "pythran":
+        BackendExtension = PythranExtension
+    elif backend == "cython":
+        BackendExtension = Extension
+    else:
         return []
 
     if len(exclude_exts) > 0 and logger:
@@ -184,11 +194,13 @@ def init_transonic_extensions(
                     )
                 )
 
-            pext = PythranExtension(mod, [py_file])
+            pext = BackendExtension(mod, [py_file])
             if isinstance(include_dirs, str):
                 include_dirs = [include_dirs]
             pext.include_dirs.extend(include_dirs)
             pext.extra_compile_args.extend(compile_args)
+            if backend == "cython":
+                pext = cythonize(pext)[0]
             extensions.append(pext)
 
     return extensions
