@@ -53,7 +53,7 @@ def test_detect_pythran_extensions():
     make_backend_files((path_data_tests / name for name in names))
     ext_names = detect_transonic_extensions(path_data_tests)
 
-    if backend_default in ("cython", "python", "numba"):
+    if backend_default in ("cython", "numba"):
         # -2 files (no_pythran.py and assign_fun_jit.py)
         # + 1 test_packaging.__cython__.add
         number_not_transonized = 1
