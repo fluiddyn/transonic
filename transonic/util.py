@@ -50,13 +50,13 @@ import sys
 import inspect
 import re
 from pathlib import Path
-import gast as ast
 import importlib.util
 from distutils.util import strtobool
 import shutil
 from textwrap import dedent
-
 from typing import Callable
+
+import gast as ast
 
 from transonic.config import backend_default
 
@@ -442,3 +442,19 @@ def write_if_has_to_write(
         if logger:
             logger(f"{path_file} written")
     return written
+
+
+def timeit(stmt="pass", setup="pass", total_duration=2, globals=None):
+    """timeit with a approximate total_duration"""
+    from timeit import Timer
+
+    timer = Timer(stmt, setup, globals=globals)
+    timer.timeit(10)
+    duration1 = timer.timeit(10) / 10
+    number = max(1, int(round(total_duration / duration1)))
+
+    if number * duration1 > 2 * total_duration:
+        raise RuntimeError("number * duration1 > 2 * total_duration")
+
+    duration = timer.timeit(number)
+    return duration / number
