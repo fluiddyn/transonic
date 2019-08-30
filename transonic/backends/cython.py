@@ -299,5 +299,5 @@ class CythonBackend(BackendAOT):
             "try:\n"
             "    import cython\n"
             "except ImportError:\n"
-            "    from transonic_cl import cython\n"
+            "    from transonic_cl import cython\n\n"
         )
