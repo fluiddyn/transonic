@@ -25,36 +25,36 @@ To compile this file with different backends, one can run:
 
 .. code:: bash
 
+    TRANSONIC_BACKEND="python" transonic row_sum_boost.py
     TRANSONIC_BACKEND="cython" transonic row_sum_boost.py
     TRANSONIC_BACKEND="numba" transonic row_sum_boost.py
     TRANSONIC_BACKEND="pythran" transonic row_sum_boost.py -pf "-march=native -DUSE_XSIMD"
-    TRANSONIC_BACKEND="python" transonic row_sum_boost.py
 
 Then, on my PC, I get::
 
     TRANSONIC_BACKEND="python" python row_sum_boost.py
     Checks passed: results are consistent
     Python
-    row_sum_loops        108.57 s
-    row_sum_transpose    1.38
+    row_sum              1.2e-03 s
+    row_sum_loops        1.0e-01 s
 
     TRANSONIC_BACKEND="cython" python row_sum_boost.py
     Checks passed: results are consistent
     Cython
-    row_sum_loops        0.45 s
-    row_sum_transpose    1.32 s
+    row_sum              1.3e-03 s
+    row_sum_loops        3.8e-04 s
 
     TRANSONIC_BACKEND="numba" python row_sum_boost.py
     Checks passed: results are consistent
     Numba
-    row_sum_loops        0.27 s
-    row_sum_transpose    1.16 s
+    row_sum              1.1e-03 s
+    row_sum_loops        2.6e-04 s
 
     TRANSONIC_BACKEND="pythran" python row_sum_boost.py
     Checks passed: results are consistent
     Pythran
-    row_sum_loops        0.27 s
-    row_sum_transpose    0.76 s
+    row_sum              8.2e-04 s
+    row_sum_loops        2.6e-04 s
 
 The fastest solutions are in this case the Numba and Pythran backends for the
 implementation with explicit loops.
@@ -82,19 +82,19 @@ which gives::
     Checks passed: results are consistent
     Checks passed: results are consistent
     Cython
-    row_sum_loops        11.94 s
-    row_sum_transpose    1.28 s
+    row_sum              1.3e-03 s
+    row_sum_loops        1.2e-02 s
 
     TRANSONIC_BACKEND="numba" python row_sum_jit.py
     Checks passed: results are consistent
     Checks passed: results are consistent
     Numba
-    row_sum_loops        0.28 s
-    row_sum_transpose    1.14 s
+    row_sum              1.1e-03 s
+    row_sum_loops        2.7e-04 s
 
     TRANSONIC_BACKEND="pythran" python row_sum_jit.py
     Checks passed: results are consistent
     Checks passed: results are consistent
     Pythran
-    row_sum_loops        0.28 s
-    row_sum_transpose    0.76 s
+    row_sum              8.4e-04 s
+    row_sum_loops        2.6e-04 s

@@ -1,3 +1,9 @@
+try:
+    import cython
+except ImportError:
+    from transonic_cl import cython
+
+
 def __for_method__Myclass__func(self_attr, self_attr2, arg):
     if __for_method__Myclass__func(self_attr, self_attr2, (arg - 1)) < 1:
         return 1
@@ -17,4 +23,4 @@ def new_method(self, arg):
 
 """
 
-__transonic__ = ("0.3.0",)
+__transonic__ = ("0.3.3",)

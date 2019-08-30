@@ -1,0 +1,5 @@
+export row_sum_loops(int[:, :], int[:])
+
+export row_sum_transpose(int[:, :], int[:])
+
+export __transonic__

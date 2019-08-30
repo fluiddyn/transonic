@@ -1,3 +1,8 @@
+try:
+    import cython
+except ImportError:
+    from transonic_cl import cython
+
 import numpy as np
 
 
@@ -13,4 +18,4 @@ def new_method(self, inp):
 
 """
 
-__transonic__ = ("0.3.0",)
+__transonic__ = ("0.3.3",)

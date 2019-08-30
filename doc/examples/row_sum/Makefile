@@ -17,7 +17,7 @@ other:
 clean:
 	rm -rf __cython__ __python__ __numba__ __pythran__
 
-bench: bench_cython bench_numba bench_pythran bench_python
+bench: bench_python bench_cython bench_numba bench_pythran
 
 bench_cython:
 	TRANSONIC_BACKEND="cython" python $(NAME)

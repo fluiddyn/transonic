@@ -1,3 +1,9 @@
+try:
+    import cython
+except ImportError:
+    from transonic_cl import cython
+
+
 def add(a, b):
     return a + b
 
@@ -9,4 +15,4 @@ def use_add(n=10000):
     return tmp
 
 
-__transonic__ = ("0.3.2",)
+__transonic__ = ("0.3.3",)

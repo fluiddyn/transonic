@@ -1,3 +1,9 @@
+try:
+    import cython
+except ImportError:
+    from transonic_cl import cython
+
+
 def compute(a, b, c, d, e):
     print(e)
     tmp = a + b
@@ -6,4 +12,4 @@ def compute(a, b, c, d, e):
     return tmp
 
 
-__transonic__ = ("0.3.0",)
+__transonic__ = ("0.3.3",)

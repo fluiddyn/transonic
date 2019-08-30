@@ -35,13 +35,6 @@ from .base_jit import SubBackendJIT
 from .for_classes import make_new_code_method_from_nodes
 
 
-def _make_code_from_fdef_node(fdef, black=True):
-    transformed = TypeHintRemover().visit(fdef)
-    # convert the AST back to source code
-    code = extast.unparse(transformed)
-    return format_str(code)
-
-
 class Backend:
     """Base class for the Transonic backends"""
 
@@ -57,6 +50,12 @@ class Backend:
         self.name = self.backend_name
         self.name_capitalized = self.name.capitalize()
         self.jit = self._SubBackendJIT(self.name)
+
+    def _make_code_from_fdef_node(self, fdef):
+        transformed = TypeHintRemover().visit(fdef)
+        # convert the AST back to source code
+        code = extast.unparse(transformed)
+        return format_str(code)
 
     def make_backend_files(
         self, paths_py, force=False, log_level=None, backend=None
@@ -170,6 +169,9 @@ class Backend:
     def _make_first_lines_header(self):
         return []
 
+    def _make_beginning_code(self):
+        return ""
+
     def _make_backend_code(self, path_py, analyse):
         """Create a backend code from a Python file"""
 
@@ -186,7 +188,7 @@ class Backend:
             signatures_func = self._make_header_1_function(fdef, annotations)
             if signatures_func:
                 lines_header.extend(signatures_func)
-            code_function = _make_code_from_fdef_node(fdef)
+            code_function = self._make_code_from_fdef_node(fdef)
             lines_code.append(code_function)
 
         # Deal with methods
@@ -206,6 +208,7 @@ class Backend:
         code = "\n".join(lines_code).strip()
 
         if code:
+            code = self._make_beginning_code() + code
             self._append_line_header_variable(lines_header, "__transonic__")
             code += f"\n\n__transonic__ = ('{transonic.__version__}',)"
 

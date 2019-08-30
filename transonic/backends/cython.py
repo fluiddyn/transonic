@@ -26,7 +26,7 @@ from transonic.annotation import (
     make_signatures_from_typehinted_func,
 )
 
-from .base import BackendAOT
+from .base import BackendAOT, TypeHintRemover, format_str
 from .base_jit import SubBackendJIT
 
 
@@ -256,7 +256,7 @@ class CythonBackend(BackendAOT):
                 f"{k}={compute_cython_type_from_pythran_type(v, memoryview=True)}"
                 for k, v in locals_types.items()
             )
-            signatures_func.append(f"@cython.locals({locals_types})\n")
+            signatures_func.append(f"@cython.locals({locals_types})")
 
         def_keyword = "cpdef"
 
@@ -269,3 +269,35 @@ class CythonBackend(BackendAOT):
             f"{def_keyword} {inline}{returns}{unparse(fdef).strip()[4:-1]}\n"
         )
         return signatures_func
+
+    def _make_code_from_fdef_node(self, fdef):
+
+        if hasattr(fdef, "_transonic_keywords"):
+            decorator_keywords = fdef._transonic_keywords
+        else:
+            decorator_keywords = {}
+
+        boundscheck = decorator_keywords.get("boundscheck", True)
+        wraparound = decorator_keywords.get("wraparound", True)
+
+        parts = []
+
+        if not boundscheck:
+            parts.append("@cython.boundscheck(False)")
+
+        if not wraparound:
+            parts.append("@cython.wraparound(False)")
+
+        transformed = TypeHintRemover().visit(fdef)
+        # convert the AST back to source code
+        parts.append(unparse(transformed))
+
+        return format_str("\n".join(parts))
+
+    def _make_beginning_code(self):
+        return (
+            "try:\n"
+            "    import cython\n"
+            "except ImportError:\n"
+            "    from transonic_cl import cython\n"
+        )

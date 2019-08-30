@@ -15,5 +15,4 @@ ctypedef fused __use_add_n:
    cython.int
 
 @cython.locals(tmp=cython.int, _=cython.int)
-
 cpdef use_add(__use_add_n n=*)

@@ -1,3 +1,8 @@
+try:
+    import cython
+except ImportError:
+    from transonic_cl import cython
+
 import numpy as np
 
 
@@ -40,4 +45,4 @@ def block1(a, b, n):
 
 arguments_blocks = {"block0": ["a", "b", "n"], "block1": ["a", "b", "n"]}
 
-__transonic__ = ("0.3.0",)
+__transonic__ = ("0.3.3",)
