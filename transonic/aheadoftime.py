@@ -96,7 +96,7 @@ def _get_transonic_calling_module(index_frame: int = 2):
     return ts
 
 
-def boost(obj=None, **kwargs):
+def boost(obj=None, backend=backend_default, inline=False):
     """Decorator to declare that an object can be accelerated
 
     Parameters
@@ -108,7 +108,7 @@ def boost(obj=None, **kwargs):
 
     ts = _get_transonic_calling_module()
 
-    decor = ts.boost(**kwargs)
+    decor = ts.boost(backend=backend, inline=inline)
     if callable(obj) or isinstance(obj, type):
         return decor(obj)
     else:
