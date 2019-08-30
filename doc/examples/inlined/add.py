@@ -1,6 +1,5 @@
 from transonic import boost
 
-
 T = int
 
 

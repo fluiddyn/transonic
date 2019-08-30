@@ -1,5 +1,4 @@
 def add(a, b):
-    # -> T:  # not yet supported
     return a + b
 
 

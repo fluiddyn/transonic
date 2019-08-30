@@ -26,12 +26,7 @@ class PythranBackend(BackendAOT):
         lines_header.append(f"export {name_variable}\n")
 
     def _make_header_from_fdef_signatures(
-        self,
-        fdef,
-        signatures_as_lists_strings,
-        locals_types=None,
-        returns=None,
-        inline=False,
+        self, fdef, signatures_as_lists_strings, locals_types=None, returns=None
     ):
 
         signatures_func = set()

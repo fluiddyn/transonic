@@ -103,6 +103,7 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
         node_parent = ancestors.parent(node_using_decorator)
 
         # first, get the keywords
+        keywords = None
         if isinstance(node_using_decorator, ast.Call):
             # decorator used in the form boost(...)
             if node_using_decorator.keywords:
@@ -111,7 +112,7 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
                     keyword.arg: eval(extast.unparse(keyword.value))
                     for keyword in node_using_decorator.keywords
                 }
-                # TODO: do something with the keywords dict!
+                backend_name = keywords.get("backend", backend_default)
 
         if isinstance(
             node_using_decorator, (ast.FunctionDef, ast.ClassDef)
@@ -158,7 +159,6 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
                 definition_node, ext_module = find_decorated_function(
                     module, func_name, pathfile
                 )
-                # decorated_dict = decorated_dicts["functions"][backend_name]
 
         elif isinstance(node_using_decorator, ast.Call) and isinstance(
             node_parent, ast.Call
@@ -172,10 +172,12 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
             definition_node, ext_module = find_decorated_function(
                 module, func_name, pathfile
             )
-            # decorated_dict = decorated_dicts["functions"][backend_name]
 
         else:
-            raise RuntimeError
+            raise NotImplementedError
+
+        if keywords is not None:
+            definition_node._transonic_keywords = keywords
 
         # if the definition node is in an imported module
         if ext_module:

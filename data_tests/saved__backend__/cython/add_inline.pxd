@@ -9,10 +9,11 @@ ctypedef fused __add_a:
 ctypedef fused __add_b:
    cython.int
 
-cdef inline int add(__add_a a, __add_b b)
+cpdef inline cython.int add(__add_a a, __add_b b)
 
 ctypedef fused __use_add_n:
    cython.int
 
 @cython.locals(tmp=cython.int, _=cython.int)
+
 cpdef use_add(__use_add_n n=*)

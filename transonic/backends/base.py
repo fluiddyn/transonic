@@ -352,12 +352,7 @@ class Backend:
         raise NotImplementedError
 
     def _make_header_from_fdef_signatures(
-        self,
-        fdef,
-        signatures_as_lists_strings,
-        locals_types=None,
-        returns=None,
-        inline=False,
+        self, fdef, signatures_as_lists_strings, locals_types=None, returns=None
     ):
         raise NotImplementedError
 
@@ -496,11 +491,6 @@ class BackendJIT(Backend):
         return []
 
     def _make_header_from_fdef_signatures(
-        self,
-        fdef,
-        signatures_as_lists_strings,
-        locals_types=None,
-        returns=None,
-        inline=False,
+        self, fdef, signatures_as_lists_strings, locals_types=None, returns=None
     ):
         return []

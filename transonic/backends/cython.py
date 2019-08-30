@@ -204,13 +204,16 @@ class CythonBackend(BackendAOT):
         return ["import cython\n\nimport numpy as np\ncimport numpy as np\n"]
 
     def _make_header_from_fdef_signatures(
-        self,
-        fdef,
-        signatures_as_lists_strings,
-        locals_types=None,
-        returns=None,
-        inline=False,
+        self, fdef, signatures_as_lists_strings, locals_types=None, returns=None
     ):
+
+        if hasattr(fdef, "_transonic_keywords"):
+            decorator_keywords = fdef._transonic_keywords
+        else:
+            decorator_keywords = {}
+
+        inline = decorator_keywords.get("inline", False)
+        inline = "inline " if inline else ""
 
         fdef = ast.FunctionDef(
             name=fdef.name,
@@ -255,12 +258,7 @@ class CythonBackend(BackendAOT):
             )
             signatures_func.append(f"@cython.locals({locals_types})\n")
 
-        if inline:
-            inline = "inline "
-            def_keyword = "cdef"
-        else:
-            inline = ""
-            def_keyword = "cpdef"
+        def_keyword = "cpdef"
 
         if returns is not None:
             returns = compute_cython_type_from_pythran_type(returns) + " "

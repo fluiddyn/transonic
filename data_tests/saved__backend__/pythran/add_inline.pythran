@@ -1,0 +1,5 @@
+export add(int, int)
+
+export use_add(int)
+
+export __transonic__
