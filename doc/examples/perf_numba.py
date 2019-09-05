@@ -15,7 +15,7 @@ def laplace_numpy(image):
     return thresh
 
 
-@jit
+@jit(native=True, xsimd=True)
 def laplace_pythran(image):
     """Laplace operator in NumPy for 2D images."""
     laplacian = (
@@ -26,7 +26,7 @@ def laplace_pythran(image):
     return thresh
 
 
-@jit
+@jit(native=True, xsimd=True)
 def laplace_pythran_loops(image):
     """Laplace operator for 2D images."""
     h = image.shape[0]
@@ -41,7 +41,7 @@ def laplace_pythran_loops(image):
     return laplacian
 
 
-@numba.jit(nopython=True, cache=True)
+@numba.jit(nopython=True, cache=True, fastmath=True)
 def laplace_numba(image):
     """Laplace operator in NumPy for 2D images. Numba accelerated."""
     laplacian = (
@@ -52,7 +52,7 @@ def laplace_numba(image):
     return thresh
 
 
-@numba.jit(nopython=True, cache=True)
+@numba.jit(nopython=True, cache=True, fastmath=True)
 def laplace_numba_loops(image):
     """Laplace operator for 2D images. Numba accelerated."""
     h = image.shape[0]
@@ -82,26 +82,28 @@ if __name__ == "__main__":
 
     wait_for_all_extensions()
 
+    from transonic.util import timeit
+    from transonic import __version__
+    import pythran
 
-"""
-With
-- clang 6.0
-- pythran 0.9
-- numba 0.40.1
+    loc = locals()
 
-%timeit laplace_numpy(image)
-1.92 ms ± 69.7 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+    def bench(call, norm=None):
+        ret = result = timeit(call, globals=loc)
+        if norm is None:
+            norm = result
+        result /= norm
+        print(f"{call:30s}: {result:.2f}")
+        return ret
 
-%timeit laplace_pythran(image)
-211 µs ± 56.2 ns per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+    print(
+        f"transonic {__version__}\n"
+        f"pythran {pythran.__version__}\n"
+        f"numba {numba.__version__}\n"
+    )
 
-%timeit laplace_pythran_loops(image)
-241 µs ± 821 ns per loop (mean ± std. dev. of 7 runs, 1000 loops each)
-
-%timeit laplace_numba(image)
-2.05 ms ± 1.09 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
-
-%timeit laplace_numba_loops(image)
-240 µs ± 489 ns per loop (mean ± std. dev. of 7 runs, 1000 loops each)
-
-"""
+    norm = bench("laplace_pythran(image)")
+    bench("laplace_pythran_loops(image)", norm=norm)
+    bench("laplace_numba(image)", norm=norm)
+    bench("laplace_numba_loops(image)", norm=norm)
+    bench("laplace_numpy(image)", norm=norm)

@@ -24,12 +24,26 @@ by Florian LE BOURDAIS.
 
 .. literalinclude:: perf_numba.py
 
-The warmup is much longer for Transonic but remember that it is a cached JIT
-so it is an issue only for the first call of the function. When we reimport the
-module, there is no warmup.
+which gives:
+
+.. code::
+
+    transonic 0.3.3
+    pythran 0.9.3post1
+    numba 0.45.1
+
+    laplace_pythran(image)        : 1.00
+    laplace_pythran_loops(image)  : 1.38
+    laplace_numba(image)          : 8.86
+    laplace_numba_loops(image)    : 1.36
+    laplace_numpy(image)          : 10.18
+
+The warmup is much longer for Transonic-Pythran but remember that it is a
+cached JIT so it is an issue only for the first call of the function. When we
+reimport the module, there is no warmup.
 
 Then we see that **Pythran is very good to optimize high-level NumPy code!** In
-contrast, (with my setup and on my computer) Numba has not been able to
+contrast (with my setup and on my computer), Numba has not been able to
 optimize this function.
 
 However, Numba is good to speedup the code with loops, but even with this code,
