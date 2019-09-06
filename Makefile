@@ -30,6 +30,7 @@ tests_cov:
 clean:
 	rm -rf $(HOME)/.transonic/*/*/transonic/
 	rm -rf $(HOME)/.transonic/*/*/*/transonic/
+	rm -rf .coverage build dist
 
 tests_coverage_short:
 	mkdir -p .coverage

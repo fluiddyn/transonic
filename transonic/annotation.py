@@ -126,7 +126,7 @@ class Type(TemplateVar):
     def __repr__(self):
         return self.__name__
 
-    def get_pythran_type(self, **kwargs):
+    def format_as_backend_type(self, **kwargs):
 
         dtype = None
 
@@ -216,6 +216,7 @@ class ArrayMeta(type):
 
         dtype = None
         ndim = None
+        memview = False
         params_filtered = []
         for param in parameters:
             if isinstance(param, (Type, type)):
@@ -257,6 +258,9 @@ class ArrayMeta(type):
                     )
 
             if isinstance(param, str):
+                if param == "memview":
+                    memview = True
+                    continue
                 raise ValueError(f"{param} cannot be interpretted...")
 
             params_filtered.append(param)
@@ -274,6 +278,7 @@ class ArrayMeta(type):
             (Array,),
             {"dtype": dtype, "ndim": ndim, "parameters": parameters},
         )
+        ArrayBis.memview = memview
 
         return ArrayBis
 
@@ -296,9 +301,12 @@ class ArrayMeta(type):
                 string = repr(p)
             strings.append(string)
 
+        if self.memview:
+            strings.append('"memview"')
+
         return "Array[" + ", ".join(strings) + "]"
 
-    def get_pythran_type(self, **kwargs):
+    def format_as_backend_type(self, **kwargs):
 
         dtype = ndim = None
 
@@ -373,7 +381,7 @@ class UnionMeta(type):
             strings.append(string)
         return "Union[" + ", ".join(strings) + "]"
 
-    def get_pythran_type(self, **kwargs):
+    def format_as_backend_type(self, **kwargs):
         type_ = kwargs.pop(self.template_var.__name__)
         return compute_pythran_type_from_type(type_, **kwargs)
 
@@ -402,8 +410,8 @@ def normalize_type_name(name):
 
 
 def compute_pythran_type_from_type(type_, **kwargs):
-    if hasattr(type_, "get_pythran_type"):
-        pythran_type = type_.get_pythran_type(**kwargs)
+    if hasattr(type_, "format_as_backend_type"):
+        pythran_type = type_.format_as_backend_type(**kwargs)
     elif hasattr(type_, "__name__"):
         pythran_type = type_.__name__
     else:
@@ -433,11 +441,12 @@ def compute_pythran_types_from_types(types, **kwargs):
     for type_ in types:
         pythran_types.append(compute_pythran_type_from_type(type_, **kwargs))
 
-        if "_empty" in pythran_types:
-            raise ValueError(
-                "At least one annotation type lacking in a signature.\n"
-                f"types = {types}"
-            )
+    # TODO: handle this with an exception
+    if "_empty" in pythran_types:
+        raise ValueError(
+            "At least one annotation type lacking in a signature.\n"
+            f"types = {types}"
+        )
 
     return pythran_types
 
