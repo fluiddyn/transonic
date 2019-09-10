@@ -221,6 +221,7 @@ class CythonBackend(BackendAOT):
             body=[],
             decorator_list=[],
             returns=None,
+            type_comment=None,
         )
         signatures_func = []
         if signatures_as_lists_strings:
@@ -242,7 +243,7 @@ class CythonBackend(BackendAOT):
 
             # change function parameters
             if fdef.args.defaults:
-                name_start = ast.Name(id="*", ctx=ast.Param(), annotation=None)
+                name_start = ast.Name("*", ast.Param(), None, None)
                 fdef.args.defaults = [name_start] * len(fdef.args.defaults)
             for name in fdef.args.args:
                 name.annotation = None

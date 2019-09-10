@@ -84,7 +84,7 @@ def get_block_definitions(code, module, ancestors, duc, udc):
                             # no it's not a block definition
                             continue
 
-                        name_block = call.args[0].s
+                        name_block = call.args[0].value
 
                         rawcode, comments = gather_rawcode_comments(if_node, code)
 

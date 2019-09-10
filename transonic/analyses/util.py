@@ -44,7 +44,7 @@ def _fill_ast_annotations_function(function_def, ast_annotations):
             except AttributeError:
                 name = arg.id
 
-            dict_node.keys.append(ast.Str(s=name))
+            dict_node.keys.append(ast.Constant(value=name, kind=None))
             dict_node.values.append(arg.annotation)
 
 
@@ -57,7 +57,7 @@ def _fill_ast_annotations_class(class_def, ast_annotations):
 
         if node.annotation is not None:
             name = node.target.id
-            dict_node.keys.append(ast.Str(s=name))
+            dict_node.keys.append(ast.Constant(value=name, kind=None))
             dict_node.values.append(node.annotation)
 
 
@@ -67,7 +67,7 @@ def get_annotations(object_def, namespace):
     # print_dump(object_def)
 
     ast_annotations = ast.Assign(
-        targets=[ast.Name(id="annotations", ctx=ast.Store(), annotation=None)],
+        targets=[ast.Name("annotations", ast.Store(), None, None)],
         value=ast.Dict(keys=[], values=[]),
     )
 
