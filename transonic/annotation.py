@@ -274,7 +274,7 @@ class ArrayMeta(type):
         parameters = {p.__name__: p for p in params_filtered}
 
         ArrayBis = type(
-            "ArrayBis",
+            f"Array_{dtype.__name__}_{ndim}",
             (Array,),
             {"dtype": dtype, "ndim": ndim, "parameters": parameters},
         )
@@ -293,6 +293,9 @@ class ArrayMeta(type):
         )
 
     def __repr__(self):
+        if not hasattr(self, "parameters"):
+            return super().__repr__()
+
         strings = []
         for p in self.parameters.values():
             if isinstance(p, type):
@@ -374,7 +377,9 @@ class UnionMeta(type):
     def __repr__(self):
         strings = []
         for p in self.types:
-            if isinstance(p, type):
+            if isinstance(p, ArrayMeta):
+                string = repr(p)
+            elif isinstance(p, type):
                 string = p.__name__
             else:
                 string = repr(p)

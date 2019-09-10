@@ -13,6 +13,7 @@ Internal API
 from pathlib import Path
 from textwrap import indent
 from typing import Iterable, Optional
+from pprint import pprint
 
 import transonic
 
@@ -222,12 +223,6 @@ class Backend:
         signatures_blocks = []
         for block in blocks:
 
-            signatures_as_lists_strings = []
-            for annot in block.signatures:
-                signatures_as_lists_strings.extend(
-                    compute_signatures_from_typeobjects(annot)
-                )
-
             str_variables = ", ".join(block.signatures[0].keys())
             fdef_block = extast.ast.parse(
                 f"""def {block.name}({str_variables}):pass"""
@@ -236,8 +231,8 @@ class Backend:
             # TODO: locals_types for blocks
             locals_types = None
             signatures_blocks.extend(
-                self._make_header_from_fdef_signatures(
-                    fdef_block, signatures_as_lists_strings, locals_types
+                self._make_header_from_fdef_annotations(
+                    fdef_block, block.signatures, locals_types
                 )
             )
 
@@ -296,16 +291,11 @@ class Backend:
         types_attrs = [annotations_class[attr] for attr in attributes]
         types_func = list(annotations_meth.values())
         types_pythran = types_attrs + types_func
-        signatures_as_lists_strings = compute_signatures_from_typeobjects(
-            types_pythran
-        )
 
         # TODO: locals_types for methods
         locals_types = None
-        signatures_method = self._make_header_from_fdef_signatures(
-            extast.parse(python_code).body[0],
-            signatures_as_lists_strings,
-            locals_types,
+        signatures_method = self._make_header_from_fdef_annotations(
+            extast.parse(python_code).body[0], [types_pythran], locals_types
         )
 
         str_self_dot_attributes = ", ".join("self." + attr for attr in attributes)
@@ -354,8 +344,8 @@ class Backend:
     def _make_header_1_function(self, fdef, annotations):
         raise NotImplementedError
 
-    def _make_header_from_fdef_signatures(
-        self, fdef, signatures_as_lists_strings, locals_types=None, returns=None
+    def _make_header_from_fdef_annotations(
+        self, fdef, annotations, locals_types=None, returns=None
     ):
         raise NotImplementedError
 
@@ -464,17 +454,32 @@ class BackendAOT(Backend):
         else:
             annots.append(annot)
 
+        locals_types = annotations["__locals__"].get(fdef.name, None)
+        returns = annotations["__returns__"].get(fdef.name, None)
+
+        return self._make_header_from_fdef_annotations(
+            fdef, annots, locals_types, returns
+        )
+
+    def _make_header_from_fdef_annotations(
+        self, fdef, annotations, locals_types=None, returns=None
+    ):
         signatures_as_lists_strings = []
-        for annot in annots:
+        for annot in annotations:
+            print("DEBUG, annot")
+            pprint(annot)
             signatures_as_lists_strings.extend(
                 compute_signatures_from_typeobjects(annot)
             )
 
-        locals_types = annotations["__locals__"].get(fdef.name, None)
-        returns = annotations["__returns__"].get(fdef.name, None)
+        print("DEBUG, signatures_as_lists_strings")
+        pprint(signatures_as_lists_strings)
 
         return self._make_header_from_fdef_signatures(
-            fdef, signatures_as_lists_strings, locals_types, returns
+            fdef,
+            signatures_as_lists_strings,
+            locals_types=locals_types,
+            returns=returns,
         )
 
 
@@ -493,7 +498,7 @@ class BackendJIT(Backend):
     def _make_first_lines_header(self):
         return []
 
-    def _make_header_from_fdef_signatures(
-        self, fdef, signatures_as_lists_strings, locals_types=None, returns=None
+    def _make_header_from_fdef_annotations(
+        self, fdef, annotations, locals_types=None, returns=None
     ):
         return []
