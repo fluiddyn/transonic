@@ -4,6 +4,11 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
+0.4.0 (not released)
+--------------------
+
+- Python 3.8 support (gast>=0.3.0, beniget>=0.2.0, thus pythran>0.9.3post1)
+
 0.3.3 (2019-08-30)
 ------------------
 
