@@ -68,6 +68,11 @@ And same with ``boost``.
 
 - Rewrite the comparison Numba / Pythran with Transonic
 
+``transonic.dataclass`` decorator
+---------------------------------
+
+It would allow one to use ``numba.jitclass`` and Cython extension type.
+
 Alternative syntax for blocks
 -----------------------------
 
