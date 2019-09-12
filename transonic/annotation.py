@@ -463,13 +463,10 @@ def compute_signatures_from_typeobjects(types) -> List[List[str]]:
     if isinstance(types, dict):
         types = types.values()
 
-    template_parameters = []
-
+    template_parameters = set()
     for type_ in types:
         if hasattr(type_, "get_template_parameters"):
-            template_parameters.extend(type_.get_template_parameters())
-
-    template_parameters = set(template_parameters)
+            template_parameters.update(type_.get_template_parameters())
 
     if not template_parameters:
         str_types = []

@@ -33,6 +33,8 @@ Less bugs and more Cython features...
 - [done] Cython decorators (:code:`@cython.boundscheck(False)
   @cython.wraparound(False)`)
 
+- Correct use of fused types (only 1 set of annotations supported)
+
 - locals annotations for
 
   * boost methods
@@ -47,7 +49,7 @@ setup.py & more than one backend at runtime
 
 - ``make_backend_files(backend_default="cython")``
 - More than one backend at runtime
-- "python" backend (equivalent to NO_REPLACE)
+- [done] "python" backend (equivalent to NO_REPLACE)
 - Warnings if file not compiled
 - ``TRANSONIC_BACKEND`` changes only ``backend_default``
 - Examples setup.py in documentation
