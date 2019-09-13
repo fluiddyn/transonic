@@ -16,7 +16,7 @@
 from pprint import pformat
 
 import gast as ast
-import beniget
+from transonic.analyses import beniget
 
 from transonic.log import logger
 from transonic.config import backend_default

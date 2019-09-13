@@ -6,10 +6,10 @@ import re
 from pathlib import Path
 from textwrap import dedent
 
-import beniget
 import gast as ast
 import astunparse
 
+from transonic.analyses import beniget
 from transonic.analyses import extast
 
 

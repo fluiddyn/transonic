@@ -4,12 +4,12 @@
 """
 
 from io import StringIO
+from copy import deepcopy
 
 import gast as ast
 import astunparse
-from copy import deepcopy
 
-import beniget
+from transonic.analyses import beniget
 
 
 class CommentLine(ast.AST):

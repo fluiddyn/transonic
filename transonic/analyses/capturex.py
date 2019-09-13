@@ -3,8 +3,8 @@
 """
 
 import gast as ast
-import beniget
 
+from transonic.analyses import beniget
 from transonic.analyses import extast
 
 
