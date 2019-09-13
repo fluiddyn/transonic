@@ -112,15 +112,28 @@ def f(x, y):
 
 ## Transonic
 
-To define multisignatures from fused types, we can do:
+To define multi-signatures from fused types, we can do:
 
 ```python
 from transonic import Array, Type, NDim, boost
 
-A = Array[Type(int, float), NDim(1, 2), "memview"]
+A = Array[Type(int, float), NDim(1, 2)]
 
 @boost
 def func(a: A, b: A):
+    pass
+```
+
+Note that this other code should give a different result in term of signatures:
+
+```python
+from transonic import Array, Type, NDim, boost
+
+A0 = Array[Type(int, float), NDim(1, 2)]
+A1 = Array[Type(int, float), NDim(1, 2)]
+
+@boost
+def func(a: A0, b: A1):
     pass
 ```
 

@@ -44,6 +44,12 @@ Less bugs and more Cython features...
 
 - "exterior" functions + understand the tests
 
+- void type
+
+- nogil for function definition
+
+- nogil context manager
+
 setup.py & more than one backend at runtime
 -------------------------------------------
 

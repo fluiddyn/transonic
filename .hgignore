@@ -32,3 +32,5 @@ doc/ipynb/*.rst
 **/__cython__/*
 **/__numba__/*
 **/__python__/*
+
+doc/for_dev/**/*.c

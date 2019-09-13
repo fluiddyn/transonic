@@ -7,36 +7,33 @@ However, a descent set of Cython can be supported. We need to find Python
 syntaxes for the most useful Cython special syntaxes.
 
 Note that some Cython features are useless in Pythran (for example cdef of
-locals variable, or `nogil`).
+local variables, or `nogil`).
 
 Note that ideally, we want to write Cython code that can be executed without
-the Cython package and without Cython compilation. It is possible with a subset
-of the "pure Python mode" of Cython for which the Python file does not depend
-on Cython, i.e. all the supplementary information needed by Cython has to be
-written in the .pxd file.
-
+the Cython package and without Cython compilation. It is possible with the
+["pure Python mode" of
+Cython](https://cython.readthedocs.io/en/latest/src/tutorial/pure.html).
 Therefore, we first need examples of Cython code written in this mode.
+
+Note however, that this mode is currently still experimental and that we hit
+simple Cython bugs which limit a lot what can be done in practice with the
+Cython backend. For example:
+
+- Pure-Python mode and fused types <https://github.com/cython/cython/issues/3142>
+- `cython.locals(arr=np.ndarray[...])` https://github.com/cython/cython/issues/3129
+
+More generally, there are many known bugs in Cython which do not help! For example:
+
+- `ctypedef` and buffer <https://github.com/cython/cython/issues/754>
+- <https://stackoverflow.com/questions/57887972/defining-a-fused-type-using-a-fused-type>
+
+I think at least some of these bugs have to be solved upstream...
 
 ## Cython syntaxes already supported
 
-### Simple fused types, memory views
+### `cpdef` signature with simple (basic and array) types for arguments
 
-We already have fused types in Transonic. With Transonic, we can already do (no
-notion of C order):
-
-```python
-import numpy as np
-from transonic import Transonic, Type, NDim, Array
-
-np_floats = Type(np.float32, np.float64)
-N = NDim(2, 3, 4)
-A = Array[np_floats, N]
-A1 = Array[np_floats, N + 1]
-# or simply
-A3d = Array[np_floats, "3d"]
-```
-
-### cdef for type declaration of local variables: `cython.locals`
+### `cdef` for type declaration of local variables: `cython.locals`
 
 In "pure Python mode", one can write
 
@@ -45,10 +42,9 @@ In "pure Python mode", one can write
 cpdef mysum(np.float64_t[:] arr_input)
 ```
 
-With variables annotations (which have to be removed for Pythran / Numba):
+With variables annotations (which are removed for Pythran / Numba):
 
 ```python
-
 from transonic import boost
 
 @boost
@@ -59,7 +55,6 @@ def mysum(arr_input: "float[]"):
     for i in range(n):
         result += arr_input[i]
     return result
-
 ```
 
 ### Cython decorators
@@ -71,7 +66,7 @@ def mysum(arr_input: "float[]"):
 
 Currently only for simple functions (no methods).
 
-## Cython syntaxes nearly supported
+## Cython syntaxes partly supported
 
 ### Function definition (cdef, cpdef, inline, nogil, return type)
 
@@ -86,45 +81,141 @@ def func(a: "float[]", n: int) -> "void":
 which would translate in Cython as something like:
 
 ```cython
-cdef inline void func(np.float_t[:] a, cython.int n) nogil
+cpdef inline void func(np.ndarray[np.float_t, ndim=1] a, cython.int n) nogil
 ```
 
-`boost(inline=True)` is supported for functions, see [this
-example](https://transonic.readthedocs.io/en/latest/examples/inlined/txt.html).
+- all function signatures use `cpdef`
+
+- `boost(inline=True)` is supported for functions, see [this
+  example](https://transonic.readthedocs.io/en/latest/examples/inlined/txt.html).
+
+- Return type is supported but there is no void type.
+
+### Fused types
+
+We already have fused types in Transonic. With Transonic, we can already do:
+
+```python
+import numpy as np
+from transonic import Array, Type, NDim
+
+np_floats = Type(np.float32, np.float64)
+N = NDim(2, 3, 4)
+A = Array[np_floats, N]
+A1 = Array[np_floats, N + 1]
+# or simply
+A3d = Array[np_floats, "3d"]
+```
+
+However, Cython Fused types are currently very limited.
+
+Even with something as simple as that
+
+```python
+from transonic import Array, Type
+
+A = Array[Type(np.float64, np.complex128), "1d"]
+
+def mysum(arr: A):
+    result: A.dtype = arr.dtype.type(0.)
+    i: int
+    for i in range(arr.shape[0]):
+        result += arr[i]
+    return result
+```
+
+should be translated to this (not supported, see
+<https://github.com/cython/cython/issues/754>) Cython code:
+
+```cython
+import cython
+
+import numpy as np
+cimport numpy as np
+
+ctypedef fused T0:
+   np.complex128_t
+   np.float64_t
+
+ctypedef np.ndarray[T0, ndim=1] A
+
+def mysum(A arr):
+    cdef T0 ret = arr.dtype.type(0.)
+    cdef cython.int i
+    for i in range(arr.shape[0]):
+        ret += arr[i]
+    return ret
+```
+
+Note that it works with a memoryview... (but not in pure-Python mode!)
+
+Note that another working alternative is:
+
+```
+import cython
+
+import numpy as np
+cimport numpy as np
+
+ctypedef fused T0:
+   np.complex128_t
+   np.float64_t
+
+def mysum(np.ndarray[T0, ndim=1] arr):
+    cdef T0 ret = arr.dtype.type(0.)
+    cdef cython.int i
+    for i in range(arr.shape[0]):
+        ret += arr[i]
+    return ret
+```
+
+But the corresponding pure-Python version does not work!
 
 ## Cython syntaxes that can be supported quite easily
 
-### ctypedef, fused types and contiguous arrays
+### More array types (contiguous arrays, C or F order, memoryviews)
 
-```cython
-cimport numpy as cnp
-import numpy as np
-
-ctypedef fused np_floats:
-    cnp.float32_t
-    cnp.float64_t
-
-cdef np_floats[:, :, ::1] myvar
-
-```
-
-A nice Python syntax has to be found for `np_floats[:, :, ::1]`
-
-It could just be
+I think we should support:
 
 ```python
-A2 = Array[np_floats, "[:, :, ::1]"]
+Array[int, NDim(3), "order=C"]
+Array[int, "3d", "order=C"]
+Array["int[:, :, ::1]"]
+Array[int, "[:, :, ::1]"]
+transonic.str2type("int[:, :, ::1]")
+transonic.typeof(np.empty((2, 2, 2)))
 ```
+
+and maybe also:
+
+```python
+transonic.int64[:, :, ::1]
+```
+
+I tend to think that the default (`"int[:,:]"`) should correspond to
+`"order=C"`. "Fortran" order and "any" order (contiguous C or F) could be
+obtained with `"order=F"` and `"order=any"`.
+
+Strided arrays could be obtained with `Array[int, NDim(3), "strided"]` or
+`str2type("int[::, ::, ::]")`.
 
 Note that for Pythran, we could also support:
 
 ```python
-A_fixed_dim = Array[np_floats, "[:, :, 3]"]
+A_fixed_dim = Array[Type(np.float32, float), "[:, :, 3]"]
+```
+
+For Cython, we need to be able to specify if an array is a `np.ndarray` or a
+`memoryview`. By default, we will use `np.ndarray` and `memoryview` could be
+obtained with:
+
+```python
+Array[int, "[:, :, ::1]", "memview"]
 ```
 
 ### Special C types
 
-For example `Py_ssize_t`
+For example `Py_ssize_t` and `void`
 
 ```python
 from ctypes import c_ssize_t as Py_ssize_t
@@ -176,7 +267,7 @@ to suppress the `with nogil()`.
 cdef Py_ssize_t *p_indexer
 ```
 
-### Definition `struc`, `enum`, `class`
+### Definition `struct`, `enum`, `class`
 
 ```cython
 cdef struct Heap:
