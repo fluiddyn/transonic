@@ -83,7 +83,11 @@ def get_block_definitions(code, module, ancestors, duc, udc):
                             # no it's not a block definition
                             continue
 
-                        name_block = call.args[0].value
+                        try:
+                            # gast >= 0.3.0 (py3.8)
+                            name_block = call.args[0].value
+                        except AttributeError:
+                            name_block = call.args[0].s
 
                         rawcode, comments = gather_rawcode_comments(if_node, code)
 

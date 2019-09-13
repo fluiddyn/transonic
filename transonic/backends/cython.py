@@ -23,7 +23,7 @@ from pprint import pprint
 from warnings import warn
 import itertools
 
-from transonic.analyses.extast import unparse, ast
+from transonic.analyses.extast import unparse, ast, FunctionDef
 from transonic.annotation import (
     compute_pythran_type_from_type,
     make_signatures_from_typehinted_func,
@@ -218,14 +218,7 @@ class CythonBackend(BackendAOT):
         inline = decorator_keywords.get("inline", False)
         inline = "inline " if inline else ""
 
-        fdef = ast.FunctionDef(
-            name=fdef.name,
-            args=copy.deepcopy(fdef.args),
-            body=[],
-            decorator_list=[],
-            returns=None,
-            type_comment=None,
-        )
+        fdef = FunctionDef(name=fdef.name, args=copy.deepcopy(fdef.args), body=[])
 
         assert isinstance(annotations, list)
 
@@ -332,14 +325,7 @@ class CythonBackend(BackendAOT):
         inline = decorator_keywords.get("inline", False)
         inline = "inline " if inline else ""
 
-        fdef = ast.FunctionDef(
-            name=fdef.name,
-            args=copy.deepcopy(fdef.args),
-            body=[],
-            decorator_list=[],
-            returns=None,
-            type_comment=None,
-        )
+        fdef = FunctionDef(name=fdef.name, args=copy.deepcopy(fdef.args), body=[])
         signatures_func = []
         if signatures_as_lists_strings:
             # produce ctypedef

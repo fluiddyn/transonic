@@ -167,6 +167,60 @@ class CommentInserter(ast.NodeVisitor):
                     value.insert(index, CommentLine(comment, lineno))
 
 
+try:
+    ast.Constant
+except AttributeError:
+    # gast < 0.3.0
+    class Constant(ast.Str):
+        def __init__(self, value):
+            super().__init__(value)
+
+    class Name(ast.Name):
+        def __init__(self, id="annotations", ctx=ast.Store(), annotation=None):
+            super().__init__(id, ctx, annotation)
+
+    class FunctionDef(ast.FunctionDef):
+        def __init__(
+            self,
+            name,
+            args,
+            body,
+            decorator_list=None,
+            returns=None,
+            type_comment=None,
+        ):
+            if decorator_list is None:
+                decorator_list = []
+            super().__init__(name, args, body, decorator_list, returns)
+
+
+else:
+    # gast >= 0.3.0
+    class Constant(ast.Constant):
+        def __init__(self, value):
+            super().__init__(value, None)
+
+    class Name(ast.Name):
+        def __init__(self, id="annotations", ctx=ast.Store(), annotation=None):
+            super().__init__(id, ctx, annotation, None)
+
+    class FunctionDef(ast.FunctionDef):
+        def __init__(
+            self,
+            name,
+            args,
+            body,
+            decorator_list=None,
+            returns=None,
+            type_comment=None,
+        ):
+            if decorator_list is None:
+                decorator_list = []
+            super().__init__(
+                name, args, body, decorator_list, returns, type_comment
+            )
+
+
 if __name__ == "__main__":
     code = """
 # comment 0
