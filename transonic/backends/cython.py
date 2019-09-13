@@ -23,7 +23,7 @@ from pprint import pprint
 from warnings import warn
 import itertools
 
-from transonic.analyses.extast import unparse, ast, FunctionDef
+from transonic.analyses.extast import unparse, ast, FunctionDef, Name
 from transonic.annotation import (
     compute_pythran_type_from_type,
     make_signatures_from_typehinted_func,
@@ -291,7 +291,7 @@ class CythonBackend(BackendAOT):
 
         # change function parameters
         if fdef.args.defaults:
-            name_start = ast.Name("*", ast.Param(), None, None)
+            name_start = Name("*", ast.Param())
             fdef.args.defaults = [name_start] * len(fdef.args.defaults)
         for name in fdef.args.args:
             name.annotation = None
@@ -346,7 +346,7 @@ class CythonBackend(BackendAOT):
 
             # change function parameters
             if fdef.args.defaults:
-                name_start = ast.Name("*", ast.Param(), None, None)
+                name_start = Name("*", ast.Param())
                 fdef.args.defaults = [name_start] * len(fdef.args.defaults)
             for name in fdef.args.args:
                 name.annotation = None

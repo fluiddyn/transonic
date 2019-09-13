@@ -174,6 +174,7 @@ except AttributeError:
     class Constant(ast.Str):
         def __init__(self, value):
             super().__init__(value)
+            self.value = value
 
     class Name(ast.Name):
         def __init__(self, id="annotations", ctx=ast.Store(), annotation=None):
