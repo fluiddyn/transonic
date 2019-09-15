@@ -1,12 +1,8 @@
-import cython
-
-import numpy as np
-cimport numpy as np
 
 ctypedef fused A:
-    np.int_t[:]
-    np.float_t[:]
+    int[:]
+    float[:]
 
 cpdef func(A arg):
-    cdef A arr = np.empty_like(arg)
+    cdef A arr = arg
     return arr
