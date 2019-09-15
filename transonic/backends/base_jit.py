@@ -32,9 +32,10 @@ from .for_classes import produce_code_class
 class SubBackendJIT:
     """Sub-class for Transonic JIT compilation"""
 
-    def __init__(self, name):
+    def __init__(self, name, backend_type_formatter):
         self.name = name
         self.name_capitalized = name.capitalize()
+        self.backend_type_formatter = backend_type_formatter
 
     def make_backend_source(self, info_analysis, func, path_backend):
         func_name = func.__name__
@@ -62,7 +63,9 @@ class SubBackendJIT:
 
     def make_new_header(self, func, arg_types):
         # Include signature comming from type hints
-        signatures = make_signatures_from_typehinted_func(func)
+        signatures = make_signatures_from_typehinted_func(
+            func, self.backend_type_formatter
+        )
         exports = set(f"export {signature}" for signature in signatures)
 
         if arg_types != "no types":

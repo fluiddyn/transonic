@@ -18,6 +18,8 @@ from transonic.util import (
     make_code_from_fdef_node,
 )
 
+from .typing import base_type_formatter
+
 
 def produce_code_class(cls):
     pythran_code = ""
@@ -56,7 +58,7 @@ def make_code_method_jit(cls, func_name):
 
     try:
         signatures_as_lists_strings = compute_signatures_from_typeobjects(
-            types_pythran
+            types_pythran, base_type_formatter
         )
     except ValueError:
         signatures_as_lists_strings = []

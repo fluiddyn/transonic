@@ -13,7 +13,8 @@ Internal API
 from pathlib import Path
 from textwrap import indent
 from typing import Iterable, Optional
-from pprint import pprint
+
+# from pprint import pprint
 
 import transonic
 
@@ -34,6 +35,7 @@ from transonic.util import (
 
 from .base_jit import SubBackendJIT
 from .for_classes import make_new_code_method_from_nodes
+from .typing import TypeFormatter
 
 
 class Backend:
@@ -46,11 +48,13 @@ class Backend:
     keyword_export = "export"
     _SubBackendJIT = SubBackendJIT
     needs_compilation = True
+    _TypeFormatter = TypeFormatter
 
     def __init__(self):
         self.name = self.backend_name
         self.name_capitalized = self.name.capitalize()
-        self.jit = self._SubBackendJIT(self.name)
+        self.type_formatter = TypeFormatter()
+        self.jit = self._SubBackendJIT(self.name, self.type_formatter)
 
     def _make_code_from_fdef_node(self, fdef):
         transformed = TypeHintRemover().visit(fdef)
@@ -466,14 +470,14 @@ class BackendAOT(Backend):
     ):
         signatures_as_lists_strings = []
         for annot in annotations:
-            print("DEBUG, annot")
-            pprint(annot)
+            # print("DEBUG, annot")
+            # pprint(annot)
             signatures_as_lists_strings.extend(
-                compute_signatures_from_typeobjects(annot)
+                compute_signatures_from_typeobjects(annot, self.type_formatter)
             )
 
-        print("DEBUG, signatures_as_lists_strings")
-        pprint(signatures_as_lists_strings)
+        # print("DEBUG, signatures_as_lists_strings")
+        # pprint(signatures_as_lists_strings)
 
         return self._make_header_from_fdef_signatures(
             fdef,

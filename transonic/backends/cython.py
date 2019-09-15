@@ -25,12 +25,13 @@ import itertools
 
 from transonic.analyses.extast import unparse, ast, FunctionDef, Name
 from transonic.typing import (
-    compute_pythran_type_from_type,
+    format_type_as_backend_type,
     make_signatures_from_typehinted_func,
 )
 
 from .base import BackendAOT, TypeHintRemover, format_str
 from .base_jit import SubBackendJIT
+from .typing import base_type_formatter
 
 
 def analyze_array_type(type_):
@@ -66,7 +67,7 @@ def np_ndarray_type(type_) -> str:
 def compute_cython_type_from_pythran_type(type_, memoryview=False):
 
     if isinstance(type_, type):
-        type_ = compute_pythran_type_from_type(type_)
+        type_ = format_type_as_backend_type(type_, base_type_formatter)
 
     if type_.endswith("]"):
         if memoryview:
@@ -171,7 +172,9 @@ class SubBackendJITCython(SubBackendJIT):
             imports="import cython\n\nimport numpy as np\ncimport numpy as np\n",
         )
 
-        signatures = make_signatures_from_typehinted_func(func, as_list_str=True)
+        signatures = make_signatures_from_typehinted_func(
+            func, self.backend_type_formatter, as_list_str=True
+        )
 
         for signature in signatures:
             header.add_signature(
@@ -271,8 +274,8 @@ class CythonBackend(BackendAOT):
                 template_variables = dict(zip(names, set_types))
                 cython_fused_types[name_cython_type].append(
                     compute_cython_type_from_pythran_type(
-                        compute_pythran_type_from_type(
-                            ttype, **template_variables
+                        format_type_as_backend_type(
+                            ttype, self.type_formatter, **template_variables
                         )
                     )
                 )
