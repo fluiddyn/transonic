@@ -7,7 +7,7 @@ import numpy as np
 
 from transonic.log import logger
 from transonic.util import get_source_without_decorator, format_str
-from transonic.annotation import compute_signatures_from_typeobjects
+from transonic.typing import compute_signatures_from_typeobjects
 
 
 def trans_def_method(func):

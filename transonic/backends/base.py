@@ -18,7 +18,7 @@ from pprint import pprint
 import transonic
 
 from transonic.analyses import extast, analyse_aot
-from transonic.annotation import compute_signatures_from_typeobjects
+from transonic.typing import compute_signatures_from_typeobjects
 from transonic.log import logger
 from transonic.compiler import compile_extension, ext_suffix
 from transonic import mpi

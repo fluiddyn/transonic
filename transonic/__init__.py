@@ -1,7 +1,7 @@
 from transonic._version import __version__
 
 from transonic.aheadoftime import Transonic, boost
-from transonic.annotation import Array, NDim, Type, Shape, Union
+from transonic.typing import Array, NDim, Type, Shape, Union
 from transonic.compiler import wait_for_all_extensions
 from transonic.justintime import jit, set_compile_jit
 from transonic.util import set_compile_at_import

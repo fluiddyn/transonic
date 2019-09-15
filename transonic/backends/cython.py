@@ -24,7 +24,7 @@ from warnings import warn
 import itertools
 
 from transonic.analyses.extast import unparse, ast, FunctionDef, Name
-from transonic.annotation import (
+from transonic.typing import (
     compute_pythran_type_from_type,
     make_signatures_from_typehinted_func,
 )

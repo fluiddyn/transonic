@@ -18,7 +18,7 @@ except ImportError:
     np = None
 
 from transonic.analyses import extast
-from transonic.annotation import (
+from transonic.typing import (
     make_signatures_from_typehinted_func,
     normalize_type_name,
 )

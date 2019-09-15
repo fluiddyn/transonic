@@ -36,7 +36,6 @@ modules, classes and functions.
 
     transonic.aheadoftime
     transonic.analyses
-    transonic.annotation
     transonic.backends
     transonic.compiler
     transonic.config
@@ -45,6 +44,7 @@ modules, classes and functions.
     transonic.log
     transonic.mpi
     transonic.run
+    transonic.typing
     transonic.util
 
 More
