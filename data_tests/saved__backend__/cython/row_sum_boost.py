@@ -10,7 +10,7 @@ import numpy as np
 @cython.wraparound(False)
 def row_sum_loops(arr, columns):
     # locals type annotations are used only for Cython
-    res = np.empty(arr.shape[0], dtype=arr.dtype)
+    res = np.empty(arr.shape[0], dtype=np.int64)
     for i in range(arr.shape[0]):
         sum_ = 0
         for j in range(columns.shape[0]):

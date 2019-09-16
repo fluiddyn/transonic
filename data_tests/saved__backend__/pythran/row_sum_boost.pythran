@@ -1,4 +1,4 @@
-export row_sum_loops(int[:, :], int[:])
+export row_sum_loops(int64[:, :], int64[:])
 
 export row_sum_transpose(int[:, :], int[:])
 

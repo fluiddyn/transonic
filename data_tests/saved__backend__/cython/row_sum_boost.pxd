@@ -4,12 +4,12 @@ import numpy as np
 cimport numpy as np
 
 ctypedef fused __row_sum_loops_arr:
-   np.ndarray[np.int_t, ndim=2]
+   np.int64_t[:, :]
 
 ctypedef fused __row_sum_loops_columns:
-   np.ndarray[np.int_t, ndim=1]
+   np.int64_t[:]
 
-@cython.locals(i=cython.int, j=cython.int, sum_=cython.int, res=np.int_t[:])
+@cython.locals(i=cython.int, j=cython.int, sum_=cython.int, res=np.int64_t[:])
 cpdef row_sum_loops(__row_sum_loops_arr arr, __row_sum_loops_columns columns)
 
 ctypedef fused __row_sum_transpose_arr:
