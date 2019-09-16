@@ -9,7 +9,7 @@ from tokenize import tokenize, untokenize, NAME, OP
 import inspect
 from io import BytesIO
 
-from transonic.typing import compute_signatures_from_typeobjects
+from transonic.signatures import compute_signatures_from_typeobjects
 
 # from transonic.log import logger
 from transonic.util import (

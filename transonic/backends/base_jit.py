@@ -18,10 +18,7 @@ except ImportError:
     np = None
 
 from transonic.analyses import extast
-from transonic.typing import (
-    make_signatures_from_typehinted_func,
-    normalize_type_name,
-)
+from transonic.signatures import make_signatures_from_typehinted_func
 from transonic.log import logger
 from transonic import mpi
 from transonic.util import get_source_without_decorator
@@ -32,10 +29,10 @@ from .for_classes import produce_code_class
 class SubBackendJIT:
     """Sub-class for Transonic JIT compilation"""
 
-    def __init__(self, name, backend_type_formatter):
+    def __init__(self, name, type_formatter):
         self.name = name
         self.name_capitalized = name.capitalize()
-        self.backend_type_formatter = backend_type_formatter
+        self.type_formatter = type_formatter
 
     def make_backend_source(self, info_analysis, func, path_backend):
         func_name = func.__name__
@@ -64,7 +61,7 @@ class SubBackendJIT:
     def make_new_header(self, func, arg_types):
         # Include signature comming from type hints
         signatures = make_signatures_from_typehinted_func(
-            func, self.backend_type_formatter
+            func, self.type_formatter
         )
         exports = set(f"export {signature}" for signature in signatures)
 
@@ -121,7 +118,7 @@ class SubBackendJIT:
     def compute_typename_from_object(self, obj: object):
         """return the Pythran type name"""
         name = type(obj).__name__
-        name = normalize_type_name(name)
+        name = self.type_formatter.normalize_type_name(name)
 
         if np and isinstance(obj, np.ndarray):
             name = obj.dtype.name

@@ -44,6 +44,7 @@ modules, classes and functions.
     transonic.log
     transonic.mpi
     transonic.run
+    transonic.signatures
     transonic.typing
     transonic.util
 

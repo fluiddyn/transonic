@@ -19,11 +19,11 @@ from typing import Iterable, Optional
 import transonic
 
 from transonic.analyses import extast, analyse_aot
-from transonic.typing import compute_signatures_from_typeobjects
 from transonic.log import logger
 from transonic.compiler import compile_extension, ext_suffix
 from transonic import mpi
 from transonic.mpi import PathSeq
+from transonic.signatures import compute_signatures_from_typeobjects
 
 from transonic.util import (
     has_to_build,
@@ -53,7 +53,7 @@ class Backend:
     def __init__(self):
         self.name = self.backend_name
         self.name_capitalized = self.name.capitalize()
-        self.type_formatter = TypeFormatter()
+        self.type_formatter = TypeFormatter(self.name)
         self.jit = self._SubBackendJIT(self.name, self.type_formatter)
 
     def _make_code_from_fdef_node(self, fdef):

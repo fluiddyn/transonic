@@ -24,10 +24,8 @@ from warnings import warn
 import itertools
 
 from transonic.analyses.extast import unparse, ast, FunctionDef, Name
-from transonic.typing import (
-    format_type_as_backend_type,
-    make_signatures_from_typehinted_func,
-)
+from transonic.signatures import make_signatures_from_typehinted_func
+from transonic.typing import format_type_as_backend_type
 
 from .base import BackendAOT, TypeHintRemover, format_str
 from .base_jit import SubBackendJIT
@@ -173,7 +171,7 @@ class SubBackendJITCython(SubBackendJIT):
         )
 
         signatures = make_signatures_from_typehinted_func(
-            func, self.backend_type_formatter, as_list_str=True
+            func, self.type_formatter, as_list_str=True
         )
 
         for signature in signatures:

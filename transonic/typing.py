@@ -35,22 +35,12 @@ Internal API
    :members:
    :private-members:
 
-.. autofunction:: compute_signatures_from_typeobjects
-
-.. autofunction:: format_types_as_backend_types
-
-.. autofunction:: _make_signature_from_template_variables
-
-.. autofunction:: make_signatures_from_typehinted_func
+.. autofunction:: format_type_as_backend_type
 
 """
 
-import itertools
-import inspect
-from typing import List
 
 from transonic.util import get_name_calling_module
-from transonic.config import backend_default
 
 names_template_variables = {}
 
@@ -403,29 +393,17 @@ class Union(metaclass=UnionMeta):
     pass
 
 
-if backend_default == "cython":
-    normalized_types = {"float": "float", "complex": "complex"}
-else:
-    normalized_types = {"float": "float64", "complex": "complex128"}
-
-
-def normalize_type_name(name):
-    try:
-        return normalized_types[name]
-    except KeyError:
-        return name
-
-
 def format_type_as_backend_type(type_, backend_type_formatter, **kwargs):
+    normalize_type_name = backend_type_formatter.normalize_type_name
     if hasattr(type_, "format_as_backend_type"):
-        pythran_type = type_.format_as_backend_type(
+        backend_type = type_.format_as_backend_type(
             backend_type_formatter, **kwargs
         )
     elif hasattr(type_, "__name__"):
-        pythran_type = type_.__name__
+        backend_type = type_.__name__
     else:
-        pythran_type = str(type_)
-        types = pythran_type.split(" or ")
+        backend_type = str(type_)
+        types = backend_type.split(" or ")
         new_types = []
         for _type in types:
             _type = normalize_type_name(_type)
@@ -437,179 +415,6 @@ def format_type_as_backend_type(type_, backend_type_formatter, **kwargs):
             elif _type.endswith("[]"):
                 _type = normalize_type_name(_type[:-2]) + "[:]"
             new_types.append(_type)
-        pythran_type = " or ".join(new_types)
+        backend_type = " or ".join(new_types)
 
-    return normalize_type_name(pythran_type)
-
-
-def format_types_as_backend_types(types, backend_type_formatter, **kwargs):
-    """Compute a list of pythran types
-
-    """
-    backend_types = []
-    for type_ in types:
-        backend_types.append(
-            format_type_as_backend_type(type_, backend_type_formatter, **kwargs)
-        )
-
-    # TODO: handle this with an exception
-    if "_empty" in backend_types:
-        raise ValueError(
-            "At least one annotation type lacking in a signature.\n"
-            f"types = {types}"
-        )
-
-    return backend_types
-
-
-def compute_signatures_from_typeobjects(
-    types, backend_type_formatter
-) -> List[List[str]]:
-    """Compute a list of lists (signatures) of strings (pythran types)
-
-    """
-    if isinstance(types, dict):
-        types = types.values()
-
-    template_parameters = set()
-    for type_ in types:
-        if hasattr(type_, "get_template_parameters"):
-            template_parameters.update(type_.get_template_parameters())
-
-    if not template_parameters:
-        str_types = []
-        for type_ in types:
-            if isinstance(type_, type):
-                str_type = type_.__name__
-            else:
-                str_type = type_
-            str_types.append(str_type)
-
-        if "_empty" in str_types:
-            raise ValueError(
-                "At least one annotation type lacking in a signature.\n"
-                f"types = {types}"
-            )
-        return (str_types,)
-
-    if not all(param.values for param in template_parameters):
-        raise ValueError(
-            f"{template_parameters}, {[param.values for param in template_parameters]}"
-        )
-
-    values_template_parameters = {}
-    for param in template_parameters:
-        values_template_parameters[param.__name__] = param.values
-
-    backend_types = []
-    names = values_template_parameters.keys()
-    for set_types in itertools.product(*values_template_parameters.values()):
-        template_variables = dict(zip(names, set_types))
-
-        backend_types.append(
-            format_types_as_backend_types(
-                types, backend_type_formatter, **template_variables
-            )
-        )
-
-    return backend_types
-
-
-def _make_signature_from_template_variables(
-    func, backend_type_formatter, _signature=None, as_list_str=False, **kwargs
-):
-    """Create signature for a function with values for the template types
-
-    (This function should only be used in
-    :func:`make_signatures_from_typehinted_func`)
-
-    Parameters
-    ----------
-
-    func: a function
-
-    kwargs : dict
-
-        The template types and their value
-
-    """
-    if _signature is None:
-        _signature = inspect.signature(func)
-
-    types = [param.annotation for param in _signature.parameters.values()]
-
-    backend_types = format_types_as_backend_types(
-        types, backend_type_formatter, **kwargs
-    )
-
-    # "multiply" the signatures to take into account the "or" syntax
-    multi_pythran_types = [
-        _ for _ in itertools.product(*[t.split(" or ") for t in backend_types])
-    ]
-    signatures = []
-    for backend_types in multi_pythran_types:
-        if as_list_str:
-            signature = backend_types
-        else:
-            signature = f"{func.__name__}(" + ", ".join(backend_types) + ")"
-        signatures.append(signature)
-
-    return signatures
-
-
-def make_signatures_from_typehinted_func(
-    func, backend_type_formatter, as_list_str=False
-):
-    """Make the signatures from annotations if it is possible
-
-    Useful when there are only "not templated" types.
-
-    """
-    annotations = func.__annotations__
-
-    if not annotations:
-        return tuple()
-
-    types = annotations.values()
-
-    template_parameters = []
-
-    for type_ in types:
-        if hasattr(type_, "get_template_parameters"):
-            template_parameters.extend(type_.get_template_parameters())
-
-    template_parameters = set(template_parameters)
-
-    _signature = inspect.signature(func)
-
-    if not template_parameters:
-        signatures = _make_signature_from_template_variables(
-            func,
-            backend_type_formatter,
-            _signature=_signature,
-            as_list_str=as_list_str,
-        )
-        return signatures
-
-    if not all(param.values for param in template_parameters):
-        return tuple()
-
-    values_template_parameters = {}
-    for param in template_parameters:
-        values_template_parameters[param.__name__] = param.values
-
-    names = values_template_parameters.keys()
-    signatures = []
-    for set_types in itertools.product(*values_template_parameters.values()):
-        template_variables = dict(zip(names, set_types))
-        signatures.extend(
-            _make_signature_from_template_variables(
-                func,
-                backend_type_formatter,
-                _signature=_signature,
-                as_list_str=as_list_str,
-                **template_variables,
-            )
-        )
-
-    return signatures
+    return normalize_type_name(backend_type)
