@@ -55,12 +55,20 @@ class CaptureX(ast.NodeVisitor):
                     self.visit(node)
 
     def visit_Name(self, node):
+
+        parent_node = self.ancestors.parents(node)[-1]
+        if (
+            isinstance(parent_node, ast.FunctionDef)
+            and node == parent_node.returns
+            and not self.consider_annotations
+        ):
+            return
+
         # register load of identifiers not locally defined
         if isinstance(node.ctx, ast.Load):
             try:
                 self.ud_chains.chains[node]
             except KeyError:
-                parent_node = self.ancestors.parents(node)[-1]
                 if not (
                     isinstance(parent_node, ast.FunctionDef)
                     and node == parent_node.returns

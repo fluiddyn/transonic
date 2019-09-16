@@ -18,7 +18,7 @@ import itertools
 import inspect
 from typing import List
 
-from transonic.typing import format_type_as_backend_type
+from transonic.typing import format_type_as_backend_type, str2type
 
 
 def _format_types_as_backend_types(types, backend_type_formatter, **kwargs):
@@ -42,13 +42,19 @@ def _format_types_as_backend_types(types, backend_type_formatter, **kwargs):
 
 
 def compute_signatures_from_typeobjects(
-    types, backend_type_formatter
+    types_in, backend_type_formatter
 ) -> List[List[str]]:
     """Compute a list of lists (signatures) of strings (pythran types)
 
     """
-    if isinstance(types, dict):
-        types = types.values()
+    if isinstance(types_in, dict):
+        types_in = types_in.values()
+
+    types = []
+    for type_ in types_in:
+        if isinstance(type_, str):
+            type_ = str2type(type_)
+        types.append(type_)
 
     template_parameters = set()
     for type_ in types:
@@ -149,14 +155,16 @@ def make_signatures_from_typehinted_func(
     if not annotations:
         return tuple()
 
+    for key, value in annotations.items():
+        if isinstance(value, str):
+            annotations[key] = str2type(value)
+
     types = annotations.values()
 
     template_parameters = []
-
     for type_ in types:
         if hasattr(type_, "get_template_parameters"):
             template_parameters.extend(type_.get_template_parameters())
-
     template_parameters = set(template_parameters)
 
     _signature = inspect.signature(func)

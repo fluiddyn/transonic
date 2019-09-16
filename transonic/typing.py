@@ -12,17 +12,23 @@ User API
    :members:
    :private-members:
 
-.. autoclass:: Shape
+.. autoclass:: Array
    :members:
    :private-members:
 
-.. autoclass:: Array
+.. autoclass:: List
+   :members:
+   :private-members:
+
+.. autoclass:: Dict
    :members:
    :private-members:
 
 .. autoclass:: Union
    :members:
    :private-members:
+
+.. autofunction:: str2type
 
 Internal API
 ------------
@@ -35,10 +41,19 @@ Internal API
    :members:
    :private-members:
 
+.. autoclass:: ListMeta
+   :members:
+   :private-members:
+
+.. autoclass:: DictMeta
+   :members:
+   :private-members:
+
 .. autofunction:: format_type_as_backend_type
 
 """
 
+import numpy as np
 
 from transonic.util import get_name_calling_module
 
@@ -173,21 +188,6 @@ class NDim(TemplateVar):
             shift=-number,
             name_calling_module=name_calling_module,
         )
-
-
-class Shape(TemplateVar):
-    """Shape template variable
-
-    NotImplemented!
-
-    """
-
-    _letter = "S"
-    _type_values = str, list, tuple
-
-    def _is_correct_for_name(self, arg):
-        raise NotImplementedError
-        # return isinstance(arg, str)
 
 
 class UnionVar(TemplateVar):
@@ -327,7 +327,7 @@ class ArrayMeta(type):
         if dtype is None or ndim is None:
             raise ValueError
 
-        base = f"{dtype.__name__}"
+        base = backend_type_formatter.normalize_type_name(dtype.__name__)
         if ndim == 0:
             return base
         return base + f"[{', '.join([':']*ndim)}]"
@@ -340,7 +340,7 @@ class Array(metaclass=ArrayMeta):
 
 
 class UnionMeta(type):
-    """Metaclass for the Array class used for type hinname_calling_module"""
+    """Metaclass for the Union class"""
 
     def __getitem__(self, types):
 
@@ -367,9 +367,7 @@ class UnionMeta(type):
     def __repr__(self):
         strings = []
         for p in self.types:
-            if isinstance(p, ArrayMeta):
-                string = repr(p)
-            elif isinstance(p, type):
+            if isinstance(p, type):
                 string = p.__name__
             else:
                 string = repr(p)
@@ -393,28 +391,152 @@ class Union(metaclass=UnionMeta):
     pass
 
 
+class ListMeta(type):
+    """Metaclass for the List class"""
+
+    def __getitem__(self, type_):
+        if isinstance(type_, str):
+            type_ = str2type(type_)
+        return type("ListBis", (List,), {"type_": type_})
+
+    def get_template_parameters(self):
+        if hasattr(self.type_, "get_template_parameters"):
+            return self.type_.get_template_parameters()
+        return tuple()
+
+    def __repr__(self):
+        if isinstance(self.type_, type):
+            string = self.type_.__name__
+        else:
+            string = repr(self.type_)
+        return f"List[{string}]"
+
+    def format_as_backend_type(self, backend_type_formatter, **kwargs):
+        return (
+            format_type_as_backend_type(
+                self.type_, backend_type_formatter, **kwargs
+            )
+            + " list"
+        )
+
+
+class List(metaclass=ListMeta):
+    """Similar to typing.List
+
+    >>> L = List[List[int]]
+
+    """
+
+    pass
+
+
+class DictMeta(type):
+    """Metaclass for the Dict class"""
+
+    def __getitem__(self, types):
+        type_keys, type_values = types
+        if isinstance(type_keys, str):
+            type_keys = str2type(type_keys)
+        if isinstance(type_values, str):
+            type_values = str2type(type_values)
+        return type(
+            "DictBis",
+            (Dict,),
+            {"type_keys": type_keys, "type_values": type_values},
+        )
+
+    def get_template_parameters(self):
+        template_params = []
+        if hasattr(self.type_keys, "get_template_parameters"):
+            template_params.extend(self.type_keys.get_template_parameters())
+        if hasattr(self.type_values, "get_template_parameters"):
+            template_params.extend(self.type_values.get_template_parameters())
+        return template_params
+
+    def __repr__(self):
+        if isinstance(self.type_keys, type):
+            key = self.type_keys.__name__
+        else:
+            key = repr(self.type_keys)
+        if isinstance(self.type_values, type):
+            value = self.type_values.__name__
+        else:
+            value = repr(self.type_values)
+        return f"Dict[{key}, {value}]"
+
+    def format_as_backend_type(self, backend_type_formatter, **kwargs):
+        key = format_type_as_backend_type(
+            self.type_keys, backend_type_formatter, **kwargs
+        )
+        value = format_type_as_backend_type(
+            self.type_values, backend_type_formatter, **kwargs
+        )
+        return f"{key}: {value} dict"
+
+
+class Dict(metaclass=DictMeta):
+    """Similar to typing.Dict
+
+    >>> L = Dict[str, int]
+
+    """
+
+    pass
+
+
 def format_type_as_backend_type(type_, backend_type_formatter, **kwargs):
-    normalize_type_name = backend_type_formatter.normalize_type_name
+    assert not isinstance(type_, str)
     if hasattr(type_, "format_as_backend_type"):
         backend_type = type_.format_as_backend_type(
             backend_type_formatter, **kwargs
         )
     elif hasattr(type_, "__name__"):
         backend_type = type_.__name__
-    else:
-        backend_type = str(type_)
-        types = backend_type.split(" or ")
-        new_types = []
-        for _type in types:
-            _type = normalize_type_name(_type)
-            if "][" in _type:
-                # C style: we try to rewrite it in Cython style
-                base, dims = _type.split("[", 1)
-                dims = ", ".join([_ or ":" for _ in dims[:-1].split("][")])
-                _type = normalize_type_name(base) + "[" + dims + "]"
-            elif _type.endswith("[]"):
-                _type = normalize_type_name(_type[:-2]) + "[:]"
-            new_types.append(_type)
-        backend_type = " or ".join(new_types)
 
-    return normalize_type_name(backend_type)
+    return backend_type_formatter.normalize_type_name(backend_type)
+
+
+def analyze_array_type(str_type):
+    """Analyze an array type. return dtype, ndim"""
+    dtype, end = str_type.split("[", 1)
+    if not dtype.startswith("np."):
+        dtype = "np." + dtype
+
+    if ":" in end:
+        ndim = end.count(":")
+    else:
+        ndim = end.count("[") + 1
+
+    return dtype, ndim
+
+
+def str2type(str_type):
+
+    if " or " in str_type:
+        subtypes = str_type.split(" or ")
+        return Union[tuple(str2type(subtype) for subtype in subtypes)]
+
+    try:
+        return eval(str_type)
+    except (TypeError, SyntaxError):
+        # not a simple type
+        pass
+
+    words = [word for word in str_type.split(" ") if word]
+
+    if words[-1] == "list":
+        return List[" ".join(words[:-1])]
+
+    if words[-1] == "dict":
+        if len(words) != 3:
+            print(words)
+            raise NotImplementedError
+        key = words[0][:-1]
+        value = words[1]
+        return Dict[key, value]
+
+    dtype, ndim = analyze_array_type(str_type)
+
+    dtype = eval(dtype, {"np": np})
+
+    return Array[dtype, f"{ndim}d"]
