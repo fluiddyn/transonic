@@ -53,7 +53,7 @@ class Backend:
     def __init__(self):
         self.name = self.backend_name
         self.name_capitalized = self.name.capitalize()
-        self.type_formatter = TypeFormatter(self.name)
+        self.type_formatter = self._TypeFormatter(self.name)
         self.jit = self._SubBackendJIT(self.name, self.type_formatter)
 
     def _make_code_from_fdef_node(self, fdef):

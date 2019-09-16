@@ -327,10 +327,8 @@ class ArrayMeta(type):
         if dtype is None or ndim is None:
             raise ValueError
 
-        base = backend_type_formatter.normalize_type_name(dtype.__name__)
-        if ndim == 0:
-            return base
-        return base + f"[{', '.join([':']*ndim)}]"
+        memview = kwargs.get("memview", self.memview)
+        return backend_type_formatter.make_array_code(dtype, ndim, memview)
 
 
 class Array(metaclass=ArrayMeta):
@@ -471,7 +469,7 @@ class DictMeta(type):
         value = format_type_as_backend_type(
             self.type_values, backend_type_formatter, **kwargs
         )
-        return f"{key}: {value} dict"
+        return backend_type_formatter.make_dict_code(key, value)
 
 
 class Dict(metaclass=DictMeta):
@@ -485,13 +483,20 @@ class Dict(metaclass=DictMeta):
 
 
 def format_type_as_backend_type(type_, backend_type_formatter, **kwargs):
-    assert not isinstance(type_, str)
+    if isinstance(type_, str):
+        type_ = str2type(type_)
+
     if hasattr(type_, "format_as_backend_type"):
         backend_type = type_.format_as_backend_type(
             backend_type_formatter, **kwargs
         )
     elif hasattr(type_, "__name__"):
         backend_type = type_.__name__
+    else:
+        print(type_)
+        raise RuntimeError
+
+    assert backend_type is not None
 
     return backend_type_formatter.normalize_type_name(backend_type)
 

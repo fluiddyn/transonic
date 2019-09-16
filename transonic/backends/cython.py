@@ -30,56 +30,46 @@ from transonic.typing import format_type_as_backend_type
 
 from .base import BackendAOT, TypeHintRemover, format_str
 from .base_jit import SubBackendJIT
-from .typing import base_type_formatter
+from .typing import TypeFormatter
 
 
-def analyze_array_type(type_):
-    """Analyze an array type. return dtype, ndim"""
-    dtype, end = type_.split("[", 1)
-    if not dtype.startswith("np."):
-        dtype = "np." + dtype
-
-    if ":" in end:
-        ndim = end.count(":")
-    else:
-        ndim = end.count("[") + 1
-
-    return dtype, ndim
+def normalize_type_name_for_array(name):
+    if any(name.endswith(str(number)) for number in (32, 64, 128)):
+        return "np." + name
+    if name in ("int", "float", "complex"):
+        return "np." + name
+    return name
 
 
-def memoryview_type(type_) -> str:
-    dtype, ndim = analyze_array_type(type_)
+class TypeFormatterCython(TypeFormatter):
+    def normalize_type_name(self, name):
+        if any(name.endswith(str(number)) for number in (32, 64, 128)):
+            return "np." + name + "_t"
+        if name in ("int", "float", "complex", "str"):
+            return f"cython.{name}"
+        return name
 
-    if ndim > 1:
-        end = "[" + ", ".join(":" * ndim) + "]"
-    else:
-        end = "[:]"
+    def make_array_code(self, dtype, ndim, memview):
+        dtype = normalize_type_name_for_array(dtype.__name__)
+        if ndim == 0:
+            return dtype
 
+        if memview:
+            return memoryview_type(dtype, ndim)
+        else:
+            return np_ndarray_type(dtype, ndim)
+
+    def make_dict_code(self, key, value):
+        return "dict"
+
+
+def memoryview_type(dtype, ndim) -> str:
+    end = "[" + ", ".join(":" * ndim) + "]"
     return f"{dtype}_t{end}"
 
 
-def np_ndarray_type(type_) -> str:
-    dtype, ndim = analyze_array_type(type_)
-    return f"np.ndarray[{dtype + '_t'}, ndim={ndim}]"
-
-
-def compute_cython_type_from_pythran_type(type_, memoryview=False):
-
-    if isinstance(type_, type):
-        type_ = format_type_as_backend_type(type_, base_type_formatter)
-
-    if type_.endswith("]"):
-        if memoryview:
-            return memoryview_type(type_)
-        return np_ndarray_type(type_)
-
-    if any(type_.endswith(str(number)) for number in (32, 64, 128)):
-        return "np." + type_ + "_t"
-
-    if "dict" in type_:
-        return "dict"
-
-    return "cython." + type_
+def np_ndarray_type(dtype, ndim) -> str:
+    return f"np.ndarray[{dtype}_t, ndim={ndim}]"
 
 
 class HeaderFunction:
@@ -157,12 +147,6 @@ class HeaderFunction:
 
 
 class SubBackendJITCython(SubBackendJIT):
-    def compute_typename_from_object(self, obj: object):
-        """return the Pythran type name"""
-        return compute_cython_type_from_pythran_type(
-            super().compute_typename_from_object(obj)
-        )
-
     def make_new_header(self, func, arg_types):
         # Include signature comming from type hints
         header = HeaderFunction(
@@ -176,10 +160,7 @@ class SubBackendJITCython(SubBackendJIT):
         )
 
         for signature in signatures:
-            header.add_signature(
-                compute_cython_type_from_pythran_type(type_)
-                for type_ in signature
-            )
+            header.add_signature(signature)
 
         if arg_types != "no types":
             header.add_signature(arg_types)
@@ -204,6 +185,7 @@ class CythonBackend(BackendAOT):
     suffix_header = ".pxd"
     keyword_export = "cpdef"
     _SubBackendJIT = SubBackendJITCython
+    _TypeFormatter = TypeFormatterCython
 
     def _make_first_lines_header(self):
         return ["import cython\n\nimport numpy as np\ncimport numpy as np\n"]
@@ -339,9 +321,7 @@ class CythonBackend(BackendAOT):
                 name_type_args.append(name_type_arg)
                 possible_types = [x[index] for x in signatures_as_lists_strings]
                 for possible_type in set(possible_types):
-                    ctypedef.append(
-                        f"   {compute_cython_type_from_pythran_type(possible_type)}\n"
-                    )
+                    ctypedef.append(f"   {possible_type}\n")
                 ctypedef.sort()
                 ctypedef.insert(0, f"ctypedef fused {name_type_arg}:\n")
                 index += 1
@@ -360,7 +340,7 @@ class CythonBackend(BackendAOT):
             # TODO: fused types not supported here
             # note: np.ndarray not supported by Cython in "locals"
             locals_types = ", ".join(
-                f"{k}={compute_cython_type_from_pythran_type(v, memoryview=True)}"
+                f"{k}={format_type_as_backend_type(v, self.type_formatter, memview=True)}"
                 for k, v in locals_types.items()
             )
             signatures_func.append(f"@cython.locals({locals_types})")
@@ -368,7 +348,9 @@ class CythonBackend(BackendAOT):
         def_keyword = "cpdef"
 
         if returns is not None:
-            returns = compute_cython_type_from_pythran_type(returns) + " "
+            returns = (
+                format_type_as_backend_type(returns, self.type_formatter) + " "
+            )
         else:
             returns = ""
 

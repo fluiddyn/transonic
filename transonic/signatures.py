@@ -22,7 +22,7 @@ from transonic.typing import format_type_as_backend_type, str2type
 
 
 def _format_types_as_backend_types(types, backend_type_formatter, **kwargs):
-    """Compute a list of pythran types
+    """Compute a list of Pythran/Cython/... types
 
     """
     backend_types = []
@@ -44,7 +44,7 @@ def _format_types_as_backend_types(types, backend_type_formatter, **kwargs):
 def compute_signatures_from_typeobjects(
     types_in, backend_type_formatter
 ) -> List[List[str]]:
-    """Compute a list of lists (signatures) of strings (pythran types)
+    """Compute a list of lists (signatures) of strings (backend types)
 
     """
     if isinstance(types_in, dict):
@@ -62,19 +62,15 @@ def compute_signatures_from_typeobjects(
             template_parameters.update(type_.get_template_parameters())
 
     if not template_parameters:
-        str_types = []
-        for type_ in types:
-            if isinstance(type_, type):
-                str_type = type_.__name__
-            else:
-                str_type = type_
-            str_types.append(str_type)
-
-        if "_empty" in str_types:
+        if "_empty" in types:
             raise ValueError(
                 "At least one annotation type lacking in a signature.\n"
                 f"types = {types}"
             )
+        str_types = [
+            format_type_as_backend_type(type_, backend_type_formatter)
+            for type_ in types
+        ]
         return (str_types,)
 
     if not all(param.values for param in template_parameters):

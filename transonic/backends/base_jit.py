@@ -117,6 +117,7 @@ class SubBackendJIT:
 
     def compute_typename_from_object(self, obj: object):
         """return the Pythran type name"""
+        # TODO: use a (new) public function typeof
         name = type(obj).__name__
         name = self.type_formatter.normalize_type_name(name)
 
@@ -140,6 +141,8 @@ class SubBackendJIT:
             for key, value in obj.items():
                 break
             # FIXME: we could check if the dict is homogeneous...
+            if self.name == "cython":
+                return "dict"
             name = type(key).__name__ + ": " + type(value).__name__ + " dict"
 
         return name

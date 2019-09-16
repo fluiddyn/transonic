@@ -9,6 +9,7 @@ from transonic.typing import (
     ListMeta,
     Dict,
     DictMeta,
+    analyze_array_type,
 )
 
 from transonic.backends.typing import base_type_formatter
@@ -68,3 +69,15 @@ def test_dict():
     D = Dict[str, int]
     assert isinstance(D, DictMeta)
     assert D.format_as_backend_type(base_type_formatter) == "str: int dict"
+
+
+def test_float0():
+    dtype, ndim = analyze_array_type("float[]")
+    assert dtype == "np.float"
+    assert ndim == 1
+
+
+def test_float1():
+    dtype, ndim = analyze_array_type("float[:]")
+    assert dtype == "np.float"
+    assert ndim == 1
