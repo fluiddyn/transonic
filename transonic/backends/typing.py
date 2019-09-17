@@ -1,3 +1,5 @@
+from transonic.typing import format_type_as_backend_type
+
 normalized_types = {"float": "float64", "complex": "complex128"}
 
 
@@ -17,8 +19,13 @@ class TypeFormatter:
             return base
         return base + f"[{', '.join(':'*ndim)}]"
 
-    def make_dict_code(self, key, value):
+    def make_dict_code(self, type_keys, type_values, **kwargs):
+        key = format_type_as_backend_type(type_keys, self, **kwargs)
+        value = format_type_as_backend_type(type_values, self, **kwargs)
         return f"{key}: {value} dict"
+
+    def make_list_code(self, type_elem, **kwargs):
+        return format_type_as_backend_type(type_elem, self, **kwargs) + " list"
 
 
 base_type_formatter = TypeFormatter()

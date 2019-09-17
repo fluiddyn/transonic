@@ -59,8 +59,11 @@ class TypeFormatterCython(TypeFormatter):
         else:
             return np_ndarray_type(dtype, ndim)
 
-    def make_dict_code(self, key, value):
+    def make_dict_code(self, type_keys, type_values, **kwargs):
         return "dict"
+
+    def make_list_code(self, type_elem, **kwargs):
+        return "list"
 
 
 def memoryview_type(dtype, ndim) -> str:

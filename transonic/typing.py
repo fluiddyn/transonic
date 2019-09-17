@@ -397,30 +397,25 @@ class Union(metaclass=UnionMeta):
 class ListMeta(type):
     """Metaclass for the List class"""
 
-    def __getitem__(self, type_):
-        if isinstance(type_, str):
-            type_ = str2type(type_)
-        return type("ListBis", (List,), {"type_": type_})
+    def __getitem__(self, type_elem):
+        if isinstance(type_elem, str):
+            type_elem = str2type(type_elem)
+        return type("ListBis", (List,), {"type_elem": type_elem})
 
     def get_template_parameters(self):
-        if hasattr(self.type_, "get_template_parameters"):
-            return self.type_.get_template_parameters()
+        if hasattr(self.type_elem, "get_template_parameters"):
+            return self.type_elem.get_template_parameters()
         return tuple()
 
     def __repr__(self):
-        if isinstance(self.type_, type):
-            string = self.type_.__name__
+        if isinstance(self.type_elem, type):
+            string = self.type_elem.__name__
         else:
-            string = repr(self.type_)
+            string = repr(self.type_elem)
         return f"List[{string}]"
 
     def format_as_backend_type(self, backend_type_formatter, **kwargs):
-        return (
-            format_type_as_backend_type(
-                self.type_, backend_type_formatter, **kwargs
-            )
-            + " list"
-        )
+        return backend_type_formatter.make_list_code(self.type_elem, **kwargs)
 
 
 class List(metaclass=ListMeta):
@@ -468,13 +463,9 @@ class DictMeta(type):
         return f"Dict[{key}, {value}]"
 
     def format_as_backend_type(self, backend_type_formatter, **kwargs):
-        key = format_type_as_backend_type(
-            self.type_keys, backend_type_formatter, **kwargs
+        return backend_type_formatter.make_dict_code(
+            self.type_keys, self.type_values, **kwargs
         )
-        value = format_type_as_backend_type(
-            self.type_values, backend_type_formatter, **kwargs
-        )
-        return backend_type_formatter.make_dict_code(key, value)
 
 
 class Dict(metaclass=DictMeta):
