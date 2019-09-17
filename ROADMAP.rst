@@ -1,3 +1,38 @@
+Short term (Milestones for 0.4.0)
+---------------------------------
+
+- Set
+- mem_layout for arrays (C, F, C_or_F, strided)
+- alternative make_header_from_fdef_annotations for Cython
+
+setup.py & more than one backend at runtime
+-------------------------------------------
+
+Good example: https://github.com/martibosch/pylandstats/pull/1
+
+- ``make_backend_files(backend_default="cython")``
+- More than one backend at runtime
+- [done] "python" backend (equivalent to NO_REPLACE)
+- Warnings if file not compiled
+- ``TRANSONIC_BACKEND`` changes only ``backend_default``
+- Examples setup.py in documentation
+
+Specify backend in code
+-----------------------
+
+.. code:: python
+
+  def func():
+        return 1
+
+  func_pythran = @jit(backend="pythran")(func)
+  func_cython = @jit(backend="cython")(func)
+  func_numba = @jit(backend="numba")(func)
+
+And same with ``boost``.
+
+- Rewrite the comparison Numba / Pythran with Transonic
+
 Cython backend (beta version)
 -----------------------------
 
@@ -49,32 +84,6 @@ Less bugs and more Cython features...
 - nogil for function definition
 
 - nogil context manager
-
-setup.py & more than one backend at runtime
--------------------------------------------
-
-- ``make_backend_files(backend_default="cython")``
-- More than one backend at runtime
-- [done] "python" backend (equivalent to NO_REPLACE)
-- Warnings if file not compiled
-- ``TRANSONIC_BACKEND`` changes only ``backend_default``
-- Examples setup.py in documentation
-
-Specify backend in code
------------------------
-
-.. code:: python
-
-  def func():
-        return 1
-
-  func_pythran = @jit(backend="pythran")(func)
-  func_cython = @jit(backend="cython")(func)
-  func_numba = @jit(backend="numba")(func)
-
-And same with ``boost``.
-
-- Rewrite the comparison Numba / Pythran with Transonic
 
 ``transonic.dataclass`` decorator
 ---------------------------------
