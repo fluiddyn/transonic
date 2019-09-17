@@ -193,7 +193,6 @@ class NDim(TemplateVar):
 
 
 class UnionVar(TemplateVar):
-
     _type_values = type
     _letter = "U"
 
@@ -339,8 +338,6 @@ class ArrayMeta(type):
 class Array(metaclass=ArrayMeta):
     """Represent a Numpy array in type hinname_calling_module"""
 
-    pass
-
 
 class UnionMeta(type):
     """Metaclass for the Union class"""
@@ -391,8 +388,6 @@ class Union(metaclass=UnionMeta):
 
     """
 
-    pass
-
 
 class ListMeta(type):
     """Metaclass for the List class"""
@@ -424,8 +419,6 @@ class List(metaclass=ListMeta):
     >>> L = List[List[int]]
 
     """
-
-    pass
 
 
 class DictMeta(type):
@@ -475,7 +468,38 @@ class Dict(metaclass=DictMeta):
 
     """
 
-    pass
+
+class SetMeta(type):
+    """Metaclass for the Set class"""
+
+    def __getitem__(self, type_keys):
+        if isinstance(type_keys, str):
+            type_keys = str2type(type_keys)
+        return type("SetBis", (Set,), {"type_keys": type_keys})
+
+    def get_template_parameters(self):
+        if hasattr(self.type_keys, "get_template_parameters"):
+            return self.type_keys.get_template_parameters()
+        else:
+            return tuple()
+
+    def __repr__(self):
+        if isinstance(self.type_keys, type):
+            key = self.type_keys.__name__
+        else:
+            key = repr(self.type_keys)
+        return f"Set[{key}]"
+
+    def format_as_backend_type(self, backend_type_formatter, **kwargs):
+        return backend_type_formatter.make_set_code(self.type_keys, **kwargs)
+
+
+class Set(metaclass=SetMeta):
+    """Similar to typing.Set
+
+    >>> S = Set[str]
+
+    """
 
 
 def format_type_as_backend_type(type_, backend_type_formatter, **kwargs):
@@ -489,8 +513,7 @@ def format_type_as_backend_type(type_, backend_type_formatter, **kwargs):
     elif hasattr(type_, "__name__"):
         backend_type = type_.__name__
     else:
-        print(type_)
-        raise RuntimeError
+        raise RuntimeError(f"type_: {type_}")
 
     assert backend_type is not None
 
@@ -530,11 +553,16 @@ def str2type(str_type):
 
     if words[-1] == "dict":
         if len(words) != 3:
-            print(words)
-            raise NotImplementedError
+            raise NotImplementedError(f"words: {words}")
         key = words[0][:-1]
         value = words[1]
         return Dict[key, value]
+
+    if words[-1] == "set":
+        if len(words) != 2:
+            raise NotImplementedError(f"words: {words}")
+        key = words[0]
+        return Set[key]
 
     dtype, ndim = analyze_array_type(str_type)
 
@@ -574,28 +602,31 @@ def typeof(obj):
 
         return List[typeof(obj[0])]
 
-    if isinstance(obj, dict):
-
-        key = next(iter(obj.keys()))
+    if isinstance(obj, (dict, set)):
+        key = next(iter(obj))
         type_key = type(key)
-        if not all(isinstance(key, type_key) for key in obj.keys()):
+        if not all(isinstance(key, type_key) for key in obj):
             raise ValueError("The dict {obj} is not homogeneous in type")
 
-        value = next(iter(obj.values()))
-        type_value = type(value)
-        if not all(isinstance(value, type_value) for value in obj.values()):
-            raise ValueError("The dict {obj} is not homogeneous in type")
+        if isinstance(obj, dict):
+            value = next(iter(obj.values()))
+            type_value = type(value)
+            if not all(isinstance(value, type_value) for value in obj.values()):
+                raise ValueError("The dict {obj} is not homogeneous in type")
+            return Dict[typeof(key), typeof(value)]
+        else:
+            return Set[typeof(key)]
 
-        return Dict[typeof(key), typeof(value)]
-
-    # TODO: isinstance(obj, set)
+    # TODO: Tuple
+    if isinstance(obj, tuple):
+        raise NotImplementedError
 
     if isinstance(obj, np.ndarray):
+        if np.isscalar(obj):
+            return obj.dtype.type
+
         # TODO: deeper analysis
         return Array[obj.dtype, f"{obj.ndim}d"]
-
-    if np.isscalar(obj):
-        return obj.dtype.type
 
     raise NotImplementedError(
         f"Not able to determine the full type of {obj} (of type {type(obj)})"

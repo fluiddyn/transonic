@@ -9,6 +9,8 @@ from transonic.typing import (
     ListMeta,
     Dict,
     DictMeta,
+    Set,
+    SetMeta,
     analyze_array_type,
     typeof,
 )
@@ -36,7 +38,6 @@ def test_NDim():
 
 
 def test_str2type_simple():
-
     str2type("int") == np.int
     str2type("float") == np.float
 
@@ -62,14 +63,25 @@ def test_str2type_or():
 
 def test_list():
     L = List[List[int]]
+    repr(L)
     assert isinstance(L, ListMeta)
     assert L.format_as_backend_type(base_type_formatter) == "int list list"
 
 
 def test_dict():
     D = Dict[str, int]
+    repr(D)
     assert isinstance(D, DictMeta)
     assert D.format_as_backend_type(base_type_formatter) == "str: int dict"
+
+
+def test_set():
+    str2type("int set")
+    S = Set["str"]
+    S.get_template_parameters()
+    repr(S)
+    assert isinstance(S, SetMeta)
+    assert S.format_as_backend_type(base_type_formatter) == "str set"
 
 
 def test_float0():
@@ -101,6 +113,12 @@ def test_typeof_dict():
     D = typeof({"a": 0, "b": 1})
     assert isinstance(D, DictMeta)
     assert D.format_as_backend_type(base_type_formatter) == "str: int dict"
+
+
+def test_typeof_set():
+    S = typeof({"a", "b"})
+    assert isinstance(S, SetMeta)
+    assert S.format_as_backend_type(base_type_formatter) == "str set"
 
 
 def test_typeof_array():

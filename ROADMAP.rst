@@ -1,8 +1,12 @@
 Short term (Milestones for 0.4.0)
 ---------------------------------
 
-- Set
+Full support of https://pythran.readthedocs.io/en/latest/MANUAL.html#concerning-pythran-specifications
+
+- Tuple
 - mem_layout for arrays (C, F, C_or_F, strided)
+- fixed dimension for arrays
+
 - alternative make_header_from_fdef_annotations for Cython
 
 setup.py & more than one backend at runtime

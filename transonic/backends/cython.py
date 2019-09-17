@@ -62,6 +62,9 @@ class TypeFormatterCython(TypeFormatter):
     def make_dict_code(self, type_keys, type_values, **kwargs):
         return "dict"
 
+    def make_set_code(self, type_keys, **kwargs):
+        return "set"
+
     def make_list_code(self, type_elem, **kwargs):
         return "list"
 

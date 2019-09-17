@@ -24,6 +24,10 @@ class TypeFormatter:
         value = format_type_as_backend_type(type_values, self, **kwargs)
         return f"{key}: {value} dict"
 
+    def make_set_code(self, type_keys, **kwargs):
+        key = format_type_as_backend_type(type_keys, self, **kwargs)
+        return f"{key} set"
+
     def make_list_code(self, type_elem, **kwargs):
         return format_type_as_backend_type(type_elem, self, **kwargs) + " list"
 
