@@ -30,6 +30,8 @@ User API
 
 .. autofunction:: str2type
 
+.. autofunction:: typeof
+
 Internal API
 ------------
 
@@ -209,13 +211,16 @@ class ArrayMeta(type):
         memview = False
         params_filtered = []
         for param in parameters:
-            if isinstance(param, (Type, type)):
+            if isinstance(param, (Type, type, np.dtype)):
                 if dtype is not None:
                     raise ValueError(
                         "Array should be defined with only one variable defining "
                         "the types. For more than one type, use "
                         "for example Type(float, int)"
                     )
+                if isinstance(param, np.dtype):
+                    param = param.type
+
                 dtype = param
 
             if isinstance(param, NDim):
@@ -545,3 +550,60 @@ def str2type(str_type):
     dtype = eval(dtype, {"np": np})
 
     return Array[dtype, f"{ndim}d"]
+
+
+_simple_types = (int, float, complex, str)
+
+
+def typeof(obj):
+    """Compute the Transonic type corresponding to a Python object
+
+    Supports:
+
+    - simple Python types (int, float, complex, str)
+    - homogeneous list
+    - homogeneous dict
+    - numpy scalars
+    - numpy arrays
+
+    """
+
+    if isinstance(obj, _simple_types):
+        return type(obj)
+
+    if isinstance(obj, list):
+        if not obj:
+            raise ValueError("Can't determine the full type of an empty list")
+
+        type_elem = type(obj[0])
+        if not all(isinstance(elem, type_elem) for elem in obj):
+            raise ValueError("The list {obj} is not homogeneous in type")
+
+        return List[typeof(obj[0])]
+
+    if isinstance(obj, dict):
+        if not obj:
+            raise ValueError("Can't determine the full type of an empty dict")
+
+        key = next(iter(obj.keys()))
+        type_key = type(key)
+        if not all(isinstance(key, type_key) for key in obj.keys()):
+            raise ValueError("The dict {obj} is not homogeneous in type")
+
+        value = next(iter(obj.values()))
+        type_value = type(value)
+        if not all(isinstance(value, type_value) for value in obj.values()):
+            raise ValueError("The dict {obj} is not homogeneous in type")
+
+        return Dict[typeof(key), typeof(value)]
+
+    if isinstance(obj, np.ndarray):
+        # TODO: deeper analysis
+        return Array[obj.dtype, f"{obj.ndim}d"]
+
+    if np.isscalar(obj):
+        return obj.dtype.type
+
+    raise NotImplementedError(
+        f"Not able to determine the full type of {obj} (of type {type(obj)})"
+    )

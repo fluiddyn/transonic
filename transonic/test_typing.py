@@ -10,6 +10,7 @@ from transonic.typing import (
     Dict,
     DictMeta,
     analyze_array_type,
+    typeof,
 )
 
 from transonic.backends.typing import base_type_formatter
@@ -81,3 +82,32 @@ def test_float1():
     dtype, ndim = analyze_array_type("float[:]")
     assert dtype == "np.float"
     assert ndim == 1
+
+
+def test_typeof_simple():
+    assert typeof(1) is int
+    assert typeof(1.0) is float
+    assert typeof(1j) is complex
+    assert typeof("foo") is str
+
+
+def test_typeof_list():
+    L = typeof([[1, 2], [3, 4]])
+    assert isinstance(L, ListMeta)
+    assert L.format_as_backend_type(base_type_formatter) == "int list list"
+
+
+def test_typeof_dict():
+    D = typeof({"a": 0, "b": 1})
+    assert isinstance(D, DictMeta)
+    assert D.format_as_backend_type(base_type_formatter) == "str: int dict"
+
+
+def test_typeof_array():
+    A = typeof(np.ones((2, 2)))
+    compare_array_types(A, Array[np.float64, "2d"])
+
+
+def test_typeof_np_scalar():
+    T = typeof(np.ones(1)[0])
+    assert T is np.float64
