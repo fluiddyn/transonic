@@ -567,13 +567,15 @@ def typeof(obj):
     - numpy arrays
 
     """
-
     if isinstance(obj, _simple_types):
         return type(obj)
 
+    if isinstance(obj, (list, dict, set)) and not obj:
+        raise ValueError(
+            f"Cannot determine the full type of an empty {type(obj)}"
+        )
+
     if isinstance(obj, list):
-        if not obj:
-            raise ValueError("Can't determine the full type of an empty list")
 
         type_elem = type(obj[0])
         if not all(isinstance(elem, type_elem) for elem in obj):
@@ -582,8 +584,6 @@ def typeof(obj):
         return List[typeof(obj[0])]
 
     if isinstance(obj, dict):
-        if not obj:
-            raise ValueError("Can't determine the full type of an empty dict")
 
         key = next(iter(obj.keys()))
         type_key = type(key)
@@ -596,6 +596,8 @@ def typeof(obj):
             raise ValueError("The dict {obj} is not homogeneous in type")
 
         return Dict[typeof(key), typeof(value)]
+
+    # TODO: isinstance(obj, set)
 
     if isinstance(obj, np.ndarray):
         # TODO: deeper analysis

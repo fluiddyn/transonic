@@ -21,6 +21,7 @@ from transonic.analyses import extast
 from transonic.signatures import make_signatures_from_typehinted_func
 from transonic.log import logger
 from transonic import mpi
+from transonic.typing import format_type_as_backend_type, typeof
 from transonic.util import get_source_without_decorator
 
 from .for_classes import produce_code_class
@@ -116,36 +117,9 @@ class SubBackendJIT:
                 file.flush()
 
     def compute_typename_from_object(self, obj: object):
-        """return the Pythran type name"""
-        # TODO: use a (new) public function typeof
-        name = type(obj).__name__
-        name = self.type_formatter.normalize_type_name(name)
-
-        if np and isinstance(obj, np.ndarray):
-            name = obj.dtype.name
-            if obj.ndim != 0:
-                name += "[" + ", ".join(":" * obj.ndim) + "]"
-
-        if name in ("list", "set", "dict"):
-            if not obj:
-                raise ValueError(
-                    f"cannot determine the {self.name_capitalized} type from an empty {name}"
-                )
-
-        if name in ("list", "set"):
-            item_type = type(obj[0])
-            # FIXME: we could check if the iterable is homogeneous...
-            name = item_type.__name__ + " " + name
-
-        if name == "dict":
-            for key, value in obj.items():
-                break
-            # FIXME: we could check if the dict is homogeneous...
-            if self.name == "cython":
-                return "dict"
-            name = type(key).__name__ + ": " + type(value).__name__ + " dict"
-
-        return name
+        """return the backend type name"""
+        transonic_type = typeof(obj)
+        return format_type_as_backend_type(transonic_type, self.type_formatter)
 
     def produce_code_class(self, cls):
         return produce_code_class(cls)
