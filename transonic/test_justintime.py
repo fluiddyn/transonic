@@ -46,6 +46,9 @@ def test_jit():
         func1(a, b)
         sleep(0.1)
 
+    wait_for_all_extensions()
+    func1(a, b)
+
 
 def test_fib():
     from .for_test_justintime import fib, use_fib

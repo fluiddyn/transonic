@@ -30,31 +30,31 @@ To compile this file with different backends, one can run:
     TRANSONIC_BACKEND="numba" transonic row_sum_boost.py
     TRANSONIC_BACKEND="pythran" transonic row_sum_boost.py -pf "-march=native -DUSE_XSIMD"
 
-Then, on my PC, I get::
+Then, on my PC (meige8pcpa79), I get::
 
     TRANSONIC_BACKEND="python" python row_sum_boost.py
     Checks passed: results are consistent
     Python
-    row_sum              1.2e-03 s
-    row_sum_loops        1.0e-01 s
+    row_sum              2.0e-03 s
+    row_sum_loops        1.6e-01 s
 
     TRANSONIC_BACKEND="cython" python row_sum_boost.py
     Checks passed: results are consistent
     Cython
-    row_sum              1.3e-03 s
-    row_sum_loops        3.8e-04 s
+    row_sum              2.0e-03 s
+    row_sum_loops        5.2e-04 s
 
     TRANSONIC_BACKEND="numba" python row_sum_boost.py
     Checks passed: results are consistent
     Numba
-    row_sum              1.1e-03 s
-    row_sum_loops        2.6e-04 s
+    row_sum              1.9e-03 s
+    row_sum_loops        4.4e-04 s
 
     TRANSONIC_BACKEND="pythran" python row_sum_boost.py
     Checks passed: results are consistent
     Pythran
-    row_sum              8.2e-04 s
-    row_sum_loops        2.6e-04 s
+    row_sum              1.1e-03 s
+    row_sum_loops        4.2e-04 s
 
 The fastest solutions are in this case the Numba and Pythran backends for the
 implementation with explicit loops.
@@ -63,9 +63,8 @@ As usual, Pythran gives quite good results with the high-level implementation,
 but in this case, it is still more than twice slower than the implementation
 with loops.
 
-There are rooms for improvements for the Cython backend (in particular,
-:code:`@cython.boundscheck(False) @cython.wraparound(False)` are currently not
-used), which could explain the lower performance of Cython.
+Cython does not accelerate high-level Numpy code but gives good results for the
+implementation with loops.
 
 Just-in-time compilation
 ------------------------
