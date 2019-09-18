@@ -227,6 +227,9 @@ signatures using in Transonic type variables and/or Pythran types in strings
 Moreover, it is possible to mix type hints and :code:`# transonic def`
 commands.
 
+See also our API to define types in `transonic.typing
+<https://transonic.readthedocs.io/en/latest/generated/transonic.typing.html>`_.
+
 
 More information when targetting Cython
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -6,11 +6,9 @@ User API
 
 .. autoclass:: Type
    :members:
-   :private-members:
 
 .. autoclass:: NDim
    :members:
-   :private-members:
 
 .. autoclass:: Array
    :members:
@@ -20,7 +18,15 @@ User API
    :members:
    :private-members:
 
+.. autoclass:: Tuple
+   :members:
+   :private-members:
+
 .. autoclass:: Dict
+   :members:
+   :private-members:
+
+.. autoclass:: Set
    :members:
    :private-members:
 
@@ -130,7 +136,12 @@ class TemplateVar:
 
 
 class Type(TemplateVar):
-    """Template variable representing the dtype of an array"""
+    """Template variable representing the dtype of an array.
+
+    As a user, it is useful only for fused types.
+
+    >>> T = Type(int, float)
+    """
 
     def __repr__(self):
         return self.__name__
@@ -151,7 +162,14 @@ class Type(TemplateVar):
 
 
 class NDim(TemplateVar):
-    """Template variable representing the number of dimension of an array"""
+    """Template variable representing the number of dimension of an array.
+
+    As a user, it is useful only for fused types.
+
+    >>> N = NDim(1, 2)
+    >>> N1 = N + 1
+
+    """
 
     _type_values = int
     _letter = "N"
@@ -198,11 +216,15 @@ class NDim(TemplateVar):
 
 
 class UnionVar(TemplateVar):
+    """TemplateVar used for the Union type"""
+
     _type_values = type
     _letter = "U"
 
 
 class Meta(type):
+    """Type of the Transonic types (used to create metaclasses)"""
+
     def __call__(cls, *args, **kwargs):
         raise RuntimeError("Transonic types are not meant to be instantiated")
 
@@ -218,7 +240,7 @@ class MemLayout(Enum):
 
 
 class ArrayMeta(Meta):
-    """Metaclass for the Array class used for type hinname_calling_module"""
+    """Metaclass for the Array class"""
 
     def __getitem__(self, parameters):
 
@@ -370,7 +392,19 @@ class ArrayMeta(Meta):
 
 
 class Array(metaclass=ArrayMeta):
-    """Represent a Numpy array in type hinname_calling_module"""
+    """Represent a Numpy array.
+
+    >>> Array[int, "2d"]
+    >>> Array[int, "2d", "C"]
+    >>> Array[int, "2d", "F"]
+    >>> Array[int, "2d", "strided"]
+
+    Fused types:
+
+    >>> Array[Type(int, float), "1d"]
+    >>> Array[float, NDim(2, 3)]
+
+    """
 
 
 class UnionMeta(Meta):
@@ -582,6 +616,9 @@ class Tuple(metaclass=TupleMeta):
 
 
 def format_type_as_backend_type(type_, backend_type_formatter, **kwargs):
+    """Format a Transonic type as a backend (Pythran, Cython, ...) type
+
+    """
     if isinstance(type_, str):
         type_ = str2type(type_)
 
@@ -614,6 +651,13 @@ def analyze_array_type(str_type):
 
 
 def str2type(str_type):
+    """Compute a Transonic type from a string
+
+    >>> str2type("int[:,:]")
+    >>> str2type("int or float[]")
+    >>> str2type("(int, float[:, :])")
+
+    """
 
     str_type = str_type.strip()
 

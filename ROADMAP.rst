@@ -1,13 +1,8 @@
 Short term (Milestones for 0.4.0)
 ---------------------------------
 
-Full support of https://pythran.readthedocs.io/en/latest/MANUAL.html#concerning-pythran-specifications
-
-- Tuple
-- mem_layout for arrays (C, F, C_or_F, strided)
-- fixed dimension for arrays
-
 - alternative make_header_from_fdef_annotations for Cython
+
 
 setup.py & more than one backend at runtime
 -------------------------------------------
@@ -20,6 +15,15 @@ Good example: https://github.com/martibosch/pylandstats/pull/1
 - Warnings if file not compiled
 - ``TRANSONIC_BACKEND`` changes only ``backend_default``
 - Examples setup.py in documentation
+
+
+More typing
+-----------
+
+Full support of https://pythran.readthedocs.io/en/latest/MANUAL.html#concerning-pythran-specifications
+
+- fixed dimension for arrays
+
 
 Specify backend in code
 -----------------------
