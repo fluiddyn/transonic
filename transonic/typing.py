@@ -55,6 +55,7 @@ Internal API
 
 """
 import re
+from enum import Enum, auto
 
 import numpy as np
 
@@ -202,7 +203,18 @@ class UnionVar(TemplateVar):
 
 
 class Meta(type):
-    pass
+    def __call__(cls, *args, **kwargs):
+        raise RuntimeError("Transonic types are not meant to be instantiated")
+
+
+class MemLayout(Enum):
+    C = auto()
+    F = auto()
+    C_or_F = auto()
+    strided = auto()
+
+    def __repr__(self):
+        return f'"{self.name}"'
 
 
 class ArrayMeta(Meta):
@@ -216,8 +228,11 @@ class ArrayMeta(Meta):
         dtype = None
         ndim = None
         memview = False
+        mem_layout = MemLayout.C_or_F
         params_filtered = []
         for param in parameters:
+            if param is None:
+                continue
             if isinstance(param, (Type, type, np.dtype)):
                 if dtype is not None:
                     raise ValueError(
@@ -263,6 +278,11 @@ class ArrayMeta(Meta):
                 if param == "memview":
                     memview = True
                     continue
+                try:
+                    mem_layout = MemLayout[param]
+                    continue
+                except KeyError:
+                    pass
                 raise ValueError(f"{param} cannot be interpretted...")
 
             params_filtered.append(param)
@@ -281,6 +301,7 @@ class ArrayMeta(Meta):
             {"dtype": dtype, "ndim": ndim, "parameters": parameters},
         )
         ArrayBis.memview = memview
+        ArrayBis.mem_layout = mem_layout
 
         return ArrayBis
 
@@ -308,6 +329,9 @@ class ArrayMeta(Meta):
 
         if self.memview:
             strings.append('"memview"')
+
+        if self.mem_layout is not MemLayout.C_or_F:
+            strings.append(repr(self.mem_layout))
 
         return f"Array[{', '.join(strings)}]"
 
@@ -340,7 +364,9 @@ class ArrayMeta(Meta):
             raise ValueError
 
         memview = kwargs.get("memview", self.memview)
-        return backend_type_formatter.make_array_code(dtype, ndim, memview)
+        return backend_type_formatter.make_array_code(
+            dtype, ndim, memview, self.mem_layout
+        )
 
 
 class Array(metaclass=ArrayMeta):

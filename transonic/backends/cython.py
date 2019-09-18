@@ -26,7 +26,7 @@ import inspect
 
 from transonic.analyses.extast import unparse, ast, FunctionDef, Name
 from transonic.signatures import make_signatures_from_typehinted_func
-from transonic.typing import format_type_as_backend_type
+from transonic.typing import format_type_as_backend_type, MemLayout
 
 from .base import BackendAOT, TypeHintRemover, format_str
 from .base_jit import SubBackendJIT
@@ -49,15 +49,15 @@ class TypeFormatterCython(TypeFormatter):
             return f"cython.{name}"
         return name
 
-    def make_array_code(self, dtype, ndim, memview):
+    def make_array_code(self, dtype, ndim, memview, mem_layout):
         dtype = normalize_type_name_for_array(dtype.__name__)
         if ndim == 0:
             return dtype
 
         if memview:
-            return memoryview_type(dtype, ndim)
+            return memoryview_type(dtype, ndim, mem_layout)
         else:
-            return np_ndarray_type(dtype, ndim)
+            return np_ndarray_type(dtype, ndim, mem_layout)
 
     def make_dict_code(self, type_keys, type_values, **kwargs):
         return "dict"
@@ -72,13 +72,27 @@ class TypeFormatterCython(TypeFormatter):
         return "tuple"
 
 
-def memoryview_type(dtype, ndim) -> str:
-    end = "[" + ", ".join(":" * ndim) + "]"
-    return f"{dtype}_t{end}"
+def memoryview_type(dtype, ndim, mem_layout) -> str:
+    ndim_F = 0
+    ndim_C = 0
+    if mem_layout is MemLayout.C:
+        ndim_C = 1
+        ndim -= 1
+    elif mem_layout is MemLayout.F:
+        ndim_F = 1
+        ndim -= 1
+    end = ", ".join(["::1"] * ndim_F + [":"] * ndim + ["::1"] * ndim_C)
+    return f"{dtype}_t[{end}]"
 
 
-def np_ndarray_type(dtype, ndim) -> str:
-    return f"np.ndarray[{dtype}_t, ndim={ndim}]"
+def np_ndarray_type(dtype, ndim, mem_layout) -> str:
+    if mem_layout is MemLayout.C:
+        mode = ', mode="c"'
+    elif mem_layout is MemLayout.F:
+        mode = ', mode="f"'
+    else:
+        mode = ""
+    return f"np.ndarray[{dtype}_t, ndim={ndim}{mode}]"
 
 
 class HeaderFunction:

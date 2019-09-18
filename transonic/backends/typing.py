@@ -1,4 +1,4 @@
-from transonic.typing import format_type_as_backend_type
+from transonic.typing import format_type_as_backend_type, MemLayout
 
 normalized_types = {"float": "float64", "complex": "complex128"}
 
@@ -13,11 +13,19 @@ class TypeFormatter:
         except KeyError:
             return name
 
-    def make_array_code(self, dtype, ndim, memview):
-        base = self.normalize_type_name(dtype.__name__)
+    def make_array_code(self, dtype, ndim, memview, mem_layout):
+        dtype = self.normalize_type_name(dtype.__name__)
         if ndim == 0:
-            return base
-        return base + f"[{', '.join(':'*ndim)}]"
+            return dtype
+        one_dim = ":"
+        if mem_layout is MemLayout.strided:
+            one_dim = ["::"]
+        result = f"{dtype}[{', '.join(one_dim*ndim)}]"
+        if mem_layout is MemLayout.C:
+            result += " order(C)"
+        elif mem_layout is MemLayout.F:
+            result += " order(F)"
+        return result
 
     def make_dict_code(self, type_keys, type_values, **kwargs):
         key = format_type_as_backend_type(type_keys, self, **kwargs)

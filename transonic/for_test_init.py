@@ -24,8 +24,7 @@ def func0(a, b):
 
 func0_boosted = boost(func0)
 
-
-A = Union[int, Array[int, "1d"]]
+A = Union[int, Array[int, "1d", "C"]]
 
 
 @boost
