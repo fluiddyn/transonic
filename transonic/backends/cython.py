@@ -49,7 +49,7 @@ class TypeFormatterCython(TypeFormatter):
             return f"cython.{name}"
         return name
 
-    def make_array_code(self, dtype, ndim, memview, mem_layout):
+    def make_array_code(self, dtype, ndim, shape, memview, mem_layout):
         dtype = normalize_type_name_for_array(dtype.__name__)
         if ndim == 0:
             return dtype

@@ -13,14 +13,20 @@ class TypeFormatter:
         except KeyError:
             return name
 
-    def make_array_code(self, dtype, ndim, memview, mem_layout):
+    def make_array_code(self, dtype, ndim, shape, memview, mem_layout):
         dtype = self.normalize_type_name(dtype.__name__)
         if ndim == 0:
             return dtype
-        one_dim = ":"
+        one_dim = [":"]
         if mem_layout is MemLayout.strided:
             one_dim = ["::"]
-        result = f"{dtype}[{', '.join(one_dim*ndim)}]"
+        for_shape = one_dim * ndim
+        if shape is not None:
+            assert ndim == len(shape)
+            for index, value in enumerate(shape):
+                if value is not None:
+                    for_shape[index] = str(value)
+        result = f"{dtype}[{', '.join(for_shape)}]"
         if mem_layout is MemLayout.C:
             result += " order(C)"
         elif mem_layout is MemLayout.F:

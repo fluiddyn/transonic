@@ -11,8 +11,9 @@ from transonic.typing import (
     DictMeta,
     Set,
     SetMeta,
-    analyze_array_type,
     typeof,
+    str2shape,
+    MemLayout,
 )
 
 from transonic.backends.typing import base_type_formatter
@@ -91,18 +92,6 @@ def test_tuple():
     assert T.format_as_backend_type(base_type_formatter) == "(int, float64[:, :])"
 
 
-def test_float0():
-    dtype, ndim = analyze_array_type("float[]")
-    assert dtype == "np.float"
-    assert ndim == 1
-
-
-def test_float1():
-    dtype, ndim = analyze_array_type("float[:]")
-    assert dtype == "np.float"
-    assert ndim == 1
-
-
 def test_typeof_simple():
     assert typeof(1) is int
     assert typeof(1.0) is float
@@ -136,3 +125,28 @@ def test_typeof_array():
 def test_typeof_np_scalar():
     T = typeof(np.ones(1)[0])
     assert T is np.float64
+
+
+def test_shape():
+
+    assert str2shape("[]") == (None,)
+    assert str2shape("[:]") == (None,)
+    assert str2shape("[][]") == (None,) * 2
+    assert str2shape("[][ ]") == (None,) * 2
+
+    assert str2shape("[:,:]") == (None,) * 2
+    assert str2shape("[: ,:,:, ]") == (None,) * 3
+    assert str2shape("[3 ,:,:]") == (3, None, None)
+    assert str2shape("[ : , :,3]") == (None, None, 3)
+
+    A = Array[int, "[: ,:, 3]"]
+    assert A.shape == (None, None, 3)
+    assert A.ndim.values[0] == 3
+    assert repr(A) == 'Array[int, "[:,:,3]"]'
+
+    assert (
+        base_type_formatter.make_array_code(
+            int, 2, (3, None), False, MemLayout.C_or_F
+        )
+        == "int[3, :]"
+    )

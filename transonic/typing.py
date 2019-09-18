@@ -239,6 +239,32 @@ class MemLayout(Enum):
         return f'"{self.name}"'
 
 
+def str2shape(str_shape):
+    assert str_shape.startswith("[") and str_shape.endswith("]")
+    str_shape = str_shape.replace(" ", "")
+    if str_shape == "[]":
+        return (None,)
+    n = str_shape.count("]")
+    if n > 1:
+        return (None,) * n
+    shape = []
+    for symbol in str_shape[1:-1].split(","):
+        if symbol == ":":
+            value = None
+        elif symbol == "":
+            continue
+        else:
+            value = int(symbol)
+        shape.append(value)
+    return tuple(shape)
+
+
+def shape2str(shape):
+    symbols = [":" if value is None else str(value) for value in shape]
+    tmp = ",".join(symbols)
+    return f'"[{tmp}]"'
+
+
 class ArrayMeta(Meta):
     """Metaclass for the Array class"""
 
@@ -251,6 +277,7 @@ class ArrayMeta(Meta):
         ndim = None
         memview = False
         mem_layout = MemLayout.C_or_F
+        shape = None
         params_filtered = []
         for param in parameters:
             if param is None:
@@ -297,8 +324,12 @@ class ArrayMeta(Meta):
                     )
 
             if isinstance(param, str):
+                param = param.strip()
                 if param == "memview":
                     memview = True
+                    continue
+                if param.startswith("[") and param.endswith("]"):
+                    shape = str2shape(param)
                     continue
                 try:
                     mem_layout = MemLayout[param]
@@ -308,6 +339,17 @@ class ArrayMeta(Meta):
                 raise ValueError(f"{param} cannot be interpretted...")
 
             params_filtered.append(param)
+
+        if shape is not None:
+            if ndim is None:
+                ndim = NDim(
+                    len(shape), name_calling_module=get_name_calling_module()
+                )
+                params_filtered.append(ndim)
+            elif ndim != len(shape):
+                raise ValueError("ndim != len(shape)")
+            if not any(shape):
+                shape = None
 
         if dtype is None:
             raise ValueError("No way to determine the dtype of the array")
@@ -320,11 +362,15 @@ class ArrayMeta(Meta):
         ArrayBis = type(
             f"Array_{dtype.__name__}_{ndim}",
             (Array,),
-            {"dtype": dtype, "ndim": ndim, "parameters": parameters},
+            {
+                "dtype": dtype,
+                "ndim": ndim,
+                "parameters": parameters,
+                "memview": memview,
+                "mem_layout": mem_layout,
+                "shape": shape,
+            },
         )
-        ArrayBis.memview = memview
-        ArrayBis.mem_layout = mem_layout
-
         return ArrayBis
 
     def get_parameters(self):
@@ -341,13 +387,25 @@ class ArrayMeta(Meta):
         if not hasattr(self, "parameters"):
             return super().__repr__()
 
+        if self.shape is not None:
+            parameters = [
+                param
+                for param in self.parameters.values()
+                if not isinstance(param, NDim)
+            ]
+        else:
+            parameters = self.parameters.values()
+
         strings = []
-        for p in self.parameters.values():
+        for p in parameters:
             if isinstance(p, type):
                 string = p.__name__
             else:
                 string = repr(p)
             strings.append(string)
+
+        if self.shape is not None:
+            strings.append(shape2str(self.shape))
 
         if self.memview:
             strings.append('"memview"')
@@ -387,7 +445,7 @@ class ArrayMeta(Meta):
 
         memview = kwargs.get("memview", self.memview)
         return backend_type_formatter.make_array_code(
-            dtype, ndim, memview, self.mem_layout
+            dtype, ndim, self.shape, memview, self.mem_layout
         )
 
 
@@ -636,20 +694,6 @@ def format_type_as_backend_type(type_, backend_type_formatter, **kwargs):
     return backend_type_formatter.normalize_type_name(backend_type)
 
 
-def analyze_array_type(str_type):
-    """Analyze an array type. return dtype, ndim"""
-    dtype, end = str_type.split("[", 1)
-    if not dtype.startswith("np."):
-        dtype = "np." + dtype
-
-    if ":" in end:
-        ndim = end.count(":")
-    else:
-        ndim = end.count("[") + 1
-
-    return dtype, ndim
-
-
 def str2type(str_type):
     """Compute a Transonic type from a string
 
@@ -697,11 +741,16 @@ def str2type(str_type):
         key = words[0]
         return Set[key]
 
-    dtype, ndim = analyze_array_type(str_type)
+    # str_type should be of the form "int[]"
+    if "[" not in str_type:
+        raise ValueError(f"Can't determine the Transonic type from '{str_type}'")
 
+    dtype, str_shape = str_type.split("[", 1)
+    if not dtype.startswith("np."):
+        dtype = "np." + dtype
+    str_shape = "[" + str_shape
     dtype = eval(dtype, {"np": np})
-
-    return Array[dtype, f"{ndim}d"]
+    return Array[dtype, str_shape]
 
 
 _simple_types = (int, float, complex, str)

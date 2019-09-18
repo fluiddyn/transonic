@@ -17,14 +17,6 @@ Good example: https://github.com/martibosch/pylandstats/pull/1
 - Examples setup.py in documentation
 
 
-More typing
------------
-
-Full support of https://pythran.readthedocs.io/en/latest/MANUAL.html#concerning-pythran-specifications
-
-- fixed dimension for arrays
-
-
 Specify backend in code
 -----------------------
 
