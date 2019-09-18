@@ -54,6 +54,7 @@ Internal API
 .. autofunction:: format_type_as_backend_type
 
 """
+import re
 
 import numpy as np
 
@@ -164,6 +165,9 @@ class NDim(TemplateVar):
 
     def __repr__(self):
 
+        if len(self.values) == 1 and self.shift == 0:
+            return f'"{self.values[0]}d"'
+
         name = self.__name__
 
         if self.shift < 0:
@@ -197,7 +201,11 @@ class UnionVar(TemplateVar):
     _letter = "U"
 
 
-class ArrayMeta(type):
+class Meta(type):
+    pass
+
+
+class ArrayMeta(Meta):
     """Metaclass for the Array class used for type hinname_calling_module"""
 
     def __getitem__(self, parameters):
@@ -301,7 +309,7 @@ class ArrayMeta(type):
         if self.memview:
             strings.append('"memview"')
 
-        return "Array[" + ", ".join(strings) + "]"
+        return f"Array[{', '.join(strings)}]"
 
     def format_as_backend_type(self, backend_type_formatter, **kwargs):
 
@@ -339,7 +347,7 @@ class Array(metaclass=ArrayMeta):
     """Represent a Numpy array in type hinname_calling_module"""
 
 
-class UnionMeta(type):
+class UnionMeta(Meta):
     """Metaclass for the Union class"""
 
     def __getitem__(self, types):
@@ -359,9 +367,7 @@ class UnionMeta(type):
         for type_ in self.types:
             if hasattr(type_, "get_template_parameters"):
                 template_params.extend(type_.get_template_parameters())
-
         template_params.append(self.template_var)
-
         return tuple(template_params)
 
     def __repr__(self):
@@ -389,7 +395,7 @@ class Union(metaclass=UnionMeta):
     """
 
 
-class ListMeta(type):
+class ListMeta(Meta):
     """Metaclass for the List class"""
 
     def __getitem__(self, type_elem):
@@ -421,7 +427,7 @@ class List(metaclass=ListMeta):
     """
 
 
-class DictMeta(type):
+class DictMeta(Meta):
     """Metaclass for the Dict class"""
 
     def __getitem__(self, types):
@@ -469,7 +475,7 @@ class Dict(metaclass=DictMeta):
     """
 
 
-class SetMeta(type):
+class SetMeta(Meta):
     """Metaclass for the Set class"""
 
     def __getitem__(self, type_keys):
@@ -498,6 +504,53 @@ class Set(metaclass=SetMeta):
     """Similar to typing.Set
 
     >>> S = Set[str]
+
+    """
+
+
+class TupleMeta(Meta):
+    """Metaclass for the Tuple class"""
+
+    def __getitem__(self, types):
+
+        if not isinstance(types, tuple):
+            types = (types,)
+
+        trans_types = []
+        for type_in in types:
+            if isinstance(type_in, str):
+                type_in(str2type(type_in))
+            trans_types.append(type_in)
+
+        return type("TupleBis", (Tuple,), {"types": trans_types})
+
+    def get_template_parameters(self):
+        template_params = []
+        for type_ in self.types:
+            if hasattr(type_, "get_template_parameters"):
+                template_params.extend(type_.get_template_parameters())
+        return tuple(template_params)
+
+    def __repr__(self):
+        strings = []
+        for type_ in self.types:
+            if isinstance(type_, Meta):
+                name = repr(type_)
+            elif isinstance(type_, type):
+                name = type_.__name__
+            else:
+                name = repr(type_)
+            strings.append(name)
+        return f"Tuple[{', '.join(strings)}]"
+
+    def format_as_backend_type(self, backend_type_formatter, **kwargs):
+        return backend_type_formatter.make_tuple_code(self.types, **kwargs)
+
+
+class Tuple(metaclass=TupleMeta):
+    """Similar to typing.Tuple
+
+    >>> T = Tuple[int, Array[int, "2d"]]
 
     """
 
@@ -536,6 +589,8 @@ def analyze_array_type(str_type):
 
 def str2type(str_type):
 
+    str_type = str_type.strip()
+
     if " or " in str_type:
         subtypes = str_type.split(" or ")
         return Union[tuple(str2type(subtype) for subtype in subtypes)]
@@ -545,6 +600,14 @@ def str2type(str_type):
     except (TypeError, SyntaxError):
         # not a simple type
         pass
+
+    if str_type.startswith("(") and str_type.endswith(")"):
+        re_comma = re.compile(r",(?![^\[]*\])(?![^\(]*\))")
+        return Tuple[
+            tuple(
+                str2type(word) for word in re_comma.split(str_type[1:-1]) if word
+            )
+        ]
 
     words = [word for word in str_type.split(" ") if word]
 
@@ -580,14 +643,17 @@ def typeof(obj):
     Supports:
 
     - simple Python types (int, float, complex, str)
-    - homogeneous list
-    - homogeneous dict
+    - homogeneous list, dict and set
+    - tuple
     - numpy scalars
     - numpy arrays
 
     """
     if isinstance(obj, _simple_types):
         return type(obj)
+
+    if isinstance(obj, tuple):
+        return Tuple[tuple(typeof(elem) for elem in obj)]
 
     if isinstance(obj, (list, dict, set)) and not obj:
         raise ValueError(

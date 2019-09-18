@@ -84,6 +84,13 @@ def test_set():
     assert S.format_as_backend_type(base_type_formatter) == "str set"
 
 
+def test_tuple():
+    T = str2type("(int, float[:, :])")
+    T.get_template_parameters()
+    assert repr(T) == 'Tuple[int, Array[float, "2d"]]'
+    assert T.format_as_backend_type(base_type_formatter) == "(int, float64[:, :])"
+
+
 def test_float0():
     dtype, ndim = analyze_array_type("float[]")
     assert dtype == "np.float"

@@ -68,6 +68,9 @@ class TypeFormatterCython(TypeFormatter):
     def make_list_code(self, type_elem, **kwargs):
         return "list"
 
+    def make_tuple_code(self, types, **kwargs):
+        return "tuple"
+
 
 def memoryview_type(dtype, ndim) -> str:
     end = "[" + ", ".join(":" * ndim) + "]"

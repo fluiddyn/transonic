@@ -31,5 +31,11 @@ class TypeFormatter:
     def make_list_code(self, type_elem, **kwargs):
         return format_type_as_backend_type(type_elem, self, **kwargs) + " list"
 
+    def make_tuple_code(self, types, **kwargs):
+        strings = [
+            format_type_as_backend_type(type_, self, **kwargs) for type_ in types
+        ]
+        return f"({', '.join(strings)})"
+
 
 base_type_formatter = TypeFormatter()
