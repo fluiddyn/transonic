@@ -711,8 +711,18 @@ def str2type(str_type):
 
     try:
         return eval(str_type)
-    except (TypeError, SyntaxError):
+    except (TypeError, SyntaxError, NameError):
         # not a simple type
+        pass
+
+    # could be a numpy type
+    try:
+        if not str_type.startswith("np."):
+            dtype = "np." + str_type
+        else:
+            dtype = str_type
+        return eval(dtype, {"np": np})
+    except (TypeError, SyntaxError, AttributeError):
         pass
 
     if str_type.startswith("(") and str_type.endswith(")"):

@@ -39,8 +39,9 @@ def test_NDim():
 
 
 def test_str2type_simple():
-    str2type("int") == np.int
-    str2type("float") == np.float
+    assert str2type("int") == np.int
+    assert str2type("float") == np.float
+    assert str2type("uint32") == np.uint32
 
 
 def test_str2type_arrays():
@@ -48,8 +49,8 @@ def test_str2type_arrays():
     compare_array_types(str2type("int[]"), A1)
     compare_array_types(str2type("int[:]"), A1)
 
-    A2 = Array[int, "2d"]
-    compare_array_types(str2type("int[:,:]"), A2)
+    A2 = Array[np.uint32, "2d"]
+    compare_array_types(str2type("uint32[:,:]"), A2)
 
 
 def test_str2type_or():
