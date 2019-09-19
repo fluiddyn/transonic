@@ -8,11 +8,10 @@ from transonic.analyses import compute_ancestors_chains, get_decorated_dicts
 from transonic.analyses.capturex import CaptureX
 
 from transonic.log import logger
-from transonic.config import backend_default
 from transonic.analyses.util import get_exterior_code
 
 
-def analysis_jit(code, pathfile):
+def analysis_jit(code, pathfile, backend_name):
     """Gather the informations for ``@jit`` with an ast analysis"""
     debug = logger.debug
 
@@ -23,14 +22,14 @@ def analysis_jit(code, pathfile):
     ancestors, duc, udc = compute_ancestors_chains(module)
 
     jitted_dicts = get_decorated_dicts(
-        module, ancestors, duc, pathfile, decorator="jit"
+        module, ancestors, duc, pathfile, backend_name, decorator="jit"
     )
 
     jitted_dicts = dict(
-        functions=jitted_dicts["functions"][backend_default],
-        functions_ext=jitted_dicts["functions_ext"][backend_default],
-        methods=jitted_dicts["methods"][backend_default],
-        classes=jitted_dicts["classes"][backend_default],
+        functions=jitted_dicts["functions"][backend_name],
+        functions_ext=jitted_dicts["functions_ext"][backend_name],
+        methods=jitted_dicts["methods"][backend_name],
+        classes=jitted_dicts["classes"][backend_name],
     )
 
     debug("compute code dependance")

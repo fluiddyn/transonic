@@ -56,7 +56,7 @@ from functools import wraps
 
 from transonic.analyses.justintime import analysis_jit
 from transonic.aheadoftime import TransonicTemporaryJITMethod
-from transonic.backends import backends
+from transonic.backends import backends, get_backend_name_module
 from transonic.config import has_to_replace, backend_default
 from transonic.log import logger
 from transonic import mpi
@@ -74,7 +74,10 @@ from transonic.util import (
     format_str,
 )
 
-modules = {}
+modules_backends = {backend_name: {} for backend_name in backends.keys()}
+modules = modules_backends[backend_default]
+
+# TODO: warning backend_default
 path_jit = mpi.Path(path_root) / backend_default / "__jit__"
 
 if mpi.rank == 0:
@@ -92,9 +95,9 @@ def set_compile_jit(value):
 class ModuleJIT:
     """Representation of a module using jit"""
 
-    def __init__(self, backend, frame=None):
+    def __init__(self, backend_name: str, frame=None):
 
-        self.backend = backend
+        self.backend_name = backend_name
         if frame is None:
             frame = inspect.stack()[1]
 
@@ -106,7 +109,7 @@ class ModuleJIT:
         else:
             self.is_dummy_file = False
             self.module_name = get_module_name(frame)
-        modules[self.module_name] = self
+        modules_backends[backend_name][self.module_name] = self
         self.used_functions = {}
         self.jit_functions = {}
 
@@ -116,7 +119,7 @@ class ModuleJIT:
             codes_dependance_classes,
             code_ext,
             special,
-        ) = analysis_jit(self.get_source(), self.filename)
+        ) = analysis_jit(self.get_source(), self.filename, backend_name)
 
         self.info_analysis = {
             "jitted_dicts": jitted_dicts,
@@ -134,11 +137,14 @@ class ModuleJIT:
 
         # Write exterior code for classes
         for file_name, code in code_ext["class"].items():
+            print("DEBUG JIT", path_jit)
+            print("self.module_name", self.module_name)
             path_ext = (
                 path_jit.parent
                 / "__jit_classes__"
                 / self.module_name.replace(".", os.path.sep)
             )
+            print("DEBUG", path_ext)
             path_ext_file = path_ext / (file_name + ".py")
             write_if_has_to_write(path_ext_file, format_str(code), logger.info)
 
@@ -154,7 +160,7 @@ class ModuleJIT:
             return inspect.getsource(mod)
 
 
-def _get_module_jit(backend=backend_default, index_frame: int = 2):
+def _get_module_jit(backend_name: str = None, index_frame: int = 2):
     """Get the ModuleJIT instance corresponding to the calling module
 
     Parameters
@@ -176,14 +182,23 @@ def _get_module_jit(backend=backend_default, index_frame: int = 2):
 
     module_name = get_module_name(frame)
 
+    if backend_name is None:
+        backend_name = get_backend_name_module(module_name)
+
+    modules = modules_backends[backend_name]
+
     if module_name in modules:
         return modules[module_name]
     else:
-        return ModuleJIT(backend=backend, frame=frame)
+        return ModuleJIT(backend_name=backend_name, frame=frame)
 
 
 def jit(
-    func=None, backend=backend_default, native=False, xsimd=False, openmp=False
+    func=None,
+    backend: str = backend_default,
+    native=False,
+    xsimd=False,
+    openmp=False,
 ):
     """Decorator to record that the function has to be jit compiled
 
@@ -201,6 +216,9 @@ class JIT:
     """
 
     def __init__(self, backend, native=False, xsimd=False, openmp=False):
+        if isinstance(backend, str):
+            backend = backends[backend]
+
         self.backend = backend
         self.native = native
         self.xsimd = xsimd
@@ -211,11 +229,7 @@ class JIT:
         self.compiling = False
         self.process = None
 
-    def __call__(self, func, backend=backend_default):
-
-        if isinstance(backend, str):
-            backend = backends[backend]
-
+    def __call__(self, func):
         if not has_to_replace:
             return func
 
@@ -235,7 +249,8 @@ class JIT:
         else:
             index_frame = 2
 
-        mod = _get_module_jit(self.backend, index_frame)
+        backend = self.backend
+        mod = _get_module_jit(backend.name, index_frame)
         mod.jit_functions[func_name] = self
         module_name = mod.module_name
 

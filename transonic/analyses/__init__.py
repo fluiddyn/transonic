@@ -19,7 +19,6 @@ import gast as ast
 from transonic.analyses import beniget
 
 from transonic.log import logger
-from transonic.config import backend_default
 
 from .util import (
     filter_code_typevars,
@@ -74,7 +73,9 @@ def find_decorated_function(module, function_name: str, pathfile: str = None):
     raise RuntimeError
 
 
-def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"):
+def get_decorated_dicts(
+    module, ancestors, duc, pathfile: str, backend_name, decorator="boost"
+):
     """Get the definitions of the decorated functions and classes"""
 
     kinds = ("functions", "functions_ext", "methods", "classes")
@@ -97,7 +98,7 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
 
         """
 
-        backend_name = backend_default
+        backend_name_def = backend_name
         decorated_dict = None
         ext_module = False
         node_parent = ancestors.parent(node_using_decorator)
@@ -112,7 +113,7 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
                     keyword.arg: eval(extast.unparse(keyword.value))
                     for keyword in node_using_decorator.keywords
                 }
-                backend_name = keywords.get("backend", backend_default)
+                backend_name_def = keywords.get("backend", backend_name)
 
         if isinstance(
             node_using_decorator, (ast.FunctionDef, ast.ClassDef)
@@ -181,7 +182,7 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
 
         # if the definition node is in an imported module
         if ext_module:
-            decorated_dict = decorated_dicts["functions_ext"][backend_name]
+            decorated_dict = decorated_dicts["functions_ext"][backend_name_def]
             decorated_dict[func_name] = (definition_node, ext_module)
         # If the definition node is not imported
         else:
@@ -189,12 +190,14 @@ def get_decorated_dicts(module, ancestors, duc, pathfile: str, decorator="boost"
             if isinstance(definition_node, ast.FunctionDef):
                 parent = ancestors.parent(definition_node)
                 if isinstance(parent, ast.ClassDef):
-                    decorated_dict = decorated_dicts["methods"][backend_name]
+                    decorated_dict = decorated_dicts["methods"][backend_name_def]
                     func_name = (parent.name, func_name)
                 else:
-                    decorated_dict = decorated_dicts["functions"][backend_name]
+                    decorated_dict = decorated_dicts["functions"][
+                        backend_name_def
+                    ]
             elif isinstance(definition_node, ast.ClassDef):
-                decorated_dict = decorated_dicts["classes"][backend_name]
+                decorated_dict = decorated_dicts["classes"][backend_name_def]
             else:
                 raise RuntimeError
             if decorated_dict is not None:
@@ -262,7 +265,7 @@ def get_types_from_transonic_signature(signature: str, function_name: str):
     return types
 
 
-def analyse_aot(code, pathfile):
+def analyse_aot(code, pathfile, backend_name):
     """Gather the informations for ``@boost`` and blocks"""
     debug = logger.debug
 
@@ -277,7 +280,9 @@ def analyse_aot(code, pathfile):
     debug(code_dependance_annotations)
 
     debug("find boosted objects")
-    boosted_dicts = get_decorated_dicts(module, ancestors, duc, None)
+    boosted_dicts = get_decorated_dicts(
+        module, ancestors, duc, None, backend_name
+    )
     debug(pformat(boosted_dicts))
 
     debug("compute the annotations")

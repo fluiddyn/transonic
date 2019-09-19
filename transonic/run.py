@@ -83,7 +83,7 @@ def run():
         sys.exit(1)
 
     backend = backends[backend_default]
-    make_backends_files(paths, backend)
+    backend.make_backend_files(paths, force=args.force)
 
     if not can_import_accelerator() or args.no_pythran:
         return
@@ -109,41 +109,6 @@ def run():
 
     if not args.no_blocking:
         wait_for_all_extensions()
-
-
-def make_backends_files(
-    paths_py, backend=backend_default, force=False, log_level=None
-):
-    """Create backend files from a list of Python files"""
-
-    if isinstance(backend, str):
-        backend = backends[backend]
-
-    if log_level is not None:
-        logger.set_level(log_level)
-
-    paths_out = []
-    for path in paths_py:
-        with open(path) as f:
-            code = f.read()
-        analyse = analyse_aot(code, path)
-        path_out = backend.make_backend_file(path, analyse, force=force)
-        if path_out:
-            paths_out.append(path_out)
-
-    if paths_out:
-        nb_files = len(paths_out)
-        if nb_files == 1:
-            conjug = "s"
-        else:
-            conjug = ""
-
-        logger.warning(
-            f"{nb_files} files created or updated need{conjug}"
-            f" to be {backend_default}ized"
-        )
-
-    return paths_out
 
 
 def parse_args():

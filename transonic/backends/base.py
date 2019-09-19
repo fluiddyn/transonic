@@ -62,12 +62,8 @@ class Backend:
         code = extast.unparse(transformed)
         return format_str(code)
 
-    def make_backend_files(
-        self, paths_py, force=False, log_level=None, backend=None
-    ):
+    def make_backend_files(self, paths_py, force=False, log_level=None):
         """Create backend files from a list of Python files"""
-        if backend is not None:
-            raise NotImplementedError
 
         if log_level is not None:
             logger.set_level(log_level)
@@ -76,7 +72,7 @@ class Backend:
         for path in paths_py:
             with open(path) as file:
                 code = file.read()
-            analyse = analyse_aot(code, path)
+            analyse = analyse_aot(code, path, self.name)
             path_out = self.make_backend_file(path, analyse, force=force)
             if path_out:
                 paths_out.append(path_out)
@@ -130,7 +126,7 @@ class Backend:
         if not analyse:
             with open(path_py) as file:
                 code = file.read()
-            analyse = analyse_aot(code, path_py)
+            analyse = analyse_aot(code, path_py, self.name)
 
         code_backend, codes_ext, code_header = self._make_backend_code(
             path_py, analyse

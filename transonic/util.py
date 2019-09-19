@@ -104,7 +104,7 @@ from transonic.config import path_root
 __all__ = ["modification_date", "has_to_build"]
 
 
-def can_import_accelerator(backend=backend_default):
+def can_import_accelerator(backend: str = backend_default):
     if backend == "pythran":
         try:
             import pythran

@@ -28,8 +28,7 @@ import os
 import functools
 import sys
 
-from transonic.backends import backends
-
+from transonic.backends import backends, get_backend_name_module
 from transonic.config import has_to_replace, backend_default
 from transonic.log import logger
 from transonic import mpi
@@ -46,20 +45,19 @@ from transonic.util import (
     write_if_has_to_write,
 )
 
-backend = backends[backend_default]
-
 if mpi.nb_proc == 1:
     mpi.has_to_build = has_to_build
     mpi.modification_date = modification_date
 
-
 is_transpiling = False
-modules = {}
+modules_backends = {backend_name: {} for backend_name in backends.keys()}
+modules = modules_backends[backend_default]
 
+# TODO: warning backend_default
 path_jit_classes = mpi.Path(path_jit_classes)
 
 
-def _get_transonic_calling_module(index_frame: int = 2):
+def _get_transonic_calling_module(backend_name: str = None, index_frame: int = 2):
     """Get the Transonic instance corresponding to the calling module
 
     Parameters
@@ -80,6 +78,11 @@ def _get_transonic_calling_module(index_frame: int = 2):
 
     module_name = get_module_name(frame)
 
+    if backend_name is None:
+        backend_name = get_backend_name_module(module_name)
+
+    modules = modules_backends[backend_name]
+
     if module_name in modules:
         ts = modules[module_name]
         if (
@@ -89,19 +92,15 @@ def _get_transonic_calling_module(index_frame: int = 2):
             and ts.path_mod.exists()
             and mpi.has_to_build(ts.path_backend, ts.path_mod)
         ):
-            ts = Transonic(frame=frame, reuse=False)
+            ts = Transonic(frame=frame, reuse=False, backend=backend_name)
     else:
-        ts = Transonic(frame=frame, reuse=False)
+        ts = Transonic(frame=frame, reuse=False, backend=backend_name)
 
     return ts
 
 
 def boost(
-    obj=None,
-    backend=backend_default,
-    inline=False,
-    boundscheck=True,
-    wraparound=True,
+    obj=None, backend: str = None, inline=False, boundscheck=True, wraparound=True
 ):
     """Decorator to declare that an object can be accelerated
 
@@ -111,14 +110,13 @@ def boost(
     obj: a function, a method or a class
 
     """
+    if backend is not None and not isinstance(backend, str):
+        raise TypeError
 
-    ts = _get_transonic_calling_module()
+    ts = _get_transonic_calling_module(backend_name=backend)
 
     decor = ts.boost(
-        backend=backend,
-        inline=inline,
-        boundscheck=boundscheck,
-        wraparound=wraparound,
+        inline=inline, boundscheck=boundscheck, wraparound=wraparound
     )
     if callable(obj) or isinstance(obj, type):
         return decor(obj)
@@ -146,7 +144,7 @@ class CheckCompiling:
             ts.module_backend = import_from_path(
                 ts.path_extension, ts.module_backend.__name__
             )
-            assert backend.check_if_compiled(self.ts.module_backend)
+            assert ts.backend.check_if_compiled(self.ts.module_backend)
             ts.is_compiled = True
 
         if not ts.is_compiling:
@@ -177,12 +175,21 @@ class Transonic:
 
     """
 
-    def __init__(self, use_transonified=True, frame=None, reuse=True):
+    def __init__(
+        self, use_transonified=True, frame=None, reuse=True, backend=None
+    ):
 
         if frame is None:
             frame = inspect.stack()[1]
 
         self.module_name = module_name = get_module_name(frame)
+
+        if backend is None:
+            backend = get_backend_name_module(module_name)
+        if isinstance(backend, str):
+            backend = backends[backend]
+        self.backend = backend
+        modules = modules_backends[backend.name]
 
         self._compile_at_import_at_creation = has_to_compile_at_import()
 
@@ -360,7 +367,7 @@ class Transonic:
         except AttributeError:
             # TODO: improve what happens in this case
             logger.warning(
-                f"{backend.name_capitalized} file does not seem to be up-to-date:\n"
+                f"{self.backend.name_capitalized} file does not seem to be up-to-date:\n"
                 f"{self.module_backend}\nfunc: {func.__name__}"
             )
             func_tmp = func
@@ -421,7 +428,7 @@ class Transonic:
         }
 
         if jit_methods:
-            cls = jit_class(cls, jit_methods)
+            cls = jit_class(cls, jit_methods, self.backend)
 
         if not has_to_replace or not self.is_transpiled:
             return cls
@@ -450,7 +457,7 @@ class Transonic:
             except AttributeError:
                 # TODO: improve what happens in this case
                 raise RuntimeError(
-                    f"{backend.name_capitalized} file does not seem to be up-to-date."
+                    f"{self.backend.name_capitalized} file does not seem to be up-to-date."
                 )
                 # setattr(cls, key, func)
             else:
@@ -481,7 +488,7 @@ class Transonic:
             self.module_backend = import_from_path(
                 self.path_extension, self.module_backend.__name__
             )
-            assert backend.check_if_compiled(self.module_backend)
+            assert self.backend.check_if_compiled(self.module_backend)
             self.is_compiled = True
 
         func = getattr(self.module_backend, name)
@@ -528,7 +535,7 @@ class TransonicTemporaryJITMethod:
         )
 
 
-def jit_class(cls, jit_methods):
+def jit_class(cls, jit_methods, backend):
     """Modify the class by replacing jit methods
 
     1. create a Python file with @jit functions and methods
@@ -551,7 +558,7 @@ def jit_class(cls, jit_methods):
     if mpi.has_to_build(python_path, module.__file__):
         from transonic.justintime import _get_module_jit
 
-        mod = _get_module_jit(backend=backend.name, index_frame=5)
+        mod = _get_module_jit(backend_name=backend.name, index_frame=5)
         if mpi.rank == 0:
             python_path = mpi.PathSeq(python_path)
             python_code = (

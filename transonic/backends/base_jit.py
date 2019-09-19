@@ -35,6 +35,9 @@ class SubBackendJIT:
         self.name_capitalized = name.capitalize()
         self.type_formatter = type_formatter
 
+    def get_path_jit(self):
+        pass
+
     def make_backend_source(self, info_analysis, func, path_backend):
         func_name = func.__name__
         jitted_dicts = info_analysis["jitted_dicts"]
