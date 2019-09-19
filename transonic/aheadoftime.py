@@ -41,8 +41,9 @@ from transonic.util import (
     has_to_build,
     modification_date,
     is_method,
-    path_jit_classes,
     write_if_has_to_write,
+    find_module_name_from_path,
+    path_root,
 )
 
 if mpi.nb_proc == 1:
@@ -52,9 +53,6 @@ if mpi.nb_proc == 1:
 is_transpiling = False
 modules_backends = {backend_name: {} for backend_name in backends.keys()}
 modules = modules_backends[backend_default]
-
-# TODO: warning backend_default
-path_jit_classes = mpi.Path(path_jit_classes)
 
 
 def _get_transonic_calling_module(backend_name: str = None, index_frame: int = 2):
@@ -548,11 +546,15 @@ def jit_class(cls, jit_methods, backend):
 
     cls_name = cls.__name__
     mod_name = cls.__module__
-
     module = sys.modules[mod_name]
 
+    if mod_name == "__main__":
+        mod_name = find_module_name_from_path(module.__file__)
+
+    path_jit_class = mpi.Path(backend.jit.path_class)
+
     # 1. create a Python file with @jit functions and methods
-    python_path_dir = path_jit_classes / mod_name.replace(".", os.path.sep)
+    python_path_dir = path_jit_class / mod_name.replace(".", os.path.sep)
     python_path = python_path_dir / (cls_name + ".py")
 
     if mpi.has_to_build(python_path, module.__file__):
@@ -570,7 +572,7 @@ def jit_class(cls, jit_methods, backend):
         mpi.barrier()
 
     # 2. import the file
-    python_mod_name = path_jit_classes.name + "." + mod_name + "." + cls_name
+    python_mod_name = path_jit_class.name + "." + mod_name + "." + cls_name
     module = import_from_path(python_path, python_mod_name)
 
     # 3. replace the methods

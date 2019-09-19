@@ -11,6 +11,7 @@ Internal API
 """
 
 import re
+from pathlib import Path
 
 try:
     import numpy as np
@@ -22,7 +23,7 @@ from transonic.signatures import make_signatures_from_typehinted_func
 from transonic.log import logger
 from transonic import mpi
 from transonic.typing import format_type_as_backend_type, typeof
-from transonic.util import get_source_without_decorator
+from transonic.util import get_source_without_decorator, path_root
 
 from .for_classes import produce_code_class
 
@@ -35,8 +36,13 @@ class SubBackendJIT:
         self.name_capitalized = name.capitalize()
         self.type_formatter = type_formatter
 
-    def get_path_jit(self):
-        pass
+        self.path_base = Path(path_root) / self.name / "__jit__"
+        self.path_class = self.path_base.parent / "__jit_class__"
+
+        if mpi.rank == 0:
+            self.path_base.mkdir(parents=True, exist_ok=True)
+            self.path_class.mkdir(parents=True, exist_ok=True)
+        mpi.barrier()
 
     def make_backend_source(self, info_analysis, func, path_backend):
         func_name = func.__name__

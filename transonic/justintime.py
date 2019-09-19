@@ -77,13 +77,6 @@ from transonic.util import (
 modules_backends = {backend_name: {} for backend_name in backends.keys()}
 modules = modules_backends[backend_default]
 
-# TODO: warning backend_default
-path_jit = mpi.Path(path_root) / backend_default / "__jit__"
-
-if mpi.rank == 0:
-    path_jit.mkdir(parents=True, exist_ok=True)
-mpi.barrier()
-
 _COMPILE_JIT = strtobool(os.environ.get("TRANSONIC_COMPILE_JIT", "True"))
 
 
@@ -128,6 +121,10 @@ class ModuleJIT:
             "special": special,
         }
 
+        backend = backends[backend_name]
+        path_jit = mpi.Path(backend.jit.path_base)
+        path_jit_class = mpi.Path(backend.jit.path_class)
+
         # TODO: check if these files have to be written here...
         # Write exterior code for functions
         for file_name, code in code_ext["function"].items():
@@ -137,14 +134,7 @@ class ModuleJIT:
 
         # Write exterior code for classes
         for file_name, code in code_ext["class"].items():
-            print("DEBUG JIT", path_jit)
-            print("self.module_name", self.module_name)
-            path_ext = (
-                path_jit.parent
-                / "__jit_classes__"
-                / self.module_name.replace(".", os.path.sep)
-            )
-            print("DEBUG", path_ext)
+            path_ext = path_jit_class / self.module_name.replace(".", os.path.sep)
             path_ext_file = path_ext / (file_name + ".py")
             write_if_has_to_write(path_ext_file, format_str(code), logger.info)
 
@@ -254,6 +244,7 @@ class JIT:
         mod.jit_functions[func_name] = self
         module_name = mod.module_name
 
+        path_jit = mpi.Path(backend.jit.path_base)
         path_backend = path_jit / module_name.replace(".", os.path.sep)
 
         if mpi.rank == 0:

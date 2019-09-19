@@ -6,19 +6,22 @@ from shutil import rmtree
 import numpy as np
 import pytest
 
+from transonic.backends import backends
 from transonic.compiler import scheduler, wait_for_all_extensions
-from transonic.justintime import path_jit, modules
+from transonic.justintime import modules
 from transonic import mpi
-from transonic.util import path_jit_classes, can_import_accelerator
+from transonic.util import can_import_accelerator
 from transonic.config import backend_default
 
+backend = backends[backend_default]
 scheduler.nb_cpus = 2
 
 module_name = "transonic.for_test_justintime"
 
 str_relative_path = module_name.replace(".", os.path.sep)
 
-path_jit = mpi.PathSeq(path_jit)
+path_jit = backend.jit.path_base
+path_jit_classes = backend.jit.path_class
 
 path_jit_dir = path_jit / str_relative_path
 path_classes_dir = path_jit_classes / str_relative_path

@@ -127,28 +127,23 @@ def can_import_accelerator(backend: str = backend_default):
     return True
 
 
-path_jit_classes = path_root / backend_default / "__jit_classes__"
-
-
 def find_module_name_from_path(path_py: Path):
     """Find the module name from the path of a Python file
 
     It is done by looking to ``sys.path`` to see how the module can be imported.
 
     """
+    path_py = Path(path_py)
 
     cwd = Path.cwd()
     path = path_py.absolute().parent
     module_name = path_py.stem
 
     # special case for jit_classes
-    try:
-        path_rel = path.relative_to(path_jit_classes)
-    except ValueError:
-        pass
-    else:
-        tmp = [path_jit_classes.name]
-        name_pack = str(path_rel).replace(os.path.sep, ".")
+    special_dir = "__jit_class__"
+    if special_dir in path.parts:
+        tmp = [special_dir]
+        name_pack = ".".join(path.parts[path.parts.index(special_dir) + 1 :])
         if name_pack:
             tmp.append(name_pack)
         tmp.append(module_name)
@@ -353,10 +348,11 @@ def clear_cached_extensions(module_name: str, force: bool = False):
 
     """
 
-    from transonic.justintime import path_jit
     from transonic.backends import backends
+    from transonic import mpi
 
     backend = backends[backend_default]
+    path_jit = mpi.Path(backend.jit.path_base)
 
     if module_name.endswith(".py"):
         module_name = module_name[:-3]
