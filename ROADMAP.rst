@@ -9,16 +9,16 @@ setup.py & more than one backend at runtime
 
 Good example: https://github.com/martibosch/pylandstats/pull/1
 
-- ``make_backend_files(backend_default="cython")``
-- More than one backend at runtime
+- [done?] ``make_backend_files(backend_default="cython")``
+- [done?] More than one backend at runtime
 - [done] "python" backend (equivalent to NO_REPLACE)
 - Warnings if file not compiled
-- ``TRANSONIC_BACKEND`` changes only ``backend_default``
+- [done?] ``TRANSONIC_BACKEND`` changes only ``backend_default``
 - Examples setup.py in documentation
 
 
-Specify backend in code
------------------------
+[done?] Specify backend in code
+-------------------------------
 
 .. code:: python
 
@@ -31,7 +31,7 @@ Specify backend in code
 
 And same with ``boost``.
 
-- Rewrite the comparison Numba / Pythran with Transonic
+- [done] Rewrite the comparison Numba / Pythran with Transonic
 
 Cython backend (beta version)
 -----------------------------
