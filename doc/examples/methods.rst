@@ -28,7 +28,7 @@ With Transonic, one can easily use Pythran for methods:
 
 Function calls in methods are supported!
 
-.. literalinclude:: methods_with_include.py
+.. literalinclude:: methods_using_function.py
 
 We can also use the :code:`jit` decorator for methods!
 

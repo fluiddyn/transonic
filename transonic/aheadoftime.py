@@ -252,7 +252,7 @@ class Transonic:
                             sys.executable,
                             "-m",
                             "transonic.run",
-                            "-np",
+                            "-nc",
                             str(path_mod),
                         ]
                     )

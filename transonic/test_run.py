@@ -23,14 +23,14 @@ def test_create_pythran_files():
         rmtree(path_dir_out)
 
     if os.name != "nt":
-        sys.argv = f"transonic -np {path_data_tests / '*.py'}".split()
+        sys.argv = f"transonic -nc {path_data_tests / '*.py'}".split()
         run()
 
-    sys.argv = f"transonic -np {path_data_tests}".split()
+    sys.argv = f"transonic -nc {path_data_tests}".split()
     run()
 
     paths = tuple(path_data_tests.glob("*.py*"))
-    sys.argv = ["transonic", "-np"] + [str(path) for path in paths]
+    sys.argv = ["transonic", "-nc"] + [str(path) for path in paths]
     run()
 
     # At this point, we can compare the produced files with saved files.
@@ -98,7 +98,7 @@ def test_create_trans_classic():
         rmtree(path_dir_out)
 
     path_file = path_data_tests / "classic.py"
-    sys.argv = f"transonic -np {path_file}".split()
+    sys.argv = f"transonic -nc {path_file}".split()
     run()
 
     print("after first build")
@@ -122,5 +122,5 @@ def test_create_trans_classic():
     sys.argv = f"transonic {path_file}".split()
     run()
 
-    sys.argv = f"transonic -np {path_file_pythran}".split()
+    sys.argv = f"transonic -nc {path_file_pythran}".split()
     run()

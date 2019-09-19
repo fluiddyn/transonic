@@ -51,7 +51,7 @@ def run():
         return
 
     if args.clear_cache:
-        clear_cached_extensions(args.clear_cache, force=args.force)
+        clear_cached_extensions(args.clear_cache, args.force, args.backend)
         return
 
     if args.verbose is None:
@@ -82,14 +82,14 @@ def run():
         logger.error(f"No input file found (args.path = {args.path})")
         sys.exit(1)
 
-    backend = backends[backend_default]
+    backend = backends[args.backend]
     backend.make_backend_files(paths, force=args.force)
 
-    if not can_import_accelerator() or args.no_pythran:
+    if not can_import_accelerator() or args.no_compile:
         return
 
     # find pythran files not already compiled
-    backends_paths = {backend_name: [] for backend_name in backends}
+    backends_paths = []
 
     for path in paths:
         path = Path(path)
@@ -98,10 +98,10 @@ def run():
             backend.name_ext_from_path_backend(backend_path)
         )
         if backend_path.exists() and has_to_build(ext_path, backend_path):
-            backends_paths[backend.name].append(backend_path)
+            backends_paths.append(backend_path)
 
     backend.compile_extensions(
-        backends_paths[backend.name],
+        backends_paths,
         str_pythran_flags=args.pythran_flags,
         parallel=True,
         force=args.force,
@@ -121,7 +121,7 @@ def parse_args():
     parser.add_argument(
         "-f",
         "--force",
-        help="write the file even if it is up-to-date",
+        help="proceed even if the files seem up-to-date",
         action="store_true",
     )
 
@@ -132,9 +132,17 @@ def parse_args():
     parser.add_argument("-v", "--verbose", help="verbose mode", action="count")
 
     parser.add_argument(
-        "-np",
-        "--no-pythran",
-        help="do not compile the Pythran files with Pythran",
+        "-b",
+        "--backend",
+        help=("Backend (pythran, cython, numba or python)"),
+        type=str,
+        default=backend_default,
+    )
+
+    parser.add_argument(
+        "-nc",
+        "--no-compile",
+        help="do not compile the Pythran/Cython/... files",
         action="store_true",
     )
 

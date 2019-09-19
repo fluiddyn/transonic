@@ -3,10 +3,10 @@ clean:
 	rm -rf __cython__ __numba__ __pythran__ __python__
 
 all:
-	TRANSONIC_BACKEND="pythran" transonic -np *.py
-	TRANSONIC_BACKEND="python" transonic -np *.py
-	TRANSONIC_BACKEND="cython" transonic -np *.py
-	TRANSONIC_BACKEND="numba" transonic -np *.py
+	transonic -b pythran -nc *.py
+	transonic -b python -nc *.py
+	transonic -b cython -nc *.py
+	transonic -b numba -nc *.py
 
 meld_pythran:
 	meld __pythran__ saved__backend__/pythran

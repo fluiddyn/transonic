@@ -343,7 +343,7 @@ def query_yes_no(question: str, default: str = None, force: bool = False):
             print('Please respond with "y" or "n".')
 
 
-def clear_cached_extensions(module_name: str, force: bool = False):
+def clear_cached_extensions(module_name: str, force: bool, backend: str):
     """Delete the cached extensions related to a module
 
     """
@@ -351,7 +351,7 @@ def clear_cached_extensions(module_name: str, force: bool = False):
     from transonic.backends import backends
     from transonic import mpi
 
-    backend = backends[backend_default]
+    backend = backends[backend]
     path_jit = mpi.Path(backend.jit.path_base)
 
     if module_name.endswith(".py"):

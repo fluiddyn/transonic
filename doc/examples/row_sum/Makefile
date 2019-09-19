@@ -5,14 +5,14 @@ NAMEJIT=row_sum_jit.py
 all: pythran cython other
 
 pythran:
-	TRANSONIC_BACKEND="pythran" transonic $(NAME) -pf "-march=native -DUSE_XSIMD"
+	transonic $(NAME) -b pythran -pf "-march=native -DUSE_XSIMD"
 
 cython:
-	TRANSONIC_BACKEND="cython" transonic $(NAME)
+	transonic $(NAME) -b cython
 
 other:
-	TRANSONIC_BACKEND="numba" transonic $(NAME)
-	TRANSONIC_BACKEND="python" transonic $(NAME)
+	transonic $(NAME) -b numba
+	transonic $(NAME) -b python
 
 clean:
 	rm -rf __cython__ __python__ __numba__ __pythran__

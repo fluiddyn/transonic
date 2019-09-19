@@ -23,7 +23,7 @@ Function calls
 Boosted functions support function calls, including imported functions from
 a Python file in the same directory!
 
-.. literalinclude:: classic_include.py
+.. literalinclude:: classic_func_using_func.py
 
 Note that no Pythran signatures or annotations are needed for functions called
 in boosted functions.

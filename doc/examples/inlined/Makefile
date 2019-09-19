@@ -1,8 +1,8 @@
 
 all:
-	TRANSONIC_BACKEND="pythran" transonic add.py
-	TRANSONIC_BACKEND="numba" transonic add.py
-	TRANSONIC_BACKEND="cython" transonic add.py
+	transonic -b pythran add.py
+	transonic -b numba add.py
+	transonic -b cython add.py
 
 bench:
 	TRANSONIC_NO_REPLACE=1 python add.py
