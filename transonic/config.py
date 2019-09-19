@@ -50,8 +50,6 @@ backend_set_by_user = False
 
 def set_backend(backend: str):
 
-    from transonic.util import can_import_accelerator
-
     backend = backend.lower()
     supported_backends = ["pythran", "cython", "numba", "python"]
     if backend not in supported_backends:
@@ -62,8 +60,11 @@ def set_backend(backend: str):
     backend_default = backend
     backend_set_by_user = True
 
+    # warning: this import has to be here!
+    from transonic.util import can_import_accelerator
+
     if not can_import_accelerator(backend):
-        warn(f"Backend set to {backend} but accelerator not importable")
+        warn(f'Backend set to "{backend}" but accelerator not importable')
 
 
 try:

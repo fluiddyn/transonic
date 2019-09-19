@@ -228,7 +228,7 @@ class JIT:
                 func, self.native, self.xsimd, self.openmp
             )
 
-        if not can_import_accelerator():
+        if not can_import_accelerator(self.backend.name):
             # TODO: add a warning if backend is specified by user
             return func
 

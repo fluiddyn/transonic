@@ -85,7 +85,7 @@ def run():
     backend = backends[args.backend]
     backend.make_backend_files(paths, force=args.force)
 
-    if not can_import_accelerator() or args.no_compile:
+    if not can_import_accelerator(backend.name) or args.no_compile:
         return
 
     # find pythran files not already compiled
