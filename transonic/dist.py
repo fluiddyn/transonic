@@ -44,7 +44,7 @@ else:
 from .util import modification_date
 
 from transonic.config import backend_default
-from transonic.backends import make_backend_files
+from transonic.backends import make_backend_files, backends
 from transonic.util import can_import_accelerator
 
 __all__ = [
@@ -89,7 +89,7 @@ def detect_transonic_extensions(
     present in the current working directory.
 
     """
-    if not can_import_accelerator(backend):
+    if backend != "numba" and not can_import_accelerator(backend):
         return []
     ext_names = []
     if not os.path.exists(str(name_package)):
@@ -159,7 +159,12 @@ def init_transonic_extensions(
     if not modules:
         return []
 
-    if backend == "pythran":
+    if backend == "numba":
+        # very special case for Numba
+        paths = [Path(mod.replace(".", os.path.sep) + ".py") for mod in modules]
+        backends["numba"].compile_extensions(paths, None)
+        return []
+    elif backend == "pythran":
         BackendExtension = PythranExtension
     elif backend == "cython":
         BackendExtension = Extension

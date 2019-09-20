@@ -37,13 +37,19 @@ pack_dir = here / pack_name
 version = run_path(pack_name + "/_version.py")
 __version__ = version["__version__"]
 
-install_requires = ["transonic", "numpy", "matplotlib"]
+install_requires = ["transonic", "black", "numpy", "matplotlib", "numba"]
 
 relative_paths = ["calcul.py"]
-make_backend_files([pack_dir / path for path in relative_paths], backend="pythran")
+make_backend_files(
+    [pack_dir / path for path in relative_paths], backend="pythran"
+)
 
 relative_paths = ["util.py"]
 make_backend_files([pack_dir / path for path in relative_paths], backend="cython")
+
+relative_paths = ["other.py"]
+make_backend_files([pack_dir / path for path in relative_paths], backend="numba")
+
 
 extensions = []
 if "egg_info" not in sys.argv:
@@ -55,6 +61,7 @@ if "egg_info" not in sys.argv:
         compile_args=("-O3", f"-march={compile_arch}", "-DUSE_XSIMD"),
     )
     extensions.extend(init_transonic_extensions(pack_name, backend="cython"))
+    init_transonic_extensions(pack_name, backend="numba")
 
 setup(
     version=__version__,

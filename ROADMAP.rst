@@ -1,24 +1,10 @@
-Short term (Milestone for 0.4.0)
---------------------------------
-
-setup.py & more than one backend at runtime
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Good example: https://github.com/martibosch/pylandstats/pull/1
-
-- [done] ``make_backend_files(backend_default="cython")``
-- [done] More than one backend at runtime
-- [done] "python" backend
-- [done] ``TRANSONIC_BACKEND`` changes only ``backend_default``
-- [done] Examples setup.py in documentation
-- Warnings if file not compiled
-- "compilation" of "numba pure-python files"?
-
-
 Short term (Milestone for 0.4.1)
 --------------------------------
 
+- Use Cython for Windows and Pythran for Linux/macOS
+  (on this example https://github.com/martibosch/pylandstats/pull/1)
 - alternative make_header_from_fdef_annotations for Cython
+- More warnings if file not compiled
 
 
 Cython backend (beta version)
