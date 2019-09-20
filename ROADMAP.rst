@@ -1,37 +1,25 @@
-Short term (Milestones for 0.4.0)
----------------------------------
-
-- alternative make_header_from_fdef_annotations for Cython
-
+Short term (Milestone for 0.4.0)
+--------------------------------
 
 setup.py & more than one backend at runtime
--------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Good example: https://github.com/martibosch/pylandstats/pull/1
 
-- [done?] ``make_backend_files(backend_default="cython")``
-- [done?] More than one backend at runtime
-- [done] "python" backend (equivalent to NO_REPLACE)
+- [done] ``make_backend_files(backend_default="cython")``
+- [done] More than one backend at runtime
+- [done] "python" backend
+- [done] ``TRANSONIC_BACKEND`` changes only ``backend_default``
+- [done] Examples setup.py in documentation
 - Warnings if file not compiled
-- [done?] ``TRANSONIC_BACKEND`` changes only ``backend_default``
-- Examples setup.py in documentation
+- "compilation" of "numba pure-python files"?
 
 
-[done?] Specify backend in code
--------------------------------
+Short term (Milestone for 0.4.1)
+--------------------------------
 
-.. code:: python
+- alternative make_header_from_fdef_annotations for Cython
 
-  def func():
-        return 1
-
-  func_pythran = @jit(backend="pythran")(func)
-  func_cython = @jit(backend="cython")(func)
-  func_numba = @jit(backend="numba")(func)
-
-And same with ``boost``.
-
-- [done] Rewrite the comparison Numba / Pythran with Transonic
 
 Cython backend (beta version)
 -----------------------------

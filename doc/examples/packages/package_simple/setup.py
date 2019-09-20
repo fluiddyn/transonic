@@ -30,31 +30,26 @@ import numpy as np
 
 here = Path(__file__).parent.absolute()
 
-pack_name = "pack_using_transonic"
+pack_name = "package_simple"
 pack_dir = here / pack_name
 
 # Get the version from the relevant file
 version = run_path(pack_name + "/_version.py")
 __version__ = version["__version__"]
 
-install_requires = ["transonic"]
+install_requires = ["transonic", "numpy", "matplotlib"]
 
-relative_paths = ["calcul.py"]
-make_backend_files([pack_dir / path for path in relative_paths], backend="pythran")
-
-relative_paths = ["util.py"]
-make_backend_files([pack_dir / path for path in relative_paths], backend="cython")
+relative_paths = ["util.py", "calcul.py"]
+make_backend_files([pack_dir / path for path in relative_paths])
 
 extensions = []
 if "egg_info" not in sys.argv:
     compile_arch = os.getenv("CARCH", "native")
     extensions = init_transonic_extensions(
         pack_name,
-        backend="pythran",
         include_dirs=[np.get_include()],
         compile_args=("-O3", f"-march={compile_arch}", "-DUSE_XSIMD"),
     )
-    extensions.extend(init_transonic_extensions(pack_name, backend="cython"))
 
 setup(
     version=__version__,

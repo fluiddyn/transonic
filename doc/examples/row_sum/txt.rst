@@ -25,10 +25,10 @@ To compile this file with different backends, one can run:
 
 .. code:: bash
 
-    TRANSONIC_BACKEND="python" transonic row_sum_boost.py
-    TRANSONIC_BACKEND="cython" transonic row_sum_boost.py
-    TRANSONIC_BACKEND="numba" transonic row_sum_boost.py
-    TRANSONIC_BACKEND="pythran" transonic row_sum_boost.py -pf "-march=native -DUSE_XSIMD"
+    transonic -b python row_sum_boost.py
+    transonic -b cython row_sum_boost.py
+    transonic -b numba row_sum_boost.py
+    transonic -b pythran row_sum_boost.py -pf "-march=native -DUSE_XSIMD"
 
 Then, on my PC (meige8pcpa79), I get::
 

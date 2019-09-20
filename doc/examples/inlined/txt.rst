@@ -7,9 +7,9 @@ Compiled with:
 
 .. code:: bash
 
-    TRANSONIC_BACKEND="pythran" transonic add.py
-    TRANSONIC_BACKEND="numba" transonic add.py
-    TRANSONIC_BACKEND="cython" transonic add.py
+    transonic -b pythran add.py
+    transonic -b numba add.py
+    transonic -b cython add.py
 
 Gives:
 

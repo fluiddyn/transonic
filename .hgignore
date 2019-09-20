@@ -27,6 +27,7 @@ doc/ipynb/*.rst
 .mypy_cache
 
 *.egg-info/*
+**/.eggs/*
 
 **/__pythran__/*
 **/__cython__/*

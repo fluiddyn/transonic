@@ -1,7 +1,6 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import h5netcdf
 
 from transonic import boost, Type
 

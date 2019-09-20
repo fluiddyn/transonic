@@ -403,8 +403,8 @@ setup.py like this:
 
 Note that :code:`make_backend_files` does not compile the backend files. The
 compilation has to be done after the call of this function (see for example how
-it is done in the example package `pack_using_transonic
-<https://bitbucket.org/fluiddyn/transonic/src/default/doc/examples/pack_using_transonic/>`_
+it is done in the `example packages
+<https://bitbucket.org/fluiddyn/transonic/src/default/doc/examples/packages/>`_
 or in `fluidsim's setup.py
 <https://bitbucket.org/fluiddyn/fluidsim/src/default/setup.py>`_).
 
