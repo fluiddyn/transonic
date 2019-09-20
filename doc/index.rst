@@ -24,6 +24,7 @@ Examples
    ipynb/executed/demo_compile_at_import
    ipynb/executed/demo_jit
    examples/inlined/txt
+   examples/writing_benchmarks/bench
 
 Modules Reference
 -----------------

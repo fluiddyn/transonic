@@ -34,7 +34,9 @@ from .typing import TypeFormatter
 
 
 def normalize_type_name_for_array(name):
-    if any(name.endswith(str(number)) for number in (32, 64, 128)):
+    if name == "bool_":
+        return "np.uint8"
+    if any(name.endswith(str(number)) for number in (8, 16, 32, 64, 128)):
         return "np." + name
     if name in ("int", "float", "complex"):
         return "np." + name
