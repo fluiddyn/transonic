@@ -121,7 +121,7 @@ class ModuleJIT:
             "special": special,
         }
 
-        backend = backends[backend_name]
+        self.backend = backend = backends[backend_name]
         path_jit = mpi.Path(backend.jit.path_base)
         path_jit_class = mpi.Path(backend.jit.path_class)
 
@@ -150,7 +150,7 @@ class ModuleJIT:
             return inspect.getsource(mod)
 
 
-def _get_module_jit(backend_name: str = None, index_frame: int = 2):
+def _get_module_jit(backend_name: str = None, index_frame: int = 2, frame=None):
     """Get the ModuleJIT instance corresponding to the calling module
 
     Parameters
@@ -161,14 +161,16 @@ def _get_module_jit(backend_name: str = None, index_frame: int = 2):
       Index (in :code:`inspect.stack()`) of the frame to be selected
 
     """
-    try:
-        frame = inspect.stack()[index_frame]
-    except IndexError:
-        logger.error(
-            f"index_frame {index_frame}"
-            f"{[frame[1] for frame in inspect.stack()]}"
-        )
-        raise
+
+    if frame is None:
+        try:
+            frame = inspect.stack()[index_frame]
+        except IndexError:
+            logger.error(
+                f"index_frame {index_frame}"
+                f"{[frame[1] for frame in inspect.stack()]}"
+            )
+            raise
 
     module_name = get_module_name(frame)
 
@@ -183,19 +185,13 @@ def _get_module_jit(backend_name: str = None, index_frame: int = 2):
         return ModuleJIT(backend_name=backend_name, frame=frame)
 
 
-def jit(
-    func=None,
-    backend: str = backend_default,
-    native=False,
-    xsimd=False,
-    openmp=False,
-):
+def jit(func=None, backend: str = None, native=False, xsimd=False, openmp=False):
     """Decorator to record that the function has to be jit compiled
 
     """
-    decor = JIT(backend=backend, native=native, xsimd=xsimd, openmp=openmp)
+    frame = inspect.stack()[1]
+    decor = JIT(frame, backend=backend, native=native, xsimd=xsimd, openmp=openmp)
     if callable(func):
-        decor._decorator_no_arg = True
         return decor(func)
     else:
         return decor
@@ -205,11 +201,13 @@ class JIT:
     """Decorator used internally by the public jit decorator
     """
 
-    def __init__(self, backend, native=False, xsimd=False, openmp=False):
-        if isinstance(backend, str):
-            backend = backends[backend]
+    def __init__(
+        self, frame, backend: str, native=False, xsimd=False, openmp=False
+    ):
 
-        self.backend = backend
+        self.mod = _get_module_jit(backend, frame=frame)
+
+        self.backend = self.mod.backend
         self.native = native
         self.xsimd = xsimd
         self.openmp = openmp
@@ -234,13 +232,8 @@ class JIT:
 
         func_name = func.__name__
 
-        if self._decorator_no_arg:
-            index_frame = 3
-        else:
-            index_frame = 2
-
         backend = self.backend
-        mod = _get_module_jit(backend.name, index_frame)
+        mod = self.mod
         mod.jit_functions[func_name] = self
         module_name = mod.module_name
 
@@ -356,6 +349,7 @@ class JIT:
             backend_module = import_from_path(path_ext, name_mod)
             self.backend_func = getattr(backend_module, func_name)
 
+        # this is the function that will be called by the user
         @wraps(func)
         def type_collector(*args, **kwargs):
 
@@ -369,11 +363,11 @@ class JIT:
                     assert backend.check_if_compiled(backend_module)
                     self.backend_func = getattr(backend_module, func_name)
 
-            error = False
             try:
                 return self.backend_func(*args, **kwargs)
             except TypeError as err:
                 # need to compiled or recompile
+                error = False
                 if self.backend_func:
                     error = str(err)
                     if (

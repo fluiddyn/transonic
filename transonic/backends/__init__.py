@@ -16,6 +16,11 @@
    numba
    py
 
+User API
+--------
+
+.. autofunction:: set_backend_for_this_module
+
 Internal API
 ------------
 
@@ -46,6 +51,7 @@ backend_default_modules = {}
 
 
 def set_backend_for_this_module(backend_name):
+    """Programmatically set a backend for a module"""
     backend_name = backend_name.lower()
     frame = inspect.stack()[1]
     module_name = get_module_name(frame)

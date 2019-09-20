@@ -43,7 +43,6 @@ from transonic.util import (
     is_method,
     write_if_has_to_write,
     find_module_name_from_path,
-    path_root,
 )
 
 if mpi.nb_proc == 1:
