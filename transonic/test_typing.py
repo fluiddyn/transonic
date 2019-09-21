@@ -14,6 +14,7 @@ from transonic.typing import (
     typeof,
     str2shape,
     MemLayout,
+    Optional,
 )
 
 from transonic.backends.typing import base_type_formatter
@@ -151,3 +152,7 @@ def test_shape():
         )
         == "int[3, :]"
     )
+
+
+def test_optional():
+    assert repr(Optional[int]) == "Union[int, None]"

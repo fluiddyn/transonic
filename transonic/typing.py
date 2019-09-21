@@ -218,7 +218,7 @@ class NDim(TemplateVar):
 class UnionVar(TemplateVar):
     """TemplateVar used for the Union type"""
 
-    _type_values = type
+    _type_values = (type, type(None))
     _letter = "U"
 
 
@@ -673,10 +673,30 @@ class Tuple(metaclass=TupleMeta):
     """
 
 
+class OptionalMeta(Meta):
+    def __getitem__(self, type_):
+        return Union[type_, None]
+
+
+class Optional(metaclass=OptionalMeta):
+    """Similar to typing.Optional
+
+    Meaning that these two expressions are equivalent:
+
+    >>> Optional[int]
+    >>> Union[int, None]
+
+    """
+
+
 def format_type_as_backend_type(type_, backend_type_formatter, **kwargs):
     """Format a Transonic type as a backend (Pythran, Cython, ...) type
 
     """
+    if type_ is None:
+        # None has a special meaning for typing...
+        return "None"
+
     if isinstance(type_, str):
         type_ = str2type(type_)
 

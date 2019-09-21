@@ -17,6 +17,7 @@ from transonic.typing import (
     Set,
     str2type,
     typeof,
+    Optional,
 )
 
 
@@ -24,15 +25,16 @@ __all__ = [
     "__version__",
     "Transonic",
     "boost",
+    "jit",
     "Array",
     "NDim",
     "Type",
-    "Union",
     "List",
     "Dict",
     "Tuple",
     "Set",
-    "jit",
+    "Union",
+    "Optional",
     "set_backend",
     "set_backend_for_this_module",
     "set_compile_jit",
