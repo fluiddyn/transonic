@@ -33,6 +33,11 @@ For Linux, I use:
     CC=clang-6.0
     blas=openblas
 
+User API
+--------
+
+.. autofunction:: set_backend
+
 """
 
 import os
@@ -49,6 +54,7 @@ backend_set_by_user = False
 
 
 def set_backend(backend: str):
+    """Set the "global variable" backend_default"""
 
     backend = backend.lower()
     supported_backends = ["pythran", "cython", "numba", "python"]

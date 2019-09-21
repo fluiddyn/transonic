@@ -9,6 +9,8 @@ setup.py.
 
 .. autofunction:: detect_transonic_extensions
 
+.. autofunction:: init_transonic_extensions
+
 """
 
 import os
@@ -53,6 +55,7 @@ __all__ = [
     "can_import_pythran",
     "detect_transonic_extensions",
     "init_pythran_extensions",
+    "init_transonic_extensions",
     "get_logger",
     "ParallelBuildExt",
     "make_backend_files",
@@ -140,6 +143,11 @@ def init_transonic_extensions(
     name_package:
 
         Package to be recursively scanned for Pythran extensions.
+
+    backend : str
+
+        Only initialize extensions for this backend. If None, initialize
+        extensions for the default backend (set by an environment variable).
 
     include_dirs:
 

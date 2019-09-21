@@ -21,9 +21,6 @@ User API
 
 .. autofunction:: set_backend_for_this_module
 
-Internal API
-------------
-
 .. autofunction:: make_backend_files
 
 """
