@@ -4,10 +4,11 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
-0.4.0 (2019-09-20)
---------------------
+- Python 3.8 support (with gast>=0.3.0 and beniget>=0.2.0)
 
-- Python 3.8 support (gast>=0.3.0, beniget>=0.2.0, thus pythran>0.9.3post1)
+0.4.0 (2019-09-22)
+------------------
+
 - An API to describe types (big refactoring)
 
   * memoryviews for Cython
