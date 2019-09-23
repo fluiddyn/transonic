@@ -24,4 +24,4 @@ Gives:
     TRANSONIC_BACKEND="cython" python add.py
      3.24e-07 s
 
-The three backends and their compilers give very good speedup!
+The three backends (and their compiler) give very good speedup!

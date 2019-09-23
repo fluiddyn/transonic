@@ -26,10 +26,14 @@ Make your Python code fly at *transonic* speeds!
 **Documentation**: https://transonic.readthedocs.io
 
 Transonic is a pure Python package (requiring Python >= 3.6) to easily
-accelerate modern Python-Numpy code with different accelerators (like Cython,
-`Pythran <https://github.com/serge-sans-paille/pythran>`_, Numba, Cupy,
-PyTorch, JAX, Pyccel, Uarray, etc...) opportunistically (i.e. if/when they are
-available).
+accelerate modern Python-Numpy code with different accelerators (currently
+`Cython <https://cython.org/>`_, `Pythran
+<https://github.com/serge-sans-paille/pythran>`_ and `Numba
+<https://numba.pydata.org/>`_, but potentially later `Cupy
+<https://cupy.chainer.org/>`_, `PyTorch <https://pytorch.org/>`_, `JAX
+<https://github.com/google/jax>`_, `Weld <https://www.weld.rs/>`_, `Pyccel
+<https://github.com/pyccel/pyccel>`_, `Uarray
+<https://github.com/Quansight-Labs/uarray>`_, etc...).
 
 **The accelerators are not hard dependencies of Transonic:** Python codes using
 Transonic run fine without any accelerators installed (of course without
@@ -241,7 +245,7 @@ computations.  Transonic is able to write fast Cython from such code:
 
     from transonic import boost
 
-    @boost
+    @boost(boundscheck=False, wraparound=False)
     def mysum(arr: "float[:]"):
         i: int
         n: int = arr.shape[0]
@@ -374,9 +378,8 @@ For simple methods **only using attributes**, we can write:
 
    Calling another method in a boosted method is not yet supported!
 
-More examples of how to use Transonic for Object Oriented Programing are
-given `here
-<https://transonic.readthedocs.io/en/latest/examples/methods.html>`__.
+More examples on how to use Transonic for Object Oriented Programing are given
+`here <https://transonic.readthedocs.io/en/latest/examples/methods.html>`__.
 
 
 Make the Pythran/Cython/Numba files
