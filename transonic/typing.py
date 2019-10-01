@@ -76,9 +76,15 @@ class TemplateVar:
     >>> T = TemplateVar("T")
     >>> T = TemplateVar("T", int, float)
 
-    >>> T = TemplateVar()  # raise ValueError
-    >>> T = TemplateVar(1)  # raise TypeError
+    >>> T = TemplateVar()
+    Traceback (most recent call last):
+        ...
+    ValueError
 
+    >>> T = TemplateVar(1)
+    Traceback (most recent call last):
+        ...
+    TypeError: (1,) [False]
     """
 
     _type_values = type
@@ -453,14 +459,24 @@ class Array(metaclass=ArrayMeta):
     """Represent a Numpy array.
 
     >>> Array[int, "2d"]
+    Array[int, "2d"]
+
     >>> Array[int, "2d", "C"]
+    Array[int, "2d", "C"]
+
     >>> Array[int, "2d", "F"]
+    Array[int, "2d", "F"]
+
     >>> Array[int, "2d", "strided"]
+    Array[int, "2d", "strided"]
 
     Fused types:
 
     >>> Array[Type(int, float), "1d"]
+    Array[T0, "1d"]
+
     >>> Array[float, NDim(2, 3)]
+    Array[float, N5]
 
     """
 
@@ -470,8 +486,16 @@ class UnionMeta(Meta):
 
     def __getitem__(self, types):
 
-        if not isinstance(types, tuple):
-            types = (types,)
+        types_in = types
+        if not isinstance(types_in, tuple):
+            types_in = (types_in,)
+
+        types = []
+        for type_ in types_in:
+            if isinstance(type_, str):
+                type_ = str2type(type_)
+            types.append(type_)
+        types = tuple(types)
 
         name_calling_module = get_name_calling_module()
         template_var = UnionVar(*types, name_calling_module=name_calling_module)
@@ -681,10 +705,8 @@ class OptionalMeta(Meta):
 class Optional(metaclass=OptionalMeta):
     """Similar to typing.Optional
 
-    Meaning that these two expressions are equivalent:
-
     >>> Optional[int]
-    >>> Union[int, None]
+    Union[int, None]
 
     """
 
@@ -718,9 +740,13 @@ def str2type(str_type):
     """Compute a Transonic type from a string
 
     >>> str2type("int[:,:]")
-    >>> str2type("int or float[]")
-    >>> str2type("(int, float[:, :])")
+    Array[int, "2d"]
 
+    >>> str2type("int or float[]")
+    Union[int, Array_float_"1d"]
+
+    >>> str2type("(int, float[:, :])")
+    Tuple[int, Array[float, "2d"]]
     """
 
     str_type = str_type.strip()

@@ -1,12 +1,18 @@
 import numpy as np
 
-# pythran export _dilate(uint8[:, :], uint8[:, :], uint8[:, :], int8, int8)
-# pythran export _dilate(uint8[:, :], uint8[:, :], uint8[:, :], int8)
-# pythran export _dilate(uint8[:, :], uint8[:, :], uint8[:, :])
-# pythran export _dilate(uint8[:, :], uint8[:, :])
+from transonic import boost, Optional
+
+A = "uint8[:, :]"
 
 
-def _dilate(image, selem, out=None, shift_x=0, shift_y=0):
+@boost
+def _dilate(
+    image: A,
+    selem: A,
+    out: Optional[A] = None,
+    shift_x: np.int8 = 0,
+    shift_y: np.int8 = 0,
+):
     """Return greyscale morphological dilation of an image.
 
     Morphological dilation sets a pixel at (i,j) to the maximum over all pixels
@@ -73,13 +79,14 @@ def _dilate(image, selem, out=None, shift_x=0, shift_y=0):
     return np.asarray(out)
 
 
-# pythran export _erode(uint8[:, :], uint8[:, :], uint8[:, :], int8, int8)
-# pythran export _erode(uint8[:, :], uint8[:, :], uint8[:, :], int8)
-# pythran export _erode(uint8[:, :], uint8[:, :], uint8[:, :])
-# pythran export _erode(uint8[:, :], uint8[:, :])
-
-
-def _erode(image, selem, out=None, shift_x=0, shift_y=0):
+@boost
+def _erode(
+    image: A,
+    selem: A,
+    out: Optional[A] = None,
+    shift_x: np.int8 = 0,
+    shift_y: np.int8 = 0,
+):
     """Return greyscale morphological erosion of an image.
 
     Morphological erosion sets a pixel at (i,j) to the minimum over all pixels
