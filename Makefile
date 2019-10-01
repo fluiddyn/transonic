@@ -34,12 +34,12 @@ clean:
 
 tests_coverage_short:
 	mkdir -p .coverage
-	TRANSONIC_BACKEND="python" coverage run -p -m pytest
-	TRANSONIC_BACKEND="numba" coverage run -p -m pytest
-	coverage run -p -m pytest
+	TRANSONIC_BACKEND="python" coverage run -p -m pytest transonic data_tests/ipynb
+	TRANSONIC_BACKEND="numba" coverage run -p -m pytest transonic
+	coverage run -p -m pytest transonic data_tests/ipynb
 
 tests_coverage: tests_coverage_short
-	TRANSONIC_BACKEND="cython" coverage run -p -m pytest
+	TRANSONIC_BACKEND="cython" coverage run -p -m pytest transonic
 	mpirun -np 2 coverage run -p -m pytest transonic
 
 report_coverage:

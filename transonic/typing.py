@@ -150,7 +150,13 @@ class Type(TemplateVar):
     """
 
     def __repr__(self):
-        return self.__name__
+        repr_values = []
+        for value in self.values:
+            if hasattr(value, "__name__"):
+                repr_values.append(value.__name__)
+            else:
+                repr_values.append(repr(value))
+        return f"Type({', '.join(repr_values)})"
 
     def format_as_backend_type(self, backend_type_formatter, **kwargs):
 
@@ -192,6 +198,9 @@ class NDim(TemplateVar):
 
         if len(self.values) == 1 and self.shift == 0:
             return f'"{self.values[0]}d"'
+
+        if self.shift == 0:
+            return f"NDim({', '.join(repr(v) for v in self.values)})"
 
         name = self.__name__
 
@@ -473,10 +482,10 @@ class Array(metaclass=ArrayMeta):
     Fused types:
 
     >>> Array[Type(int, float), "1d"]
-    Array[T0, "1d"]
+    Array[Type(int, float), "1d"]
 
     >>> Array[float, NDim(2, 3)]
-    Array[float, N5]
+    Array[float, NDim(2, 3)]
 
     """
 
