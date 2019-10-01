@@ -1,7 +1,7 @@
 import numpy as np
 
 from transonic import jit, boost
-from .mpi import Path
+from transonic.mpi import Path
 
 
 def func0(a):

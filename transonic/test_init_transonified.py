@@ -15,13 +15,13 @@ from transonic import mpi
 
 backend = backends[backend_default]
 
-module_name = "transonic.for_test_init"
+module_name = "_transonic_testing.for_test_init"
 
 
 class TestsInit(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.path_for_test = mpi.Path(__file__).parent / "for_test_init.py"
+        cls.path_for_test = mpi.Path(__file__).parent.parent / "_transonic_testing/for_test_init.py"
 
         assert cls.path_for_test.exists()
 
@@ -83,7 +83,7 @@ class TestsInit(unittest.TestCase):
         print(mpi.rank, "after make_backend_file(self.path_for_test)", flush=1)
         mpi.barrier()
 
-        from . import for_test_init
+        from _transonic_testing import for_test_init
 
         importlib.reload(for_test_init)
 
@@ -119,7 +119,7 @@ class TestsInit(unittest.TestCase):
         if path_ext.exists():
             path_ext.unlink()
 
-        from . import for_test_init
+        from _transonic_testing import for_test_init
 
         if not for_test_init.ts.is_compiling:
             importlib.reload(for_test_init)

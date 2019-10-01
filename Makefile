@@ -28,8 +28,8 @@ tests_cov:
 	pytest --cov-config setup.cfg --cov=transonic
 
 clean:
-	rm -rf $(HOME)/.transonic/*/*/transonic/
-	rm -rf $(HOME)/.transonic/*/*/*/transonic/
+	rm -rf $(HOME)/.transonic/*/*/_transonic_testing/
+	rm -rf $(HOME)/.transonic/*/*/*/_transonic_testing/
 	rm -rf .coverage build dist
 
 tests_coverage_short:

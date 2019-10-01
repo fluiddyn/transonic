@@ -16,7 +16,7 @@ from transonic.config import backend_default
 backend = backends[backend_default]
 scheduler.nb_cpus = 2
 
-module_name = "transonic.for_test_justintime"
+module_name = "_transonic_testing.for_test_justintime"
 
 str_relative_path = module_name.replace(".", os.path.sep)
 
@@ -40,7 +40,7 @@ mpi.barrier()
 
 @pytest.mark.skipif(backend_default == "numba", reason="Not supported by Numba")
 def test_jit():
-    from .for_test_justintime import func1
+    from _transonic_testing.for_test_justintime import func1
 
     a = np.arange(2)
     b = [1, 2]
@@ -54,7 +54,7 @@ def test_jit():
 
 
 def test_fib():
-    from .for_test_justintime import fib, use_fib
+    from _transonic_testing.for_test_justintime import fib, use_fib
 
     fib2 = fib(2)
     result = use_fib()
@@ -69,7 +69,7 @@ def test_fib():
 
 def test_jit_simple():
 
-    from .for_test_justintime import func2
+    from _transonic_testing.for_test_justintime import func2
 
     func2(1)
 
@@ -90,14 +90,14 @@ def test_jit_simple():
     del sys.modules[module_name]
     del modules[module_name]
 
-    from .for_test_justintime import func2
+    from _transonic_testing.for_test_justintime import func2
 
     func2(1)
 
 
 @pytest.mark.skipif(backend_default == "numba", reason="Not supported by Numba")
 def test_jit_dict():
-    from .for_test_justintime import func_dict
+    from _transonic_testing.for_test_justintime import func_dict
 
     d = dict(a=1, b=2)
     func_dict(d)
@@ -124,7 +124,7 @@ def test_jit_dict():
 
 
 def test_jit_method():
-    from .for_test_justintime import MyClass
+    from _transonic_testing.for_test_justintime import MyClass
 
     obj = MyClass()
     obj.check()
@@ -142,7 +142,7 @@ def test_jit_method():
 
 @pytest.mark.skipif(backend_default == "numba", reason="Not supported by Numba")
 def test_jit_method2():
-    from .for_test_justintime import MyClass2
+    from _transonic_testing.for_test_justintime import MyClass2
 
     obj = MyClass2()
     obj.check()
@@ -159,7 +159,7 @@ def test_jit_method2():
 
 
 def test_func0():
-    from .for_test_justintime import func0, func0_jitted
+    from _transonic_testing.for_test_justintime import func0, func0_jitted
 
     func02 = func0(2.1)
     result = func0_jitted(2.1)
@@ -171,7 +171,7 @@ def test_func0():
 # jitted function that uses a local function, a jitted local function
 # and a jitted imported function (with a different name)
 def test_main():
-    from .for_test_justintime import main
+    from _transonic_testing.for_test_justintime import main
 
     main_res = main(2)
     wait_for_all_extensions()
@@ -179,7 +179,7 @@ def test_main():
 
 
 def test_jit_imported():
-    from .for_test_justintime import jitted_func_import, func_import
+    from _transonic_testing.for_test_justintime import jitted_func_import, func_import
 
     result = jitted_func_import()
     wait_for_all_extensions()

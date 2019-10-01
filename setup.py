@@ -12,6 +12,6 @@ print(__about__)
 
 setup(
     version=__version__,
-    packages=find_packages(exclude=["doc"]),
+    packages=find_packages(exclude=["doc", "tmp", "data_tests"]),
     entry_points={"console_scripts": ["transonic = transonic.run:run"]},
 )
