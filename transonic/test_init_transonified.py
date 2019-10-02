@@ -21,7 +21,10 @@ module_name = "_transonic_testing.for_test_init"
 class TestsInit(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.path_for_test = mpi.Path(__file__).parent.parent / "_transonic_testing/for_test_init.py"
+        cls.path_for_test = (
+            mpi.Path(__file__).parent.parent
+            / "_transonic_testing/for_test_init.py"
+        )
 
         assert cls.path_for_test.exists()
 

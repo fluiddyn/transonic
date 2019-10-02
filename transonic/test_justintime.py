@@ -179,7 +179,10 @@ def test_main():
 
 
 def test_jit_imported():
-    from _transonic_testing.for_test_justintime import jitted_func_import, func_import
+    from _transonic_testing.for_test_justintime import (
+        jitted_func_import,
+        func_import,
+    )
 
     result = jitted_func_import()
     wait_for_all_extensions()

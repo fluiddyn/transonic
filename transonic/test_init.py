@@ -9,7 +9,9 @@ from transonic.mpi import Path
 
 def test_not_transonified():
 
-    path_for_test = Path(__file__).parent.parent / "_transonic_testing/for_test_init.py"
+    path_for_test = (
+        Path(__file__).parent.parent / "_transonic_testing/for_test_init.py"
+    )
     path_output = path_for_test.parent / f"__{backend_default}__"
 
     if path_output.exists() and mpi.rank == 0:

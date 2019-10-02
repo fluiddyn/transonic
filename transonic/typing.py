@@ -146,7 +146,9 @@ class Type(TemplateVar):
 
     As a user, it is useful only for fused types.
 
-    >>> T = Type(int, float)
+    >>> Type(int, float)
+    Type(int, float)
+
     """
 
     def __repr__(self):
@@ -524,7 +526,9 @@ class UnionMeta(Meta):
     def __repr__(self):
         strings = []
         for p in self.types:
-            if isinstance(p, type):
+            if isinstance(p, Meta):
+                string = repr(p)
+            elif isinstance(p, type):
                 string = p.__name__
             else:
                 string = repr(p)
@@ -541,7 +545,8 @@ class UnionMeta(Meta):
 class Union(metaclass=UnionMeta):
     """Similar to typing.Union
 
-    >>> U = Union[float, Array[int, "1d"]]
+    >>> Union[float, Array[int, "1d"]]
+    Union[float, Array[int, "1d"]]
 
     """
 
@@ -560,7 +565,9 @@ class ListMeta(Meta):
         return tuple()
 
     def __repr__(self):
-        if isinstance(self.type_elem, type):
+        if isinstance(self.type_elem, Meta):
+            string = repr(self.type_elem)
+        elif isinstance(self.type_elem, type):
             string = self.type_elem.__name__
         else:
             string = repr(self.type_elem)
@@ -573,7 +580,8 @@ class ListMeta(Meta):
 class List(metaclass=ListMeta):
     """Similar to typing.List
 
-    >>> L = List[List[int]]
+    >>> List[List[int]]
+    List[List[int]]
 
     """
 
@@ -621,7 +629,8 @@ class DictMeta(Meta):
 class Dict(metaclass=DictMeta):
     """Similar to typing.Dict
 
-    >>> L = Dict[str, int]
+    >>> Dict[str, int]
+    Dict[str, int]
 
     """
 
@@ -654,7 +663,8 @@ class SetMeta(Meta):
 class Set(metaclass=SetMeta):
     """Similar to typing.Set
 
-    >>> S = Set[str]
+    >>> Set[str]
+    Set[str]
 
     """
 
@@ -701,7 +711,8 @@ class TupleMeta(Meta):
 class Tuple(metaclass=TupleMeta):
     """Similar to typing.Tuple
 
-    >>> T = Tuple[int, Array[int, "2d"]]
+    >>> Tuple[int, Array[int, "2d"]]
+    Tuple[int, Array[int, "2d"]]
 
     """
 
@@ -752,7 +763,7 @@ def str2type(str_type):
     Array[int, "2d"]
 
     >>> str2type("int or float[]")
-    Union[int, Array_float_"1d"]
+    Union[int, Array[float, "1d"]]
 
     >>> str2type("(int, float[:, :])")
     Tuple[int, Array[float, "2d"]]
