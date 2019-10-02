@@ -45,7 +45,7 @@ def normalize_type_name_for_array(name):
 
 class TypeFormatterCython(TypeFormatter):
     def normalize_type_name(self, name):
-        if any(name.endswith(str(number)) for number in (32, 64, 128)):
+        if any(name.endswith(str(number)) for number in (8, 16, 32, 64, 128)):
             return "np." + name + "_t"
         if name in ("int", "float", "complex", "str"):
             return f"cython.{name}"
@@ -346,6 +346,8 @@ class CythonBackend(BackendAOT):
                 name_type_args.append(name_type_arg)
                 possible_types = [x[index] for x in signatures_as_lists_strings]
                 for possible_type in set(possible_types):
+                    if possible_type == "None":
+                        continue
                     ctypedef.append(f"   {possible_type}\n")
                 ctypedef.sort()
                 ctypedef.insert(0, f"ctypedef fused {name_type_arg}:\n")
