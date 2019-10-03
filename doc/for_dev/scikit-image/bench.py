@@ -1,4 +1,3 @@
-
 from subprocess import getoutput
 
 setup = """
@@ -36,14 +35,17 @@ print(timeit(stmt, setup, total_duration=2))
 """
 
 with open("tmp.py", "w") as file:
-    file.write(code.format(package="future"))
-
-print(getoutput("TRANSONIC_BACKEND='cython' python tmp.py"))
-# print(getoutput("TRANSONIC_BACKEND='pythran' python tmp.py"))
-# print(getoutput("TRANSONIC_BACKEND='numba' python tmp.py"))
-# print(getoutput("TRANSONIC_NO_REPLACE=1 python tmp.py"))
-
-with open("tmp.py", "w") as file:
     file.write(code.format(package="pyx"))
 
-print(getoutput("python tmp.py"))
+time_old = float(getoutput("python tmp.py"))
+
+print(f'cython "skimage" {time_old:.2e} s  (= norm)')
+
+with open("tmp.py", "w") as file:
+    file.write(code.format(package="future"))
+
+for backend in ("cython", "pythran", "numba"):
+    time = float(getoutput(f"TRANSONIC_BACKEND='{backend}' python tmp.py"))
+    print(f"{backend:16s} {time:.2e} s  (= {time/time_old:.4f} * norm)")
+
+# print(getoutput("TRANSONIC_NO_REPLACE=1 python tmp.py"))

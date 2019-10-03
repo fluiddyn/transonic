@@ -19,12 +19,11 @@ for backend in ("pythran", "cython", "numba"):
 
 extensions = []
 if "egg_info" not in sys.argv:
-    # compile_arch = os.getenv("CARCH", "native")
     extensions = init_transonic_extensions(
         pack_name,
         backend="pythran",
         include_dirs=[np.get_include()],
-        # compile_args=("-O3", f"-march={compile_arch}", "-DUSE_XSIMD"),
+        compile_args=("-O3", "-DUSE_XSIMD"),
         inplace=True,
     )
     extensions.extend(
