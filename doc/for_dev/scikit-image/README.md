@@ -44,5 +44,8 @@ Pieces of code to create realistic input parameters for all boosted functions (f
   with nice representation of the results
 
 - improve the Cython backend to get codes similar to the Cython files in
-  scikit-image. If there are some different, check how they influence the
+  scikit-image. If there are some differences, check how they influence the
   performances.
+
+  * `cdivision=True`
+  * `nonecheck=False`

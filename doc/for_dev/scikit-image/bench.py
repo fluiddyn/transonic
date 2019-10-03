@@ -3,7 +3,7 @@ from subprocess import getoutput
 
 setup = """
 import numpy as np
-from cmorph import _dilate
+from {package}.cmorph import _dilate
 
 rows = 1024
 cols = 1024
@@ -36,9 +36,14 @@ print(timeit(stmt, setup, total_duration=2))
 """
 
 with open("tmp.py", "w") as file:
-    file.write(code)
+    file.write(code.format(package="future"))
 
 print(getoutput("TRANSONIC_BACKEND='cython' python tmp.py"))
-print(getoutput("TRANSONIC_BACKEND='pythran' python tmp.py"))
-print(getoutput("TRANSONIC_BACKEND='numba' python tmp.py"))
+# print(getoutput("TRANSONIC_BACKEND='pythran' python tmp.py"))
+# print(getoutput("TRANSONIC_BACKEND='numba' python tmp.py"))
 # print(getoutput("TRANSONIC_NO_REPLACE=1 python tmp.py"))
+
+with open("tmp.py", "w") as file:
+    file.write(code.format(package="pyx"))
+
+print(getoutput("python tmp.py"))

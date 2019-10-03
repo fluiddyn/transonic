@@ -19,6 +19,7 @@ from pathlib import Path
 from distutils.sysconfig import get_config_var
 from typing import Iterable
 from concurrent.futures import ThreadPoolExecutor as Pool
+import re
 
 from distutils.command.build_ext import build_ext as DistutilsBuildExt
 from distutils.core import Extension
@@ -98,20 +99,27 @@ def detect_transonic_extensions(
     if not os.path.exists(str(name_package)):
         raise FileNotFoundError(f"Check the name of the package: {name_package}")
 
-    extension = ".py"
+    backend = backends[backend]
+    if backend.suffix_extension == ".py":
+        # we have to filter out the "extensions"
+        pattern = re.compile("_[a-f0-9]{32}.py$")
 
+    extension = ".py"
     for root, dirs, files in os.walk(str(name_package)):
         path_dir = Path(root)
         for name in files:
             if (
-                path_dir.name == f"__{backend}__"
+                path_dir.name == f"__{backend.name}__"
                 and name.endswith(extension)
                 and not name.startswith("__ext__")
             ):
                 path = path_dir / name
+                if backend.suffix_extension == ".py" and pattern.search(name) is not None:
+                    continue
                 ext_names.append(
                     str(path).replace(os.path.sep, ".").split(extension)[0]
                 )
+
     return ext_names
 
 
@@ -134,6 +142,7 @@ def init_transonic_extensions(
     compile_args: Iterable[str] = (),
     exclude_exts: Iterable[str] = (),
     logger=None,
+    inplace=None,
 ):
     """Detects pythran extensions under a package and returns a list of
     Extension instances ready to be passed into the ``setup()`` function.
@@ -183,7 +192,11 @@ def init_transonic_extensions(
         logger.info(
             "Files in the packages " + str(exclude_exts) + " will not be built."
         )
-    develop = "develop" in sys.argv
+
+    if inplace is None:
+        inplace = "develop" in sys.argv or (
+            "build_ext" in sys.argv and "--inplace" in sys.argv
+        )
 
     extensions = []
     for mod in modules:
@@ -195,7 +208,7 @@ def init_transonic_extensions(
         suffix = get_config_var("EXT_SUFFIX")
         bin_file = base_file + suffix
         if (
-            not develop
+            not inplace
             or not os.path.exists(bin_file)
             or modification_date(bin_file) < modification_date(py_file)
         ):
@@ -212,9 +225,10 @@ def init_transonic_extensions(
                 include_dirs = [include_dirs]
             pext.include_dirs.extend(include_dirs)
             pext.extra_compile_args.extend(compile_args)
-            if backend == "cython":
-                pext = cythonize(pext)[0]
             extensions.append(pext)
+
+        if backend == "cython":
+            extensions = cythonize(extensions, annotate=True)
 
     return extensions
 
