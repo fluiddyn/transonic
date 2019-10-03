@@ -22,7 +22,6 @@ from concurrent.futures import ThreadPoolExecutor as Pool
 import re
 
 from distutils.command.build_ext import build_ext as DistutilsBuildExt
-from distutils.core import Extension
 
 try:
     from Cython.Distutils.build_ext import build_ext as CythonBuildExt
@@ -114,7 +113,10 @@ def detect_transonic_extensions(
                 and not name.startswith("__ext__")
             ):
                 path = path_dir / name
-                if backend.suffix_extension == ".py" and pattern.search(name) is not None:
+                if (
+                    backend.suffix_extension == ".py"
+                    and pattern.search(name) is not None
+                ):
                     continue
                 ext_names.append(
                     str(path).replace(os.path.sep, ".").split(extension)[0]
@@ -143,6 +145,7 @@ def init_transonic_extensions(
     exclude_exts: Iterable[str] = (),
     logger=None,
     inplace=None,
+    annotate=False,
 ):
     """Detects pythran extensions under a package and returns a list of
     Extension instances ready to be passed into the ``setup()`` function.
@@ -184,7 +187,13 @@ def init_transonic_extensions(
     elif backend == "pythran":
         BackendExtension = PythranExtension
     elif backend == "cython":
-        BackendExtension = Extension
+
+        def BackendExtension(mod, files):
+            # to avoid a bug: Cython does not take into account .pxd file
+            ext = cythonize(files[0], annotate=annotate, language_level=3)[0]
+            ext.name = mod
+            return ext
+
     else:
         return []
 
@@ -226,9 +235,6 @@ def init_transonic_extensions(
             pext.include_dirs.extend(include_dirs)
             pext.extra_compile_args.extend(compile_args)
             extensions.append(pext)
-
-        if backend == "cython":
-            extensions = cythonize(extensions, annotate=True)
 
     return extensions
 
