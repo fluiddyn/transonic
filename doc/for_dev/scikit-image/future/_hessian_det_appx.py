@@ -102,7 +102,8 @@ def _hessian_matrix_det(img: "float64[:,:]", sigma: np.float64):
     """
 
     size = int(3 * sigma)
-    height, width = img.shape
+    height = img.shape[0]
+    width = img.shape[1]
     s2 = (size - 1) // 2
     s3 = size // 3
     w = size

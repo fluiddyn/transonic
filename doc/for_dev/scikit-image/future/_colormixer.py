@@ -31,7 +31,9 @@ def add(img: Auint8, stateimg: Auint8, channel: int, amount: int):
         Value to add.
 
     """
-    height, width, _ = img.shape
+    height = img.shape[0]
+    width = img.shape[1]
+
     k = channel
     n = amount
 
@@ -68,7 +70,8 @@ def multiply(img: Auint8, stateimg: Auint8, channel: int, amount: float):
         Multiplication factor.
 
     """
-    height, width, _ = img.shape
+    height = img.shape[0]
+    width = img.shape[1]
     k = channel
     n = amount
 
@@ -106,8 +109,8 @@ def brightness(img: Auint8, stateimg: Auint8, factor: float, offset: int):
         Ammount to add to each channel.
 
     """
-
-    height, width, _ = img.shape
+    height = img.shape[0]
+    width = img.shape[1]
 
     lut = [np.uint8()] * 256
 
@@ -130,8 +133,8 @@ def brightness(img: Auint8, stateimg: Auint8, factor: float, offset: int):
 
 @boost
 def sigmoid_gamma(img: Auint8, stateimg: Auint8, alpha: float, beta: float):
-
-    height, width, _ = img.shape
+    height = img.shape[0]
+    width = img.shape[1]
 
     c1 = 1 / (1 + np.exp(beta))
     c2 = 1 / (1 + np.exp(beta - alpha)) - c1
@@ -152,8 +155,8 @@ def sigmoid_gamma(img: Auint8, stateimg: Auint8, alpha: float, beta: float):
 
 @boost
 def gamma(img: Auint8, stateimg: Auint8, gamma: float):
-
-    height, width, _ = img.shape
+    height = img.shape[0]
+    width = img.shape[1]
 
     lut = [np.uint8()] * 256
 
@@ -385,10 +388,9 @@ def hsv_add(
     v_amt : float
         Ammount to add to V channel.
 
-
     """
-
-    height, width, _ = img.shape
+    height = img.shape[0]
+    width = img.shape[1]
 
     HSV = [0.0] * 3
     RGB = [0.0] * 3
@@ -451,8 +453,8 @@ def hsv_multiply(img: Auint8, stateimg: Auint8, h_amt: float, s_amt: float, v_am
 
 
     """
-
-    height, width, _ = img.shape
+    height = img.shape[0]
+    width = img.shape[1]
 
     HSV = [0.0] * 3
     RGB = [0.0] * 3

@@ -47,5 +47,8 @@ Pieces of code to create realistic input parameters for all boosted functions (f
   scikit-image. If there are some differences, check how they influence the
   performances.
 
-  * `cdivision=True`
-  * `nonecheck=False`
+  - `cdivision=True`
+  - `nonecheck=False`
+  - `np.ndarray[dtype=cnp.uint32_t, ndim=1, negative_indices=False, mode='c']`
+  - function def with nogil and void
+  - `with nogil:`

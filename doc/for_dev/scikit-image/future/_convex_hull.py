@@ -19,7 +19,8 @@ def possible_hull(img: "uint8[:,:]"):
        the convex hull.
 
     """
-    rows, cols = img.shape
+    rows = img.shape[0]
+    cols = img.shape[1]
 
     # Output: rows storage slots for left boundary pixels
     #         cols storage slots for top boundary pixels

@@ -27,7 +27,9 @@ if "egg_info" not in sys.argv:
         inplace=True,
     )
     extensions.extend(
-        init_transonic_extensions(pack_name, backend="cython", inplace=True)
+        init_transonic_extensions(
+            pack_name, backend="cython", inplace=True, annotate=True
+        )
     )
     init_transonic_extensions(pack_name, backend="numba")
 
