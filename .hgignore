@@ -35,3 +35,4 @@ doc/ipynb/*.rst
 **/__python__/*
 
 doc/for_dev/**/*.c
+doc/for_dev/**/*.html

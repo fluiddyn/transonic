@@ -56,9 +56,9 @@ by Cython bugs <backends/cython.html>`_!
 
 - void type
 
-- nogil for function definition
-
 - nogil context manager
+
+- casting
 
 
 Better Numba backend

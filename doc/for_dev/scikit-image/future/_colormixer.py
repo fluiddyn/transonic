@@ -9,9 +9,10 @@ one.
 
 import numpy as np
 
-from transonic import boost
+from transonic import boost, Array
 
 Auint8 = "uint8[:,:,:]"
+A1dC = Array[np.uint8, "1d", "C"]
 
 
 @boost
@@ -37,7 +38,7 @@ def add(img: Auint8, stateimg: Auint8, channel: int, amount: int):
     k = channel
     n = amount
 
-    lut = [np.uint8()] * 256
+    lut: A1dC = np.empty(256, dtype=np.uint8)
 
     for l in range(256):
         op_result = l + n
@@ -75,7 +76,7 @@ def multiply(img: Auint8, stateimg: Auint8, channel: int, amount: float):
     k = channel
     n = amount
 
-    lut = [np.uint8()] * 256
+    lut: A1dC = np.empty(256, dtype=np.uint8)
 
     for l in range(256):
         op_result = l * n
@@ -112,7 +113,7 @@ def brightness(img: Auint8, stateimg: Auint8, factor: float, offset: int):
     height = img.shape[0]
     width = img.shape[1]
 
-    lut = [np.uint8()] * 256
+    lut: A1dC = np.empty(256, dtype=np.uint8)
 
     for k in range(256):
         op_result = k * factor + offset
@@ -139,7 +140,7 @@ def sigmoid_gamma(img: Auint8, stateimg: Auint8, alpha: float, beta: float):
     c1 = 1 / (1 + np.exp(beta))
     c2 = 1 / (1 + np.exp(beta - alpha)) - c1
 
-    lut = [np.uint8()] * 256
+    lut: A1dC = np.empty(256, dtype=np.uint8)
 
     # compute the lut
     for k in range(256):
@@ -153,20 +154,24 @@ def sigmoid_gamma(img: Auint8, stateimg: Auint8, alpha: float, beta: float):
             img[i, j, 2] = lut[stateimg[i, j, 2]]
 
 
-@boost
+@boost(boundscheck=False, wraparound=False)
 def gamma(img: Auint8, stateimg: Auint8, gamma: float):
-    height = img.shape[0]
-    width = img.shape[1]
+    height: np.intp = img.shape[0]
+    width: np.intp = img.shape[1]
 
-    lut = [np.uint8()] * 256
+    lut: A1dC = np.empty(256, dtype=np.uint8)
 
     if gamma == 0:
         gamma = 0.00000000000000000001
     gamma = 1.0 / gamma
 
     # compute the lut
+    k: np.uint8
     for k in range(256):
-        lut[k] = np.uint8((pow((k / 255.0), gamma) * 255))
+        lut[k] = np.uint8(pow((k / 255.0), gamma) * 255)
+
+    i: np.intp
+    j: np.intp
 
     for i in range(height):
         for j in range(width):

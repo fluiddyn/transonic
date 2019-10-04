@@ -38,17 +38,27 @@ Pieces of code to create realistic input parameters for all boosted functions (f
 
 ## Next tasks
 
-- fix <https://bitbucket.org/fluiddyn/transonic/issues/29/default-parameters>
+- Fix <https://bitbucket.org/fluiddyn/transonic/issues/29/default-parameters>
 
-- good solution to easily benchmark the different backends on these examples
+- Good solution to easily benchmark the different backends on these examples
   with nice representation of the results
 
-- improve the Cython backend to get codes similar to the Cython files in
-  scikit-image. If there are some differences, check how they influence the
-  performances.
+- Improve the Cython backend to get codes similar to the Cython files in
+  scikit-image. If there are some differences, check how they influence the performances.
+
+  Low hanging fruits:
 
   - `cdivision=True`
   - `nonecheck=False`
-  - `np.ndarray[dtype=cnp.uint32_t, ndim=1, negative_indices=False, mode='c']`
-  - function def with nogil and void
+  - negative_indices in `np.ndarray[dtype=np.uint32_t, ndim=1, negative_indices=False, mode='c']`
+  - `cdef void foo(int[:] a) nogil:`
+
+  And more complicated things!
+
+  - `from libc.math cimport exp, pow`
+  - casting: `<np.uint8_t> op_result`, which in Cython is different from
+  `np.uint8(op_result)` :-(
   - `with nogil:`
+
+  A question: do we have to support C array creation (`cdef cnp.uint8_t
+  lut[256]` or `cdef float HSV[3]`)? It is *really* more efficient than standard Numpy array?

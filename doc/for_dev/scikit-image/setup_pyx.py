@@ -15,7 +15,7 @@ for pyx_file in pyx_files:
         Extension("pyx." + name, [str(pyx_file)], include_dirs=include_dirs)
     )
 
-extensions = cythonize(extensions, language_level=3)
+extensions = cythonize(extensions, language_level=3, annotate=True)
 
 setup(
     name="pyx",
