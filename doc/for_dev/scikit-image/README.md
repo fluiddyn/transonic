@@ -73,4 +73,4 @@ Pieces of code to create realistic input parameters for all boosted functions (f
   - [ ] `with nogil:`
 
   A question: do we have to support C array creation (`cdef cnp.uint8_t
-  lut[256]` or `cdef float HSV[3]`)? It is *really* more efficient than standard Numpy array?
+  lut[256]` or `cdef float HSV[3]`)? Is it *really* more efficient than standard Numpy array?

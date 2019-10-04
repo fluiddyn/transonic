@@ -62,12 +62,36 @@ Internal API
 """
 import re
 from enum import Enum, auto
+import itertools
 
 import numpy as np
 
 from transonic.util import get_name_calling_module
 
 names_template_variables = {}
+
+
+class FusedType:
+    def is_fused_type(self):
+        raise NotImplementedError
+
+    def get_all_formatted_backend_types(self, type_formatter):
+
+        template_params = self.get_template_parameters()
+        names = [param.__name__ for param in template_params]
+        values_template_parameters = {
+            param.__name__: param.values for param in template_params
+        }
+
+        formatted_types = []
+        for set_types in itertools.product(*values_template_parameters.values()):
+            template_variables = dict(zip(names, set_types))
+            formatted_types.append(
+                format_type_as_backend_type(
+                    self, type_formatter, **template_variables
+                )
+            )
+        return formatted_types
 
 
 class TemplateVar:
@@ -141,7 +165,7 @@ class TemplateVar:
             )
 
 
-class Type(TemplateVar):
+class Type(TemplateVar, FusedType):
     """Template variable representing the dtype of an array.
 
     As a user, it is useful only for fused types.
@@ -173,6 +197,9 @@ class Type(TemplateVar):
             raise ValueError
 
         return dtype.__name__
+
+    def is_fused_type(self):
+        return len(self.values) > 1
 
 
 class NDim(TemplateVar):
@@ -239,11 +266,19 @@ class UnionVar(TemplateVar):
     _letter = "U"
 
 
-class Meta(type):
+class Meta(type, FusedType):
     """Type of the Transonic types (used to create metaclasses)"""
 
     def __call__(cls, *args, **kwargs):
         raise RuntimeError("Transonic types are not meant to be instantiated")
+
+    def is_fused_type(self):
+        template_parameters = self.get_template_parameters()
+        for template_parameter in template_parameters:
+            if hasattr(template_parameter, "is_fused_type"):
+                if template_parameter.is_fused_type():
+                    return True
+        return False
 
 
 class MemLayout(Enum):
