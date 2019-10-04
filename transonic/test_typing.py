@@ -148,7 +148,7 @@ def test_shape():
 
     assert (
         base_type_formatter.make_array_code(
-            int, 2, (3, None), False, MemLayout.C_or_F
+            int, 2, (3, None), False, MemLayout.C_or_F, positive_indices=False
         )
         == "int[3, :]"
     )

@@ -295,6 +295,7 @@ class ArrayMeta(Meta):
         memview = False
         mem_layout = MemLayout.C_or_F
         shape = None
+        positive_indices = False
         params_filtered = []
         for param in parameters:
             if param is None:
@@ -345,6 +346,9 @@ class ArrayMeta(Meta):
                 if param == "memview":
                     memview = True
                     continue
+                if param == "positive_indices":
+                    positive_indices = True
+                    continue
                 if param.startswith("[") and param.endswith("]"):
                     shape = str2shape(param)
                     continue
@@ -386,6 +390,7 @@ class ArrayMeta(Meta):
                 "memview": memview,
                 "mem_layout": mem_layout,
                 "shape": shape,
+                "positive_indices": positive_indices,
             },
         )
         return ArrayBis
@@ -430,6 +435,9 @@ class ArrayMeta(Meta):
         if self.mem_layout is not MemLayout.C_or_F:
             strings.append(repr(self.mem_layout))
 
+        if self.positive_indices:
+            strings.append('"positive_indices"')
+
         return f"Array[{', '.join(strings)}]"
 
     def format_as_backend_type(self, backend_type_formatter, **kwargs):
@@ -462,7 +470,12 @@ class ArrayMeta(Meta):
 
         memview = kwargs.get("memview", self.memview)
         return backend_type_formatter.make_array_code(
-            dtype, ndim, self.shape, memview, self.mem_layout
+            dtype,
+            ndim,
+            self.shape,
+            memview,
+            self.mem_layout,
+            self.positive_indices,
         )
 
 
@@ -488,6 +501,9 @@ class Array(metaclass=ArrayMeta):
 
     >>> Array[float, NDim(2, 3)]
     Array[float, NDim(2, 3)]
+
+    >>> Array[int, "1d", "C", "positive_indices"]
+    Array[int, "1d", "C", "positive_indices"]
 
     """
 

@@ -51,7 +51,9 @@ class TypeFormatterCython(TypeFormatter):
             return f"cython.{name}"
         return name
 
-    def make_array_code(self, dtype, ndim, shape, memview, mem_layout):
+    def make_array_code(
+        self, dtype, ndim, shape, memview, mem_layout, positive_indices
+    ):
         dtype = normalize_type_name_for_array(dtype.__name__)
         if ndim == 0:
             return dtype
@@ -59,7 +61,7 @@ class TypeFormatterCython(TypeFormatter):
         if memview:
             return memoryview_type(dtype, ndim, mem_layout)
         else:
-            return np_ndarray_type(dtype, ndim, mem_layout)
+            return np_ndarray_type(dtype, ndim, mem_layout, positive_indices)
 
     def make_dict_code(self, type_keys, type_values, **kwargs):
         return "dict"
@@ -87,14 +89,20 @@ def memoryview_type(dtype, ndim, mem_layout) -> str:
     return f"{dtype}_t[{end}]"
 
 
-def np_ndarray_type(dtype, ndim, mem_layout) -> str:
+def np_ndarray_type(dtype, ndim, mem_layout, positive_indices) -> str:
     if mem_layout is MemLayout.C:
         mode = ', mode="c"'
     elif mem_layout is MemLayout.F:
         mode = ', mode="f"'
     else:
         mode = ""
-    return f"np.ndarray[{dtype}_t, ndim={ndim}{mode}]"
+
+    if positive_indices:
+        positive_indices = ", negative_indices=False"
+    else:
+        positive_indices = ""
+
+    return f"np.ndarray[{dtype}_t, ndim={ndim}{mode}{positive_indices}]"
 
 
 class HeaderFunction:

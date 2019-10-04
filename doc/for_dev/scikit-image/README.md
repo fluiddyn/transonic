@@ -61,16 +61,16 @@ Pieces of code to create realistic input parameters for all boosted functions (f
 
   Low hanging fruits:
 
-  - [done] `cdivision=True` and `nonecheck=False`
-  - negative_indices in `np.ndarray[dtype=np.uint32_t, ndim=1, negative_indices=False, mode='c']`
-  - `cdef void foo(int[:] a) nogil:`
+  - [x] `cdivision=True` and `nonecheck=False`
+  - [x] negative_indices in `np.ndarray[dtype=np.uint32_t, ndim=1, negative_indices=False, mode='c']`
+  - [ ] `cdef void foo(int[:] a) nogil:`
 
   And more complicated things!
 
-  - `from libc.math cimport exp, pow`
-  - casting: `<np.uint8_t> op_result`, which in Cython is different from
+  - [ ] `from libc.math cimport exp, pow`
+  - [ ] casting: `<np.uint8_t> op_result`, which in Cython is different from
   `np.uint8(op_result)` :-(
-  - `with nogil:`
+  - [ ] `with nogil:`
 
   A question: do we have to support C array creation (`cdef cnp.uint8_t
   lut[256]` or `cdef float HSV[3]`)? It is *really* more efficient than standard Numpy array?

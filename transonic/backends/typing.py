@@ -13,7 +13,9 @@ class TypeFormatter:
         except KeyError:
             return name
 
-    def make_array_code(self, dtype, ndim, shape, memview, mem_layout):
+    def make_array_code(
+        self, dtype, ndim, shape, memview, mem_layout, positive_indices
+    ):
         dtype = self.normalize_type_name(dtype.__name__)
         if ndim == 0:
             return dtype

@@ -11,15 +11,18 @@ Original author: Lee Kamentsky
 """
 import numpy as np
 
-from transonic import boost
+from transonic import boost, Array
+
+Au = Array[np.uint32, "1d", "C", "positive_indices"]
+A = Array[np.int32, "1d", "C", "positive_indices"]
 
 
-@boost
+@boost(boundscheck=False)
 def reconstruction_loop(
-    ranks: "uint32[]",
-    prev: "int32[]",
-    next: "int32[]",
-    strides: "int32[]",
+    ranks: Au,
+    prev: A,
+    next: A,
+    strides: A,
     current_idx: np.intp,
     image_stride: np.intp,
 ):
@@ -48,7 +51,15 @@ def reconstruction_loop(
     image_stride : int
         Stride between seed image and mask image in `aranks`.
     """
-    nstrides = strides.shape[0]
+    current_rank: np.uint32
+    i: np.intp
+    neighbor_idx: np.intp
+    neighbor_rank: np.uint32
+    mask_rank: np.uint32
+    current_link: np.intp
+    nprev: np.int32
+    nnext: np.int32
+    nstrides: np.intp = strides.shape[0]
 
     while current_idx != -1:
         if current_idx < image_stride:
