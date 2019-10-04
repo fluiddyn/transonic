@@ -15,7 +15,7 @@ Auint8 = "uint8[:,:,:]"
 A1dC = Array[np.uint8, "1d", "C"]
 
 
-@boost
+@boost(boundscheck=False, wraparound=False, cdivision=True, nonecheck=False)
 def add(img: Auint8, stateimg: Auint8, channel: int, amount: int):
     """Add a given amount to a color channel of `stateimg`, and
     store the result in `img`.  Overflow is clipped.
@@ -54,7 +54,7 @@ def add(img: Auint8, stateimg: Auint8, channel: int, amount: int):
             img[i, j, k] = lut[stateimg[i, j, k]]
 
 
-@boost
+@boost(boundscheck=False, wraparound=False, cdivision=True, nonecheck=False)
 def multiply(img: Auint8, stateimg: Auint8, channel: int, amount: float):
     """Multiply a color channel of `stateimg` by a certain amount, and
     store the result in `img`.  Overflow is clipped.
@@ -92,7 +92,7 @@ def multiply(img: Auint8, stateimg: Auint8, channel: int, amount: float):
             img[i, j, k] = lut[stateimg[i, j, k]]
 
 
-@boost
+@boost(boundscheck=False, wraparound=False, cdivision=True, nonecheck=False)
 def brightness(img: Auint8, stateimg: Auint8, factor: float, offset: int):
     """Modify the brightness of an image.
     'factor' is multiplied to all channels, which are
@@ -132,7 +132,7 @@ def brightness(img: Auint8, stateimg: Auint8, factor: float, offset: int):
 
 
 
-@boost
+@boost(boundscheck=False, wraparound=False, cdivision=True, nonecheck=False)
 def sigmoid_gamma(img: Auint8, stateimg: Auint8, alpha: float, beta: float):
     height = img.shape[0]
     width = img.shape[1]
@@ -154,7 +154,7 @@ def sigmoid_gamma(img: Auint8, stateimg: Auint8, alpha: float, beta: float):
             img[i, j, 2] = lut[stateimg[i, j, 2]]
 
 
-@boost(boundscheck=False, wraparound=False)
+@boost(boundscheck=False, wraparound=False, cdivision=True, nonecheck=False)
 def gamma(img: Auint8, stateimg: Auint8, gamma: float):
     height: np.intp = img.shape[0]
     width: np.intp = img.shape[1]
@@ -294,7 +294,7 @@ def hsv_2_rgb(HSV, RGB):
     RGB[2] = b
 
 
-@boost
+@boost(boundscheck=False, wraparound=False, cdivision=True, nonecheck=False)
 def py_hsv_2_rgb(H: float, S: float, V: float):
     """Convert an HSV value to RGB.
 
@@ -331,7 +331,7 @@ def py_hsv_2_rgb(H: float, S: float, V: float):
     return R, G, B
 
 
-@boost
+@boost(boundscheck=False, wraparound=False, cdivision=True, nonecheck=False)
 def py_rgb_2_hsv(R: int, G: int, B: int):
     """Convert an HSV value to RGB.
 
@@ -363,7 +363,7 @@ def py_rgb_2_hsv(R: int, G: int, B: int):
     return HSV
 
 
-@boost
+@boost(boundscheck=False, wraparound=False, cdivision=True, nonecheck=False)
 def hsv_add(
     img: Auint8, stateimg: Auint8, h_amt: float, s_amt: float, v_amt: float
 ):
@@ -424,7 +424,7 @@ def hsv_add(
             img[i, j, 2] = RGB[2]
 
 
-@boost
+@boost(boundscheck=False, wraparound=False, cdivision=True, nonecheck=False)
 def hsv_multiply(img: Auint8, stateimg: Auint8, h_amt: float, s_amt: float, v_amt: float):
     """Modify the image color by specifying multiplicative HSV Values.
 

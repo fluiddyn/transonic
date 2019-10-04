@@ -393,16 +393,19 @@ class CythonBackend(BackendAOT):
         else:
             decorator_keywords = {}
 
-        boundscheck = decorator_keywords.get("boundscheck", True)
-        wraparound = decorator_keywords.get("wraparound", True)
-
         parts = []
 
-        if not boundscheck:
+        if not decorator_keywords.get("boundscheck", True):
             parts.append("@cython.boundscheck(False)")
 
-        if not wraparound:
+        if not decorator_keywords.get("wraparound", True):
             parts.append("@cython.wraparound(False)")
+
+        if decorator_keywords.get("cdivision", False):
+            parts.append("@cython.cdivision(True)")
+
+        if not decorator_keywords.get("nonecheck", True):
+            parts.append("@cython.noneckeck(False)")
 
         transformed = TypeHintRemover().visit(fdef)
         # convert the AST back to source code

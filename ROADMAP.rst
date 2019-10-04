@@ -40,8 +40,7 @@ by Cython bugs <backends/cython.html>`_!
   * [done] return type
   * nogil
 
-- [done] Cython decorators (:code:`@cython.boundscheck(False)
-  @cython.wraparound(False)`)
+- [done] Cython decorators (boundscheck, wraparound, cdivision, nonecheck)
 
 - Correct use of fused types (only 1 set of annotations supported)
 

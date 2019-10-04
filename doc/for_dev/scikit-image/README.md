@@ -21,6 +21,19 @@ See
   - skimage/feature/brief_cy.pyx
   - skimage/morphology/cmorph.pyx
 
+## Compile and run the benchmarks
+
+```
+make clean_all
+make
+# or CXX=clang++-6.0 CC=clang-6.0 make
+python bench.py
+```
+
+Note: clang (or recent versions of GCC?) can give much better results than
+gcc<=6.3.0. To compile Pythran files with clang: `CXX=clang++-6.0 CC=clang-6.0
+python setup.py`.
+
 ## What we need now
 
 Pieces of code to create realistic input parameters for all boosted functions (for benchmarking):
@@ -48,8 +61,7 @@ Pieces of code to create realistic input parameters for all boosted functions (f
 
   Low hanging fruits:
 
-  - `cdivision=True`
-  - `nonecheck=False`
+  - [done] `cdivision=True` and `nonecheck=False`
   - negative_indices in `np.ndarray[dtype=np.uint32_t, ndim=1, negative_indices=False, mode='c']`
   - `cdef void foo(int[:] a) nogil:`
 

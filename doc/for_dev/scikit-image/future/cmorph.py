@@ -5,7 +5,7 @@ from transonic import boost, Optional, Array
 A = Array[np.uint8, "2d", "memview"]
 
 
-@boost(wraparound=False, boundscheck=False)
+@boost(wraparound=False, boundscheck=False, cdivision=True, nonecheck=False)
 def _dilate(
     image: A,
     selem: A,
@@ -51,11 +51,11 @@ def _dilate(
     if out is None:
         out = np.zeros((rows, cols), dtype=np.uint8)
 
-    selem_num: int = np.sum(np.asarray(selem) != 0)
+    selem_num: np.intp = np.sum(np.asarray(selem) != 0)
     sr: Array[np.intp, "1d", "memview"] = np.empty(selem_num, dtype=np.intp)
     sc: Array[np.intp, "1d", "memview"] = np.empty(selem_num, dtype=np.intp)
 
-    s: int = 0
+    s: np.intp = 0
     r: np.intp
     c: np.intp
 
@@ -66,7 +66,7 @@ def _dilate(
                 sc[s] = c - centre_c
                 s += 1
 
-    local_max: np.int8
+    local_max: np.uint8
     value: np.uint8
     rr: np.intp
     cc: np.intp

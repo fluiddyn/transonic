@@ -12,6 +12,8 @@ def row_sum(arr, columns):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+@cython.cdivision(True)
+@cython.noneckeck(False)
 def row_sum_loops(arr, columns):
     # locals type annotations are used only for Cython
     # arr.dtype not supported for memoryview

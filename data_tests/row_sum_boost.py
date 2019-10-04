@@ -18,7 +18,7 @@ def row_sum(arr: A2d, columns: A1d_i):
     return arr.T[columns].sum(0)
 
 
-@boost(boundscheck=False, wraparound=False)
+@boost(boundscheck=False, wraparound=False, cdivision=True, nonecheck=False)
 def row_sum_loops(arr: V2d, columns: V1d_i):
     # locals type annotations are used only for Cython
     i: T_index
