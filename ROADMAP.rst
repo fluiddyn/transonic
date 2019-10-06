@@ -42,7 +42,9 @@ by Cython bugs <backends/cython.html>`_!
 
 - [done] Cython decorators (boundscheck, wraparound, cdivision, nonecheck)
 
-- Correct use of fused types (only 1 set of annotations supported)
+- [done] Correct use of fused types (only 1 set of annotations supported)
+
+- better fused types
 
 - locals annotations for
 

@@ -288,9 +288,10 @@ class Backend:
                 raise NotImplementedError(
                     f"self.{attr} used but {attr} not in class annotations"
                 )
-        types_attrs = [annotations_class[attr] for attr in attributes]
-        types_func = list(annotations_meth.values())
-        types_pythran = types_attrs + types_func
+        types_attrs = {
+            "self_" + attr: annotations_class[attr] for attr in attributes
+        }
+        types_pythran = {**types_attrs, **annotations_meth}
 
         # TODO: locals_types for methods
         locals_types = None

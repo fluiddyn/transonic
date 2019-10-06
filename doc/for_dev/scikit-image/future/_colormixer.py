@@ -155,20 +155,20 @@ def sigmoid_gamma(img: Auint8, stateimg: Auint8, alpha: float, beta: float):
 
 
 @boost(boundscheck=False, wraparound=False, cdivision=True, nonecheck=False)
-def gamma(img: Auint8, stateimg: Auint8, gamma: float):
+def gamma(img: Auint8, stateimg: Auint8, gamma_: float):
     height: np.intp = img.shape[0]
     width: np.intp = img.shape[1]
 
     lut: A1dC = np.empty(256, dtype=np.uint8)
 
-    if gamma == 0:
-        gamma = 0.00000000000000000001
-    gamma = 1.0 / gamma
+    if gamma_ == 0:
+        gamma_ = 0.00000000000000000001
+    gamma_ = 1.0 / gamma_
 
     # compute the lut
     k: np.uint8
     for k in range(256):
-        lut[k] = np.uint8(pow((k / 255.0), gamma) * 255)
+        lut[k] = np.uint8(pow((k / 255.0), gamma_) * 255)
 
     i: np.intp
     j: np.intp

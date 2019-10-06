@@ -3,22 +3,16 @@ import cython
 import numpy as np
 cimport numpy as np
 
-ctypedef fused __block0_a:
-   np.ndarray[np.complex_t, ndim=1]
-   np.ndarray[np.complex_t, ndim=2]
-   np.ndarray[np.float_t, ndim=1]
-   np.ndarray[np.float_t, ndim=2]
-   np.ndarray[np.int_t, ndim=1]
-
-ctypedef fused __block0_b:
+ctypedef fused __block0__Array_Tfloat_complex_NDim1_2p1:
    np.ndarray[np.complex_t, ndim=2]
    np.ndarray[np.complex_t, ndim=3]
    np.ndarray[np.float_t, ndim=2]
    np.ndarray[np.float_t, ndim=3]
-   np.ndarray[np.int_t, ndim=1]
 
-ctypedef fused __block0_n:
-   cython.float
-   cython.int
+ctypedef fused __block0__Array_Tfloat_complex_NDim1_2:
+   np.ndarray[np.complex_t, ndim=1]
+   np.ndarray[np.complex_t, ndim=2]
+   np.ndarray[np.float_t, ndim=1]
+   np.ndarray[np.float_t, ndim=2]
 
-cpdef block0(__block0_a a, __block0_b b, __block0_n n)
+cpdef block0(__block0__Array_Tfloat_complex_NDim1_2 a, __block0__Array_Tfloat_complex_NDim1_2p1 b, cython.int n)

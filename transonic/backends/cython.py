@@ -22,7 +22,6 @@ import inspect
 
 from pprint import pprint
 from warnings import warn
-import itertools
 
 from transonic.analyses.extast import unparse, ast, FunctionDef, Name
 from transonic.signatures import make_signatures_from_typehinted_func
@@ -223,8 +222,8 @@ class CythonBackend(BackendAOT):
     def _make_first_lines_header(self):
         return ["import cython\n\nimport numpy as np\ncimport numpy as np\n"]
 
-    def future_make_header_from_fdef_annotations(
-        self, fdef, annotations, locals_types=None, returns=None
+    def _make_header_from_fdef_annotations(
+        self, fdef, annotations: dict, locals_types=None, returns=None
     ):
 
         if hasattr(fdef, "_transonic_keywords"):
@@ -244,10 +243,11 @@ class CythonBackend(BackendAOT):
                 "Cython backend only support one set of annotations, "
                 "but you can use fused types."
             )
-        annotations = annotations[0]
 
-        print("annotations")
-        pprint(annotations)
+        try:
+            annotations = annotations[0]
+        except IndexError:
+            annotations = {}
 
         transonic_types = set(annotations.values())
 
@@ -257,25 +257,20 @@ class CythonBackend(BackendAOT):
         if returns:
             transonic_types.add(returns)
 
-        print("transonic_types")
-        pprint(transonic_types)
+        transonic_types = sorted(transonic_types, key=repr)
 
         template_parameters = set()
         for ttype in transonic_types:
             if hasattr(ttype, "get_template_parameters"):
                 template_parameters.update(ttype.get_template_parameters())
 
-        print("template_parameters")
-        pprint(template_parameters)
+        template_parameters = sorted(template_parameters, key=repr)
 
         transonic_fused_types = [
             ttype
             for ttype in transonic_types
             if hasattr(ttype, "is_fused_type") and ttype.is_fused_type()
         ]
-
-        print("transonic_fused_types")
-        pprint(transonic_fused_types)
 
         if not all(param.values for param in template_parameters):
             raise ValueError(
@@ -284,14 +279,27 @@ class CythonBackend(BackendAOT):
 
         cython_fused_types = {}
 
-        for ttype in transonic_fused_types:
-            name_cython_type = f"__{fdef.name}__{ttype.__name__}"
-            cython_fused_types[
-                name_cython_type
-            ] = ttype.get_all_formatted_backend_types(self.type_formatter)
+        def get_ttype_name(ttype):
+            if hasattr(ttype, "short_repr"):
+                ttype_name = ttype.short_repr()
+            elif hasattr(ttype, "__name__"):
+                ttype_name = ttype.__name__
+            elif isinstance(ttype, str):
+                ttype_name = ttype
+            else:
+                raise RuntimeError
+            return ttype_name
 
-        print("cython_fused_types")
-        pprint(cython_fused_types)
+        for ttype in transonic_fused_types:
+            ttype_name = get_ttype_name(ttype)
+            name_cython_type = f"__{fdef.name}__{ttype_name}"
+
+            cython_types = ttype.get_all_formatted_backend_types(
+                self.type_formatter
+            )
+            if "None" in cython_types:
+                cython_types.remove("None")
+            cython_fused_types[name_cython_type] = cython_types
 
         signatures_func = []
 
@@ -301,7 +309,12 @@ class CythonBackend(BackendAOT):
                 ctypedef.append(f"   {possible_type}\n")
             signatures_func.append("".join(ctypedef))
 
-        print("\n".join(signatures_func))
+        def get_name_cython_type(ttype):
+            ttype_name = get_ttype_name(ttype)
+            name_cython_type = f"__{fdef.name}__{ttype_name}"
+            if name_cython_type in cython_fused_types:
+                return name_cython_type
+            return format_type_as_backend_type(ttype, self.type_formatter)
 
         # change function parameters
         if fdef.args.defaults:
@@ -309,64 +322,12 @@ class CythonBackend(BackendAOT):
             fdef.args.defaults = [name_start] * len(fdef.args.defaults)
         for name in fdef.args.args:
             name.annotation = None
-            ttype = annotations[name.id]
-            name_cython_type = f"__{fdef.name}__{ttype.__name__}"
+            if annotations:
+                ttype = annotations[name.id]
+                name_cython_type = get_name_cython_type(ttype)
+            else:
+                name_cython_type = "object"
             name.id = f"{name_cython_type} {name.id}"
-
-        def_keyword = "cpdef"
-
-        if returns is not None:
-            ttype = returns
-            name_cython_type = f"__{fdef.name}__{ttype.__name__}"
-            returns = name_cython_type + " "
-        else:
-            returns = ""
-
-        signatures_func.append(
-            f"{def_keyword} {inline}{returns}{unparse(fdef).strip()[4:-1]}\n"
-        )
-        return signatures_func
-
-    def _make_header_from_fdef_signatures(
-        self, fdef, signatures_as_lists_strings, locals_types=None, returns=None
-    ):
-
-        if hasattr(fdef, "_transonic_keywords"):
-            decorator_keywords = fdef._transonic_keywords
-        else:
-            decorator_keywords = {}
-
-        inline = decorator_keywords.get("inline", False)
-        inline = "inline " if inline else ""
-
-        fdef = FunctionDef(name=fdef.name, args=copy.deepcopy(fdef.args), body=[])
-        signatures_func = []
-        if signatures_as_lists_strings:
-            # produce ctypedef
-            index = 0
-            name_type_args = []
-            for arg in [name.id for name in fdef.args.args]:
-                ctypedef = []
-                name_type_arg = f"__{fdef.name}_{arg}"
-                name_type_args.append(name_type_arg)
-                possible_types = [x[index] for x in signatures_as_lists_strings]
-                for possible_type in set(possible_types):
-                    if possible_type == "None":
-                        continue
-                    ctypedef.append(f"   {possible_type}\n")
-                ctypedef.sort()
-                ctypedef.insert(0, f"ctypedef fused {name_type_arg}:\n")
-                index += 1
-                signatures_func.append("".join(ctypedef))
-
-            # change function parameters
-            if fdef.args.defaults:
-                name_start = Name("*", ast.Param())
-                fdef.args.defaults = [name_start] * len(fdef.args.defaults)
-            for name in fdef.args.args:
-                name.annotation = None
-                name.id = name_type_args[0] + " " + name.id
-                del name_type_args[0]
 
         if locals_types is not None and locals_types:
             # TODO: fused types not supported here
@@ -377,15 +338,14 @@ class CythonBackend(BackendAOT):
             )
             signatures_func.append(f"@cython.locals({locals_types})")
 
-        def_keyword = "cpdef"
-
         if returns is not None:
-            returns = (
-                format_type_as_backend_type(returns, self.type_formatter) + " "
-            )
+            ttype = returns
+            name_cython_type = get_name_cython_type(ttype)
+            returns = name_cython_type + " "
         else:
             returns = ""
 
+        def_keyword = "cpdef"
         signatures_func.append(
             f"{def_keyword} {inline}{returns}{unparse(fdef).strip()[4:-1]}\n"
         )

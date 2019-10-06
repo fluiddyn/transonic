@@ -78,11 +78,10 @@ class FusedType:
     def get_all_formatted_backend_types(self, type_formatter):
 
         template_params = self.get_template_parameters()
-        names = [param.__name__ for param in template_params]
         values_template_parameters = {
             param.__name__: param.values for param in template_params
         }
-
+        names = tuple(values_template_parameters.keys())
         formatted_types = []
         for set_types in itertools.product(*values_template_parameters.values()):
             template_variables = dict(zip(names, set_types))
@@ -164,6 +163,9 @@ class TemplateVar:
                 f"{[isinstance(value, self._type_values) for value in self.values]}"
             )
 
+    def has_multiple_values(self):
+        return len(self.values) > 1
+
 
 class Type(TemplateVar, FusedType):
     """Template variable representing the dtype of an array.
@@ -200,6 +202,11 @@ class Type(TemplateVar, FusedType):
 
     def is_fused_type(self):
         return len(self.values) > 1
+
+    def short_repr(self):
+        if len(self.values) == 1:
+            return self.values[0].__name__
+        return "T" + "_".join(value.__name__ for value in self.values)
 
 
 class NDim(TemplateVar):
@@ -258,6 +265,19 @@ class NDim(TemplateVar):
             name_calling_module=name_calling_module,
         )
 
+    def short_repr(self):
+        if len(self.values) == 1:
+            name = f"{self.values[0]}d"
+        else:
+            name = f"NDim{'_'.join(repr(v) for v in self.values)}"
+
+        if self.shift == 0:
+            return name
+        elif self.shift < 0:
+            return name + f"m{abs(self.shift)}"
+        elif self.shift > 0:
+            return name + f"p{abs(self.shift)}"
+
 
 class UnionVar(TemplateVar):
     """TemplateVar used for the Union type"""
@@ -277,6 +297,9 @@ class Meta(type, FusedType):
         for template_parameter in template_parameters:
             if hasattr(template_parameter, "is_fused_type"):
                 if template_parameter.is_fused_type():
+                    return True
+            if hasattr(template_parameter, "has_multiple_values"):
+                if template_parameter.has_multiple_values():
                     return True
         return False
 
@@ -415,8 +438,15 @@ class ArrayMeta(Meta):
 
         parameters = {p.__name__: p for p in params_filtered}
 
-        ArrayBis = type(
-            f"Array_{dtype.__name__}_{ndim}",
+        assert isinstance(ndim, NDim)
+
+        if hasattr(dtype, "short_repr"):
+            dtype_name = dtype.short_repr()
+        else:
+            dtype_name = dtype.__name__
+
+        return type(
+            f"Array_{dtype_name}_{ndim.short_repr()}",
             (Array,),
             {
                 "dtype": dtype,
@@ -428,7 +458,6 @@ class ArrayMeta(Meta):
                 "positive_indices": positive_indices,
             },
         )
-        return ArrayBis
 
     def get_parameters(self):
         return getattr(self, "parameters", dict())
@@ -562,8 +591,19 @@ class UnionMeta(Meta):
         name_calling_module = get_name_calling_module()
         template_var = UnionVar(*types, name_calling_module=name_calling_module)
 
+        short_repr = []
+        for value in types:
+            if hasattr(value, "short_repr"):
+                short_repr.append(value.short_repr())
+            elif hasattr(value, "__name__"):
+                short_repr.append(value.__name__)
+            else:
+                short_repr.append(repr(value))
+
         return type(
-            "UnionBis", (Union,), {"types": types, "template_var": template_var}
+            f"Union{'_'.join(short_repr)}",
+            (Union,),
+            {"types": types, "template_var": template_var},
         )
 
     def get_template_parameters(self):
@@ -800,6 +840,7 @@ def format_type_as_backend_type(type_, backend_type_formatter, **kwargs):
     elif hasattr(type_, "__name__"):
         backend_type = type_.__name__
     else:
+        print("type_", type_, type(type_))
         raise RuntimeError(f"type_: {type_}")
 
     assert backend_type is not None
