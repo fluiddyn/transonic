@@ -20,7 +20,6 @@ Internal API
 import copy
 import inspect
 
-from pprint import pprint
 from warnings import warn
 
 from transonic.analyses.extast import unparse, ast, FunctionDef, Name
@@ -330,8 +329,8 @@ class CythonBackend(BackendAOT):
             name.id = f"{name_cython_type} {name.id}"
 
         if locals_types is not None and locals_types:
-            # TODO: fused types not supported here
             # note: np.ndarray not supported by Cython in "locals"
+            # TODO: thus, fused types not supported here
             locals_types = ", ".join(
                 f"{k}={format_type_as_backend_type(v, self.type_formatter, memview=True)}"
                 for k, v in locals_types.items()
@@ -371,6 +370,9 @@ class CythonBackend(BackendAOT):
 
         if not decorator_keywords.get("nonecheck", True):
             parts.append("@cython.noneckeck(False)")
+
+        if decorator_keywords.get("nogil", False):
+            parts.append("@cython.nogil")
 
         transformed = TypeHintRemover().visit(fdef)
         # convert the AST back to source code

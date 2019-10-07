@@ -63,10 +63,10 @@ Pieces of code to create realistic input parameters for all boosted functions (f
 
   - [x] `cdivision=True` and `nonecheck=False`
   - [x] negative_indices in `np.ndarray[dtype=np.uint32_t, ndim=1, negative_indices=False, mode='c']`
-  - [ ] `cdef void foo(int[:] a) nogil:`
 
   And more complicated things!
 
+  - [ ] `cdef void foo(int[:] a) nogil:`
   - [ ] `from libc.math cimport exp, pow`
   - [ ] casting: `<np.uint8_t> op_result`, which in Cython is different from
   `np.uint8(op_result)` :-(

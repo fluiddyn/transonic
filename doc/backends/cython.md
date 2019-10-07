@@ -21,6 +21,9 @@ Cython backend. For example:
 
 - Pure-Python mode and fused types <https://github.com/cython/cython/issues/3142>
 - `cython.locals(arr=np.ndarray[...])` https://github.com/cython/cython/issues/3129
+- Incompatibility ccall/nogil in pure-Python mode: https://github.com/cython/cython/issues/3169
+- nogil and pxd in pure-Python mode: https://github.com/cython/cython/issues/3170
+
 
 More generally, there are many known bugs in Cython which do not help! For example:
 

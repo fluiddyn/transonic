@@ -104,6 +104,7 @@ def boost(
     wraparound=True,
     cdivision=False,
     nonecheck=True,
+    nogil=False,
 ):
     """Decorator to declare that an object can be accelerated
 
@@ -120,6 +121,7 @@ def boost(
 
     decor = ts.boost(
         inline=inline,
+        nogil=nogil,
         boundscheck=boundscheck,
         wraparound=wraparound,
         cdivision=cdivision,

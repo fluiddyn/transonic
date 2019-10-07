@@ -97,7 +97,12 @@ version = "{}.{}.{}".format(version[0], version[1], version[2])
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ["_build", "**.ipynb_checkpoints"]
+exclude_patterns = [
+    "_build",
+    "**.ipynb_checkpoints",
+    "for_dev/cython_bugs/**/*.md",
+    "for_dev/scikit-image/README.md"
+]
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
