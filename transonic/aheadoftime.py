@@ -208,8 +208,6 @@ class Transonic:
                 self.__dict__[key] = value
             return
 
-        self.names_template_variables = {}
-
         self.is_transpiling = is_transpiling
         self.has_to_replace = has_to_replace
 

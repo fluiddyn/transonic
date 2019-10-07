@@ -204,9 +204,11 @@ class Type(TemplateVar, FusedType):
         return len(self.values) > 1
 
     def short_repr(self):
-        if len(self.values) == 1:
-            return self.values[0].__name__
-        return "T" + "_".join(value.__name__ for value in self.values)
+        long_repr = repr(self)
+        replaced_by = {"(": "I", ")": "I", ", ": "_"}
+        for replaced, replacer in replaced_by.items():
+            long_repr = long_repr.replace(replaced, replacer)
+        return long_repr
 
 
 class NDim(TemplateVar):
@@ -231,21 +233,19 @@ class NDim(TemplateVar):
         self.shift = shift
 
     def __repr__(self):
-
-        if len(self.values) == 1 and self.shift == 0:
-            return f'"{self.values[0]}d"'
+        if len(self.values) == 1:
+            name = f'"{self.values[0]}d"'
+        else:
+            name = f"NDim({', '.join(repr(v) for v in self.values)})"
 
         if self.shift == 0:
-            return f"NDim({', '.join(repr(v) for v in self.values)})"
-
-        name = self.__name__
-
-        if self.shift < 0:
-            name = name + f" - {abs(self.shift)}"
+            return name
+        elif self.shift < 0:
+            return name + f" - {-self.shift}"
         elif self.shift > 0:
-            name = name + f" + {abs(self.shift)}"
-
-        return name
+            return name + f" + {self.shift}"
+        else:
+            raise RuntimeError
 
     def __add__(self, number):
         name_calling_module = get_name_calling_module()
@@ -266,17 +266,18 @@ class NDim(TemplateVar):
         )
 
     def short_repr(self):
-        if len(self.values) == 1:
-            name = f"{self.values[0]}d"
-        else:
-            name = f"NDim{'_'.join(repr(v) for v in self.values)}"
-
-        if self.shift == 0:
-            return name
-        elif self.shift < 0:
-            return name + f"m{abs(self.shift)}"
-        elif self.shift > 0:
-            return name + f"p{abs(self.shift)}"
+        long_repr = repr(self)
+        replaced_by = {
+            '"': "",
+            "(": "I",
+            ")": "I",
+            " - ": "m",
+            " + ": "p",
+            ", ": "_",
+        }
+        for replaced, replacer in replaced_by.items():
+            long_repr = long_repr.replace(replaced, replacer)
+        return long_repr
 
 
 class UnionVar(TemplateVar):
