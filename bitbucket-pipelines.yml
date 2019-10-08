@@ -5,7 +5,7 @@
 # You can specify a custom docker image from Docker Hub as your build environment.
 # image: fluiddyn/python-stable
 options:
-  max-time: 10
+  max-time: 15
 pipelines:
   branches:
     default:
