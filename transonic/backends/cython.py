@@ -239,8 +239,8 @@ class CythonBackend(BackendAOT):
 
         if len(annotations) > 1:
             warn(
-                "Cython backend only support one set of annotations, "
-                "but you can use fused types."
+                "Cython backend only supports one set of annotations. "
+                "Please use Transonic fused types."
             )
 
         try:
