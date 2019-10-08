@@ -6,6 +6,12 @@ See the `ROADMAP.rst file
 
 - Python 3.8 support (with gast>=0.3.0 and beniget>=0.2.0)
 
+0.4.1 (2019-10-08)
+------------------
+
+- Better Cython backend (less bugs, better support for fused types, nonecheck,
+  cdivision, ...)
+
 0.4.0 (2019-09-22)
 ------------------
 
