@@ -34,17 +34,23 @@ by Cython bugs <backends/cython.html>`_!
   * [done] jit functions
   * [done] jit methods
 
+- [done] Cython decorators (boundscheck, wraparound, cdivision, nonecheck)
+
+- [done] void type
+
+- [done] Correct use of fused types (only 1 set of annotations supported)
+
 - Special function definitions
 
   * [done] inline
   * [done] return type
   * nogil
 
-- [done] Cython decorators (boundscheck, wraparound, cdivision, nonecheck)
-
-- [done] Correct use of fused types (only 1 set of annotations supported)
-
 - better fused types
+
+- nogil context manager
+
+- casting
 
 - locals annotations for
 
@@ -54,12 +60,6 @@ by Cython bugs <backends/cython.html>`_!
   * jit methods
 
 - "exterior" functions + understand the tests
-
-- void type
-
-- nogil context manager
-
-- casting
 
 
 Better Numba backend

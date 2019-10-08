@@ -24,7 +24,6 @@ Cython backend. For example:
 - Incompatibility ccall/nogil in pure-Python mode: https://github.com/cython/cython/issues/3169
 - nogil and pxd in pure-Python mode: https://github.com/cython/cython/issues/3170
 
-
 More generally, there are many known bugs in Cython which do not help! For example:
 
 - `ctypedef` and buffer <https://github.com/cython/cython/issues/754>
@@ -87,12 +86,12 @@ which would translate in Cython as something like:
 cpdef inline void func(np.ndarray[np.float_t, ndim=1] a, cython.int n) nogil
 ```
 
-- all function signatures use `cpdef`
+- all function signatures use `cpdef` (?)
 
 - `boost(inline=True)` is supported for functions, see [this
   example](https://transonic.readthedocs.io/en/latest/examples/inlined/txt.html).
 
-- Return type is supported but there is no void type.
+- Return type is supported and there is a void type (`"void"` or `np.void`).
 
 ### Fused types
 
@@ -174,19 +173,18 @@ def mysum(np.ndarray[T0, ndim=1] arr):
 
 But the corresponding pure-Python version does not work!
 
-## Cython syntaxes that can be supported quite easily
-
 ### More array types (contiguous arrays, C or F order, memoryviews)
 
 I think we should support:
 
 ```python
-Array[int, NDim(3), "order=C"]
-Array[int, "3d", "order=C"]
+Array[int, NDim(3), "C"]
+Array[int, "3d", "C"]
+transonic.typeof(np.empty((2, 2, 2)))
+
 Array["int[:, :, ::1]"]
 Array[int, "[:, :, ::1]"]
 transonic.str2type("int[:, :, ::1]")
-transonic.typeof(np.empty((2, 2, 2)))
 ```
 
 and maybe also:
@@ -218,7 +216,7 @@ Array[int, "[:, :, ::1]", "memview"]
 
 ### Special C types
 
-For example `Py_ssize_t` and `void`
+For example `Py_ssize_t` (nearly `np.intp`, which is supported) and `void` (supported)
 
 ```python
 from ctypes import c_ssize_t as Py_ssize_t
@@ -242,6 +240,8 @@ def func(arr: "float[]", index: "Py_ssize_t"):
 
 ```
 
+## Cython syntaxes that can be supported quite easily
+
 ### `with nogil:`
 
 We could support something like
@@ -261,6 +261,15 @@ def func(n: int):
 
 Of course there is no equivalent in Pythran, so the Pythran backend would have
 to suppress the `with nogil()`.
+
+### Cast
+
+```cython
+return <DTYPE_t*> myvar
+```
+
+I guess we should follow Cython and its pure Python mode function
+`cython.cast(type, myvar)`.
 
 ## Cython syntaxes that will be difficult to support
 
@@ -284,12 +293,6 @@ or
 
 ```cython
 cdef class Foo:
-```
-
-### Cast
-
-```cython
-return <DTYPE_t*> myvar
 ```
 
 ### C allocation

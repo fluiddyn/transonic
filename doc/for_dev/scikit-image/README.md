@@ -63,13 +63,14 @@ Pieces of code to create realistic input parameters for all boosted functions (f
 
   - [x] `cdivision=True` and `nonecheck=False`
   - [x] negative_indices in `np.ndarray[dtype=np.uint32_t, ndim=1, negative_indices=False, mode='c']`
+  - [x] `void` type
 
   And more complicated things!
 
-  - [ ] `cdef void foo(int[:] a) nogil:`
-  - [ ] `from libc.math cimport exp, pow`
+  - [ ] `from libc.math cimport exp, pow` (how?)
   - [ ] casting: `<np.uint8_t> op_result`, which in Cython is different from
   `np.uint8(op_result)` :-(
+  - [ ] `cdef void foo(int[:] a) nogil:` (bugs Cython)
   - [ ] `with nogil:`
 
   A question: do we have to support C array creation (`cdef cnp.uint8_t

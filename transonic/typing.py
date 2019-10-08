@@ -949,7 +949,6 @@ def typeof(obj):
         )
 
     if isinstance(obj, list):
-
         type_elem = type(obj[0])
         if not all(isinstance(elem, type_elem) for elem in obj):
             raise ValueError("The list {obj} is not homogeneous in type")
@@ -981,6 +980,9 @@ def typeof(obj):
 
         # TODO: deeper analysis
         return Array[obj.dtype, f"{obj.ndim}d"]
+
+    if isinstance(obj, np.generic):
+        return type(obj)
 
     raise NotImplementedError(
         f"Not able to determine the full type of {obj} (of type {type(obj)})"

@@ -132,7 +132,7 @@ The default Transonic backend uses Pythran and works well. `Here, we explain
 why Pythran is so great for Python users and why Transonic is great for Pythran
 users <https://transonic.readthedocs.io/en/latest/backends/pythran.html>`_
 
-There are also experimental backends for Cython and Numba.
+There are also (more experimental) backends for Cython and Numba.
 
 .. note ::
 
@@ -225,18 +225,18 @@ the recommended syntaxes for ahead-of-time compilation:
 
 Nice (shorter and clearer than with the Pythran command) but very limited (only
 simple types and only one signature)... So one can also elegantly define many
-signatures using in Transonic type variables and/or Pythran types in strings
-(see `these examples
-<https://transonic.readthedocs.io/en/latest/examples/type_hints.html>`_).
-Moreover, it is possible to mix type hints and :code:`# transonic def`
+signatures using Transonic types and/or Pythran types in strings (see `these
+examples
+<https://transonic.readthedocs.io/en/latest/examples/type_hints.html>`_ and our
+API to define types (and fused types) in `transonic.typing
+<https://transonic.readthedocs.io/en/latest/generated/transonic.typing.html>`_).
+
+Moreover, it is possible to add more signatures with :code:`# transonic def`
 commands.
 
-See also our API to define types in `transonic.typing
-<https://transonic.readthedocs.io/en/latest/generated/transonic.typing.html>`_.
 
-
-More information when targetting Cython
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Targetting Cython
+~~~~~~~~~~~~~~~~~
 
 Cython needs to know the types of local variables to really speedup the
 computations.  Transonic is able to write fast Cython from such code:
@@ -254,6 +254,13 @@ computations.  Transonic is able to write fast Cython from such code:
             result += arr[i]
         return result
 
+.. warning ::
+
+    When targetting Cython, **don't use multi-signatures and prefer fused
+    types**. Cython itself does not support multi-signatures. Since these 2
+    mechanisms are so different, our Cython backend does not even try to
+    support multi-signatures. You'll get a warning if you use the Cython
+    backend with multi-signatures.
 
 Just-In-Time compilation
 ~~~~~~~~~~~~~~~~~~~~~~~~
