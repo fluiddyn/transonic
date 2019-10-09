@@ -1,4 +1,6 @@
-cdef cython.int add(cython.int a, cython.int b)
+cimport cython
 
-@cython.locals(n=cython.int, i=Py_ssize_t, result=cython.int)
-cpdef use_add(cython.int n)
+cdef inline int add(int a, int b) nogil
+
+@cython.locals(n=int, i=int, result=int)
+cpdef use_add(int n)

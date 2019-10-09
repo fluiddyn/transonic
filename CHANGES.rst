@@ -9,8 +9,10 @@ See the `ROADMAP.rst file
 0.4.1 (2019-10-08)
 ------------------
 
-- Better Cython backend (less bugs, better support for fused types, nonecheck,
-  cdivision, ...)
+- Cython backend: less bugs, better support for fused types, nonecheck,
+  cdivision, ...
+
+- Fix default parameters for Pythran
 
 0.4.0 (2019-09-22)
 ------------------
