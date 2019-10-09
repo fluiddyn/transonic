@@ -19,15 +19,21 @@ Note however, that this mode is currently still experimental and that we hit
 simple Cython bugs which limit a lot what can be done in practice with the
 Cython backend. For example:
 
-- Pure-Python mode and fused types https://github.com/cython/cython/issues/3142
-- `cython.locals(arr=np.ndarray[...])` https://github.com/cython/cython/issues/3129
-- Incompatibility ccall/nogil in pure-Python mode: https://github.com/cython/cython/issues/3169
-- nogil and pxd in pure-Python mode: https://github.com/cython/cython/issues/3170
+- Pure-Python mode and fused types
+  <https://github.com/cython/cython/issues/3142>
+- `cython.locals(arr=np.ndarray[...])`
+  <https://github.com/cython/cython/issues/3129>
+- Incompatibility ccall/nogil in pure-Python mode:
+  <https://github.com/cython/cython/issues/3169>
+- nogil and pxd in pure-Python mode:
+  <https://github.com/cython/cython/issues/3170>
 
 More generally, there are many known bugs in Cython which do not help! For example:
 
-- `ctypedef` and buffer <https://github.com/cython/cython/issues/754>
-- <https://stackoverflow.com/questions/57887972/defining-a-fused-type-using-a-fused-type>
+- `ctypedef` and buffer
+  <https://github.com/cython/cython/issues/754>
+- Defining a fused type using a fused type
+  <https://stackoverflow.com/questions/57887972>
 
 I think at least some of these bugs have to be solved upstream...
 
