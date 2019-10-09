@@ -11,7 +11,6 @@ See the `ROADMAP.rst file
 
 - Cython backend: less bugs, better support for fused types, nonecheck,
   cdivision, ...
-
 - Fix default parameters for Pythran
 
 0.4.0 (2019-09-22)

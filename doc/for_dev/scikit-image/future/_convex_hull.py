@@ -1,9 +1,9 @@
 import numpy as np
 
-from transonic import boost
+from transonic import boost, Array
 
 
-@boost
+@boost(wraparound=False, boundscheck=False, cdivision=True, nonecheck=False)
 def possible_hull(img: "uint8[:,:]"):
     """Return positions of pixels that possibly belong to the convex hull.
 
@@ -19,8 +19,10 @@ def possible_hull(img: "uint8[:,:]"):
        the convex hull.
 
     """
-    rows = img.shape[0]
-    cols = img.shape[1]
+    r: np.intp
+    c: np.intp
+    rows: np.intp = img.shape[0]
+    cols: np.intp = img.shape[1]
 
     # Output: rows storage slots for left boundary pixels
     #         cols storage slots for top boundary pixels
@@ -29,8 +31,10 @@ def possible_hull(img: "uint8[:,:]"):
     coords = np.ones((2 * (rows + cols), 2), dtype=np.intp)
     coords *= -1
 
-    rows_cols = rows + cols
-    rows_2_cols = 2 * rows + cols
+    nonzero: Array[np.intp, "2d", "C", "memview"] = coords
+
+    rows_cols: np.intp = rows + cols
+    rows_2_cols: np.intp = 2 * rows + cols
 
     for r in range(rows):
 
@@ -44,20 +48,23 @@ def possible_hull(img: "uint8[:,:]"):
                 rows_2_cols_c = rows_2_cols + c
 
                 # Left check
-                if coords[r, 1] == -1:
-                    coords[r, 0] = r
-                    coords[r, 1] = c
+                if nonzero[r, 1] == -1:
+                    nonzero[r, 0] = r
+                    nonzero[r, 1] = c
 
                 # Right check
-                elif coords[rows_cols_r, 1] < c:
-                    coords[rows_cols_r] = r, c
+                elif nonzero[rows_cols_r, 1] < c:
+                    nonzero[rows_cols_r, 0] = r
+                    nonzero[rows_cols_r, 1] = c
 
                 # Top check
-                if coords[rows_c, 1] == -1:
-                    coords[rows_c] = r, c
+                if nonzero[rows_c, 1] == -1:
+                    nonzero[rows_c, 0] = r
+                    nonzero[rows_c, 1] = c
 
                 # Bottom check
-                elif coords[rows_2_cols_c, 0] < r:
-                    coords[rows_2_cols_c] = r, c
+                elif nonzero[rows_2_cols_c, 0] < r:
+                    nonzero[rows_2_cols_c, 0] = r
+                    nonzero[rows_2_cols_c, 1] = c
 
     return coords[coords[:, 0] != -1]

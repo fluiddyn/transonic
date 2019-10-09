@@ -4,6 +4,8 @@ from transonic import boost, Optional, Array
 
 A = Array[np.uint8, "2d", "memview"]
 
+A1d = Array[np.intp, "1d", "memview"]
+
 
 @boost(wraparound=False, boundscheck=False, cdivision=True, nonecheck=False)
 def _dilate(
@@ -44,16 +46,16 @@ def _dilate(
     srows: np.intp = selem.shape[0]
     scols: np.intp = selem.shape[1]
 
-    centre_r: np.intp = int(selem.shape[0] / 2) - shift_y
-    centre_c: np.intp = int(selem.shape[1] / 2) - shift_x
+    centre_r: np.intp = int(srows / 2) - shift_y
+    centre_c: np.intp = int(scols / 2) - shift_x
 
     image = np.ascontiguousarray(image)
     if out is None:
         out = np.zeros((rows, cols), dtype=np.uint8)
 
     selem_num: np.intp = np.sum(np.asarray(selem) != 0)
-    sr: Array[np.intp, "1d", "memview"] = np.empty(selem_num, dtype=np.intp)
-    sc: Array[np.intp, "1d", "memview"] = np.empty(selem_num, dtype=np.intp)
+    sr: A1d = np.empty(selem_num, dtype=np.intp)
+    sc: A1d = np.empty(selem_num, dtype=np.intp)
 
     s: np.intp = 0
     r: np.intp
@@ -87,7 +89,7 @@ def _dilate(
     return np.asarray(out)
 
 
-@boost
+@boost(wraparound=False, boundscheck=False, cdivision=True, nonecheck=False)
 def _erode(
     image: A,
     selem: A,
@@ -120,29 +122,37 @@ def _erode(
         The result of the morphological erosion.
     """
 
-    rows = image.shape[0]
-    cols = image.shape[1]
-    srows = selem.shape[0]
-    scols = selem.shape[1]
+    rows: np.intp = image.shape[0]
+    cols: np.intp = image.shape[1]
+    srows: np.intp = selem.shape[0]
+    scols: np.intp = selem.shape[1]
 
-    centre_r = int(selem.shape[0] / 2) - shift_y
-    centre_c = int(selem.shape[1] / 2) - shift_x
+    centre_r: np.intp = int(srows / 2) - shift_y
+    centre_c: np.intp = int(scols / 2) - shift_x
 
     image = np.ascontiguousarray(image)
     if out is None:
         out = np.zeros((rows, cols), dtype=np.uint8)
 
-    selem_num = np.sum(np.asarray(selem) != 0)
-    sr = np.empty(selem_num, dtype=np.intp)
-    sc = np.empty(selem_num, dtype=np.intp)
+    selem_num: np.intp = np.sum(np.asarray(selem) != 0)
+    sr: A1d = np.empty(selem_num, dtype=np.intp)
+    sc: A1d = np.empty(selem_num, dtype=np.intp)
 
-    s = 0
+    s: np.intp = 0
+    r: np.intp
+    c: np.intp
+
     for r in range(srows):
         for c in range(scols):
             if selem[r, c] != 0:
                 sr[s] = r - centre_r
                 sc[s] = c - centre_c
                 s += 1
+
+    local_max: np.uint8
+    value: np.uint8
+    rr: np.intp
+    cc: np.intp
 
     for r in range(rows):
         for c in range(cols):

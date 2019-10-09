@@ -36,18 +36,30 @@ python setup.py`.
 
 ## What we need now
 
-Pieces of code to create realistic input parameters for all boosted functions (for benchmarking):
+Pieces of code to create realistic input parameters for all boosted functions
+(for benchmarking, see the directory `setup_codes`):
 
-- _colormixer.py (add, multiply, brightness, sigmoid_gamma, gamma,
-  py_hsv_2_rgb, py_rgb_2_hsv, hsv_add, hsv_multiply)
-- _convex_hull.py (possible_hull)
-- _greyreconstruct.py (reconstruction_loop)
-- _hessian_det_appx.py (_hessian_matrix_det)
-- _moments_cy.py (moments_hu)
-- _radon_transform.py (sart_projection_update)
-- _unwrap_1d.py (unwrap_1d)
-- brief_cy.py (_brief_loop)
-- cmorph.py (_dilate, _erode)
+- [ ] _colormixer.py
+  - [ ] add
+  - [ ] multiply
+  - [ ] brightness
+  - [ ] sigmoid_gamma
+  - [ ] gamma
+  - [ ] py_hsv_2_rgb
+  - [ ] py_rgb_2_hsv
+  - [ ] hsv_add
+  - [ ] hsv_multiply
+
+- [ ] _convex_hull.py (possible_hull)
+- [x] _greyreconstruct.py (reconstruction_loop)
+- [ ] _hessian_det_appx.py (_hessian_matrix_det)
+- [ ] _moments_cy.py (moments_hu)
+- [ ] _radon_transform.py (sart_projection_update)
+- [ ] _unwrap_1d.py (unwrap_1d)
+- [ ] brief_cy.py (_brief_loop)
+- [ ] cmorph.py
+  - [x] _dilate
+  - [ ] _erode
 
 ## Next tasks
 
@@ -67,11 +79,73 @@ Pieces of code to create realistic input parameters for all boosted functions (f
 
   And more complicated things!
 
+  - [ ] `with nogil:` (for example for _convex_hull.py)
   - [ ] `from libc.math cimport exp, pow` (how?)
   - [ ] casting: `<np.uint8_t> op_result`, which in Cython is different from
-  `np.uint8(op_result)` :-(
+    `np.uint8(op_result)` :-(
   - [ ] `cdef void foo(int[:] a) nogil:` (bugs Cython)
-  - [ ] `with nogil:`
 
-  A question: do we have to support C array creation (`cdef cnp.uint8_t
-  lut[256]` or `cdef float HSV[3]`)? Is it *really* more efficient than standard Numpy array?
+  Questions:
+
+  - Do we have to support C array creation (`cdef cnp.uint8_t lut[256]` or
+    `cdef float HSV[3]`)? Is it *really* more efficient than standard Numpy
+    array?
+
+  - Would it be ok to have all function defined with `cpdef` ?
+
+## About the Transonic code
+
+- [ ] _colormixer.py
+
+  It is a difficult case, with advanced Cython code (`with nogil:`, `cdef`, C
+  arrays, `<cnp.int16_t>`, `from libc.math cimport exp, pow`).
+
+  - [ ] add
+  - [ ] multiply
+  - [ ] brightness
+  - [ ] sigmoid_gamma
+  - [ ] gamma
+  - [ ] py_hsv_2_rgb
+  - [ ] py_rgb_2_hsv
+  - [ ] hsv_add
+  - [ ] hsv_multiply
+
+- [x] _convex_hull.py (possible_hull)
+
+  Done (`cython -a` white) except one (important) `with nogil:`.
+
+- [x] _greyreconstruct.py (reconstruction_loop)
+
+  Done (`cython -a` white) except one (important) `with nogil:`. The 3
+  Transonic backends produce codes faster than the old .pyx (for Cython, it
+  should be related to the missing `with nogil:`).
+
+- [ ] _hessian_det_appx.py (_hessian_matrix_det)
+
+  Not an easy one (`cdef ... nogil`, `with nogil`).
+
+- [x] _moments_cy.py (moments_hu)
+
+  This one is easy!
+
+- [ ] _radon_transform.py (sart_projection_update)
+
+  Needs cast, `with nogil` and `from libc.math cimport ...`.
+
+- [ ] _unwrap_1d.py (unwrap_1d)
+
+  Needs cast and `from libc.math cimport ...`.
+
+- [ ] brief_cy.py (_brief_loop)
+
+  Needs `with nogil`.
+
+- [x] cmorph.py
+  - [x] _dilate
+  - [x] _erode
+
+  `from libc.stdlib cimport malloc, free` is used in the .pyx file! Thus the
+  Transonic code and the generated Cython code is simpler (using `np.empty`).
+
+  The generated Cython seems to be ~10% slower but the generated Pythran is
+  faster than the .pyx from skimage.
