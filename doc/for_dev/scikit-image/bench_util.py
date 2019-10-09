@@ -19,7 +19,7 @@ import_from_skimage = {
 }
 
 
-def bench_one(name_module="cmorph", func=None):
+def bench_one(name_module="cmorph", func=None, total_duration=2):
 
     if func is not None:
         raise NotImplementedError
@@ -53,19 +53,19 @@ def bench_one(name_module="cmorph", func=None):
 from transonic.util import timeit
 setup = '''{setup}'''
 stmt = '''{stmt}'''
-print(timeit(stmt, setup, total_duration=2))
+print(timeit(stmt, setup, total_duration={total_duration}))
     """
 
-    time_old = timeit(stmt, setup_pyx, total_duration=2)
+    time_old = timeit(stmt, setup_pyx, total_duration=total_duration)
 
-    print(f'cython pyx skimage {time_old:.2e} s  (= norm)')
+    print(f"cython pyx skimage {time_old:.2e} s  (= norm)")
 
     with open("tmp.py", "w") as file:
         file.write(code)
 
     for backend in ("cython", "pythran", "numba"):
         time = float(getoutput(f"TRANSONIC_BACKEND='{backend}' python tmp.py"))
-        print(f"{backend:18s} {time:.2e} s  (= {time/time_old:.4f} * norm)")
+        print(f"{backend:18s} {time:.2e} s  (= {time/time_old:.2f} * norm)")
 
     # print(getoutput("TRANSONIC_NO_REPLACE=1 python tmp.py"))
 
@@ -76,6 +76,6 @@ print(timeit(stmt, setup, total_duration=2))
         f"from future.{name_module} import {name_function}",
         import_from_skimage[(name_module, name_function)],
     )
-    time = timeit(stmt, setup_from_skimage, total_duration=2)
+    time = timeit(stmt, setup_from_skimage, total_duration=total_duration)
 
-    print(f"{'from skimage':18s} {time:.2e} s  (= {time/time_old:.4f} * norm)")
+    print(f"{'from skimage':18s} {time:.2e} s  (= {time/time_old:.2f} * norm)")

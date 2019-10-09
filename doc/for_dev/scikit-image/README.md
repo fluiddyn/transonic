@@ -34,6 +34,10 @@ Note: clang (or recent versions of GCC?) can give much better results than
 gcc<=6.3.0. To compile Pythran files with clang: `CXX=clang++-6.0 CC=clang-6.0
 python setup.py`.
 
+Running `python3 -m pyperf system tune` before the benchmarks could also help
+to get better stability.
+
+
 ## What we need now
 
 Pieces of code to create realistic input parameters for all boosted functions

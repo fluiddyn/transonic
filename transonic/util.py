@@ -449,8 +449,14 @@ def timeit(stmt="pass", setup="pass", total_duration=2, globals=None):
     duration1 = timer.timeit(10) / 10
     number = max(1, int(round(total_duration / duration1)))
 
+    if number > 200:
+        repeat = int(round(number / 100))
+        number = int(round(number / repeat))
+    else:
+        repeat = 1
+
     if number * duration1 > 2 * total_duration:
         raise RuntimeError("number * duration1 > 2 * total_duration")
 
-    duration = timer.timeit(number)
+    duration = min(timer.repeat(repeat=repeat, number=number))
     return duration / number
