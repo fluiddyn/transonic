@@ -1,7 +1,7 @@
 Benchmark projection vector
 ===========================
 
-.. literalinclude:: proj.py
+.. literalinclude:: bench.py
 
 which gives::
 
@@ -10,14 +10,13 @@ which gives::
     numba 0.46.0
 
     proj                             : 1.00
-    norm = 4.46e-01 s
+    norm = 5.76e-01 s
     proj_cython                      : 1.26
-    proj_loop_cython                 : 0.23
-    proj_numba                       : 1.09
-    proj_loop_numba                  : 0.22
-    proj_pythran                     : 0.46
-    proj_loop_pythran                : 0.22
-
+    proj_loop_cython                 : 0.18
+    proj_numba                       : 1.34
+    proj_loop_numba                  : 0.15
+    proj_pythran                     : 0.42
+    proj_loop_pythran                : 0.14
 
 For the solution with loops, the 3 backends are equally good.
 

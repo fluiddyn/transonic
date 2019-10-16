@@ -1,12 +1,12 @@
-NAME=proj.py
+NAME=bench.py
 
 all: pythran cython other
 
 pythran:
-	transonic $(NAME) -b pythran -pf "-DUSE_XSIMD -Ofast"
+	transonic $(NAME) -b pythran -pf "-march=native -DUSE_XSIMD -Ofast"
 
 cython:
-	transonic $(NAME) -b cython -pf "-Ofast "
+	transonic $(NAME) -b cython -pf "-march=native -Ofast"
 
 other:
 	transonic $(NAME) -b numba
@@ -16,4 +16,4 @@ clean:
 	rm -rf __cython__ __python__ __numba__ __pythran__
 
 bench:
-	python proj.py
+	python $(NAME)

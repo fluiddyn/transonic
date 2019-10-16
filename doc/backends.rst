@@ -30,7 +30,7 @@ There are different methods to choose which backend is used:
 .. toctree::
    :maxdepth: 2
 
-   examples/row_sum/txt
+   examples/bench_row_sum/txt
    backends/pythran
    backends/cython
    backends/other

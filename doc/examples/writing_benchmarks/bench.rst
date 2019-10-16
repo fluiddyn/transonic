@@ -9,8 +9,10 @@ Other examples can be found here:
 .. toctree::
    :maxdepth: 2
 
-   ../row_sum/txt
-   ../proj_perp/txt
+   ../bench_row_sum/txt
+   ../bench_trigo/txt
+   ../bench_proj_perp/txt
+   ../bench_expr_broadcast/txt
 
 
 Comparison Numba vs Pythran (JIT)
