@@ -30,31 +30,29 @@ To compile this file with different backends, one can run:
     transonic -b numba row_sum_boost.py
     transonic -b pythran row_sum_boost.py -pf "-march=native -DUSE_XSIMD"
 
-Then, on my PC (meige8pcpa79), I get::
+To choose the backend, we can call for example:
 
-    TRANSONIC_BACKEND="python" python row_sum_boost.py
-    Checks passed: results are consistent
-    Python
-    row_sum              2.0e-03 s
-    row_sum_loops        1.6e-01 s
+.. code:: bash
 
     TRANSONIC_BACKEND="cython" python row_sum_boost.py
-    Checks passed: results are consistent
+
+Then, on my PC ("gre"), I get::
+
+    Python
+    high level: 1.31e-03 s  (=  1.00 * norm)
+    low level:  1.04e-01 s  (= 79.27 * norm)
+
     Cython
-    row_sum              2.0e-03 s
-    row_sum_loops        5.2e-04 s
+    high level: 1.29e-03 s  (=  0.99 * norm)
+    low level:  4.10e-04 s  (=  0.31 * norm)
 
-    TRANSONIC_BACKEND="numba" python row_sum_boost.py
-    Checks passed: results are consistent
     Numba
-    row_sum              1.9e-03 s
-    row_sum_loops        4.4e-04 s
+    high level: 1.04e-03 s  (=  0.80 * norm)
+    low level:  2.69e-04 s  (=  0.21 * norm)
 
-    TRANSONIC_BACKEND="pythran" python row_sum_boost.py
-    Checks passed: results are consistent
     Pythran
-    row_sum              1.1e-03 s
-    row_sum_loops        4.2e-04 s
+    high level: 7.68e-04 s  (=  0.59 * norm)
+    low level:  2.55e-04 s  (=  0.19 * norm)
 
 The fastest solutions are in this case the Numba and Pythran backends for the
 implementation with explicit loops.
@@ -77,23 +75,18 @@ remove all type annotations (which is bad for Cython).
 
 which gives::
 
-    TRANSONIC_BACKEND="cython" python row_sum_jit.py
-    Checks passed: results are consistent
-    Checks passed: results are consistent
+    Python
+    high level: 1.20e-03 s  (=  1.00 * norm)
+    low level:  1.15e-01 s  (= 95.26 * norm)
+
     Cython
-    row_sum              1.3e-03 s
-    row_sum_loops        1.2e-02 s
+    high level: 1.25e-03 s  (=  1.04 * norm)
+    low level:  1.22e-02 s  (= 10.18 * norm)
 
-    TRANSONIC_BACKEND="numba" python row_sum_jit.py
-    Checks passed: results are consistent
-    Checks passed: results are consistent
     Numba
-    row_sum              1.1e-03 s
-    row_sum_loops        2.7e-04 s
+    high level: 1.12e-03 s  (=  0.93 * norm)
+    low level:  2.51e-04 s  (=  0.21 * norm)
 
-    TRANSONIC_BACKEND="pythran" python row_sum_jit.py
-    Checks passed: results are consistent
-    Checks passed: results are consistent
     Pythran
-    row_sum              8.4e-04 s
-    row_sum_loops        2.6e-04 s
+    high level: 6.71e-04 s  (=  0.56 * norm)
+    low level:  2.41e-04 s  (=  0.20 * norm)

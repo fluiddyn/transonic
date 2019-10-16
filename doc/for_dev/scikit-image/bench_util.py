@@ -45,6 +45,14 @@ def bench_one(name_module="cmorph", func=None, total_duration=2):
     with open(path_setup) as file:
         setup = file.read()
 
+    if (name_module, name_function) in import_from_skimage:
+        setup_from_skimage = setup.replace(
+            f"from future.{name_module} import {name_function}",
+            import_from_skimage[(name_module, name_function)],
+        )
+        time = timeit(stmt, setup_from_skimage, total_duration=total_duration)
+        print(f"{'from skimage':18s} {time:.2e} s")
+
     setup_pyx = setup.replace(
         f"from future.{name_module} import", f"from pyx.{name_module} import"
     )

@@ -1,6 +1,18 @@
 Writing benchmarks
 ==================
 
+With Transonic, writting benchmarks for the different accelerators is very
+simple. We present an example in this page.
+
+Other examples can be found here:
+
+.. toctree::
+   :maxdepth: 2
+
+   ../row_sum/txt
+   ../proj_perp/txt
+
+
 Comparison Numba vs Pythran (JIT)
 ---------------------------------
 

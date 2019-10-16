@@ -14,6 +14,6 @@ def check(functions, arr, columns):
 def bench(functions, arr, columns):
     print(backend_default.capitalize())
     for func in functions:
-        result = timeit(lambda: func(arr, columns))
-        print(f"{func.__name__:20s} {result:.1e} s")
+        result = timeit("func(arr, columns)", globals=locals())
+        print(f"{func.__name__:20s} {result:.3e} s")
     print()

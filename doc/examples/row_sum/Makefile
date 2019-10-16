@@ -5,10 +5,10 @@ NAMEJIT=row_sum_jit.py
 all: pythran cython other
 
 pythran:
-	transonic $(NAME) -b pythran -pf "-march=native -DUSE_XSIMD"
+	transonic $(NAME) -b pythran -pf "-march=native -DUSE_XSIMD -Ofast"
 
 cython:
-	transonic $(NAME) -b cython
+	transonic $(NAME) -b cython -pf "-march=native -Ofast"
 
 other:
 	transonic $(NAME) -b numba
@@ -17,7 +17,8 @@ other:
 clean:
 	rm -rf __cython__ __python__ __numba__ __pythran__
 
-bench: bench_python bench_cython bench_numba bench_pythran
+bench:
+	python bench.py
 
 bench_cython:
 	TRANSONIC_BACKEND="cython" python $(NAME)
@@ -32,6 +33,4 @@ bench_python:
 	TRANSONIC_BACKEND="python" python $(NAME)
 
 bench_jit:
-	TRANSONIC_BACKEND="cython" python $(NAMEJIT)
-	TRANSONIC_BACKEND="numba" python $(NAMEJIT)
-	TRANSONIC_BACKEND="pythran" python $(NAMEJIT)
+	python bench.py jit
