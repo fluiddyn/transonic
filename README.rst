@@ -1,7 +1,7 @@
 Make your Python code fly at *transonic* speeds!
 ================================================
 
-|release| |docs| |coverage| |travis| |appveyor|
+|release| |docs| |coverage| |travis| |appveyor| |sonarcloud|
 
 .. |release| image:: https://img.shields.io/pypi/v/transonic.svg
    :target: https://pypi.python.org/pypi/transonic/
@@ -22,6 +22,10 @@ Make your Python code fly at *transonic* speeds!
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/i99h00kp0jliel8t?svg=true
    :target: https://ci.appveyor.com/project/fluiddyn/transonic
    :alt: AppVeyor status
+
+.. |sonarcloud| image:: https://sonarcloud.io/api/project_badges/measure?project=fluiddyn_transonic&metric=alert_status
+   :target: https://sonarcloud.io/dashboard?id=fluiddyn_transonic
+   :alt: Quality Gate Status
 
 **Documentation**: https://transonic.readthedocs.io
 
