@@ -102,7 +102,7 @@ def run():
 
     backend.compile_extensions(
         backends_paths,
-        str_pythran_flags=args.pythran_flags,
+        str_accelerator_flags=args.accelerator_flags,
         parallel=True,
         force=args.force,
     )
@@ -156,11 +156,21 @@ def parse_args():
     parser.add_argument(
         "-pf",
         "--pythran-flags",
+        help=("Depreciated: use -af"),
+        type=str,
+        default="",
+    )
+
+    parser.add_argument(
+        "-af",
+        "--accelerator-flags",
         help=(
-            "Flags sent to Pythran. "
-            'Default is "-march=native -DUSE_XSIMD". '
+            "Flags sent to the accelerator. "
+            'Default is "". '
             "There has to be atleast one space in the passed string! "
-            'Example: transonic foo.py -pf "-march=native "\n'
+            "Examples:\n"
+            '`transonic foo.py -af "-march=native "` or\n'
+            '`transonic foo.py -af "-march=native -DUSE_XSIMD -Ofast"`\n'
         ),
         type=str,
         default="",
@@ -174,7 +184,11 @@ def parse_args():
         # default="",
     )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.pythran_flags != "":
+        raise DeprecationWarning("-pf is deprecated. Use -af instead!")
+
+    return args
 
 
 if __name__ == "__main__":

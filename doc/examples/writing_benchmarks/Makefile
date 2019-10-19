@@ -4,7 +4,7 @@ NAME=bench_aot.py
 all: pythran cython other
 
 pythran:
-	transonic -b pythran $(NAME) -pf "-march=native -DUSE_XSIMD"
+	transonic -b pythran $(NAME) -af "-march=native -DUSE_XSIMD"
 
 cython:
 	transonic -b cython $(NAME)

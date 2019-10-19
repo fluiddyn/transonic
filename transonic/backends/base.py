@@ -375,7 +375,7 @@ class Backend:
     def compile_extensions(
         self,
         paths: Iterable[Path],
-        str_pythran_flags: str,
+        str_accelerator_flags: str,
         parallel=True,
         force=True,
     ):
@@ -383,7 +383,7 @@ class Backend:
         for path in paths:
             self.compile_extension(
                 path,
-                str_pythran_flags=str_pythran_flags,
+                str_accelerator_flags=str_accelerator_flags,
                 parallel=parallel,
                 force=force,
             )
@@ -395,7 +395,7 @@ class Backend:
         native=False,
         xsimd=False,
         openmp=False,
-        str_pythran_flags: Optional[str] = None,
+        str_accelerator_flags: Optional[str] = None,
         parallel=True,
         force=True,
     ):
@@ -420,7 +420,7 @@ class BackendAOT(Backend):
         native=False,
         xsimd=False,
         openmp=False,
-        str_pythran_flags: Optional[str] = None,
+        str_accelerator_flags: Optional[str] = None,
         parallel=True,
         force=True,
     ):
@@ -435,7 +435,7 @@ class BackendAOT(Backend):
             native=native,
             xsimd=xsimd,
             openmp=openmp,
-            str_pythran_flags=str_pythran_flags,
+            str_accelerator_flags=str_accelerator_flags,
             parallel=parallel,
             force=force,
         )

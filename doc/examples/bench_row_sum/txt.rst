@@ -28,7 +28,7 @@ To compile this file with different backends, one can run:
     transonic -b python row_sum_boost.py
     transonic -b cython row_sum_boost.py
     transonic -b numba row_sum_boost.py
-    transonic -b pythran row_sum_boost.py -pf "-march=native -DUSE_XSIMD"
+    transonic -b pythran row_sum_boost.py -af "-march=native -DUSE_XSIMD"
 
 To choose the backend, we can call for example:
 

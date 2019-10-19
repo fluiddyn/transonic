@@ -61,7 +61,7 @@ class NumbaBackend(PythonBackend):
         native=False,
         xsimd=False,
         openmp=False,
-        str_pythran_flags: Optional[str] = None,
+        str_accelerator_flags: Optional[str] = None,
         parallel=True,
         force=True,
     ):

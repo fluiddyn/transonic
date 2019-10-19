@@ -5,10 +5,10 @@ NAMEJIT=row_sum_jit.py
 all: pythran cython other
 
 pythran:
-	transonic $(NAME) -b pythran -pf "-march=native -DUSE_XSIMD -Ofast"
+	transonic $(NAME) -b pythran -af "-march=native -DUSE_XSIMD -Ofast"
 
 cython:
-	transonic $(NAME) -b cython -pf "-march=native -Ofast"
+	transonic $(NAME) -b cython -af "-march=native -Ofast"
 
 other:
 	transonic $(NAME) -b numba

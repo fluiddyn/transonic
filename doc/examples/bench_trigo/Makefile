@@ -3,7 +3,7 @@ NAME=bench.py
 all: pythran other
 
 pythran:
-	transonic $(NAME) -b pythran -pf "-march=native -DUSE_XSIMD -Ofast"
+	transonic $(NAME) -b pythran -af "-march=native -DUSE_XSIMD -Ofast"
 
 other:
 	transonic $(NAME) -b numba

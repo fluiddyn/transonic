@@ -113,7 +113,7 @@ class SchedulerPopen:
         native=False,
         xsimd=False,
         openmp=False,
-        str_pythran_flags: Optional[str] = None,
+        str_accelerator_flags: Optional[str] = None,
         parallel=True,
         force=True,
     ):
@@ -131,8 +131,8 @@ class SchedulerPopen:
         if mpi.rank == 0:
             logger.info(f"Schedule {backend}ization of file {path}")
 
-        if str_pythran_flags is not None:
-            flags = str_pythran_flags.strip().split()
+        if str_accelerator_flags is not None:
+            flags = str_accelerator_flags.strip().split()
         else:
             flags = []
 
@@ -195,7 +195,7 @@ def compile_extension(
     native=False,
     xsimd=False,
     openmp=False,
-    str_pythran_flags: Optional[str] = None,
+    str_accelerator_flags: Optional[str] = None,
     parallel=False,
     force=False,
 ):
@@ -211,7 +211,7 @@ def compile_extension(
         native=native,
         xsimd=xsimd,
         openmp=openmp,
-        str_pythran_flags=str_pythran_flags,
+        str_accelerator_flags=str_accelerator_flags,
         parallel=parallel,
         force=force,
     )
