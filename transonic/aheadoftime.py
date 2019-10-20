@@ -85,9 +85,11 @@ def _get_transonic_calling_module(backend_name: str = None, index_frame: int = 2
         if (
             ts.is_transpiling != is_transpiling
             or ts._compile_at_import_at_creation != has_to_compile_at_import()
-            or hasattr(ts, "path_mod")
-            and ts.path_mod.exists()
-            and mpi.has_to_build(ts.path_backend, ts.path_mod)
+            or (
+                hasattr(ts, "path_mod")
+                and ts.path_backend.exists()
+                and mpi.has_to_build(ts.path_backend, ts.path_mod)
+            )
         ):
             ts = Transonic(frame=frame, reuse=False, backend=backend_name)
     else:
@@ -319,7 +321,12 @@ class Transonic:
 
         self.reload_module_backend(module_backend_name)
 
-        if self.is_transpiled:
+        if not self.is_transpiled:
+            logger.warning(
+                f"Module {path_mod} has not been compiled for "
+                f"Transonic-{backend.name_capitalized}"
+            )
+        else:
             self.is_compiled = backend.check_if_compiled(self.module_backend)
             if self.is_compiled:
                 module = inspect.getmodule(frame[0])
