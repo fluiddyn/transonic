@@ -227,7 +227,10 @@ class JIT:
             )
 
         if not can_import_accelerator(self.backend.name):
-            # TODO: add a warning if backend is specified by user
+            logger.warning(
+                "Cannot accelerate a jitted function because "
+                f"{self.backend.name_capitalized} is not importable."
+            )
             return func
 
         func_name = func.__name__
