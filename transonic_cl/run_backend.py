@@ -17,7 +17,7 @@ from time import time, sleep
 from shutil import copyfile
 import os
 
-logger = logging.getLogger("pythran_fluid")
+logger = logging.getLogger("transonic")
 logger.setLevel(logging.INFO)
 
 ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
@@ -147,6 +147,7 @@ def main():
                 logger.error(
                     f"{backend.capitalize()} stderr:\n{completed_process.stderr}"
                 )
+        sys.exit(1)
 
 
 if __name__ == "__main__":

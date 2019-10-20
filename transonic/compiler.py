@@ -171,7 +171,14 @@ class SchedulerPopen:
 
         process = None
         if mpi.rank == 0:
-            process = subprocess.Popen(words_command, cwd=cwd)
+            stdout = stderr = subprocess.PIPE
+            process = subprocess.Popen(
+                words_command,
+                cwd=cwd,
+                stdout=stdout,
+                stderr=stderr,
+                universal_newlines=True,
+            )
 
         process = mpi.ShellProcessMPI(process)
 

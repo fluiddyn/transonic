@@ -354,7 +354,7 @@ class JIT:
         def type_collector(*args, **kwargs):
 
             if self.compiling:
-                if not self.process.is_alive():
+                if not self.process.is_alive(raise_if_error=True):
                     self.compiling = False
                     time.sleep(0.1)
                     backend_module = import_from_path(

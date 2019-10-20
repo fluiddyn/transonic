@@ -379,7 +379,6 @@ class Backend:
         parallel=True,
         force=True,
     ):
-        print("compile extension")
         for path in paths:
             self.compile_extension(
                 path,

@@ -147,7 +147,7 @@ class CheckCompiling:
             return self.func(*args, **kwargs)
 
         ts = self.ts
-        if ts.is_compiling and not ts.process.is_alive():
+        if ts.is_compiling and not ts.process.is_alive(raise_if_error=True):
             ts.is_compiling = False
             time.sleep(0.1)
             ts.module_backend = import_from_path(
@@ -489,7 +489,7 @@ class Transonic:
                 "`use_block` has to be used protected by `if ts.is_transpiled`"
             )
 
-        if self.is_compiling and not self.process.is_alive():
+        if self.is_compiling and not self.process.is_alive(raise_if_error=True):
             self.is_compiling = False
             time.sleep(0.1)
             self.module_backend = import_from_path(
