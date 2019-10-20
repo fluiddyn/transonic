@@ -1,4 +1,4 @@
-import black
+import gast
 import numpy as np
 
 
@@ -10,5 +10,5 @@ def func_import_2():
     return const
 
 
-def use_black():
-    print(black)
+def use_gast():
+    print(gast)

@@ -1,4 +1,4 @@
-import black
+import gast
 import numpy as np
 from .for_test_exterior_import_jit_2 import func_import_2
 
@@ -19,5 +19,5 @@ def func_import2():
     return const + np.pi - np.pi
 
 
-def use_black():
-    print(black)
+def use_gast():
+    print(gast)

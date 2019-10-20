@@ -64,10 +64,10 @@ try:
     # since black is still beta (in 03/2019), we can not impose a version :-(
     import black
 except ImportError:
+    import autopep8
 
     def format_str(src_contents):
-        print("Please install black (pip install black) to use Transonic")
-        return src_contents
+        return autopep8.fix_code(src_contents)
 
 
 else:
@@ -237,15 +237,11 @@ def strip_typehints(source):
     return striped_code
 
 
-def make_code_from_fdef_node(fdef, black=True):
+def make_code_from_fdef_node(fdef):
     transformed = TypeHintRemover().visit(fdef)
     # convert the AST back to source code
     code = extast.unparse(transformed)
-
-    if black:
-        code = format_str(code)
-
-    return code
+    return format_str(code)
 
 
 def get_ipython_input(last=True):

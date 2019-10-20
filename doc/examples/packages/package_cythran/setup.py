@@ -37,7 +37,7 @@ pack_dir = here / pack_name
 version = run_path(pack_name + "/_version.py")
 __version__ = version["__version__"]
 
-install_requires = ["transonic", "black", "numpy", "matplotlib", "numba"]
+install_requires = ["transonic", "numpy", "matplotlib", "numba"]
 
 relative_paths = ["calcul.py"]
 make_backend_files(
