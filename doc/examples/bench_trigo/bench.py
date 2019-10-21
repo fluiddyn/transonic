@@ -34,37 +34,24 @@ fxfy_loops_numba = boost(backend="numba")(fxfy_loops)
 
 if __name__ == "__main__":
 
-    import numba
-    import pythran
-    from transonic import __version__
-    from transonic.util import timeit
+    from transonic.util import print_versions, timeit_verbose
+
+    print_versions()
 
     theta = np.linspace(0, 2 * np.pi, 10000)
     ft = 2.5 * theta
     fv = 1.5 * theta
+    loc = locals()
+
     out = fxfy(ft, fv, theta)
     out_loops = fxfy_loops(ft, fv, theta)
     assert np.allclose(out, out_loops)
 
-    print(
-        f"transonic {__version__}\n"
-        f"pythran {pythran.__version__}\n"
-        f"numba {numba.__version__}\n"
-    )
-
-    loc = locals()
-
-    def bench(call, norm=None):
-        ret = result = timeit(call, globals=loc)
-        if norm is None:
-            norm = result
-        result /= norm
-        print(f"{call.split('(')[0]:33s}: {result:.3f}")
-        return ret
-
-    norm = bench("fxfy(ft, fv, theta)")
-    print(f"norm = {norm:.2e} s")
+    print()
+    norm = timeit_verbose("fxfy(ft, fv, theta)", globals=loc)
 
     for backend in ("numba", "pythran"):
-        bench(f"fxfy_{backend}(ft, fv, theta)", norm=norm)
-        bench(f"fxfy_loops_{backend}(ft, fv, theta)", norm=norm)
+        timeit_verbose(f"fxfy_{backend}(ft, fv, theta)", globals=loc, norm=norm)
+        timeit_verbose(
+            f"fxfy_loops_{backend}(ft, fv, theta)", globals=loc, norm=norm
+        )

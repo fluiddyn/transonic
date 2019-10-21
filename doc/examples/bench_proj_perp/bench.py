@@ -1,4 +1,3 @@
-
 import numpy as np
 from transonic import boost, Array, Type
 
@@ -14,7 +13,9 @@ def proj(vx: A, vy: A, vz: A, kx: Af, ky: Af, kz: Af, inv_k_square_nozero: Af):
     vz -= kz * tmp
 
 
-def proj_loop(vx: A, vy: A, vz: A, kx: Af, ky: Af, kz: Af, inv_k_square_nozero: Af):
+def proj_loop(
+    vx: A, vy: A, vz: A, kx: Af, ky: Af, kz: Af, inv_k_square_nozero: Af
+):
 
     # type annotations only useful for Cython
     n0: int
@@ -47,26 +48,22 @@ proj_cython = boost(backend="cython")(proj)
 
 proj_loop_pythran = boost(backend="pythran")(proj_loop)
 proj_loop_numba = boost(backend="numba")(proj_loop)
-proj_loop_cython = boost(backend="cython", boundscheck=False, wraparound=False)(proj_loop)
-
+proj_loop_cython = boost(backend="cython", boundscheck=False, wraparound=False)(
+    proj_loop
+)
 
 
 if __name__ == "__main__":
     from textwrap import dedent
 
-    import numba
-    import pythran
-    from transonic import __version__
-    from transonic.util import timeit
+    from transonic.util import print_versions, timeit_verbose
 
-    print(
-        f"transonic {__version__}\n"
-        f"pythran {pythran.__version__}\n"
-        f"numba {numba.__version__}\n"
-    )
+    loc = locals()
 
-    setup = dedent("""
+    print_versions()
 
+    setup = dedent(
+        """
         shape = n0, n1, n2 = 64, 512, 512
         k0 = np.linspace(0, 100, n0)
         k1 = np.linspace(0, 100, n1)
@@ -83,23 +80,26 @@ if __name__ == "__main__":
         vx = np.ones(shape)
         vy = np.ones(shape)
         vz = np.ones(shape)
+    """
+    )
 
-    """)
-
-    loc = locals()
-
-    def bench(call, norm=None):
-        ret = result = timeit(call, setup=setup, globals=loc)
-        if norm is None:
-            norm = result
-        result /= norm
-        print(f"{call.split('(')[0]:33s}: {result:.2f}")
-        return ret
-
-
-    norm = bench("proj(vx, vy, vz, kx, ky, kz, inv_k_square_nozero)")
-    print(f"norm = {norm:.2e} s")
+    print()
+    norm = timeit_verbose(
+        "proj(vx, vy, vz, kx, ky, kz, inv_k_square_nozero)",
+        setup=setup,
+        globals=loc,
+    )
 
     for backend in ("cython", "numba", "pythran"):
-        bench(f"proj_{backend}(vx, vy, vz, kx, ky, kz, inv_k_square_nozero)", norm=norm)
-        bench(f"proj_loop_{backend}(vx, vy, vz, kx, ky, kz, inv_k_square_nozero)", norm=norm)
+        timeit_verbose(
+            f"proj_{backend}(vx, vy, vz, kx, ky, kz, inv_k_square_nozero)",
+            setup=setup,
+            globals=loc,
+            norm=norm,
+        )
+        timeit_verbose(
+            f"proj_loop_{backend}(vx, vy, vz, kx, ky, kz, inv_k_square_nozero)",
+            setup=setup,
+            globals=loc,
+            norm=norm,
+        )

@@ -89,6 +89,7 @@ try:
 except ImportError:
     pass
 
+from transonic import __version__
 from transonic.analyses import extast
 
 from transonic.compiler import (
@@ -125,6 +126,35 @@ def can_import_accelerator(backend: str = backend_default):
     else:
         raise NotImplementedError
     return True
+
+
+def print_versions(accelerators=None):
+
+    print(f"Transonic {__version__}")
+
+    if accelerators is None or "pythran" in accelerators:
+        try:
+            import pythran
+        except ImportError:
+            print("Pythran not importable")
+        else:
+            print(f"Pythran {pythran.__version__}")
+
+    if accelerators is None or "numba" in accelerators:
+        try:
+            import numba
+        except ImportError:
+            print("Numba not importable")
+        else:
+            print(f"Numba {numba.__version__}")
+
+    if accelerators is None or "cython" in accelerators:
+        try:
+            import Cython
+        except ImportError:
+            print("Cython not importable")
+        else:
+            print(f"Cython {Cython.__version__}")
 
 
 def find_module_name_from_path(path_py: Path):
@@ -456,3 +486,16 @@ def timeit(stmt="pass", setup="pass", total_duration=2, globals=None):
 
     duration = min(timer.repeat(repeat=repeat, number=number))
     return duration / number
+
+
+def timeit_verbose(stmt, setup="pass", total_duration=2, globals=None, norm=None):
+    ret = result = timeit(
+        stmt, setup=setup, total_duration=total_duration, globals=globals
+    )
+    if norm is None:
+        norm = result
+    result /= norm
+    print(f"{stmt.split('(')[0]:33s}: {result:.3f} * norm")
+    if result == 1.0:
+        print(f"norm = {norm:.2e} s")
+    return ret

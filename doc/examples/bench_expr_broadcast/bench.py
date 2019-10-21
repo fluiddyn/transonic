@@ -31,39 +31,24 @@ broadcast_loops_numba = boost(backend="numba")(broadcast_loops)
 
 if __name__ == "__main__":
 
-    import numba
-    import pythran
-    from transonic import __version__
-    from transonic.util import timeit
+    from transonic.util import print_versions, timeit_verbose
+
+    print_versions()
 
     shape = (4, 4, 64)
     a = np.linspace(1, 100, np.prod(shape)).reshape(shape)
     b = np.linspace(1, 100, shape[-1])
     out = np.empty_like(a)
+    loc = locals()
+
     broadcast(a, b, out)
     out_loops = np.empty_like(a)
     broadcast_loops(a, b, out_loops)
     assert np.allclose(out, out_loops)
 
-    print(
-        f"transonic {__version__}\n"
-        f"pythran {pythran.__version__}\n"
-        f"numba {numba.__version__}\n"
-    )
-
-    loc = locals()
-
-    def bench(call, norm=None):
-        ret = result = timeit(call, globals=loc)
-        if norm is None:
-            norm = result
-        result /= norm
-        print(f"{call.split('(')[0]:33s}: {result:.3f}")
-        return ret
-
-    norm = bench("broadcast(a, b, out)")
-    print(f"norm = {norm:.2e} s")
+    print()
+    norm = timeit_verbose("broadcast(a, b, out)", globals=loc)
 
     for backend in ("numba", "pythran"):
-        bench(f"broadcast_{backend}(a, b, out)", norm=norm)
-        bench(f"broadcast_loops_{backend}(a, b, out)", norm=norm)
+        timeit_verbose(f"broadcast_{backend}(a, b, out)", globals=loc, norm=norm)
+        timeit_verbose(f"broadcast_loops_{backend}(a, b, out)", globals=loc, norm=norm)
