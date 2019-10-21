@@ -28,3 +28,11 @@ The last command gives something like::
 For the solution with loops, the 2 backends are equally good.
 
 For Pythran, it is much faster with the high level implementation!
+
+See also how to accelerate the same function in a Jupyter notebook with the
+``jit`` decorator:
+
+.. toctree::
+   :maxdepth: 1
+
+   ../../ipynb/executed/fxfy

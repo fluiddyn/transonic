@@ -14,20 +14,7 @@
 # import sys
 # import os
 
-# to be able to build the doc without h5py with Read the docs
-
-# import fluiddoc
-# if fluiddoc.on_rtd:
-#     print('Mock modules to build the documentation on READTHEDOCS.')
-#     # this package comes from fluiddyn
-#     fluiddoc.mock_modules([])
-
 import transonic
-
-from fluiddoc.ipynb_maker import ipynb_to_rst
-
-# ipynb_to_rst()
-ipynb_to_rst("ipynb/executed", executed=True)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -52,6 +39,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "numpydoc",
+    "nbsphinx",
     # 'mathmacro',
 ]
 
@@ -101,7 +89,7 @@ exclude_patterns = [
     "_build",
     "**.ipynb_checkpoints",
     "for_dev/cython_bugs/**/*.md",
-    "for_dev/scikit-image/README.md"
+    "for_dev/scikit-image/README.md",
 ]
 
 # The reST default role (used for this markup: `text`) to use for all
