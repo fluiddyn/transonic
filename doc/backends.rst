@@ -33,4 +33,4 @@ There are different methods to choose which backend is used:
    examples/bench_row_sum/txt
    backends/pythran
    backends/cython
-   backends/other
+   backends/numba

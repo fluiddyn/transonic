@@ -1,11 +1,3 @@
-Short term (milestone for 0.4.1)
---------------------------------
-
-- Use Cython for Windows and Pythran for Linux/macOS
-  (on this example https://github.com/martibosch/pylandstats/pull/2)
-- alternative make_header_from_fdef_annotations for Cython
-- More warnings if a file is not transpiled / compiled
-
 
 Cython backend (beta version)
 -----------------------------

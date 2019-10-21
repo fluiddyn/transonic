@@ -6,6 +6,11 @@ See the `ROADMAP.rst file
 
 - Python 3.8 support (with gast>=0.3.0 and beniget>=0.2.0)
 
+0.4.2 (?)
+---------
+
+- Improve usability (warnings, exceptions, API for benchmarks, ...)
+
 0.4.1 (2019-10-08)
 ------------------
 

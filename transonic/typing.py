@@ -123,8 +123,6 @@ class TemplateVar:
 
         if name_calling_module is None:
             name_calling_module = get_name_calling_module()
-        else:
-            name_calling_module = name_calling_module
 
         if name_calling_module not in names_template_variables:
             names_template_variables[name_calling_module] = {}

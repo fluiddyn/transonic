@@ -16,7 +16,6 @@ from glob import glob
 import sys
 
 from transonic import __version__
-from transonic.analyses import analyse_aot
 
 from transonic.compiler import wait_for_all_extensions
 
@@ -85,7 +84,14 @@ def run():
     backend = backends[args.backend]
     backend.make_backend_files(paths, force=args.force)
 
-    if not can_import_accelerator(backend.name) or args.no_compile:
+    if args.no_compile:
+        return
+
+    if not can_import_accelerator(backend.name):
+        logger.warning(
+            f"Since {backend.name_capitalized} is not importable, "
+            "Transonic cannot properly compile a file."
+        )
         return
 
     # find pythran files not already compiled

@@ -23,7 +23,7 @@ Bye the way, for performance, it is important to configure Pythran with a file
 
 For Linux, I use:
 
-.. code::
+.. code:: raw
 
     [pythran]
     complex_hook = True

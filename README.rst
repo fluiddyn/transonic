@@ -64,7 +64,9 @@ The long-term project
 
 .. note ::
 
-  The context of the creation of Transonic is presented in these slices:
+  The context of the creation of Transonic is presented in these documents:
+
+  - `Transonic Vision <https://fluiddyn.bitbucket.io/transonic-vision.html>`_
 
   - `Make your numerical Python code fly at transonic speed (EuroScipy 2019)
     <http://www.legi.grenoble-inp.fr/people/Pierre.Augier/docs/ipynbslides/20190904-euroscipy-transonic/pres.slides.html#/>`_,
@@ -130,13 +132,11 @@ What we have now
 ----------------
 
 We start to have a good API to accelerate Python-Numpy code (functions, methods
-and blocks of code).
-
-The default Transonic backend uses Pythran and works well. `Here, we explain
-why Pythran is so great for Python users and why Transonic is great for Pythran
-users <https://transonic.readthedocs.io/en/latest/backends/pythran.html>`_
-
-There are also (more experimental) backends for Cython and Numba.
+and blocks of code). The default Transonic backend uses Pythran and works well.
+`Here, we explain why Pythran is so great for Python users and why Transonic is
+great for Pythran users
+<https://transonic.readthedocs.io/en/latest/backends/pythran.html>`_ There are
+also (more experimental) backends for Cython and Numba.
 
 .. note ::
 
@@ -148,7 +148,7 @@ There are also (more experimental) backends for Cython and Numba.
 Installation and configuration
 ------------------------------
 
-.. code ::
+.. code :: bash
 
    pip install transonic
 
@@ -175,8 +175,11 @@ Transonic is sensible to environment variables:
   "cython", "numba" and "python" (prototypes).
 
 
-A short tour of Transonic syntaxes
-----------------------------------
+A short tour of Transonic public API
+------------------------------------
+
+Transonic supports both ahead-of-time and just-in-time compilations. When using
+the API for AOT compilation, the files need to be "compiled_" to get speedup.
 
 Decorator :code:`boost` and command :code:`# transonic def`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -297,7 +300,6 @@ file is compiled at the first call of the function and the compiled version is
 used as soon as it is ready. The warmup can be quite long but the compiled
 version is saved and can be reused (without warmup!) by another process.
 
-
 Define accelerated blocks
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -393,18 +395,28 @@ More examples on how to use Transonic for Object Oriented Programing are given
 `here <https://transonic.readthedocs.io/en/latest/examples/methods.html>`__.
 
 
-Make the Pythran/Cython/Numba files
------------------------------------
+.. _compiled:
+
+Make the Pythran/Cython/Numba files and compile the extensions
+--------------------------------------------------------------
 
 There is a command-line tool :code:`transonic` which makes the associated
-Pythran/Cython/Numba files from Python files with annotations and transonic
-code. By default and if the Python compiler is available, the files are
+Pythran/Cython/Numba files from a Python file. For example one can run:
+
+.. code :: bash
+
+    # Pythran is the default backend
+    transonic myfile.py -af "-march=native -DUSE_XSIMD -Ofast"
+    # Now using Cython
+    transonic myfile.py -b cython
+
+By default and if the Python compiler is available, the produced files are
 compiled.
 
 There is also a function :code:`make_backend_files` that can be used in a
 setup.py like this:
 
-.. code ::
+.. code :: python
 
     from pathlib import Path
 

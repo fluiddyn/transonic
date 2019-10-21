@@ -30,7 +30,7 @@ Our code for a benchmark in JIT mode:
 
 gives:
 
-.. code::
+.. code:: bash
 
     transonic 0.4.0
     pythran 0.9.3post1
@@ -71,7 +71,7 @@ Ahead-of-time compilation
 
 The results are:
 
-.. code::
+.. code:: bash
 
     transonic 0.4.0
     pythran 0.9.3post1
