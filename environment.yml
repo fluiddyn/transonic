@@ -1,0 +1,12 @@
+channels:
+  - conda-forge
+dependencies:
+  - python=3.7
+  - clang
+  - numpy
+  - cython
+  - pythran
+  - numba
+  - pip
+  - pip:
+    - .
