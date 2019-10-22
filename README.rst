@@ -43,6 +43,12 @@ accelerate modern Python-Numpy code with different accelerators (currently
 Transonic run fine without any accelerators installed (of course without
 speedup)!
 
+.. |mybinder| image:: https://mybinder.org/badge_logo.svg
+   :target: https://mybinder.org/v2/gh/fluiddyn/transonic/master?urlpath=lab/tree/doc/ipynb/executed
+   :alt: mybinder
+
+You can try Transonic online by clicking this button: |mybinder|.
+
 .. warning ::
 
   Transonic is still in an active development stage (see our `roadmap
@@ -135,7 +141,7 @@ We start to have a good API to accelerate Python-Numpy code (functions, methods
 and blocks of code). The default Transonic backend uses Pythran and works well.
 `Here, we explain why Pythran is so great for Python users and why Transonic is
 great for Pythran users
-<https://transonic.readthedocs.io/en/latest/backends/pythran.html>`_ There are
+<https://transonic.readthedocs.io/en/latest/backends/pythran.html>`_. There are
 also (more experimental) backends for Cython and Numba.
 
 .. note ::

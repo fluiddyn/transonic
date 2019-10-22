@@ -35,4 +35,4 @@ See also how to accelerate the same function in a Jupyter notebook with the
 .. toctree::
    :maxdepth: 1
 
-   ../../ipynb/executed/fxfy
+   ../../ipynb/executed/bench_fxfy
