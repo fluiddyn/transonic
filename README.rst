@@ -34,10 +34,10 @@ accelerate modern Python-Numpy code with different accelerators (currently
 `Cython <https://cython.org/>`_, `Pythran
 <https://github.com/serge-sans-paille/pythran>`_ and `Numba
 <https://numba.pydata.org/>`_, but potentially later `Cupy
-<https://cupy.chainer.org/>`_, `PyTorch <https://pytorch.org/>`_, `JAX
-<https://github.com/google/jax>`_, `Weld <https://www.weld.rs/>`_, `Pyccel
-<https://github.com/pyccel/pyccel>`_, `Uarray
-<https://github.com/Quansight-Labs/uarray>`_, etc...).
+<https://cupy.chainer.org/>`_, `Bohrium <https://bohrium.readthedocs.io/>`_,
+`PyTorch <https://pytorch.org/>`_, `JAX <https://github.com/google/jax>`_,
+`Weld <https://www.weld.rs/>`_, `Pyccel <https://github.com/pyccel/pyccel>`_,
+`Uarray <https://github.com/Quansight-Labs/uarray>`_, etc...).
 
 **The accelerators are not hard dependencies of Transonic:** Python codes using
 Transonic run fine without any accelerators installed (of course without
