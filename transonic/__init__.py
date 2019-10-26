@@ -18,6 +18,7 @@ from transonic.typing import (
     str2type,
     typeof,
     Optional,
+    const,
 )
 
 

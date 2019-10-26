@@ -53,5 +53,8 @@ class TypeFormatter:
         ]
         return f"({', '.join(strings)})"
 
+    def make_const_code(self, code):
+        return code
+
 
 base_type_formatter = TypeFormatter()

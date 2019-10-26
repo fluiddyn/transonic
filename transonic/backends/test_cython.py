@@ -1,6 +1,6 @@
 import numpy as np
 
-from transonic import Array
+from transonic import Array, const
 from transonic.backends import backends
 
 backend = backends["cython"]
@@ -33,3 +33,10 @@ def test_array():
         memview,
         positive_indices="positive_indices",
     )
+
+
+def test_const():
+    A = Array[int, "2d"]
+    assert "const " + A.format_as_backend_type(type_formatter) == const(
+        A
+    ).format_as_backend_type(type_formatter)

@@ -985,3 +985,22 @@ def typeof(obj):
     raise NotImplementedError(
         f"Not able to determine the full type of {obj} (of type {type(obj)})"
     )
+
+
+class ConstType(Type):
+    def __init__(self, type_):
+        self.type = type_
+
+    def format_as_backend_type(self, backend_type_formatter, **kwargs):
+        return backend_type_formatter.make_const_code(
+            format_type_as_backend_type(
+                self.type, backend_type_formatter, **kwargs
+            )
+        )
+
+    def __repr__(self):
+        return f"const({repr(self.type)})"
+
+
+def const(type_):
+    return ConstType(type_)

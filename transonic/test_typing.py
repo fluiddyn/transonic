@@ -15,6 +15,7 @@ from transonic.typing import (
     str2shape,
     MemLayout,
     Optional,
+    const,
 )
 
 from transonic.backends.typing import base_type_formatter
@@ -156,3 +157,12 @@ def test_shape():
 
 def test_optional():
     assert repr(Optional[int]) == "Union[int, None]"
+
+
+def test_const():
+    A = str2type("int[]")
+    B = const(A)
+    assert A.format_as_backend_type(
+        base_type_formatter
+    ) == B.format_as_backend_type(base_type_formatter)
+    assert repr(B) == 'const(Array[int, "1d"])'

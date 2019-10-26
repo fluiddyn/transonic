@@ -73,6 +73,9 @@ class TypeFormatterCython(TypeFormatter):
     def make_tuple_code(self, types, **kwargs):
         return "tuple"
 
+    def make_const_code(self, code):
+        return "const " + code
+
 
 def memoryview_type(dtype, ndim, mem_layout) -> str:
     ndim_F = 0
