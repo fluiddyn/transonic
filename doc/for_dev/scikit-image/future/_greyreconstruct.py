@@ -11,10 +11,11 @@ Original author: Lee Kamentsky
 """
 import numpy as np
 
-from transonic import boost, Array
+from transonic import boost, Array, const
 
 Au = Array[np.uint32, "1d", "C", "positive_indices"]
 A = Array[np.int32, "1d", "C", "positive_indices"]
+M = Array[np.int32, "1d", "C", "memview"]
 
 
 @boost(boundscheck=False)
@@ -22,7 +23,7 @@ def reconstruction_loop(
     ranks: Au,
     prev: A,
     next: A,
-    strides: A,
+    strides: const(M),
     current_idx: np.intp,
     image_stride: np.intp,
 ):
