@@ -1,6 +1,6 @@
 import numpy as np
 
-from transonic import boost, Array
+from transonic import boost, Array, const
 
 T_index = np.int32
 # we use a type variable because it can be replaced by a fused type.
@@ -19,7 +19,7 @@ def row_sum(arr: A2d, columns: A1d_i):
 
 
 @boost(boundscheck=False, wraparound=False)
-def row_sum_loops(arr: V2d, columns: V1d_i):
+def row_sum_loops(arr: const(V2d), columns: const(V1d_i)):
     # locals type annotations are used only for Cython
     i: T_index
     j: T_index

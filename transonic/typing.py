@@ -38,6 +38,8 @@ User API
 
 .. autofunction:: typeof
 
+.. autofunction:: const
+
 Internal API
 ------------
 
@@ -58,6 +60,10 @@ Internal API
    :private-members:
 
 .. autofunction:: format_type_as_backend_type
+
+.. autoclass:: ConstType
+   :members:
+   :private-members:
 
 """
 import re
@@ -631,6 +637,9 @@ class UnionMeta(Meta):
             type_, backend_type_formatter, **kwargs
         )
 
+    def short_repr(self):
+        return self.__name__
+
 
 class Union(metaclass=UnionMeta):
     """Similar to typing.Union
@@ -988,6 +997,8 @@ def typeof(obj):
 
 
 class ConstType(Type):
+    """Private API class for const"""
+
     def __init__(self, type_):
         self.type = type_
 
@@ -1001,6 +1012,22 @@ class ConstType(Type):
     def __repr__(self):
         return f"const({repr(self.type)})"
 
+    def is_fused_type(self):
+        return self.type.is_fused_type()
+
+    def get_template_parameters(self):
+        return self.type.get_template_parameters()
+
+    def short_repr(self):
+
+        if hasattr(self.type, "short_repr"):
+            short_repr_type = self.type.short_repr()
+        else:
+            short_repr_type = repr(self.type)
+
+        return f"constI{short_repr_type}I"
+
 
 def const(type_):
+    """Declare a type as constant (``const`` C/Cython keyword)"""
     return ConstType(type_)

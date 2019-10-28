@@ -1,6 +1,6 @@
 import numpy as np
 
-from transonic import Transonic, boost, Array, Union
+from transonic import Transonic, boost, Array, Union, const
 
 
 # transonic def func(int, float)
@@ -30,6 +30,14 @@ A = Union[int, Array[int, "1d", "C"]]
 @boost
 def func2(a: A, b: float):
     return a - func_tmp(b)
+
+
+A1 = Array[int, "1d", "C", "memview"]
+
+
+@boost
+def func3(c: const(A1)):
+    return c[0] + 1
 
 
 ts = Transonic()
