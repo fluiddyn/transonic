@@ -356,9 +356,12 @@ def get_exterior_code(
             file_name, file_path = find_path(node, pathfile)
             # a jitted function or method needs another jitted function
             if file_name == "transonic":
-                codes_dependance[
-                    func
-                ], jitted_dicts, spe, treat = adapt_code_dependance(
+                (
+                    codes_dependance[func],
+                    jitted_dicts,
+                    spe,
+                    treat,
+                ) = adapt_code_dependance(
                     func, codes_dependance[func], jitted_dicts
                 )
                 # the "special" list signals that jitted functions has to be written

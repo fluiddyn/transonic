@@ -4,12 +4,12 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
-- Python 3.8 support (with gast>=0.3.0 and beniget>=0.2.0)
-
-0.4.2 (?)
----------
+0.4.2 (2019-10-30)
+------------------
 
 - Improve usability (warnings, exceptions, API for benchmarks, ...)
+- Python 3.8 support (with gast>=0.3.0 and beniget>=0.2.0)
+- ``const`` function (for the C/Cython keyword)
 
 0.4.1 (2019-10-08)
 ------------------
