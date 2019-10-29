@@ -13,6 +13,12 @@ def rk2_step0(state_spect_n12, state_spect, tendencies_n, diss2, dt):
 
 
 arguments_blocks = {
-    "rk2_step0": ["state_spect_n12", "state_spect", "tendencies_n", "diss2", "dt"]
+    "rk2_step0": [
+        "state_spect_n12",
+        "state_spect",
+        "tendencies_n",
+        "diss2",
+        "dt",
+    ],
 }
 __transonic__ = ("0.3.0.post0",)

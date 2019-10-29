@@ -40,5 +40,8 @@ def block1(a, b, n):
     return result
 
 
-arguments_blocks = {"block0": ["a", "b", "n"], "block1": ["a", "b", "n"]}
-__transonic__ = ("0.3.0.post0",)
+arguments_blocks = {
+    "block0": ["a", "b", "n"],
+    "block1": ["a", "b", "n"],
+}
+__transonic__ = ("0.4.2",)
