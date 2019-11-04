@@ -59,7 +59,7 @@ More
    Transonic in PyPI  <https://pypi.python.org/pypi/transonic/>
    changes
    roadmap
-   authors
+   thanks
    for_dev
 
 
