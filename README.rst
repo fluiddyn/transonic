@@ -443,7 +443,4 @@ or in `fluidsim's setup.py
 License
 -------
 
-Transonic is distributed under the CeCILL-B_ License, a BSD compatible
-french license.
-
-.. _CeCILL-B: http://www.cecill.info/index.en.html
+Transonic is distributed under the BSD License.
