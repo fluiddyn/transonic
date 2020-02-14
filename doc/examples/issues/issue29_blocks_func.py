@@ -1,5 +1,5 @@
 """
-See https://bitbucket.org/fluiddyn/fluidpythran/issues/29/
+See https://foss.heptapod.net/fluiddyn/transonic/issues/6
 
 """
 from transonic import with_blocks, block

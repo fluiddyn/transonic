@@ -55,11 +55,12 @@ More
 .. toctree::
    :maxdepth: 1
 
-   Transonic forge on Bitbucket <https://bitbucket.org/fluiddyn/transonic>
+   Transonic forge on Heptapod <https://foss.heptapod.net/fluiddyn/transonic>
    Transonic in PyPI  <https://pypi.python.org/pypi/transonic/>
    changes
    roadmap
    thanks
+   Advice for FluidDyn developers <http://fluiddyn.readthedocs.io/en/latest/advice_developers.html>
    for_dev
 
 

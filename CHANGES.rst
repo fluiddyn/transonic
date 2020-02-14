@@ -57,7 +57,7 @@ See the `ROADMAP.rst file
 ------------------
 
 - Support source in multiple files (`#14
-  <https://bitbucket.org/fluiddyn/transonic/issues/14>`_ and #21)
+  <https://foss.heptapod.net/fluiddyn/transonic/issues/14>`_ and #21)
 - Fix issues #8 (Recursion for boosted method), #17 (Bad formating for Pythran
   error), #18 (Improve logging jit), #19 (Change default arguments of jit
   decorator) and #20 (No Pythran signature generated for boosted functions

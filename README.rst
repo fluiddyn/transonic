@@ -1,3 +1,9 @@
+.. warning ::
+
+   Our repository in Bitbucket.org will soon be deleted! Our new home:
+   https://foss.heptapod.net/fluiddyn/transonic (`more details
+   <https://fluiddyn.readthedocs.io/en/latest/advice_developers.html>`_).
+
 Make your Python code fly at *transonic* speeds!
 ================================================
 
@@ -11,8 +17,8 @@ Make your Python code fly at *transonic* speeds!
    :target: http://transonic.readthedocs.org
    :alt: Documentation status
 
-.. |coverage| image:: https://codecov.io/bb/fluiddyn/transonic/branch/default/graph/badge.svg
-   :target: https://codecov.io/bb/fluiddyn/transonic/branch/default/
+.. |coverage| image:: https://codecov.io/gh/fluiddyn/transonic/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/fluiddyn/transonic/branch/master/
    :alt: Code coverage
 
 .. |travis| image:: https://travis-ci.org/fluiddyn/transonic.svg?branch=master
@@ -56,13 +62,13 @@ You can try Transonic online by clicking this button: |mybinder|.
   suggestions are very welcome.
 
   However, Transonic is now really usable, useful and used "in production" in
-  `FluidSim <https://bitbucket.org/fluiddyn/fluidsim>`_ and `FluidFFT
-  <https://bitbucket.org/fluiddyn/fluidfft>`_ (see examples for `blocks
-  <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_,
+  `FluidSim <https://foss.heptapod.net/fluiddyn/fluidsim>`_ and `FluidFFT
+  <https://foss.heptapod.net/fluiddyn/fluidfft>`_ (see examples for `blocks
+  <https://foss.heptapod.net/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py>`_,
   `@boost
-  <https://bitbucket.org/fluiddyn/fluidfft/src/default/fluidfft/fft3d/operators.py>`_
+  <https://foss.heptapod.net/fluiddyn/fluidfft/src/default/fluidfft/fft3d/operators.py>`_
   and `@jit
-  <https://bitbucket.org/fluiddyn/fluidsim/src/default/fluidsim/solvers/plate2d/output/correlations_freq.py>`_).
+  <https://foss.heptapod.net/fluiddyn/fluidsim/src/default/fluidsim/solvers/plate2d/output/correlations_freq.py>`_).
 
 
 The long-term project
@@ -147,7 +153,7 @@ also (more experimental) backends for Cython and Numba.
 .. note ::
 
   Transonic can be used in libraries and applications using MPI (as
-  `FluidSim <https://bitbucket.org/fluiddyn/fluidsim>`_).
+  `FluidSim <https://foss.heptapod.net/fluiddyn/fluidsim>`_).
 
 .. _compile-at-import :
 
@@ -363,8 +369,8 @@ pythran export`.
 .. warning ::
 
    I'm not satisfied by the syntax for blocks so I (PA) proposed an
-   alternative syntax in `issue #29
-   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_.
+   alternative syntax in `issue #6
+   <https://foss.heptapod.net/fluiddyn/transonic/issues/6>`_.
 
 Python classes: :code:`@boost` and :code:`@jit` for methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -436,9 +442,9 @@ setup.py like this:
 Note that :code:`make_backend_files` does not compile the backend files. The
 compilation has to be done after the call of this function (see for example how
 it is done in the `example packages
-<https://bitbucket.org/fluiddyn/transonic/src/default/doc/examples/packages/>`_
+<https://foss.heptapod.net/fluiddyn/transonic/src/default/doc/examples/packages/>`_
 or in `fluidsim's setup.py
-<https://bitbucket.org/fluiddyn/fluidsim/src/default/setup.py>`_).
+<https://foss.heptapod.net/fluiddyn/fluidsim/src/default/setup.py>`_).
 
 License
 -------

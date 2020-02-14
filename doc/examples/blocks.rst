@@ -4,8 +4,8 @@ Define accelerated blocks
 .. warning ::
 
    I'm not satisfied by the syntax for Pythran blocks so I (PA) proposed an
-   alternative syntax in `issue #29
-   <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_.
+   alternative syntax in `issue #6
+   <https://foss.heptapod.net/fluiddyn/transonic/issues/6>`_.
 
 
 Transonic blocks can be used with classes and more generally in functions
@@ -47,8 +47,8 @@ export`.
 .. note ::
 
     The Pythran keyword :code:`or` cannot be used in block annotations (not yet
-    implemented, see `issue #2
-    <https://bitbucket.org/fluiddyn/fluidpythran/issues/2/implement-keyword-or-in-block-annotation>`_).
+    implemented, see `issue #11
+    <https://foss.heptapod.net/fluiddyn/transonic/issues/11>`_).
 
 Blocks can now also be defined with type hints!
 

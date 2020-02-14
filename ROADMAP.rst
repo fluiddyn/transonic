@@ -82,7 +82,7 @@ We can try that with `pyccel <https://github.com/pyccel/pyccel>`_.
 Alternative syntax for blocks
 -----------------------------
 
-See `issue #6 <https://bitbucket.org/fluiddyn/transonic/issues/6>`_
+See `issue #6 <https://foss.heptapod.net/fluiddyn/transonic/issues/6>`_
 
 
 Alternative implementations for specified backends

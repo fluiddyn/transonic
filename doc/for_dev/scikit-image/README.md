@@ -67,7 +67,7 @@ Pieces of code to create realistic input parameters for all boosted functions
 
 ## Next tasks
 
-- [x] Fix <https://bitbucket.org/fluiddyn/transonic/issues/29/default-parameters>
+- [x] Fix <https://foss.heptapod.net/fluiddyn/transonic/issues/29>
 
 - Good solution to easily benchmark the different backends on these examples
   with nice representation of the results

@@ -2,9 +2,9 @@ To do list
 ==========
 
 - `Alternative syntax for blocks with decorator and context manager
-  <https://bitbucket.org/fluiddyn/fluidpythran/issues/29>`_
+  <https://foss.heptapod.net/fluiddyn/transonic/issues/6>`_
 
-- Type hints: `Shape <https://bitbucket.org/fluiddyn/fluidpythran/issues/12>`_
+- Type hints: `Shape <https://foss.heptapod.net/fluiddyn/transonic/issues/9>`_
 
 Inline to do items
 ------------------
