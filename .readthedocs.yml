@@ -10,7 +10,9 @@ sphinx:
 
 python:
   version: 3.7
-  install:
-    - requirements: doc/requirements.txt
-  setup_py_install: true
   system_packages: true
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - doc

@@ -1,7 +1,0 @@
-numpy
-jupyter
-sphinx_rtd_theme
-sphinx
-numpydoc
-nbsphinx
-recommonmark
