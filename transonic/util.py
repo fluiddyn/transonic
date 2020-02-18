@@ -61,7 +61,7 @@ import gast as ast
 from transonic.config import backend_default
 
 try:
-    # since black is still beta (in 03/2019), we can not impose a version :-(
+    # since black is still beta (in 03/2019), we cannot impose a version :-(
     import black
 except ImportError:
     import autopep8

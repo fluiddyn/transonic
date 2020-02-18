@@ -1,0 +1,20 @@
+variables:
+  CODECOV_TOKEN: b1c3afe7-4ef3-4c69-9656-78beec52ec16
+
+step_without_pythran:
+  image: fluiddyn/python3-stable
+  script:
+    - pip install -U tox --user
+    - tox -e py36,codecov
+
+step_pythran_then_cython:
+  image: fluiddyn/python3-stable
+  script:
+    - pip install -U tox --user
+    - tox -e py36-pythran,py36-cython,codecov
+
+step_pythran_cython:
+  image: fluiddyn/python3-stable
+  script:
+    - pip install -U tox --user
+    - tox -e py36-pythran-cython
