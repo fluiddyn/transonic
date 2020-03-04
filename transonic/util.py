@@ -488,14 +488,38 @@ def timeit(stmt="pass", setup="pass", total_duration=2, globals=None):
     return duration / number
 
 
-def timeit_verbose(stmt, setup="pass", total_duration=2, globals=None, norm=None):
-    ret = result = timeit(
+def timeit_verbose(
+    stmt,
+    setup="pass",
+    total_duration=2,
+    globals=None,
+    norm=None,
+    name=None,
+    print_time=False,
+    max_length_name=33,
+):
+    result = timeit(
         stmt, setup=setup, total_duration=total_duration, globals=globals
     )
     if norm is None:
         norm = result
-    result /= norm
-    print(f"{stmt.split('(')[0]:33s}: {result:.3f} * norm")
-    if result == 1.0:
-        print(f"norm = {norm:.2e} s")
-    return ret
+        norm_given = False
+    else:
+        norm_given = True
+
+    if name is None:
+        name = stmt.split("(")[0]
+
+    fmt_name = f"{{:{max_length_name}s}}"
+    name = fmt_name.format(name)
+
+    if print_time:
+        raw_time = f" = {result:7.3g} s"
+    else:
+        raw_time = ""
+
+    print(f"{name}: {result/norm:5.3g} * norm{raw_time}")
+    if not norm_given and not print_time:
+        print(f"norm = {norm:5.3g} s")
+
+    return result
