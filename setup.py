@@ -4,7 +4,7 @@ from pathlib import Path
 
 here = Path(__file__).parent.absolute()
 
-d = run_path(here / "transonic/_version.py")
+d = run_path(str(here / "transonic/_version.py"))
 __version__ = d["__version__"]
 __about__ = d["__about__"]
 
