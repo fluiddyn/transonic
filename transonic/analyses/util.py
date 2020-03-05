@@ -186,7 +186,10 @@ packages_supported_by_pythran = [
     "cmath",
     "numpy",
     "numpy.fft",
+    "numpy.linalg",
+    "numpy.random",
     "scipy",
+    "scipy.special",
 ]
 
 

@@ -125,3 +125,11 @@ def test_create_trans_classic():
 
     sys.argv = f"transonic -nc {path_file_pythran}".split()
     run()
+
+
+@pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
+@pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
+def test_create_pythran_subpackages():
+    path_file = path_data_tests / "subpackages.py"
+    sys.argv = f"transonic -nc {path_file}".split()
+    run()
