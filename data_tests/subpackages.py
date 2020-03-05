@@ -2,8 +2,7 @@ from numpy.fft import rfft
 from numpy.linalg import matrix_power
 from numpy.random import randn
 
-# TODO: requires test dependency scipy
-# from scipy.special import jv
+from scipy.special import jv
 
 from transonic import boost
 
@@ -23,6 +22,6 @@ def test_np_linalg_random(u: "float[:,:]"):
     return u4
 
 
-# @boost
-# def test_sp_special(v:int, x:float):
-#     return jv(v, x)
+@boost
+def test_sp_special(v: int, x: float):
+    return jv(v, x)

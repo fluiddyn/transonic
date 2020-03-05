@@ -19,3 +19,10 @@ meld_cython:
 
 meld_numba:
 	meld __numba__ saved__backend__/numba
+
+saved__backend__/%: __%__ FORCE
+	rsync -aP $< $@
+
+rsync: saved__backend__/pythran saved__backend__/python saved__backend__/cython saved__backend__/numba
+
+FORCE:
