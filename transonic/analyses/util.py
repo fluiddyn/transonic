@@ -180,7 +180,17 @@ def gather_rawcode_comments(node, code_module):
 
 
 # TODO complete the list
-packages_supported_by_pythran = ["numpy", "math", "functools", "cmath", "scipy"]
+packages_supported_by_pythran = [
+    "functools",
+    "math",
+    "cmath",
+    "numpy",
+    "numpy.fft",
+    "numpy.linalg",
+    "numpy.random",
+    "scipy",
+    "scipy.special",
+]
 
 
 def find_path(node: object, pathfile: str):
