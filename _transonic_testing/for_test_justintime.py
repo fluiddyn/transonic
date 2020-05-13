@@ -23,7 +23,7 @@ def func1(a: "int[][] or float[]", l: "int list"):
 
 
 @jit
-def func2(a):
+def func_identity(a):
     return a
 
 
@@ -32,7 +32,7 @@ Path(__file__).touch()
 
 
 @jit()
-def func2(a):
+def func_identity(a):
     return a
 
 

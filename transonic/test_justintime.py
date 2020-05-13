@@ -69,30 +69,31 @@ def test_fib():
 
 def test_jit_simple():
 
-    from _transonic_testing.for_test_justintime import func2
+    from _transonic_testing.for_test_justintime import func_identity
 
-    func2(1)
+    func_identity(1)
 
     if not can_import_accelerator():
         return
 
     mod = modules[module_name]
-    cjit = mod.jit_functions["func2"]
+    cjit = mod.jit_functions["func_identity"]
 
     for _ in range(100):
-        func2(1)
+        func_identity(1)
         sleep(0.1)
         if not cjit.compiling:
             sleep(0.1)
-            func2(1)
+            func_identity(1)
             break
 
     del sys.modules[module_name]
     del modules[module_name]
 
-    from _transonic_testing.for_test_justintime import func2
+    from _transonic_testing.for_test_justintime import func_identity
 
-    func2(1)
+    func_identity(1)
+
 
 
 @pytest.mark.skipif(backend_default == "numba", reason="Not supported by Numba")
