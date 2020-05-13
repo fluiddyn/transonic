@@ -1,6 +1,6 @@
 from transonic.typing import format_type_as_backend_type, MemLayout
 
-normalized_types = {"float": "float64", "complex": "complex128"}
+normalized_types = {"float": "float64", "complex": "complex128", "bool_": "bool"}
 
 
 class TypeFormatter:

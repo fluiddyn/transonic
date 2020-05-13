@@ -95,6 +95,14 @@ def test_jit_simple():
     func_identity(1)
 
 
+def test_jit_array_bool():
+    from _transonic_testing.for_test_justintime import func_identity
+
+    a = np.zeros(2, dtype=bool)
+    func_identity(a)
+    wait_for_all_extensions()
+    assert np.allclose(a, func_identity(a))
+
 
 @pytest.mark.skipif(backend_default == "numba", reason="Not supported by Numba")
 def test_jit_dict():
