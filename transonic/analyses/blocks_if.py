@@ -158,10 +158,20 @@ def find_def_code(
     return "\n".join(lines_ext)
 
 
-def get_signatures_from_comments(comments, namespace=None, info_analysis=None):
+def create_objects_from_names(names, def_nodes, module, ancestors, udc, duc):
+    """create a namespace for the variables defined at the module level"""
+    code_def_var = find_def_code(names, def_nodes, module, ancestors, udc, duc,)
+    namespace = {}
+    exec(code_def_var, namespace)
+    return namespace
+
+
+def get_signatures_from_comments(
+    comments, namespace_from_code=None, info_analysis=None
+):
     """Get the blocks signatures for a block"""
-    if namespace is None:
-        namespace = {}
+    if namespace_from_code is None:
+        namespace_from_code = {}
 
     comments = comments.replace("#", "").replace("\n", "")
 
@@ -177,23 +187,32 @@ def get_signatures_from_comments(comments, namespace=None, info_analysis=None):
         signatures.append(sig)
 
     types_NameError = set()
-    for sig_str in signatures:
+    signatures_tmp = signatures
+    signatures = []
+    for sig_str in signatures_tmp:
+        sig_dict = {}
         type_vars_strs = [tmp.strip() for tmp in sig_str.split(";")]
         type_vars_strs = [tmp for tmp in type_vars_strs if tmp]
 
         for type_vars_str in type_vars_strs:
             type_, vars_str = type_vars_str.strip().split(" ", 1)
-            if type_ not in namespace:
+            if type_ in namespace_from_code:
+                type_ = namespace_from_code[type_]
+            else:
                 try:
-                    eval(type_)
+                    type_ = eval(type_)
                 except NameError:
                     types_NameError.add(type_)
                 except (SyntaxError, TypeError):
                     pass
+            for var_str in vars_str.split(","):
+                var_str = var_str.strip()
+                sig_dict[var_str] = type_
+        signatures.append(sig_dict)
 
     if types_NameError:
         # create a namespace for the variables defined at the module level
-        code_def_var = find_def_code(
+        namespace = create_objects_from_names(
             types_NameError,
             info_analysis["def_nodes"],
             info_analysis["module"],
@@ -202,26 +221,9 @@ def get_signatures_from_comments(comments, namespace=None, info_analysis=None):
             info_analysis["duc"],
         )
 
-        namespace = {}
-        exec(code_def_var, namespace)
+        for signature in signatures:
+            for var_str, type_ in signature.items():
+                if type_ in types_NameError:
+                    signature[var_str] = namespace[type_]
 
-    tmp = signatures
-    signatures = []
-    for sig_str in tmp:
-        sig_dict = {}
-        type_vars_strs = [tmp.strip() for tmp in sig_str.split(";")]
-        type_vars_strs = [tmp for tmp in type_vars_strs if tmp]
-        for type_vars_str in type_vars_strs:
-            type_, vars_str = type_vars_str.strip().split(" ", 1)
-            if type_ in namespace:
-                type_ = namespace[type_]
-            else:
-                try:
-                    type_ = eval(type_)
-                except (SyntaxError, TypeError):
-                    pass
-            for var_str in vars_str.split(","):
-                var_str = var_str.strip()
-                sig_dict[var_str] = type_
-        signatures.append(sig_dict)
     return signatures

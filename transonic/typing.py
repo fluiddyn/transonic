@@ -621,6 +621,9 @@ class UnionMeta(Meta):
 
     def __repr__(self):
         strings = []
+        if not hasattr(self, "types"):
+            return super().__repr__()
+
         for p in self.types:
             if isinstance(p, Meta):
                 string = repr(p)
