@@ -136,6 +136,7 @@ def find_def_code(
     nodes_def_vars = [
         find_last_def_node(variable, module) for variable in variables
     ]
+    nodes_def_vars.sort(key=lambda x: x.lineno)
 
     capturex = CaptureX(
         list(nodes_def_vars) + def_nodes,
