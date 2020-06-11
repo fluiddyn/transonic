@@ -667,6 +667,8 @@ class ListMeta(Meta):
         return tuple()
 
     def __repr__(self):
+        if not hasattr(self, "type_elem"):
+            return super().__repr__()
         if isinstance(self.type_elem, Meta):
             string = repr(self.type_elem)
         elif isinstance(self.type_elem, type):
@@ -712,6 +714,8 @@ class DictMeta(Meta):
         return template_params
 
     def __repr__(self):
+        if not hasattr(self, "type_keys"):
+            return super().__repr__()
         if isinstance(self.type_keys, type):
             key = self.type_keys.__name__
         else:
@@ -752,6 +756,8 @@ class SetMeta(Meta):
             return tuple()
 
     def __repr__(self):
+        if not hasattr(self, "type_keys"):
+            return super().__repr__()
         if isinstance(self.type_keys, type):
             key = self.type_keys.__name__
         else:
@@ -795,6 +801,8 @@ class TupleMeta(Meta):
         return tuple(template_params)
 
     def __repr__(self):
+        if not hasattr(self, "types"):
+            return super().__repr__()
         strings = []
         for type_ in self.types:
             if isinstance(type_, Meta):
