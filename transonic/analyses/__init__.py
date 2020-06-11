@@ -34,6 +34,7 @@ from .util import (
 from .capturex import CaptureX
 from .blocks_if import get_block_definitions
 from .parser import parse_transonic_def_commands
+from .objects_from_str import replace_strings_by_objects
 from . import extast
 
 
@@ -330,16 +331,10 @@ def analyse_aot(code, pathfile, backend_name):
     debug("get_block_definitions")
     blocks = get_block_definitions(code, module, ancestors, duc, udc)
 
-    info_analysis = {
-        "ancestors": ancestors,
-        "duc": duc,
-        "udc": udc,
-        "module": module,
-        "def_nodes": def_nodes,
-    }
-
     for block in blocks:
-        block.parse_comments(namespace, info_analysis)
+        replace_strings_by_objects(
+            block.signatures, module, ancestors, udc, duc, namespace
+        )
 
     debug(pformat(blocks))
 
@@ -417,6 +412,11 @@ def analyse_aot(code, pathfile, backend_name):
                 annotations["__returns__"][
                     name_func
                 ] = extract_returns_annotation(fdef.returns, namespace)
+
+    for signatures in annotations["__in_comments__"].values():
+        replace_strings_by_objects(
+            signatures, module, ancestors, udc, duc, namespace
+        )
 
     debug("annotations:\n" + pformat(annotations))
 

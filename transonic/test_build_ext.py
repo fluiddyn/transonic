@@ -21,9 +21,7 @@ def setup_module():
     make_backend_files(transonic_src_paths)
 
 
-@pytest.mark.skipif(
-    backend_default == "python", reason="Speedup Python backend tests"
-)
+@pytest.mark.skipif(backend_default != "pythran", reason="Speedup tests")
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No build_ext in MPI")
 def test_buildext():

@@ -18,9 +18,7 @@ def find_last_def_node(variable, module):
     raise RuntimeError
 
 
-def find_def_code(
-    variables: set, def_nodes: list, module: dict, ancestors, udc, duc
-):
+def find_def_code(variables: set, module: dict, ancestors, udc, duc):
 
     nodes_def_vars = [
         find_last_def_node(variable, module) for variable in variables
@@ -28,7 +26,7 @@ def find_def_code(
     nodes_def_vars.sort(key=lambda x: x.lineno)
 
     capturex = CaptureX(
-        list(nodes_def_vars) + def_nodes,
+        list(nodes_def_vars),
         module,
         ancestors,
         defuse_chains=duc,
@@ -47,23 +45,37 @@ def find_def_code(
     return "\n".join(lines_ext)
 
 
-def create_objects_from_names(names, def_nodes, module, ancestors, udc, duc):
+def create_objects_from_names(names, module, ancestors, udc, duc):
     """create a namespace for the variables defined at the module level"""
-    code_def_var = find_def_code(names, def_nodes, module, ancestors, udc, duc,)
+    code_def_var = find_def_code(names, module, ancestors, udc, duc,)
     namespace = {}
     exec(code_def_var, namespace)
     return namespace
 
 
 def replace_strings_by_objects(
-    signatures: dict, names, def_nodes, module, ancestors, udc, duc
+    signatures: dict, module, ancestors, udc, duc, namespace_from_code
 ):
     """Replace strings in signatures by objects defined in the code"""
+
+    types_NameError = set()
+    for signature in signatures:
+        for var_str, type_as_str in signature.items():
+            if type_as_str in namespace_from_code:
+                signature[var_str] = namespace_from_code[type_as_str]
+            else:
+                try:
+                    signature[var_str] = eval(type_as_str)
+                except NameError:
+                    types_NameError.add(type_as_str)
+                except (SyntaxError, TypeError):
+                    pass
+
     namespace = create_objects_from_names(
-        names, def_nodes, module, ancestors, udc, duc
+        types_NameError, module, ancestors, udc, duc
     )
 
     for signature in signatures:
         for var_str, type_as_str in signature.items():
-            if type_as_str in names:
+            if type_as_str in types_NameError:
                 signature[var_str] = namespace[type_as_str]

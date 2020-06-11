@@ -6,7 +6,6 @@
 import gast as ast
 
 from transonic.analyses.util import gather_rawcode_comments
-from transonic.analyses.objects_from_str import replace_strings_by_objects
 
 
 class BlockDefinition:
@@ -15,14 +14,10 @@ class BlockDefinition:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         self.__dict__.update(**kwargs)
+        self.signatures = get_signatures_from_comments(self.comments)
 
     def __repr__(self):
         return repr(self.kwargs)
-
-    def parse_comments(self, namespace=None, info_analysis=None):
-        self.signatures = get_signatures_from_comments(
-            self.comments, namespace, info_analysis
-        )
 
 
 def get_block_definitions(code, module, ancestors, duc, udc):
@@ -119,12 +114,8 @@ def find_index_closing_parenthesis(string: str):
     raise SyntaxError(f"Transonic syntax error for string {string}")
 
 
-def get_signatures_from_comments(
-    comments, namespace_from_code=None, info_analysis=None
-):
+def get_signatures_from_comments(comments):
     """Get the blocks signatures for a block"""
-    if namespace_from_code is None:
-        namespace_from_code = {}
 
     comments = comments.replace("#", "").replace("\n", "")
 
@@ -139,39 +130,19 @@ def get_signatures_from_comments(
             sig = sig[1 : find_index_closing_parenthesis(sig)]
         signatures.append(sig)
 
-    types_NameError = set()
     signatures_tmp = signatures
     signatures = []
     for sig_str in signatures_tmp:
-        sig_dict = {}
+        signature = {}
         type_vars_strs = [tmp.strip() for tmp in sig_str.split(";")]
         type_vars_strs = [tmp for tmp in type_vars_strs if tmp]
 
         for type_vars_str in type_vars_strs:
-            type_, vars_str = type_vars_str.strip().split(" ", 1)
-            if type_ in namespace_from_code:
-                type_ = namespace_from_code[type_]
-            else:
-                try:
-                    type_ = eval(type_)
-                except NameError:
-                    types_NameError.add(type_)
-                except (SyntaxError, TypeError):
-                    pass
+            type_as_str, vars_str = type_vars_str.strip().split(" ", 1)
+
             for var_str in vars_str.split(","):
                 var_str = var_str.strip()
-                sig_dict[var_str] = type_
-        signatures.append(sig_dict)
-
-    if types_NameError:
-        replace_strings_by_objects(
-            signatures,
-            types_NameError,
-            info_analysis["def_nodes"],
-            info_analysis["module"],
-            info_analysis["ancestors"],
-            info_analysis["udc"],
-            info_analysis["duc"],
-        )
+                signature[var_str] = type_as_str
+        signatures.append(signature)
 
     return signatures
