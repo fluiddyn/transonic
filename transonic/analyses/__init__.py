@@ -10,6 +10,7 @@
     justintime
     parser
     util
+    objects_from_str
 
 """
 
