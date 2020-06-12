@@ -179,11 +179,18 @@ def gather_rawcode_comments(node, code_module):
     return rawcode, comments
 
 
-# TODO complete the list
 packages_supported_by_pythran = [
-    "functools",
-    "math",
+    "bisect",
+    "builtins",
     "cmath",
+    "functools",
+    "io",
+    "itertools",
+    "math",
+    "operator",
+    "random",
+    "string",
+    "time",
     "numpy",
     "numpy.fft",
     "numpy.linalg",
