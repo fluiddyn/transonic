@@ -53,23 +53,18 @@ def create_objects_from_names(names, module, ancestors, udc, duc):
     return namespace
 
 
-def replace_strings_by_objects(
-    signatures: dict, module, ancestors, udc, duc, namespace_from_code
-):
+def replace_strings_by_objects(signatures: dict, module, ancestors, udc, duc):
     """Replace strings in signatures by objects defined in the code"""
 
     types_NameError = set()
     for signature in signatures:
         for var_str, type_as_str in signature.items():
-            if type_as_str in namespace_from_code:
-                signature[var_str] = namespace_from_code[type_as_str]
-            else:
-                try:
-                    signature[var_str] = eval(type_as_str)
-                except NameError:
-                    types_NameError.add(type_as_str)
-                except (SyntaxError, TypeError):
-                    pass
+            try:
+                signature[var_str] = eval(type_as_str)
+            except NameError:
+                types_NameError.add(type_as_str)
+            except (SyntaxError, TypeError):
+                pass
 
     namespace = create_objects_from_names(
         types_NameError, module, ancestors, udc, duc

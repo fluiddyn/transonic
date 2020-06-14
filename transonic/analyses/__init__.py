@@ -332,9 +332,7 @@ def analyse_aot(code, pathfile, backend_name):
     blocks = get_block_definitions(code, module, ancestors, duc, udc)
 
     for block in blocks:
-        replace_strings_by_objects(
-            block.signatures, module, ancestors, udc, duc, namespace
-        )
+        replace_strings_by_objects(block.signatures, module, ancestors, udc, duc)
 
     debug(pformat(blocks))
 
@@ -414,9 +412,7 @@ def analyse_aot(code, pathfile, backend_name):
                 ] = extract_returns_annotation(fdef.returns, namespace)
 
     for signatures in annotations["__in_comments__"].values():
-        replace_strings_by_objects(
-            signatures, module, ancestors, udc, duc, namespace
-        )
+        replace_strings_by_objects(signatures, module, ancestors, udc, duc)
 
     debug("annotations:\n" + pformat(annotations))
 
