@@ -4,6 +4,11 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
+0.4.3 (2020-06-14)
+------------------
+
+- Various bugfixes
+
 0.4.2 (2019-10-30)
 ------------------
 
