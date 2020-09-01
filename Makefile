@@ -1,4 +1,6 @@
 
+COV=pytest --cov=transonic --cov-append --cov-config=setup.cfg --no-cov
+
 develop:
 	pip install -e .[dev]
 
@@ -6,7 +8,7 @@ black:
 	black -l 82 transonic transonic_cl data_tests
 
 tests:
-	pytest transonic data_tests/ipynb
+	pytest --nbval-lax transonic data_tests/ipynb
 
 tests_cython:
 	TRANSONIC_BACKEND="cython" pytest transonic data_tests/ipynb
@@ -34,13 +36,13 @@ clean:
 
 tests_coverage_short:
 	mkdir -p .coverage
-	TRANSONIC_BACKEND="python" coverage run -p -m pytest transonic data_tests/ipynb
-	TRANSONIC_BACKEND="numba" coverage run -p -m pytest transonic
-	coverage run -p -m pytest transonic data_tests/ipynb
+	TRANSONIC_BACKEND="python" $(COV) --nbval-lax transonic data_tests/ipynb
+	TRANSONIC_BACKEND="numba" $(COV) transonic
+	$(COV) --nbval-lax transonic data_tests/ipynb
 
 tests_coverage: tests_coverage_short
-	TRANSONIC_BACKEND="cython" coverage run -p -m pytest transonic
-	mpirun -np 2 coverage run -p -m pytest transonic
+	TRANSONIC_BACKEND="cython" $(COV) transonic
+	mpirun -np 2 $(COV) transonic
 
 report_coverage:
 	coverage combine
