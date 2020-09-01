@@ -95,6 +95,7 @@ def filter_code_typevars(module, duc, ancestors):
 
     module_filtered = ast.Module()
     kept = module_filtered.body = []
+    module_filtered.type_ignores = []
     suppressed = set()
 
     def fill_suppressed(def_):

@@ -76,12 +76,20 @@ else:
     except TypeError:
 
         def format_str(src_contents: str):
-            return black.format_str(src_contents, line_length=82)
+            try:
+                return black.format_str(src_contents, line_length=82)
+            except black.InvalidInput:
+                print("black.InvalidInput\n" + src_contents)
+                raise
 
     else:
 
         def format_str(src_contents: str):
-            return black.format_str(src_contents, mode=_mode)
+            try:
+                return black.format_str(src_contents, mode=_mode)
+            except black.InvalidInput:
+                print("black.InvalidInput\n" + src_contents)
+                raise
 
 
 try:

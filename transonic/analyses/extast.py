@@ -6,7 +6,10 @@
 from io import StringIO
 from copy import deepcopy
 
+import ast as _ast
+
 import gast as ast
+from gast.ast3 import GAstToAst3 as _GAstToAst3
 import astunparse
 
 from transonic.analyses import beniget
@@ -31,6 +34,15 @@ class CommentLine(ast.AST):
         return self.__class__(deepcopy(self.s), lineno)
 
 
+class GAstToAst3(_GAstToAst3):
+    def visit_CommentLine(self, node):
+        return node
+
+
+def gast_to_ast(node):
+    return GAstToAst3().visit(node)
+
+
 class UnparserExtended(astunparse.Unparser):
     """Unparser for extented AST"""
 
@@ -38,17 +50,11 @@ class UnparserExtended(astunparse.Unparser):
         self.with_comments = with_comments
         super().__init__(tree, file=file)
 
-    boolops = {ast.And: "and", ast.Or: "or"}
+    boolops = {ast.And: "and", ast.Or: "or", _ast.And: "and", _ast.Or: "or"}
 
     def _CommentLine(self, node):
         if self.with_comments:
             self.write(f"\n{'    '* self._indent}{node.s}")
-
-    def _Name(self, t):
-        self.write(t.id)
-        if t.annotation is not None:
-            self.write(": ")
-            self.dispatch(t.annotation)
 
 
 def parse(code, *args, **kwargs):
@@ -60,6 +66,11 @@ def parse(code, *args, **kwargs):
 
 def unparse(tree, with_comments=True):
     """Unparse the extended AST"""
+
+    module = type(tree).__module__
+    if "gast" in module:
+        tree = gast_to_ast(tree)
+
     v = StringIO()
     UnparserExtended(tree, file=v, with_comments=with_comments)
     return v.getvalue()

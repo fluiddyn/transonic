@@ -4,6 +4,11 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
+0.4.4
+-----
+
+- Compatibility gast 0.4.0 (related to Python 3.9)
+
 0.4.3 (2020-06-14)
 ------------------
 
