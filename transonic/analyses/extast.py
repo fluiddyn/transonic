@@ -5,17 +5,16 @@
 
 from io import StringIO
 from copy import deepcopy
+import ast
 
-import ast as _ast
-
-import gast as ast
-from gast.ast3 import GAstToAst3 as _GAstToAst3
+import gast
+from gast.ast3 import GAstToAst3
 import astunparse
 
 from transonic.analyses import beniget
 
 
-class CommentLine(ast.AST):
+class CommentLine(gast.AST):
     """"New AST node representing a comment line"""
 
     _fields = ("s",)
@@ -34,13 +33,13 @@ class CommentLine(ast.AST):
         return self.__class__(deepcopy(self.s), lineno)
 
 
-class GAstToAst3(_GAstToAst3):
+class GAstToAst3WithCommentLine(GAstToAst3):
     def visit_CommentLine(self, node):
         return node
 
 
 def gast_to_ast(node):
-    return GAstToAst3().visit(node)
+    return GAstToAst3WithCommentLine().visit(node)
 
 
 class UnparserExtended(astunparse.Unparser):
@@ -50,7 +49,7 @@ class UnparserExtended(astunparse.Unparser):
         self.with_comments = with_comments
         super().__init__(tree, file=file)
 
-    boolops = {ast.And: "and", ast.Or: "or", _ast.And: "and", _ast.Or: "or"}
+    boolops = {gast.And: "and", gast.Or: "or", ast.And: "and", ast.Or: "or"}
 
     def _CommentLine(self, node):
         if self.with_comments:
@@ -59,7 +58,7 @@ class UnparserExtended(astunparse.Unparser):
 
 def parse(code, *args, **kwargs):
     """Parse a code and produce the extended AST"""
-    tree = ast.parse(code, *args, **kwargs)
+    tree = gast.parse(code, *args, **kwargs)
     CommentInserter(tree, code)
     return tree
 
@@ -76,7 +75,7 @@ def unparse(tree, with_comments=True):
     return v.getvalue()
 
 
-class CommentInserter(ast.NodeVisitor):
+class CommentInserter(gast.NodeVisitor):
     """Insert the CommentLine nodes in an AST tree"""
 
     def __init__(self, tree, code):
@@ -163,7 +162,7 @@ class CommentInserter(ast.NodeVisitor):
             except KeyError:
                 pass
             else:
-                if isinstance(node_before, ast.Module):
+                if isinstance(node_before, gast.Module):
                     self.tree.body.insert(0, CommentLine(line, lineno))
 
     def insert_comment_in_parent_before_node(self, line, lineno, node):
@@ -171,7 +170,7 @@ class CommentInserter(ast.NodeVisitor):
         parent = self.ancestors.parent(node)
         comment = line.strip()
 
-        for field, value in ast.iter_fields(parent):
+        for field, value in gast.iter_fields(parent):
             if isinstance(value, list):
                 if node in value:
                     index = value.index(node)
@@ -179,19 +178,19 @@ class CommentInserter(ast.NodeVisitor):
 
 
 try:
-    ast.Constant
+    gast.Constant
 except AttributeError:
     # gast < 0.3.0
-    class Constant(ast.Str):
+    class Constant(gast.Str):
         def __init__(self, value):
             super().__init__(value)
             self.value = value
 
-    class Name(ast.Name):
-        def __init__(self, id="annotations", ctx=ast.Store(), annotation=None):
+    class Name(gast.Name):
+        def __init__(self, id="annotations", ctx=gast.Store(), annotation=None):
             super().__init__(id, ctx, annotation)
 
-    class FunctionDef(ast.FunctionDef):
+    class FunctionDef(gast.FunctionDef):
         def __init__(
             self,
             name,
@@ -208,15 +207,15 @@ except AttributeError:
 
 else:
     # gast >= 0.3.0
-    class Constant(ast.Constant):
+    class Constant(gast.Constant):
         def __init__(self, value):
             super().__init__(value, None)
 
-    class Name(ast.Name):
-        def __init__(self, id="annotations", ctx=ast.Store(), annotation=None):
+    class Name(gast.Name):
+        def __init__(self, id="annotations", ctx=gast.Store(), annotation=None):
             super().__init__(id, ctx, annotation, None)
 
-    class FunctionDef(ast.FunctionDef):
+    class FunctionDef(gast.FunctionDef):
         def __init__(
             self,
             name,

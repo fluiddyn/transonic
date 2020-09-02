@@ -22,7 +22,7 @@ import inspect
 
 from warnings import warn
 
-from transonic.analyses.extast import unparse, ast, FunctionDef, Name
+from transonic.analyses.extast import unparse, gast, FunctionDef, Name
 from transonic.signatures import make_signatures_from_typehinted_func
 from transonic.typing import format_type_as_backend_type, MemLayout
 
@@ -320,7 +320,7 @@ class CythonBackend(BackendAOT):
 
         # change function parameters
         if fdef.args.defaults:
-            name_start = Name("*", ast.Param())
+            name_start = Name("*", gast.Param())
             fdef.args.defaults = [name_start] * len(fdef.args.defaults)
         for name in fdef.args.args:
             name.annotation = None

@@ -224,7 +224,7 @@ class Backend:
         for block in blocks:
 
             str_variables = ", ".join(block.signatures[0].keys())
-            fdef_block = extast.ast.parse(
+            fdef_block = extast.gast.parse(
                 f"""def {block.name}({str_variables}):pass"""
             ).body[0]
 

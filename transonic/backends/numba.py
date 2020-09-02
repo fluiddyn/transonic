@@ -16,7 +16,7 @@ Internal API
 
 from typing import Optional
 
-from transonic.analyses.extast import parse, unparse, CommentLine, ast
+from transonic.analyses.extast import parse, unparse, CommentLine, gast
 from transonic.util import format_str
 
 from .py import PythonBackend, SubBackendJITPython
@@ -28,7 +28,7 @@ def add_numba_comments(code):
     new_body = [CommentLine("# __protected__ from numba import njit")]
 
     for node in mod.body:
-        if isinstance(node, ast.FunctionDef):
+        if isinstance(node, gast.FunctionDef):
             new_body.append(CommentLine("# __protected__ @njit"))
         new_body.append(node)
 
