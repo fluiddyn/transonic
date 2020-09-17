@@ -4,6 +4,11 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
+0.4.5
+-----
+
+- Quick fix incompatibility between pip/pep517 and colorlog
+
 0.4.4
 -----
 
