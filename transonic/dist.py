@@ -70,7 +70,11 @@ def get_logger(name):
     try:
         import colorlog as logging
 
-        handler = logging.StreamHandler()
+        try:
+            handler = logging.StreamHandler()
+        except AttributeError:
+            # see https://github.com/pypa/pip/issues/8887
+            raise ImportError
         handler.setFormatter(
             logging.ColoredFormatter("%(log_color)s%(levelname)s: %(message)s")
         )
@@ -244,6 +248,10 @@ class ParallelBuildExt(*build_ext_classes):
     def logger(self):
         try:
             import colorlog as logging
+
+            # see https://github.com/pypa/pip/issues/8887
+            if "pep517" in repr(logging):
+                raise ImportError
         except ImportError:
             import logging
 
