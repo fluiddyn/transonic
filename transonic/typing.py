@@ -842,9 +842,7 @@ class Optional(metaclass=OptionalMeta):
 
 
 def format_type_as_backend_type(type_, backend_type_formatter, **kwargs):
-    """Format a Transonic type as a backend (Pythran, Cython, ...) type
-
-    """
+    """Format a Transonic type as a backend (Pythran, Cython, ...) type"""
     if type_ is None:
         # None has a special meaning for typing...
         return "None"
@@ -969,7 +967,7 @@ def typeof(obj):
     if isinstance(obj, list):
         type_elem = type(obj[0])
         if not all(isinstance(elem, type_elem) for elem in obj):
-            raise ValueError("The list {obj} is not homogeneous in type")
+            raise ValueError(f"The list {obj} is not homogeneous in type")
 
         return List[typeof(obj[0])]
 
