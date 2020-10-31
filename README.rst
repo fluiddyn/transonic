@@ -1,9 +1,3 @@
-.. warning ::
-
-   Our repository in Bitbucket.org will soon be deleted! Our new home:
-   https://foss.heptapod.net/fluiddyn/transonic (`more details
-   <https://fluiddyn.readthedocs.io/en/latest/advice_developers.html>`_).
-
 Make your Python code fly at *transonic* speeds!
 ================================================
 
