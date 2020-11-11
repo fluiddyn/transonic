@@ -32,6 +32,7 @@ from datetime import datetime
 from transonic import mpi
 from transonic.mpi import Path, PathSeq
 from transonic.log import logger
+from transonic.progress import track, Progress
 
 ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 
@@ -59,9 +60,7 @@ def make_hex(src):
 
 
 class SchedulerPopen:
-    """Limit the number of compilations performed in parallel
-
-    """
+    """Limit the number of compilations performed in parallel"""
 
     deltat = 0.2
 
@@ -69,6 +68,7 @@ class SchedulerPopen:
         if mpi.rank > 0:
             return
         self.processes = []
+        self.progress = Progress(redirect_stdout=False, redirect_stderr=False)
         if parallel:
             self.limit_nb_processes = max(1, multiprocessing.cpu_count() // 2)
         else:
@@ -82,7 +82,12 @@ class SchedulerPopen:
             else:
                 limit = 1
 
-            while len(self.processes) >= limit:
+            while (
+                len(
+                    self.processes,
+                )
+                >= limit
+            ):
                 time.sleep(self.deltat)
                 self.processes = [
                     process
@@ -95,6 +100,9 @@ class SchedulerPopen:
     def wait_for_all_extensions(self):
         """Wait until all compilation processes are done"""
         if mpi.rank == 0:
+            total = len(scheduler.processes)
+            task = self.progress.add_task("Wait for all extensions", total=total)
+
             while self.processes:
                 time.sleep(self.deltat)
                 self.processes = [
@@ -102,6 +110,7 @@ class SchedulerPopen:
                     for process in self.processes
                     if process.is_alive_root()
                 ]
+                self.progress.update(task, advance=total - len(self.processes))
 
         mpi.barrier(timeout=None)
 
@@ -117,7 +126,6 @@ class SchedulerPopen:
         parallel=True,
         force=True,
     ):
-
         if not force:
             path_out = path.with_name(name_ext_file)
             if not has_to_build(path_out, path):
@@ -129,7 +137,13 @@ class SchedulerPopen:
                 return
 
         if mpi.rank == 0:
-            logger.info(f"Schedule {backend}ization of file {path}")
+            task = self.progress.add_task(
+                f"Schedule {backend}ization: {path.name}"  # .rjust(60)[:60]
+            )
+
+        def advance(value):
+            if mpi.rank == 0:
+                self.progress.update(task, advance=value)
 
         if str_accelerator_flags is not None:
             flags = str_accelerator_flags.strip().split()
@@ -167,7 +181,9 @@ class SchedulerPopen:
 
         cwd = path.parent
 
+        advance(10)
         self.block_until_avail(parallel)
+        advance(20)
 
         process = None
         if mpi.rank == 0:
@@ -184,6 +200,12 @@ class SchedulerPopen:
 
         if mpi.rank == 0:
             self.processes.append(process)
+
+        advance(70)
+        time.sleep(0.5)
+        # FIXME: If we don't remove the task, duplicate progress bars appear
+        self.progress.remove_task(task)
+
         return process
 
 
@@ -192,7 +214,8 @@ scheduler = SchedulerPopen()
 
 def wait_for_all_extensions():
     """Wait until all compilation processes are done"""
-    scheduler.wait_for_all_extensions()
+    with scheduler.progress:
+        scheduler.wait_for_all_extensions()
 
 
 def compile_extension(
@@ -206,19 +229,19 @@ def compile_extension(
     parallel=False,
     force=False,
 ):
-    print("compile extension")
     if not isinstance(path, Path):
         path = Path(path)
 
     # return the process
-    return scheduler.compile_extension(
-        path,
-        backend,
-        name_ext_file,
-        native=native,
-        xsimd=xsimd,
-        openmp=openmp,
-        str_accelerator_flags=str_accelerator_flags,
-        parallel=parallel,
-        force=force,
-    )
+    with scheduler.progress:
+        return scheduler.compile_extension(
+            path,
+            backend,
+            name_ext_file,
+            native=native,
+            xsimd=xsimd,
+            openmp=openmp,
+            str_accelerator_flags=str_accelerator_flags,
+            parallel=parallel,
+            force=force,
+        )

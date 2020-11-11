@@ -101,4 +101,4 @@ after_failure:
 
 notifications:
   email: false
-  irc: "chat.freenode.net#fluiddyn-dev"
+  irc: "chat.freenode.net#fluiddyn-tasks"
