@@ -5,38 +5,26 @@ Relies on the rich package if it is installed. If not, fall back to simple
 logging messages.
 
 """
+from transonic.log import logger
+
+
 try:
-    from transonic.log import logger
     import rich
 except ImportError:
-    logger.debug("Install rich for tracking progress.")
 
     def track(sequence, *args, **kwargs):
         return sequence
 
-    class Progress:
-        def __init__(self, *args, **kwargs):
-            pass
+    def _add_task(description, *args, **kwargs):
+        logger.info(description)
 
-        def __enter__(self) -> "Progress":
-            return self
+    def Progress(*args, **kwargs):
+        """Mock all methods of the Progress class except add_task."""
+        from unittest.mock import MagicMock
 
-        def __exit__(self, *exc):
-            return False
+        return MagicMock(name="Progress", add_task=_add_task)
 
-        def add_task(self, description, *args, **kwargs):
-            logger.info(description)
-
-        def remove_task(self, *args, **kwargs):
-            pass
-
-        def update(self, *args, **kwargs):
-            pass
-
-
+    logger.debug("Install rich for tracking progress.")
 else:
     logger.debug("Using rich for tracking progress.")
     from rich.progress import track, Progress
-
-
-progress = Progress()
