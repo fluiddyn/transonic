@@ -27,6 +27,9 @@ except ImportError:
         def add_task(self, description, *args, **kwargs):
             logger.info(description)
 
+        def remove_task(self, *args, **kwargs):
+            pass
+
         def update(self, *args, **kwargs):
             pass
 
