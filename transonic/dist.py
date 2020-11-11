@@ -68,16 +68,8 @@ def get_logger(name):
 
     """
     try:
-        import colorlog as logging
-
-        try:
-            handler = logging.StreamHandler()
-        except AttributeError:
-            # see https://github.com/pypa/pip/issues/8887
-            raise ImportError
-        handler.setFormatter(
-            logging.ColoredFormatter("%(log_color)s%(levelname)s: %(message)s")
-        )
+        from rich.logging import RichHandler
+        handler = RichHandler()
     except ImportError:
         import logging
 
