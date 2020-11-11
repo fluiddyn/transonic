@@ -82,12 +82,7 @@ class SchedulerPopen:
             else:
                 limit = 1
 
-            while (
-                len(
-                    self.processes,
-                )
-                >= limit
-            ):
+            while len(self.processes) >= limit:
                 time.sleep(self.deltat)
                 self.processes = [
                     process
@@ -138,7 +133,7 @@ class SchedulerPopen:
 
         if mpi.rank == 0:
             task = self.progress.add_task(
-                f"Schedule {backend}ization: {path.name}"  # .rjust(60)[:60]
+                f"Schedule {backend}ization: {path.name}"
             )
 
         def advance(value):
@@ -202,7 +197,6 @@ class SchedulerPopen:
             self.processes.append(process)
 
         advance(70)
-        time.sleep(0.5)
         # FIXME: If we don't remove the task, duplicate progress bars appear
         self.progress.remove_task(task)
 
