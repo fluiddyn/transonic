@@ -32,7 +32,7 @@ from datetime import datetime
 from transonic import mpi
 from transonic.mpi import Path, PathSeq
 from transonic.log import logger
-from transonic.progress import track, Progress
+from transonic.progress import Progress
 
 ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 
@@ -65,10 +65,10 @@ class SchedulerPopen:
     deltat = 0.2
 
     def __init__(self, parallel=True):
+        self.progress = Progress(redirect_stdout=False, redirect_stderr=False)
         if mpi.rank > 0:
             return
         self.processes = []
-        self.progress = Progress(redirect_stdout=False, redirect_stderr=False)
         if parallel:
             self.limit_nb_processes = max(1, multiprocessing.cpu_count() // 2)
         else:
@@ -197,8 +197,9 @@ class SchedulerPopen:
             self.processes.append(process)
 
         advance(70)
-        # FIXME: If we don't remove the task, duplicate progress bars appear
-        self.progress.remove_task(task)
+        if mpi.rank == 0:
+            # FIXME: If we don't remove the task, duplicate progress bars appear
+            self.progress.remove_task(task)
 
         return process
 
