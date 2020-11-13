@@ -17,7 +17,7 @@ import sys
 
 from transonic import __version__
 
-from transonic.compiler import wait_for_all_extensions
+from transonic.compiler import wait_for_all_extensions, scheduler
 
 from .backends import backends
 from transonic.config import backend_default
@@ -106,15 +106,16 @@ def run():
         if backend_path.exists() and has_to_build(ext_path, backend_path):
             backends_paths.append(backend_path)
 
-    backend.compile_extensions(
-        backends_paths,
-        str_accelerator_flags=args.accelerator_flags,
-        parallel=True,
-        force=args.force,
-    )
+    with scheduler.progress:
+        backend.compile_extensions(
+            backends_paths,
+            str_accelerator_flags=args.accelerator_flags,
+            parallel=True,
+            force=args.force,
+        )
 
-    if not args.no_blocking:
-        wait_for_all_extensions()
+        if not args.no_blocking:
+            wait_for_all_extensions()
 
 
 def parse_args():

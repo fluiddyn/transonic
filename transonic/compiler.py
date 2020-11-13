@@ -197,9 +197,6 @@ class SchedulerPopen:
             self.processes.append(process)
 
         advance(70)
-        if mpi.rank == 0:
-            # FIXME: If we don't remove the task, duplicate progress bars appear
-            self.progress.remove_task(task)
 
         return process
 
@@ -209,8 +206,7 @@ scheduler = SchedulerPopen()
 
 def wait_for_all_extensions():
     """Wait until all compilation processes are done"""
-    with scheduler.progress:
-        scheduler.wait_for_all_extensions()
+    scheduler.wait_for_all_extensions()
 
 
 def compile_extension(
@@ -228,15 +224,14 @@ def compile_extension(
         path = Path(path)
 
     # return the process
-    with scheduler.progress:
-        return scheduler.compile_extension(
-            path,
-            backend,
-            name_ext_file,
-            native=native,
-            xsimd=xsimd,
-            openmp=openmp,
-            str_accelerator_flags=str_accelerator_flags,
-            parallel=parallel,
-            force=force,
-        )
+    return scheduler.compile_extension(
+        path,
+        backend,
+        name_ext_file,
+        native=native,
+        xsimd=xsimd,
+        openmp=openmp,
+        str_accelerator_flags=str_accelerator_flags,
+        parallel=parallel,
+        force=force,
+    )
