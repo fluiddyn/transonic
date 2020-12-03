@@ -72,7 +72,7 @@ The long-term project
 
   The context of the creation of Transonic is presented in these documents:
 
-  - `Transonic Vision <https://fluiddyn.bitbucket.io/transonic-vision.html>`_
+  - `Transonic Vision <https://fluiddyn.netlify.app/transonic-vision.html>`_
 
   - `Make your numerical Python code fly at transonic speed (EuroScipy 2019)
     <http://www.legi.grenoble-inp.fr/people/Pierre.Augier/docs/ipynbslides/20190904-euroscipy-transonic/pres.slides.html#/>`_,
