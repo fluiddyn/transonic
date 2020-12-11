@@ -105,7 +105,7 @@ class SchedulerPopen:
                     for process in self.processes
                     if process.is_alive_root()
                 ]
-                self.progress.update(task, advance=total - len(self.processes))
+                self.progress.update(task, completed=total - len(self.processes))
 
         mpi.barrier(timeout=None)
 
