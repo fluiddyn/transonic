@@ -4,6 +4,11 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
+0.4.6
+-----
+
+- Using `rich <https://pypi.org/project/rich>`__ if available
+
 0.4.5
 -----
 
