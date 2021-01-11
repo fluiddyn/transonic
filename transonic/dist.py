@@ -20,6 +20,7 @@ from distutils.sysconfig import get_config_var
 from typing import Iterable
 from concurrent.futures import ThreadPoolExecutor as Pool
 import re
+import logging
 
 from distutils.command.build_ext import build_ext as DistutilsBuildExt
 
@@ -63,7 +64,7 @@ __all__ = [
 
 
 def get_logger(name):
-    """Returns a logger instance using ``colorlog`` package if available; else
+    """Returns a logger instance using ``rich`` package if available; else
     defaults to ``logging`` standard library.
 
     """
@@ -71,8 +72,6 @@ def get_logger(name):
         from rich.logging import RichHandler
         handler = RichHandler()
     except ImportError:
-        import logging
-
         handler = logging.StreamHandler()
 
     logger = logging.getLogger(name)
