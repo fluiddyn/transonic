@@ -237,16 +237,7 @@ def init_transonic_extensions(
 class ParallelBuildExt(*build_ext_classes):
     @property
     def logger(self):
-        try:
-            import colorlog as logging
-
-            # see https://github.com/pypa/pip/issues/8887
-            if "pep517" in repr(logging):
-                raise ImportError
-        except ImportError:
-            import logging
-
-        logger = logging.getLogger(self.logger_name)
+        logger = get_logger(self.logger_name)
         return logger
 
     def initialize_options(self):
