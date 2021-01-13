@@ -83,7 +83,7 @@ install:
         conda install -q -y virtualenv numpy cython mpi4py openmpi
         pip install -U tox fluiddevops coverage
       else
-        pip install -U pip setuptools wheel six
+        pip install -U pip setuptools wheel virtualenv
         pip install -U tox coverage fluiddevops
       fi
 
