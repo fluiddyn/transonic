@@ -188,6 +188,7 @@ packages_supported_by_pythran = [
     "io",
     "itertools",
     "math",
+    "omp",
     "operator",
     "random",
     "string",
