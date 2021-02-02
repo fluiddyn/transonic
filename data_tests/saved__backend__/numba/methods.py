@@ -1,7 +1,7 @@
 # __protected__ from numba import njit
 import numpy as np
 
-# __protected__ @njit
+# __protected__ @njit(cache=True, fastmath=True)
 
 
 def __for_method__Transmitter____call__(self_arr, self_freq, inp):
@@ -10,4 +10,4 @@ def __for_method__Transmitter____call__(self_arr, self_freq, inp):
 
 
 __code_new_method__Transmitter____call__ = "\n\ndef new_method(self, inp):\n    return backend_func(self.arr, self.freq, inp)\n\n"
-__transonic__ = ("0.3.0.post0",)
+__transonic__ = ("0.4.7",)

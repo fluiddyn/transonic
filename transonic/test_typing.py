@@ -41,8 +41,8 @@ def test_NDim():
 
 
 def test_str2type_simple():
-    assert str2type("int") == np.int
-    assert str2type("float") == np.float
+    assert str2type("int") == int
+    assert str2type("float") == float
     assert str2type("uint32") == np.uint32
 
 

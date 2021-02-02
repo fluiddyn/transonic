@@ -890,15 +890,16 @@ def str2type(str_type):
         # not a simple type
         pass
 
-    # could be a numpy type
-    try:
-        if not str_type.startswith("np."):
-            dtype = "np." + str_type
-        else:
-            dtype = str_type
-        return eval(dtype, {"np": np})
-    except (TypeError, SyntaxError, AttributeError):
-        pass
+    if "[" not in str_type:
+        # could be a numpy type
+        try:
+            if not str_type.startswith("np."):
+                dtype = "np." + str_type
+            else:
+                dtype = str_type
+            return eval(dtype, {"np": np})
+        except (TypeError, SyntaxError, AttributeError):
+            pass
 
     if str_type.startswith("(") and str_type.endswith(")"):
         re_comma = re.compile(r",(?![^\[]*\])(?![^\(]*\))")
@@ -931,7 +932,8 @@ def str2type(str_type):
         raise ValueError(f"Can't determine the Transonic type from '{str_type}'")
 
     dtype, str_shape = str_type.split("[", 1)
-    if not dtype.startswith("np."):
+    dtype = dtype.strip()
+    if not dtype.startswith("np.") and dtype not in ("int", "float"):
         dtype = "np." + dtype
     str_shape = "[" + str_shape
     dtype = eval(dtype, {"np": np})

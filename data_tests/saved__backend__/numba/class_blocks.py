@@ -1,7 +1,7 @@
 # __protected__ from numba import njit
 import numpy as np
 
-# __protected__ @njit
+# __protected__ @njit(cache=True, fastmath=True)
 
 
 def block0(a, b, n):
@@ -22,7 +22,7 @@ def block0(a, b, n):
     return result
 
 
-# __protected__ @njit
+# __protected__ @njit(cache=True, fastmath=True)
 
 
 def block1(a, b, n):
@@ -41,4 +41,4 @@ def block1(a, b, n):
 
 
 arguments_blocks = {"block0": ["a", "b", "n"], "block1": ["a", "b", "n"]}
-__transonic__ = ("0.4.2",)
+__transonic__ = ("0.4.7",)

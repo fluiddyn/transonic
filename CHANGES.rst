@@ -4,6 +4,13 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
+0.4.7
+-----
+
+- Numba backend: using by default ``@njit(cache=True, fastmath=True)``
+- Better logging with rich
+- Support Pythran code using the omp module provided by Pythran
+
 0.4.6
 -----
 

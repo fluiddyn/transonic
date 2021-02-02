@@ -1,5 +1,5 @@
 # __protected__ from numba import njit
-# __protected__ @njit
+# __protected__ @njit(cache=True, fastmath=True)
 
 
 def compute(a, b, c, d, e):
@@ -10,4 +10,4 @@ def compute(a, b, c, d, e):
     return tmp
 
 
-__transonic__ = ("0.3.0.post0",)
+__transonic__ = ("0.4.7",)

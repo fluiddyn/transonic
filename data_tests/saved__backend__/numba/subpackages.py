@@ -4,7 +4,7 @@ from numpy.random import randn
 from numpy.linalg import matrix_power
 from scipy.special import jv
 
-# __protected__ @njit
+# __protected__ @njit(cache=True, fastmath=True)
 
 
 def test_np_fft(u):
@@ -12,7 +12,7 @@ def test_np_fft(u):
     return u_fft
 
 
-# __protected__ @njit
+# __protected__ @njit(cache=True, fastmath=True)
 
 
 def test_np_linalg_random(u):
@@ -23,11 +23,11 @@ def test_np_linalg_random(u):
     return u4
 
 
-# __protected__ @njit
+# __protected__ @njit(cache=True, fastmath=True)
 
 
 def test_sp_special(v, x):
     return jv(v, x)
 
 
-__transonic__ = ("0.4.2",)
+__transonic__ = ("0.4.7",)

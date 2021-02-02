@@ -1,14 +1,14 @@
 # __protected__ from numba import njit
 import numpy as np
 
-# __protected__ @njit
+# __protected__ @njit(cache=True, fastmath=True)
 
 
 def row_sum(arr, columns):
     return arr.T[columns].sum(0)
 
 
-# __protected__ @njit
+# __protected__ @njit(cache=True, fastmath=True)
 
 
 def row_sum_loops(arr, columns):
@@ -24,4 +24,4 @@ def row_sum_loops(arr, columns):
     return res
 
 
-__transonic__ = ("0.3.3.post0",)
+__transonic__ = ("0.4.7",)

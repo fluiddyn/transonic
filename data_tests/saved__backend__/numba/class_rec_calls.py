@@ -1,5 +1,5 @@
 # __protected__ from numba import njit
-# __protected__ @njit
+# __protected__ @njit(cache=True, fastmath=True)
 
 
 def __for_method__Myclass__func(self_attr, self_attr2, arg):
@@ -15,4 +15,4 @@ def __for_method__Myclass__func(self_attr, self_attr2, arg):
 
 
 __code_new_method__Myclass__func = "\n\ndef new_method(self, arg):\n    return backend_func(self.attr, self.attr2, arg)\n\n"
-__transonic__ = ("0.3.0.post0",)
+__transonic__ = ("0.4.7",)
