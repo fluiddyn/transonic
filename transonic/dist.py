@@ -20,7 +20,6 @@ from distutils.sysconfig import get_config_var
 from typing import Iterable
 from concurrent.futures import ThreadPoolExecutor as Pool
 import re
-import logging
 
 from distutils.command.build_ext import build_ext as DistutilsBuildExt
 
@@ -44,11 +43,11 @@ else:
     build_ext_classes.insert(0, PythranBuildExt)
     can_import_pythran = True
 
-from .util import modification_date
-
+from transonic.util import modification_date
 from transonic.config import backend_default
 from transonic.backends import make_backend_files, backends
 from transonic.util import can_import_accelerator
+from transonic.log import get_logger
 
 __all__ = [
     "PythranBuildExt",
@@ -61,22 +60,6 @@ __all__ = [
     "ParallelBuildExt",
     "make_backend_files",
 ]
-
-
-def get_logger(name):
-    """Returns a logger instance using ``rich`` package if available; else
-    defaults to ``logging`` standard library.
-
-    """
-    try:
-        from rich.logging import RichHandler
-        handler = RichHandler()
-    except ImportError:
-        handler = logging.StreamHandler()
-
-    logger = logging.getLogger(name)
-    logger.addHandler(handler)
-    return logger
 
 
 def detect_transonic_extensions(
@@ -268,10 +251,17 @@ class ParallelBuildExt(*build_ext_classes):
             try:
                 from psutil import virtual_memory
             except ImportError:
-                pass
+                self.logger.warn(
+                    "psutil not available at build time. "
+                    "Cannot check memory available and potentially limit num_jobs."
+                )
             else:
                 avail_memory_in_Go = virtual_memory().available / 1e9
                 limit_num_jobs = round(avail_memory_in_Go / 3)
+                if num_jobs > limit_num_jobs:
+                    self.logger.info(
+                        f"num_jobs limited by memory, fixed at {limit_num_jobs}"
+                    )
                 num_jobs = min(num_jobs, limit_num_jobs)
         return num_jobs
 
@@ -320,10 +310,13 @@ class ParallelBuildExt(*build_ext_classes):
 
         # Separate building extensions of different types to avoid race conditions
         num_jobs = self.parallel
-        for exts in extensions_by_type.values():
-            logger.info(f"Start build_extension: {names(exts)}")
+        logger.info(f"_build_extensions_parallel with num_jobs = {num_jobs}")
+        for type_ext, exts in extensions_by_type.items():
+            logger.info(
+                f"Building extensions of type {type_ext}: {names(exts)}"
+            )
 
             with Pool(num_jobs) as pool:
                 pool.map(self.build_extension, exts)
 
-            logger.info(f"Stop build_extension: {names(exts)}")
+            logger.info(f"Extensions built: {names(exts)}")

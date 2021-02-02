@@ -9,17 +9,35 @@ import logging
 from types import MethodType
 import os
 
-logger = logging.getLogger("transonic")
+def create_logger(name, show_time=False, show_path=False):
+    """Returns a logger instance using ``rich`` package if available; else
+    defaults to ``logging`` standard library.
 
-# Initialize logging
-try:
-    from rich.logging import RichHandler
+    """
+    try:
+        from rich.logging import RichHandler
 
-    logger.addHandler(RichHandler())
-except ImportError:
-    # No color available, use default config
-    logging.basicConfig(format="%(levelname)s: %(message)s")
-    logger.info("Disabling color, you really want to install rich.")
+        handler = RichHandler(show_time=show_time, show_path=show_path)
+    except ImportError:
+        handler = logging.StreamHandler()
+
+    logger = logging.getLogger(name)
+    logger.addHandler(handler)
+    return logger
+
+
+def get_logger(name):
+    """Returns a logger instance using ``rich`` package if available; else
+    defaults to ``logging`` standard library.
+
+    """
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        logger = create_logger(name)
+    return logger
+
+
+logger = create_logger("transonic")
 
 
 def _get_level_number(level):
