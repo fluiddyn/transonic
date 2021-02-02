@@ -257,7 +257,7 @@ class ParallelBuildExt(*build_ext_classes):
                 )
             else:
                 avail_memory_in_Go = virtual_memory().available / 1e9
-                limit_num_jobs = round(avail_memory_in_Go / 3)
+                limit_num_jobs = max(1, round(avail_memory_in_Go / 3))
                 if num_jobs > limit_num_jobs:
                     self.logger.info(
                         f"num_jobs limited by memory, fixed at {limit_num_jobs}"
