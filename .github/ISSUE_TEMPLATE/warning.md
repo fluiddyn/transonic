@@ -1,6 +1,6 @@
 ---
-name: "Bug report"
-about: Report a bug.
+name: "Warning"
+about: Please, open issue in https://foss.heptapod.net and not on Github.
 
 ---
 

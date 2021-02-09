@@ -2,4 +2,4 @@ blank_issues_enabled: false
 contact_links:
   - name: Transonic issue tracker
     url: https://foss.heptapod.net/fluiddyn/transonic/-/issues
-    about: Please open issues in https://foss.heptapod.net
+    about: Please open issues in https://foss.heptapod.net/fluiddyn/transonic/-/issues
