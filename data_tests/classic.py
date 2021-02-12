@@ -6,7 +6,7 @@ from transonic import boost
 #  float[][],
 #  float[][]
 # )
-# transonic def func(int[][], float[][])
+#transonic def func(int[][], float[][])
 
 
 @boost
