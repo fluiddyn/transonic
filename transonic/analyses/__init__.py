@@ -14,6 +14,7 @@
 
 """
 
+import re
 from pprint import pformat
 
 import gast as ast
@@ -384,6 +385,9 @@ def analyse_aot(code, pathfile, backend_name):
     annotations["__locals__"] = {}
     annotations["__returns__"] = {}
 
+    # match a comma except if inside backets (for `float[:,:]`)
+    pattern = re.compile(r",\s*(?![^[]*\])")
+
     for functions_backend in boosted_dicts["functions"].values():
         for name_func, fdef in functions_backend.items():
             try:
@@ -395,7 +399,7 @@ def analyse_aot(code, pathfile, backend_name):
             for sig in signatures:
                 types = [
                     type_.strip()
-                    for type_ in sig[len(fdef.name) + 1 : -1].split(",")
+                    for type_ in re.split(pattern, sig[len(fdef.name) + 1 : -1])
                 ]
                 annotations_sign.append(dict(zip(arg_names, types)))
             if annotations_sign:

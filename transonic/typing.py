@@ -877,7 +877,6 @@ def str2type(str_type):
     >>> str2type("(int, float[:, :])")
     Tuple[int, Array[float, "2d"]]
     """
-
     str_type = str_type.strip()
 
     if " or " in str_type:
