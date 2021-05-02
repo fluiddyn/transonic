@@ -4,7 +4,7 @@ from .extast import parse, unparse
 
 
 def test_ExtSlice():
-    code = "foo[:, b]"
+    code = "# a comment\nfoo[:, b]"
     code_back = unparse(parse(code)).strip()
     assert code_back == code
 
