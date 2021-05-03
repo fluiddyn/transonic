@@ -251,7 +251,7 @@ class ParallelBuildExt(*build_ext_classes):
             try:
                 from psutil import virtual_memory
             except ImportError:
-                self.logger.warn(
+                self.logger.warning(
                     "psutil not available at build time. "
                     "Cannot check memory available and potentially limit num_jobs."
                 )

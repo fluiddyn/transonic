@@ -1,0 +1,18 @@
+export compute(complex128[:, :, :], complex128[:, :, :], complex128, complex128[:, :, :], str)
+export compute(complex128[:, :, :], complex128[:, :, :], complex128, float32[:, :, :, :], str)
+export compute(complex128[:, :, :], complex128[:, :, :], int, complex128[:, :, :], str)
+export compute(complex128[:, :, :], complex128[:, :, :], int, float32[:, :, :, :], str)
+export compute(complex128[:], complex128[:], complex128, complex128[:], str)
+export compute(complex128[:], complex128[:], complex128, float32[:, :], str)
+export compute(complex128[:], complex128[:], int, complex128[:], str)
+export compute(complex128[:], complex128[:], int, float32[:, :], str)
+export compute(int[:, :, :], int[:, :, :], complex128, float32[:, :, :, :], str)
+export compute(int[:, :, :], int[:, :, :], complex128, int[:, :, :], str)
+export compute(int[:, :, :], int[:, :, :], int, float32[:, :, :, :], str)
+export compute(int[:, :, :], int[:, :, :], int, int[:, :, :], str)
+export compute(int[:], int[:], complex128, float32[:, :], str)
+export compute(int[:], int[:], complex128, int[:], str)
+export compute(int[:], int[:], int, float32[:, :], str)
+export compute(int[:], int[:], int, int[:], str)
+
+export __transonic__

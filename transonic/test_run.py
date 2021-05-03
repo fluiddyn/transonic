@@ -42,14 +42,23 @@ def test_create_pythran_files():
         "exterior_import_boost.py",
         "exterior_import_boost_2.py",
     ]
+
+    try:
+        from ast import unparse
+    except ImportError:
+        dir_saved_files = "saved__backend__"
+    else:
+        dir_saved_files = "saved__backend__py3.9"
+
     for path in paths:
         if path.name in no_compare:
             continue
 
         __backend__path = path.parent / f"__{backend_default}__" / path.name
         assert __backend__path.exists()
+
         saved_path = (
-            path.parent / "saved__backend__" / backend_default / path.name
+            path.parent / dir_saved_files / backend_default / path.name
         )
         assert saved_path.exists()
 

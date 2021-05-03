@@ -5,11 +5,9 @@
 
 from io import StringIO
 from copy import deepcopy
-import ast
 
 import gast
 from gast.ast3 import GAstToAst3
-import astunparse
 
 from transonic.analyses import beniget
 
@@ -54,7 +52,9 @@ try:
 
     del unparse
 except ImportError:
-    # python < 3.9
+    # python < 3.9 (we use astunparse)
+
+    import astunparse
 
     class UnparserExtended(astunparse.Unparser):
         """Unparser for extented AST"""
@@ -62,8 +62,6 @@ except ImportError:
         def __init__(self, tree, file, with_comments=True):
             self.with_comments = with_comments
             super().__init__(tree, file=file)
-
-        boolops = {gast.And: "and", gast.Or: "or", ast.And: "and", ast.Or: "or"}
 
         def _CommentLine(self, node):
             if self.with_comments:
@@ -82,16 +80,13 @@ except ImportError:
 
 
 else:
-    # python >= 3.9
+    # python >= 3.9 (we use _ast._Unparser)
 
     import ast as _ast
 
     class UnparserExtended(_ast._Unparser):
-        # boolops = {gast.And: "and", gast.Or: "or", ast.And: "and", ast.Or: "or"}
-
         def __init__(self, *, with_comments=True):
             self.with_comments = with_comments
-            self._lineno = 0
             super().__init__()
 
         def visit_CommentLine(self, node):
@@ -99,26 +94,28 @@ else:
                 self.write(f"\n{'    '* self._indent}{node.s}")
 
         def visit_Assign(self, node):
-
             try:
                 node.lineno
             except AttributeError:
                 node.lineno = 1
-
             super().visit_Assign(node)
+
+        def visit_FunctionDef(self, node):
+            try:
+                node.lineno
+            except AttributeError:
+                node.lineno = 1
+            super().visit_FunctionDef(node)
 
 
     def unparse(tree, with_comments=True):
 
         module = type(tree).__module__
         if "gast" in module:
-            print(gast.dump(tree))
             tree = gast_to_ast(tree)
 
         unparser = UnparserExtended(with_comments=with_comments)
-        result = unparser.visit(tree)
-
-        return "\n" + result
+        return "\n" + unparser.visit(tree)
 
 
 class CommentInserter(gast.NodeVisitor):

@@ -1,0 +1,5 @@
+export row_sum(int64[:, :], int32[:])
+
+export row_sum_loops(int64[:, :], int32[:])
+
+export __transonic__

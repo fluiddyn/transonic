@@ -1,0 +1,7 @@
+export func(float64, float64)
+export func(float64[:, :], float64[:, :])
+export func(int[:, :], float64[:, :])
+
+export func1(int, float64)
+
+export __transonic__
