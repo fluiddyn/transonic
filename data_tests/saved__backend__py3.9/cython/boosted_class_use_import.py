@@ -8,7 +8,7 @@ from exterior_import_boost import func_import
 
 
 def __for_method__MyClass2__myfunc(self_attr0, self_attr1, arg):
-    return ((self_attr1 + self_attr0) + np.abs(arg)) + func_import()
+    return self_attr1 + self_attr0 + np.abs(arg) + func_import()
 
 
 __code_new_method__MyClass2__myfunc = """
