@@ -7,7 +7,6 @@ from pathlib import Path
 from textwrap import dedent
 
 import gast as ast
-import astunparse
 
 from transonic.analyses import beniget
 from transonic.analyses import extast
@@ -23,7 +22,7 @@ def print_dumped(source):
             node = module
     else:
         node = source
-    print(astunparse.dump(node))
+    print(ast.dump(node, indent=2))
 
 
 def print_unparsed(node):
