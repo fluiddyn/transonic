@@ -18,7 +18,7 @@ def block0(a, b, n):
     # foobar
     result = np.zeros_like(a)
     for _ in range(n):
-        result += (a ** 2) + (b ** 3)
+        result += a ** 2 + b ** 3
     return result
 
 
@@ -36,7 +36,7 @@ def block1(a, b, n):
     # )
     result = np.zeros_like(a)
     for _ in range(n):
-        result += (a ** 2) + (b ** 3)
+        result += a ** 2 + b ** 3
     return result
 
 
