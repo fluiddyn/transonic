@@ -11,6 +11,16 @@ import gast as ast
 from transonic.analyses import beniget
 from transonic.analyses import extast
 
+try:
+    import astunparse
+
+    dump = astunparse.dump
+
+except ImportError:
+
+    def dump(node):
+        return ast.dump(node, indent=2)
+
 
 def print_dumped(source):
     """Pretty print the AST"""
@@ -22,7 +32,7 @@ def print_dumped(source):
             node = module
     else:
         node = source
-    print(ast.dump(node, indent=2))
+    print(dump(node))
 
 
 def print_unparsed(node):
@@ -202,8 +212,7 @@ packages_supported_by_pythran = [
 
 
 def find_path(node: object, pathfile: str):
-    """ Return the path of node (instance of ast.Import or ast.ImportFrom)
-    """
+    """Return the path of node (instance of ast.Import or ast.ImportFrom)"""
     # FIXME find path in non local imports
     name = str()
     path = str()
@@ -243,8 +252,8 @@ def change_import_name(
 
 
 def filter_external_code(module: object, names: list):
-    """ Filter the module to keep only the necessary nodes
-        needed by functions or class in the parameter names
+    """Filter the module to keep only the necessary nodes
+    needed by functions or class in the parameter names
     """
     code_dependance_annotations = ""
     lines_code = []
@@ -268,7 +277,10 @@ def filter_external_code(module: object, names: list):
                     lines_code.append(str(extast.unparse(node)))
                     code_dependance_annotations = capturex.make_code_external()
             if isinstance(node, ast.Assign):
-                if node.targets[0].id == extast.unparse(name).rstrip("\n\r").strip():
+                if (
+                    node.targets[0].id
+                    == extast.unparse(name).rstrip("\n\r").strip()
+                ):
                     lines_code.append(str(extast.unparse(node)))
             if isinstance(node, ast.ClassDef):
                 if node.name == extast.unparse(name).rstrip("\n\r").strip():
@@ -358,8 +370,8 @@ def get_exterior_code(
     relative: bool = None,
     jitted_dicts: dict = None,
 ):
-    """ Get all imported functions needed by boosted functions and methods at multiple levels,
-        (i.e get functions needed by functions imported by boosted function) and add them into code_ext
+    """Get all imported functions needed by boosted functions and methods at multiple levels,
+    (i.e get functions needed by functions imported by boosted function) and add them into code_ext
     """
     special = []
     treated = []
