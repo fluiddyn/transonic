@@ -4,6 +4,11 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
+0.4.8 (2021-05-03)
+------------------
+
+- Python 3.9 support by using `ast._Unparser` instead of `astunparse`
+
 0.4.7
 -----
 
