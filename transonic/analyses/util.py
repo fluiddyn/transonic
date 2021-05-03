@@ -252,7 +252,7 @@ def filter_external_code(module: object, names: list):
     for node in module.body:
         for name in names:
             if isinstance(node, ast.FunctionDef):
-                if node.name == extast.unparse(name).rstrip("\n\r"):
+                if node.name == extast.unparse(name).rstrip("\n\r").strip():
                     ancestors = beniget.Ancestors()
                     ancestors.visit(module)
                     duc = beniget.DefUseChains()
@@ -269,10 +269,10 @@ def filter_external_code(module: object, names: list):
                     lines_code.append(str(extast.unparse(node)))
                     code_dependance_annotations = capturex.make_code_external()
             if isinstance(node, ast.Assign):
-                if node.targets[0].id == extast.unparse(name).rstrip("\n\r"):
+                if node.targets[0].id == extast.unparse(name).rstrip("\n\r").strip():
                     lines_code.append(str(extast.unparse(node)))
             if isinstance(node, ast.ClassDef):
-                if node.name == extast.unparse(name).rstrip("\n\r"):
+                if node.name == extast.unparse(name).rstrip("\n\r").strip():
                     lines_code.append(str(extast.unparse(node)))
 
     return code_dependance_annotations + "\n".join(lines_code)
@@ -406,7 +406,7 @@ def get_exterior_code(
                 with open(str(file_path), "r") as file:
                     content = file.read()
             except:
-                raise NotImplementedError(file_name + " can no be found")
+                raise NotImplementedError(file_name + " can not be found")
             mod = extast.parse(content)
             # filter the code and add it to code_ext dict
             code_ext[classes][new_file_name] = str(

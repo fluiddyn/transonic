@@ -15,7 +15,7 @@ from transonic.analyses import beniget
 
 
 class CommentLine(gast.AST):
-    """"New AST node representing a comment line"""
+    """New AST node representing a comment line"""
 
     _fields = ("s",)
 
@@ -42,20 +42,6 @@ def gast_to_ast(node):
     return GAstToAst3WithCommentLine().visit(node)
 
 
-class UnparserExtended(astunparse.Unparser):
-    """Unparser for extented AST"""
-
-    def __init__(self, tree, file, with_comments=True):
-        self.with_comments = with_comments
-        super().__init__(tree, file=file)
-
-    boolops = {gast.And: "and", gast.Or: "or", ast.And: "and", ast.Or: "or"}
-
-    def _CommentLine(self, node):
-        if self.with_comments:
-            self.write(f"\n{'    '* self._indent}{node.s}")
-
-
 def parse(code, *args, **kwargs):
     """Parse a code and produce the extended AST"""
     tree = gast.parse(code, *args, **kwargs)
@@ -63,16 +49,76 @@ def parse(code, *args, **kwargs):
     return tree
 
 
-def unparse(tree, with_comments=True):
-    """Unparse the extended AST"""
+try:
+    from ast import unparse
 
-    module = type(tree).__module__
-    if "gast" in module:
-        tree = gast_to_ast(tree)
+    del unparse
+except ImportError:
+    # python < 3.9
 
-    v = StringIO()
-    UnparserExtended(tree, file=v, with_comments=with_comments)
-    return v.getvalue()
+    class UnparserExtended(astunparse.Unparser):
+        """Unparser for extented AST"""
+
+        def __init__(self, tree, file, with_comments=True):
+            self.with_comments = with_comments
+            super().__init__(tree, file=file)
+
+        boolops = {gast.And: "and", gast.Or: "or", ast.And: "and", ast.Or: "or"}
+
+        def _CommentLine(self, node):
+            if self.with_comments:
+                self.write(f"\n{'    '* self._indent}{node.s}")
+
+    def unparse(tree, with_comments=True):
+        """Unparse the extended AST"""
+
+        module = type(tree).__module__
+        if "gast" in module:
+            tree = gast_to_ast(tree)
+
+        v = StringIO()
+        UnparserExtended(tree, file=v, with_comments=with_comments)
+        return v.getvalue()
+
+
+else:
+    # python >= 3.9
+
+    import ast as _ast
+
+    class UnparserExtended(_ast._Unparser):
+        # boolops = {gast.And: "and", gast.Or: "or", ast.And: "and", ast.Or: "or"}
+
+        def __init__(self, *, with_comments=True):
+            self.with_comments = with_comments
+            self._lineno = 0
+            super().__init__()
+
+        def visit_CommentLine(self, node):
+            if self.with_comments:
+                self.write(f"\n{'    '* self._indent}{node.s}")
+
+        def visit_Assign(self, node):
+
+            try:
+                node.lineno
+            except AttributeError:
+                node.lineno = 1
+
+            super().visit_Assign(node)
+
+
+    def unparse(tree, with_comments=True):
+
+        module = type(tree).__module__
+        if "gast" in module:
+            print(gast.dump(tree))
+            tree = gast_to_ast(tree)
+
+        unparser = UnparserExtended(with_comments=with_comments)
+        result = unparser.visit(tree)
+
+        return "\n" + result
 
 
 class CommentInserter(gast.NodeVisitor):
