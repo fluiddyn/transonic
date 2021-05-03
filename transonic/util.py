@@ -318,9 +318,7 @@ def has_to_compile_at_import():
 
 
 def import_from_path(path: Path, module_name: str):
-    """Import a .py file or an extension from its path
-
-    """
+    """Import a .py file or an extension from its path"""
     if not path.exists():
         raise ImportError(
             f"File {path} does not exist. "
@@ -378,9 +376,7 @@ def query_yes_no(question: str, default: str = None, force: bool = False):
 
 
 def clear_cached_extensions(module_name: str, force: bool, backend: str):
-    """Delete the cached extensions related to a module
-
-    """
+    """Delete the cached extensions related to a module"""
 
     from transonic.backends import backends
     from transonic import mpi

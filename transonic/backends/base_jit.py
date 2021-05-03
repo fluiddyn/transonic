@@ -50,13 +50,13 @@ class SubBackendJIT:
         src = info_analysis["codes_dependance"][func_name]
         if func_name in info_analysis["special"]:
             if func_name in jitted_dicts["functions"]:
-                src += extast.unparse(jitted_dicts["functions"][func_name])
+                src += "\n" + extast.unparse(jitted_dicts["functions"][func_name])
             elif func_name in jitted_dicts["methods"]:
-                src += extast.unparse(jitted_dicts["methods"][func_name])
+                src += "\n" + extast.unparse(jitted_dicts["methods"][func_name])
         else:
             # TODO find a prettier solution to remove decorator for cython
             # than doing two times a regex
-            src += re.sub(
+            src += "\n" + re.sub(
                 r"@.*?\sdef\s", "def ", get_source_without_decorator(func)
             )
         has_to_write = True

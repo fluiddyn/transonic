@@ -275,7 +275,7 @@ def filter_external_code(module: object, names: list):
                 if node.name == extast.unparse(name).rstrip("\n\r").strip():
                     lines_code.append(str(extast.unparse(node)))
 
-    return code_dependance_annotations + "\n".join(lines_code)
+    return code_dependance_annotations + "\n" + "\n".join(lines_code)
 
 
 def adapt_code_dependance(func: str, codes_dependance: str, jitted_dicts: dict):

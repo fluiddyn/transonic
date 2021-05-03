@@ -107,7 +107,6 @@ else:
                 node.lineno = 1
             super().visit_FunctionDef(node)
 
-
     def unparse(tree, with_comments=True):
 
         module = type(tree).__module__
@@ -115,7 +114,7 @@ else:
             tree = gast_to_ast(tree)
 
         unparser = UnparserExtended(with_comments=with_comments)
-        return "\n" + unparser.visit(tree)
+        return unparser.visit(tree)
 
 
 class CommentInserter(gast.NodeVisitor):
