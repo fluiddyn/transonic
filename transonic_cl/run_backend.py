@@ -110,8 +110,11 @@ def main():
     print(f"{compiling_name} {path}", flush=True)
     if backend == "pythran":
         args.insert(0, "pythran")
+        if os.getenv("TRANSONIC_DEBUG"):
+            args.append("-v")
     elif backend == "cython":
         args = [sys.executable, "-m", "transonic_cl.cythonize", name]
+
     name_lock.touch()
     try:
         completed_process = subprocess.run(
