@@ -131,12 +131,7 @@ def main():
         path_tmp.with_suffix(".pxd").unlink()
         path_tmp.unlink()
 
-    if path_out.exists():
-        print(f"File {path_out.absolute()} created by {backend}")
-    else:
-        logger.error(
-            f"Error! File {path_out.absolute()} has not been created by {backend}"
-        )
+    def log_completed_process():
         try:
             completed_process
         except NameError:
@@ -150,6 +145,16 @@ def main():
                 logger.error(
                     f"{backend.capitalize()} stderr:\n{completed_process.stderr}"
                 )
+
+    if path_out.exists():
+        print(f"File {path_out.absolute()} created by {backend}")
+        if os.getenv("TRANSONIC_DEBUG"):
+            log_completed_process()
+    else:
+        logger.error(
+            f"Error! File {path_out.absolute()} has not been created by {backend}"
+        )
+        log_completed_process()
         sys.exit(1)
 
 

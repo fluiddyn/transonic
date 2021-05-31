@@ -28,6 +28,7 @@ import hashlib
 import sys
 import os
 from datetime import datetime
+import logging
 
 from transonic import mpi
 from transonic.mpi import Path, PathSeq
@@ -161,6 +162,11 @@ class SchedulerPopen:
         if logger.is_enable_for("debug"):
             update_flags("-v")
 
+        if logger.getEffectiveLevel() <= logging.INFO:
+            env = dict(os.environ, TRANSONIC_DEBUG="1")
+        else:
+            env = None
+
         words_command = [
             sys.executable,
             "-m",
@@ -182,13 +188,18 @@ class SchedulerPopen:
 
         process = None
         if mpi.rank == 0:
-            stdout = stderr = subprocess.PIPE
+            if logger.getEffectiveLevel() <= logging.INFO:
+                stdout = stderr = None
+            else:
+                stdout = stderr = subprocess.PIPE
+
             process = subprocess.Popen(
                 words_command,
                 cwd=cwd,
                 stdout=stdout,
                 stderr=stderr,
                 universal_newlines=True,
+                env=env,
             )
 
         process = mpi.ShellProcessMPI(process)
