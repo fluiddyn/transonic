@@ -78,6 +78,7 @@ def get_annotations(object_def, namespace):
     ast_annotations = ast.Assign(
         targets=[extast.Name("annotations", ast.Store())],
         value=ast.Dict(keys=[], values=[]),
+        type_comment=None,
     )
 
     if isinstance(object_def, ast.FunctionDef):

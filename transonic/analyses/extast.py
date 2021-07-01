@@ -165,7 +165,7 @@ class CommentInserter(gast.NodeVisitor):
         if self._done:
             return
 
-        if hasattr(node, "lineno"):
+        if hasattr(node, "lineno") and node.lineno is not None:
 
             linenos = self.lineno_comments
 

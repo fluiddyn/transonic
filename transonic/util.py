@@ -255,7 +255,9 @@ class TypeHintRemover(ast.NodeTransformer):
             if isinstance(node, ast.AnnAssign):
                 if node.value is None:
                     continue
-                node = ast.Assign(targets=[node.target], value=node.value)
+                node = ast.Assign(
+                    targets=[node.target], value=node.value, type_comment=None
+                )
             body.append(node)
         fdef.body = body
 
