@@ -4,6 +4,12 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
+0.4.9 (2021-07-02)
+------------------
+
+- Avoid new Gast and Beniget versions by pinning to the previous versions
+  (0.4.0 and 0.3.0). No Python 3.10 support!
+
 0.4.8 (2021-05-03)
 ------------------
 
