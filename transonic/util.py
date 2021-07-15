@@ -51,7 +51,6 @@ import inspect
 import re
 from pathlib import Path
 import importlib.util
-from distutils.util import strtobool
 import shutil
 from textwrap import dedent
 from typing import Callable
@@ -107,10 +106,10 @@ from transonic.compiler import (
     has_to_build,
 )
 
-from transonic.config import path_root
+from transonic.config import path_root, strtobool
 
 
-__all__ = ["modification_date", "has_to_build"]
+__all__ = ["modification_date", "has_to_build", "path_root"]
 
 
 def can_import_accelerator(backend: str = backend_default):

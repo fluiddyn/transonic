@@ -1,5 +1,5 @@
 import shutil
-from distutils.core import Distribution
+from setuptools import Distribution
 from pprint import pformat
 
 import pytest

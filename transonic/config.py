@@ -42,10 +42,26 @@ User API
 
 import os
 from pathlib import Path
-from distutils.util import strtobool
 from warnings import warn
 
 path_root = Path(os.environ.get("TRANSONIC_DIR", Path.home() / ".transonic"))
+
+
+def strtobool(value):
+    """Convert a string representation of truth to true (1) or false (0).
+
+    True values are 'y', 'yes', 't', 'true', 'on', and '1'; false values
+    are 'n', 'no', 'f', 'false', 'off', and '0'.  Raises ValueError if
+    'val' is anything else.
+    """
+    value = value.lower()
+    if value in ("y", "yes", "t", "true", "on", "1"):
+        return 1
+    elif value in ("n", "no", "f", "false", "off", "0"):
+        return 0
+    else:
+        raise ValueError(f"invalid truth value {value}")
+
 
 has_to_replace = not strtobool(os.environ.get("TRANSONIC_NO_REPLACE", "0"))
 

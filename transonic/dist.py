@@ -16,18 +16,18 @@ setup.py.
 import os
 import sys
 from pathlib import Path
-from distutils.sysconfig import get_config_var
+from sysconfig import get_config_var
 from typing import Iterable
 from concurrent.futures import ThreadPoolExecutor as Pool
 import re
 
-from distutils.command.build_ext import build_ext as DistutilsBuildExt
+from setuptools.command.build_ext import build_ext as SetuptoolsBuildExt
 
 try:
     from Cython.Distutils.build_ext import build_ext as CythonBuildExt
     from Cython.Build import cythonize
 except ImportError:
-    build_ext_classes = [DistutilsBuildExt]
+    build_ext_classes = [SetuptoolsBuildExt]
     can_import_cython = False
 else:
     build_ext_classes = [CythonBuildExt]
@@ -277,11 +277,11 @@ class ParallelBuildExt(*build_ext_classes):
 
         # Invoke Distutils build_extensions method which respects
         # parallel building. Cython's build_ext ignores this
-        DistutilsBuildExt.build_extensions(self)
+        SetuptoolsBuildExt.build_extensions(self)
 
     def _build_extensions_parallel(self):
         """A slightly modified version
-        ``distutils.command.build_ext.build_ext._build_extensions_parallel``
+        ``setuptools.command.build_ext.build_ext._build_extensions_parallel``
         which:
 
         - filters out some problematic compiler flags

@@ -51,7 +51,6 @@ import itertools
 import os
 import sys
 import time
-from distutils.util import strtobool
 from functools import wraps
 
 from transonic.analyses.justintime import analysis_jit
@@ -72,6 +71,7 @@ from transonic.util import (
     write_if_has_to_write,
     can_import_accelerator,
     format_str,
+    strtobool,
 )
 
 modules_backends = {backend_name: {} for backend_name in backends.keys()}
