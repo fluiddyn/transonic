@@ -23,7 +23,7 @@ from .typing import base_type_formatter
 
 def produce_code_class(cls):
     pythran_code = ""
-    for key, value in cls.__dict__.items():
+    for key, value in list(cls.__dict__.items()):
         if hasattr(value, "__transonic__") and value.__transonic__ in (
             "trans_def_method",
             "jit_method",
