@@ -85,9 +85,9 @@ else:
     import ast as _ast
 
     class UnparserExtended(_ast._Unparser):
-        def __init__(self, *, with_comments=True):
+        def __init__(self, *, with_comments=True, **kargs):
             self.with_comments = with_comments
-            super().__init__()
+            super().__init__(**kargs)
 
         def visit_CommentLine(self, node):
             if self.with_comments:
