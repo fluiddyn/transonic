@@ -4,8 +4,13 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
-0.4.10 (2021-07-??)
-------------------
+0.4.11 (2021-09-09)
+-------------------
+
+- Fix bug Python 3.9 ``ast._Unparser``
+
+0.4.10 (2021-07-22)
+-------------------
 
 - Towards Python 3.10 support by using Gast 0.5.0 and Beniget 0.4.0
 
@@ -18,7 +23,7 @@ See the `ROADMAP.rst file
 0.4.8 (2021-05-03)
 ------------------
 
-- Python 3.9 support by using `ast._Unparser` instead of `astunparse`
+- Python 3.9 support by using ``ast._Unparser`` instead of ``astunparse``
 
 0.4.7
 -----
