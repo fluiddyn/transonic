@@ -44,7 +44,7 @@ Transonic run fine without any accelerators installed (of course without
 speedup)!
 
 .. |mybinder| image:: https://mybinder.org/badge_logo.svg
-   :target: https://mybinder.org/v2/gh/fluiddyn/transonic/master?urlpath=lab/tree/doc/ipynb/executed
+   :target: https://mybinder.org/v2/gh/fluiddyn/transonic/branch/default?urlpath=lab/tree/doc/ipynb/executed
    :alt: mybinder
 
 You can try Transonic online by clicking this button: |mybinder|.
