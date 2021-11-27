@@ -2,7 +2,7 @@ import numpy as np
 
 from transonic import Array
 
-from .typing import base_type_formatter
+from transonic.backends.typing import base_type_formatter
 
 
 def compare(dtype, ndim, mem_layout, result):

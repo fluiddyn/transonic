@@ -1,6 +1,6 @@
 import ast
 
-from .extast import parse, unparse
+from transonic.analyses.extast import parse, unparse
 
 
 def test_ExtSlice():
@@ -16,4 +16,3 @@ def test_comment():
     code = "# a comment"
     code_back = unparse(parse(code)).strip()
     assert code_back == code
-
