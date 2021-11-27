@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 from runpy import run_path as run_path
 from pathlib import Path
 
@@ -10,8 +10,4 @@ __about__ = d["__about__"]
 
 print(__about__)
 
-setup(
-    version=__version__,
-    packages=find_packages(exclude=["doc", "tmp", "data_tests"]),
-    entry_points={"console_scripts": ["transonic = transonic.run:run"]},
-)
+setup(version=__version__)
