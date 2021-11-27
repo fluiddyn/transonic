@@ -95,7 +95,7 @@ class ModuleJIT:
             frame = inspect.stack()[1]
 
         self.filename = frame.filename
-        if self.filename.startswith("<ipython-"):
+        if any(self.filename.startswith(start) for start in ("<ipython-", "/tmp/ipykernel_")):
             self.is_dummy_file = True
             self._ipython_src, self.filename = get_info_from_ipython()
             self.module_name = self.filename
