@@ -2,6 +2,7 @@
 COV=pytest --cov=./transonic --cov-config=setup.cfg
 
 develop:
+	pip install -e lib/.
 	pip install -e .[dev]
 
 black:
