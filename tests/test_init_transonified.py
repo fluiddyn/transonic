@@ -22,8 +22,8 @@ class TestsInit(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.path_for_test = (
-            mpi.Path(__file__).parent.parent
-            / "_transonic_testing/for_test_init.py"
+            mpi.Path(__file__).parent
+            / "../src/_transonic_testing/for_test_init.py"
         )
 
         assert cls.path_for_test.exists()
