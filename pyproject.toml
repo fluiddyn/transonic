@@ -5,8 +5,8 @@ build-backend = "setuptools.build_meta"
 [tool.pytest]
 addopts = "--doctest-modules"
 
-[tool.pytest.ini_options]
-addopts = "--cov --cov-config=pyproject.toml --no-cov-on-fail"
+# [tool.pytest.ini_options]
+# addopts = "--cov --cov-config=pyproject.toml --no-cov-on-fail"
 
 [tool.coverage.run]
 source = ["transonic", "transonic_cl", "./tests"]
