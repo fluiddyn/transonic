@@ -1,5 +1,5 @@
 
-COV=pytest --cov=./transonic --cov-config=setup.cfg
+COV=pytest --cov --cov-config=setup.cfg
 
 develop:
 	pip install -e lib/.
@@ -28,7 +28,7 @@ tests_nbval:
 
 tests_cov:
 	mkdir -p .coverage
-	pytest tests --cov-config setup.cfg --cov=transonic
+	pytest tests --cov-config setup.cfg
 
 clean:
 	rm -rf $(HOME)/.transonic/*/*/_transonic_testing/
@@ -42,7 +42,7 @@ tests_coverage_short:
 	COVERAGE_FILE=.coverage/coverage.pythran $(COV) --nbval-lax tests data_tests/ipynb
 
 tests_coverage_mpi:
-	COVERAGE_FILE=.coverage/coverage.mpi.pythran mpirun -np 2 coverage run --rcfile=setup.cfg -m pytest tests
+	mpirun -np 2 coverage run --rcfile=setup.cfg -m mpi4py -m pytest tests
 
 tests_coverage: tests_coverage_short tests_coverage_mpi
 	COVERAGE_FILE=.coverage/coverage.cython TRANSONIC_BACKEND="cython" $(COV) tests

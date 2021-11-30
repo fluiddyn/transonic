@@ -7,30 +7,3 @@ addopts = "--doctest-modules"
 
 # [tool.pytest.ini_options]
 # addopts = "--cov --cov-config=pyproject.toml --no-cov-on-fail"
-
-[tool.coverage.run]
-source = ["transonic", "transonic_cl", "./tests"]
-data_file = ".coverage/coverage"
-omit = [
-    "*/try_*.py",
-    "*/_old_*.py",
-    "transonic/__pythran__/for_test_init.py",
-    "transonic/__cython__/for_test_init.py",
-    "transonic/__numba__/for_test_init.py",
-]
-
-[tool.coverage.report]
-show_missing = true
-exclude_lines = [
-    "if __name__ == .__main__.:",
-    'if "sphinx" in sys.modules:',
-    "raise ValueError",
-    "raise NotImplementedError",
-    "except KeyError:",
-    "except ImportError:",
-    "except AttributeError:",
-    "except NotImplementedError:",
-]
-
-[tool.coverage.html]
-directory = ".coverage/html"
