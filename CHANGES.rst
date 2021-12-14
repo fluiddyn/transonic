@@ -4,6 +4,11 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
+0.4.12 (2021-12-14)
+-------------------
+
+- Fix `bug notebooks <https://foss.heptapod.net/fluiddyn/transonic/-/issues/45>`_
+
 0.4.11 (2021-09-09)
 -------------------
 
