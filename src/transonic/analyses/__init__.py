@@ -172,7 +172,13 @@ def get_decorated_dicts(
             call = node_parent
             if call.keywords or len(call.args) > 1:
                 raise NotImplementedError
-            func_name = call.args[0].id
+
+            call_arg = call.args[0]
+            if isinstance(call_arg, ast.Attribute):
+                func_name = call_arg.attr
+            else:
+                func_name = call_arg.id
+
             definition_node, ext_module = find_decorated_function(
                 module, func_name, pathfile
             )
