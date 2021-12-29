@@ -176,3 +176,6 @@ open_html: html
 
 notebook:
 	python $(shell which jupyter-notebook)
+
+autobuild:
+	@sphinx-autobuild --watch ../src --re-ignore '_build\/.*' "$(SOURCEDIR)" "$(BUILDDIR)/html"

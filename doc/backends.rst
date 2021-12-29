@@ -1,12 +1,12 @@
-Backends (Pythran, Cython, Numba, ...)
-======================================
+Supports Pythran, Cython, Numba, ...
+====================================
 
 Transonic can use different tools to accelerate the code. We use the name
-"backend".
+**backend**.
 
 The default backend is Pythran and currently, there are 3 other backends
-("cython", "numba" or "python"). (The "python" backend is mainly used for
-internal testing.)
+("cython", "numba" or "python"). The "python" backend is mainly used for
+internal testing.
 
 There are different methods to choose which backend is used:
 
@@ -14,7 +14,7 @@ There are different methods to choose which backend is used:
   "cython", "numba" or "python") should be used to change the backend globally
   for one process.
 
-- The ``transonic`` commandline has an option ``-b`` (``--backend``).
+- The ``transonic`` command-line has an option ``-b`` (``--backend``).
 
 - The functions :func:`transonic.backends.make_backend_files` and
   :func:`transonic.dist.init_transonic_extensions` have an optional argument

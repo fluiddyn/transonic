@@ -2,19 +2,15 @@
 
 .. include:: ../README.rst
 
-Backends
---------
-
 .. toctree::
    :maxdepth: 2
+   :caption: Backends
 
    backends
 
-Examples
---------
-
 .. toctree::
    :maxdepth: 2
+   :caption: Examples
 
    examples/classic
    examples/type_hints
@@ -36,6 +32,7 @@ modules, classes and functions.
 
 .. autosummary::
    :toctree: generated/
+   :caption: Modules Reference
 
     transonic.aheadoftime
     transonic.analyses
@@ -51,11 +48,9 @@ modules, classes and functions.
     transonic.typing
     transonic.util
 
-More
-----
-
 .. toctree::
    :maxdepth: 1
+   :caption: More
 
    Transonic forge on Heptapod <https://foss.heptapod.net/fluiddyn/transonic>
    Transonic in PyPI  <https://pypi.python.org/pypi/transonic/>
