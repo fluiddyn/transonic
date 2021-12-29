@@ -175,9 +175,12 @@ def get_decorated_dicts(
 
             call_arg = call.args[0]
             if isinstance(call_arg, ast.Attribute):
-                func_name = call_arg.attr
+                """f1_ = jit()(module.f1)"""
+                module_name = call_arg.value.id
+                func_name = f"{module_name}.{call_arg.attr}"
             else:
                 func_name = call_arg.id
+            breakpoint()
 
             definition_node, ext_module = find_decorated_function(
                 module, func_name, pathfile
