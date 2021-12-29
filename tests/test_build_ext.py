@@ -37,11 +37,13 @@ def test_buildext():
     runpy.run_path(str(setup_dir / "setup.py"))
 
 
+@pytest.mark.xfail(reason="Issue 23")
 def test_jit_mod_import(test_packaging):
     """JIT a function from an imported module"""
     runpy.run_module(f"{test_packaging}.base_mod_import")
 
 
+@pytest.mark.xfail(reason="Issue 23")
 def test_jit_func_import(test_packaging):
     """JIT an imported function"""
     runpy.run_module(f"{test_packaging}.base_func_import")
