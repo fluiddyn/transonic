@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 import runpy
 import shutil
@@ -21,12 +22,29 @@ def setup_module():
     make_backend_files(transonic_src_paths)
 
 
+@pytest.fixture
+def test_packaging():
+    sys.path.append(str(path_data_tests))
+    yield "test_packaging"
+    sys.path.remove(str(path_data_tests))
+
+
 @pytest.mark.skipif(backend_default != "pythran", reason="Speedup tests")
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No build_ext in MPI")
 def test_buildext():
     os.chdir(setup_dir)
     runpy.run_path(str(setup_dir / "setup.py"))
+
+
+def test_jit_mod_import(test_packaging):
+    """JIT a function from an imported module"""
+    runpy.run_module(f"{test_packaging}.base_mod_import")
+
+
+def test_jit_func_import(test_packaging):
+    """JIT an imported function"""
+    runpy.run_module(f"{test_packaging}.base_func_import")
 
 
 def teardown_module():
