@@ -19,7 +19,7 @@ Make your Python code fly at *transonic* speeds!
    :target: https://travis-ci.org/fluiddyn/transonic
    :alt: Travis CI status
 
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/i99h00kp0jliel8t?svg=true
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/ig1hfqdqgmayda0u?svg=true
    :target: https://ci.appveyor.com/project/fluiddyn/transonic
    :alt: AppVeyor status
 

@@ -20,10 +20,9 @@ environment:
 install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - python -m pip install -U pip setuptools wheel
-  - python -m pip install -U pytest black numpy cython
 
 build_script:
-  - pip install -e .
+  - pip install -e .[test]
 
 test_script:
   # Put your test command here.
@@ -39,7 +38,7 @@ test_script:
   # Reference: https://packaging.python.org/guides/supporting-windows-using-appveyor#testing-with-tox
   # echo "TODO: tox tests can be tricky in Windows"
   # - set PYTHONPATH=.
-  - python -m pytest transonic data_tests/ipynb
+  - python -m pytest --nbval-lax tests data_tests/ipynb
 
 # after_test:
   # This step builds your wheels.
