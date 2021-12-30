@@ -1,11 +1,3 @@
-# Reference: https://www.appveyor.com/docs/appveyor-yml/
-
-# branches to build
-branches:
-  # whitelist
-  only:
-    - default
-
 # Reference: https://packaging.python.org/guides/supporting-windows-using-appveyor/
 environment:
 
