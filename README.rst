@@ -1,7 +1,7 @@
 Make your Python code fly at *transonic* speeds!
 ================================================
 
-|release| |docs| |coverage| |travis| |appveyor| |sonarcloud|
+|release| |docs| |coverage| |appveyor| |sonarcloud|
 
 .. |release| image:: https://img.shields.io/pypi/v/transonic.svg
    :target: https://pypi.python.org/pypi/transonic/
