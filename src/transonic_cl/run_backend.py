@@ -147,7 +147,7 @@ def main():
                 )
 
     if path_out.exists():
-        print(f"File {path_out.absolute()} created by {backend}")
+        print(f"File {path_out.absolute()} created by {backend}", flush=True)
         if os.getenv("TRANSONIC_DEBUG"):
             log_completed_process()
     else:

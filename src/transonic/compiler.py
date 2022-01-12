@@ -162,7 +162,7 @@ class SchedulerPopen:
         if logger.is_enable_for("debug"):
             update_flags("-v")
 
-        if logger.getEffectiveLevel() <= logging.INFO:
+        if logger.getEffectiveLevel() < logging.INFO:
             env = dict(os.environ, TRANSONIC_DEBUG="1")
         else:
             env = None
