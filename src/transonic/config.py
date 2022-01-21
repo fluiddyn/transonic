@@ -17,7 +17,9 @@ Transonic is sensible to the environment variables:
 - :code:`FLUID_COMPILE_JIT` can be set to false to disable the
   compilation of jited functions. This can be useful for unittests.
 
-Bye the way, for performance, it is important to configure Pythran with a file
+- :code:`TRANSONIC_MPI_TIMEOUT` sets the MPI timeout (default to 5 s).
+
+By the way, for performance, it is important to configure Pythran with a file
 `~/.pythranrc
 <https://pythran.readthedocs.io/en/latest/MANUAL.html#customizing-your-pythranrc>`_:
 

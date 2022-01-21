@@ -7,6 +7,9 @@ import os
 from pathlib import Path
 from time import time, sleep
 
+mpi_timeout = float(os.environ.get("TRANSONIC_MPI_TIMEOUT", "5"))
+
+
 if "TRANSONIC_NO_MPI" in os.environ:
     nb_proc = 1
     rank = 0
@@ -46,7 +49,7 @@ else:
 
     _tag = 3 * 7 * 9 * sum(ord(letter) for letter in "mpi transonic")
 
-    def bcast(value, root=0, timeout=5.0, tag=_tag):
+    def bcast(value, root=0, timeout=mpi_timeout, tag=_tag):
         """MPI broadcast
 
         Should do something similar to::
@@ -101,7 +104,7 @@ else:
 
         return value
 
-    def barrier(timeout=5):
+    def barrier(timeout=mpi_timeout):
         if timeout is not None:
             bcast("barrier", timeout=timeout, tag=_tag + 4)
         comm.barrier()

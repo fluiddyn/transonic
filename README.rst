@@ -180,6 +180,7 @@ Transonic is sensible to environment variables:
   default backend "pythran" is quite robust. There are now 3 other backends:
   "cython", "numba" and "python" (prototypes).
 
+- :code:`TRANSONIC_MPI_TIMEOUT` sets the MPI timeout (default to 5 s).
 
 A short tour of Transonic public API
 ------------------------------------

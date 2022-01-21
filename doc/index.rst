@@ -25,6 +25,8 @@ Examples
    ipynb/executed/demo_jit
    examples/inlined/txt
    examples/writing_benchmarks/bench
+   ipynb/executed/bench_fxfy
+
 
 Modules Reference
 -----------------
