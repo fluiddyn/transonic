@@ -12,6 +12,7 @@ Internal API
 
 import re
 from pathlib import Path
+from time import sleep
 
 try:
     import numpy as np
@@ -42,7 +43,11 @@ class SubBackendJIT:
         if mpi.rank == 0:
             self.path_base.mkdir(parents=True, exist_ok=True)
             self.path_class.mkdir(parents=True, exist_ok=True)
-        mpi.barrier()
+
+        while True:
+            if self.path_base.exists() and self.path_class.exists():
+                break
+            sleep(0.1)
 
     def make_backend_source(self, info_analysis, func, path_backend):
         func_name = func.__name__
