@@ -221,13 +221,25 @@ def get_module_name(frame):
 
 
 def get_name_calling_module():
+    return get_module_name(get_frame(1))
+
+
+def get_frame(depth=1):
+    """Return a frame object from the call stack.
+
+    This should be equivalent to ``inspect.currentframe().f_back`` with ``depth``
+    times ``.f_back``. For example, ``depth = 1`` gives the caller frame.
+    """
     try:
-        frame = inspect.currentframe().f_back
-    except IndexError:
+        return sys._getframe(depth+1)
+    except AttributeError:
+        # we might want to implement this with another function
+        # (``inspect.currentframe`` or ``inspect.stack()``)
+        # for alternative Python implementations
+        raise
+    except ValueError:
         print([frame_info[1] for frame_info in inspect.stack()])
         raise
-
-    return get_module_name(frame)
 
 
 def get_source_without_decorator(func: Callable):

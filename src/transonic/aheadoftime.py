@@ -43,7 +43,8 @@ from transonic.util import (
     is_method,
     write_if_has_to_write,
     find_module_name_from_path,
-    _get_filename_from_frame
+    _get_filename_from_frame,
+    get_frame,
 )
 
 if mpi.nb_proc == 1:
@@ -65,12 +66,7 @@ def _get_transonic_calling_module(backend_name: str = None):
 
     """
 
-    try:
-        frame = inspect.currentframe().f_back.f_back
-    except IndexError:
-        print([frame_info[1] for frame_info in inspect.stack()])
-        raise
-
+    frame = get_frame(2)
     module_name = get_module_name(frame)
 
     if backend_name is None:
@@ -189,7 +185,7 @@ class Transonic:
     ):
 
         if frame is None:
-            frame = inspect.currentframe().f_back
+            frame = get_frame(1)
 
         self.module_name = module_name = get_module_name(frame)
 
@@ -506,11 +502,7 @@ class Transonic:
         func = getattr(self.module_backend, name)
         argument_names = self.arguments_blocks[name]
 
-        frame = inspect.currentframe()
-        try:
-            locals_caller = frame.f_back.f_locals
-        finally:
-            del frame
+        locals_caller = get_frame(1).f_locals
 
         arguments = [locals_caller[name] for name in argument_names]
         return func(*arguments)
