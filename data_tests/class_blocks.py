@@ -33,7 +33,7 @@ class MyClass:
 
             result = np.zeros_like(a)
             for _ in range(n):
-                result += a ** 2 + b ** 3
+                result += a**2 + b**3
 
         a = result
 
@@ -51,7 +51,7 @@ class MyClass:
             # )
             result = np.zeros_like(a)
             for _ in range(n):
-                result += a ** 2 + b ** 3
+                result += a**2 + b**3
 
         return result
 

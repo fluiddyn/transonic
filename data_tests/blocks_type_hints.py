@@ -33,7 +33,7 @@ class MyClass:
             #     float n
             # )
 
-            result = a ** 2 + b.mean() ** 3 + n
+            result = a**2 + b.mean() ** 3 + n
 
         return result
 

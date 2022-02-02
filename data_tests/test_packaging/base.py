@@ -3,7 +3,7 @@ import numpy as np
 
 
 def twice(n: int):
-    return 2*n
+    return 2 * n
 
 
 def identity(n: int):

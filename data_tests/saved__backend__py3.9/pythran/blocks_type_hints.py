@@ -8,7 +8,7 @@ def block0(a, b, n):
     #     int[:] a, b;
     #     float n
     # )
-    result = a ** 2 + b.mean() ** 3 + n
+    result = a**2 + b.mean() ** 3 + n
     return result
 
 
