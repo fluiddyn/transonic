@@ -72,6 +72,8 @@ from transonic.util import (
     can_import_accelerator,
     format_str,
     strtobool,
+    get_frame,
+    _get_filename_from_frame
 )
 
 modules_backends = {backend_name: {} for backend_name in backends.keys()}
@@ -91,18 +93,17 @@ class ModuleJIT:
     def __init__(self, backend_name: str, frame=None):
 
         self.backend_name = backend_name
-        frame_info = frame
-        if frame_info is None:
-            frame_info = inspect.stack()[1]
+        if frame is None:
+            frame = get_frame(1)
 
-        self.filename = frame_info.filename
+        self.filename = _get_filename_from_frame(frame)
         if any(self.filename.startswith(start) for start in ("<ipython-", "/tmp/ipykernel_")):
             self.is_dummy_file = True
             self._ipython_src, self.filename = get_info_from_ipython()
             self.module_name = self.filename
         else:
             self.is_dummy_file = False
-            self.module_name = get_module_name(frame_info[0])
+            self.module_name = get_module_name(frame)
         modules_backends[backend_name][self.module_name] = self
         self.used_functions = {}
         self.jit_functions = {}
@@ -151,30 +152,22 @@ class ModuleJIT:
             return inspect.getsource(mod)
 
 
-def _get_module_jit(backend_name: str = None, index_frame: int = 2, frame=None):
+def _get_module_jit(backend_name: str = None, depth_frame: int = 2, frame=None):
     """Get the ModuleJIT instance corresponding to the calling module
 
     Parameters
     ----------
 
-    index_frame : int
+    depth_frame : int
 
-      Index (in :code:`inspect.stack()`) of the frame to be selected
+      Depth of the frame to be selected
 
     """
 
-    frame_info = frame
-    if frame_info is None:
-        try:
-            frame_info = inspect.stack()[index_frame]
-        except IndexError:
-            logger.error(
-                f"index_frame {index_frame}"
-                f"{[frame_info[1] for frame_info in inspect.stack()]}"
-            )
-            raise
+    if frame is None:
+        frame = get_frame(depth_frame)
 
-    module_name = get_module_name(frame_info[0])
+    module_name = get_module_name(frame)
 
     if backend_name is None:
         backend_name = get_backend_name_module(module_name)
@@ -184,14 +177,14 @@ def _get_module_jit(backend_name: str = None, index_frame: int = 2, frame=None):
     if module_name in modules:
         return modules[module_name]
     else:
-        return ModuleJIT(backend_name=backend_name, frame=frame_info)
+        return ModuleJIT(backend_name=backend_name, frame=frame)
 
 
 def jit(func=None, backend: str = None, native=False, xsimd=False, openmp=False):
     """Decorator to record that the function has to be jit compiled
 
     """
-    frame = inspect.stack()[1]
+    frame = get_frame(1)
     decor = JIT(frame, backend=backend, native=native, xsimd=xsimd, openmp=openmp)
     if callable(func):
         return decor(func)

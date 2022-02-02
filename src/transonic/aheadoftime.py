@@ -172,7 +172,7 @@ class Transonic:
 
     frame : int (optional)
 
-      (Internal) Index (in :code:`inspect.stack()`) of the frame to be selected
+      (Internal) Frame of ``__init__`` caller.
 
     reuse : bool (optional, default True)
 
@@ -566,7 +566,7 @@ def jit_class(cls, jit_methods, backend):
     if mpi.has_to_build(python_path, module.__file__):
         from transonic.justintime import _get_module_jit
 
-        mod = _get_module_jit(backend_name=backend.name, index_frame=5)
+        mod = _get_module_jit(backend_name=backend.name, depth_frame=5)
         if mpi.rank == 0:
             python_path = mpi.PathSeq(python_path)
             python_code = (
