@@ -91,17 +91,18 @@ class ModuleJIT:
     def __init__(self, backend_name: str, frame=None):
 
         self.backend_name = backend_name
-        if frame is None:
-            frame = inspect.stack()[1]
+        frame_info = frame
+        if frame_info is None:
+            frame_info = inspect.stack()[1]
 
-        self.filename = frame.filename
+        self.filename = frame_info.filename
         if any(self.filename.startswith(start) for start in ("<ipython-", "/tmp/ipykernel_")):
             self.is_dummy_file = True
             self._ipython_src, self.filename = get_info_from_ipython()
             self.module_name = self.filename
         else:
             self.is_dummy_file = False
-            self.module_name = get_module_name(frame)
+            self.module_name = get_module_name(frame_info[0])
         modules_backends[backend_name][self.module_name] = self
         self.used_functions = {}
         self.jit_functions = {}
@@ -162,17 +163,18 @@ def _get_module_jit(backend_name: str = None, index_frame: int = 2, frame=None):
 
     """
 
-    if frame is None:
+    frame_info = frame
+    if frame_info is None:
         try:
-            frame = inspect.stack()[index_frame]
+            frame_info = inspect.stack()[index_frame]
         except IndexError:
             logger.error(
                 f"index_frame {index_frame}"
-                f"{[frame[1] for frame in inspect.stack()]}"
+                f"{[frame_info[1] for frame_info in inspect.stack()]}"
             )
             raise
 
-    module_name = get_module_name(frame)
+    module_name = get_module_name(frame_info[0])
 
     if backend_name is None:
         backend_name = get_backend_name_module(module_name)
@@ -182,7 +184,7 @@ def _get_module_jit(backend_name: str = None, index_frame: int = 2, frame=None):
     if module_name in modules:
         return modules[module_name]
     else:
-        return ModuleJIT(backend_name=backend_name, frame=frame)
+        return ModuleJIT(backend_name=backend_name, frame=frame_info)
 
 
 def jit(func=None, backend: str = None, native=False, xsimd=False, openmp=False):

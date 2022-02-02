@@ -110,7 +110,7 @@ class Backend:
             return None, None, None
         if not path_py.name.endswith(".py"):
             raise ValueError(
-                "transonic only processes Python file. Cannot process {path_py}"
+                f"transonic only processes Python file. Cannot process {path_py}"
             )
 
         path_dir = path_py.parent / str(f"__{self.name}__")

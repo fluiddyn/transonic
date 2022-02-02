@@ -195,17 +195,20 @@ def find_module_name_from_path(path_py: Path):
 
     return path_py.stem
 
+def _get_filename_from_frame(frame):
+    return frame.f_code.co_filename
+
 
 def get_module_name(frame):
     """Get the full module name"""
-    module = inspect.getmodule(frame[0])
+    module = inspect.getmodule(frame)
     filename = None
     if module is not None:
         module_name = module.__name__
         if module_name in ("__main__", "<run_path>"):
-            filename = frame.filename
+            filename = _get_filename_from_frame(frame)
     else:
-        filename = frame.filename
+        filename = _get_filename_from_frame(frame)
 
     if filename is not None:
         module_name = find_module_name_from_path(Path(filename))
@@ -217,12 +220,11 @@ def get_module_name(frame):
     return module_name
 
 
-def get_name_calling_module(index_frame: int = 1):
+def get_name_calling_module():
     try:
-        frame = inspect.stack()[index_frame]
+        frame = inspect.currentframe().f_back
     except IndexError:
-        print("index_frame", index_frame)
-        print([frame[1] for frame in inspect.stack()])
+        print([frame_info[1] for frame_info in inspect.stack()])
         raise
 
     return get_module_name(frame)

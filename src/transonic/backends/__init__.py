@@ -50,7 +50,7 @@ backend_default_modules = {}
 def set_backend_for_this_module(backend_name):
     """Programmatically set a backend for a module"""
     backend_name = backend_name.lower()
-    frame = inspect.stack()[1]
+    frame = inspect.currentframe().f_back
     module_name = get_module_name(frame)
     if backend_name not in backends.keys():
         raise ValueError(f"Bad backend value ({backend_name})")

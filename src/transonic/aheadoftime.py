@@ -43,6 +43,7 @@ from transonic.util import (
     is_method,
     write_if_has_to_write,
     find_module_name_from_path,
+    _get_filename_from_frame
 )
 
 if mpi.nb_proc == 1:
@@ -54,23 +55,20 @@ modules_backends = {backend_name: {} for backend_name in backends.keys()}
 modules = modules_backends[backend_default]
 
 
-def _get_transonic_calling_module(backend_name: str = None, index_frame: int = 2):
+def _get_transonic_calling_module(backend_name: str = None):
     """Get the Transonic instance corresponding to the calling module
 
     Parameters
     ----------
 
-    index_frame : int
-
-      Index (in :code:`inspect.stack()`) of the frame to be selected
+    backend_name: str
 
     """
 
     try:
-        frame = inspect.stack()[index_frame]
+        frame = inspect.currentframe().f_back.f_back
     except IndexError:
-        print("index_frame", index_frame)
-        print([frame[1] for frame in inspect.stack()])
+        print([frame_info[1] for frame_info in inspect.stack()])
         raise
 
     module_name = get_module_name(frame)
@@ -191,7 +189,7 @@ class Transonic:
     ):
 
         if frame is None:
-            frame = inspect.stack()[1]
+            frame = inspect.currentframe().f_back
 
         self.module_name = module_name = get_module_name(frame)
 
@@ -237,7 +235,7 @@ class Transonic:
 
         module_backend_name += f"__{backend.name}__." + module_short_name
 
-        self.path_mod = path_mod = Path(frame.filename)
+        self.path_mod = path_mod = Path(_get_filename_from_frame(frame))
 
         suffix = ".py"
         self.path_backend = path_backend = (
@@ -329,7 +327,7 @@ class Transonic:
         else:
             self.is_compiled = backend.check_if_compiled(self.module_backend)
             if self.is_compiled:
-                module = inspect.getmodule(frame[0])
+                module = inspect.getmodule(frame)
                 # module can be None if (at least) it has been run with runpy
                 if module is not None:
                     if backend.name == "pythran":
