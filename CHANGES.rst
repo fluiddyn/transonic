@@ -4,8 +4,21 @@ Future
 See the `ROADMAP.rst file
 <https://transonic.readthedocs.io/en/latest/roadmap.html>`_.
 
-0.4.12 (2021-12-14)
+..
+  Unreleased_
+  -----------
+
+.. _Unreleased: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.0...branch%2Fdefault
+
+0.5.0_ (2022-02-04)
 -------------------
+
+- New environment variable ``TRANSONIC_MPI_TIMEOUT``
+- Internal: faster import of modules using Transonic (using ``sys._getframe``)
+  (`!102 <https://foss.heptapod.net/fluiddyn/transonic/-/merge_requests/102>`_)
+
+0.4.12_ (2021-12-14)
+--------------------
 
 - Fix `bug notebooks <https://foss.heptapod.net/fluiddyn/transonic/-/issues/45>`_
 
@@ -263,3 +276,6 @@ See the `ROADMAP.rst file
 ------------------
 
 - Add a dist package
+
+.. _0.5.0: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.4.12...0.5.0
+.. _0.4.12: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.4.11...0.4.12
