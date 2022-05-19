@@ -201,7 +201,12 @@ def _get_filename_from_frame(frame):
 
 def get_module_name(frame):
     """Get the full module name"""
-    module = inspect.getmodule(frame)
+    try:
+        module = inspect.getmodule(frame)
+    except AttributeError:
+        # bug when runpy.run_path is called with pathlib.Path
+        return _get_filename_from_frame(frame)
+
     filename = None
     if module is not None:
         module_name = module.__name__
