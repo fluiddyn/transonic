@@ -57,9 +57,7 @@ def test_create_pythran_files():
         __backend__path = path.parent / f"__{backend_default}__" / path.name
         assert __backend__path.exists()
 
-        saved_path = (
-            path.parent / dir_saved_files / backend_default / path.name
-        )
+        saved_path = path.parent / dir_saved_files / backend_default / path.name
         assert saved_path.exists()
 
         with open(__backend__path) as file:

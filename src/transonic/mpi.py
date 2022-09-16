@@ -44,7 +44,6 @@ if nb_proc == 1:
     def barrier(timeout=None):
         pass
 
-
 else:
 
     _tag = 3 * 7 * 9 * sum(ord(letter) for letter in "mpi transonic")

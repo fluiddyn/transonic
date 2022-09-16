@@ -68,7 +68,6 @@ except ImportError:
     def format_str(src_contents):
         return autopep8.fix_code(src_contents)
 
-
 else:
     try:
         _mode = black.FileMode(line_length=82)
@@ -195,6 +194,7 @@ def find_module_name_from_path(path_py: Path):
 
     return path_py.stem
 
+
 def _get_pathfile_from_frame(frame):
     return frame.f_code.co_filename
 
@@ -236,7 +236,7 @@ def get_frame(depth=1):
     times ``.f_back``. For example, ``depth = 1`` gives the caller frame.
     """
     try:
-        return sys._getframe(depth+1)
+        return sys._getframe(depth + 1)
     except AttributeError:
         # we might want to implement this with another function
         # (``inspect.currentframe`` or ``inspect.stack()``)

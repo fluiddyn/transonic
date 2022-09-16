@@ -29,7 +29,9 @@ def add_numba_comments(code):
 
     for node in mod.body:
         if isinstance(node, gast.FunctionDef):
-            new_body.append(CommentLine("# __protected__ @njit(cache=True, fastmath=True)"))
+            new_body.append(
+                CommentLine("# __protected__ @njit(cache=True, fastmath=True)")
+            )
         new_body.append(node)
 
     mod.body = new_body

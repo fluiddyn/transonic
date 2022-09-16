@@ -312,9 +312,7 @@ class ParallelBuildExt(*build_ext_classes):
         num_jobs = self.parallel
         logger.info(f"_build_extensions_parallel with num_jobs = {num_jobs}")
         for type_ext, exts in extensions_by_type.items():
-            logger.info(
-                f"Building extensions of type {type_ext}: {names(exts)}"
-            )
+            logger.info(f"Building extensions of type {type_ext}: {names(exts)}")
 
             with Pool(num_jobs) as pool:
                 pool.map(self.build_extension, exts)

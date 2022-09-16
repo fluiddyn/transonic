@@ -78,7 +78,6 @@ except ImportError:
         UnparserExtended(tree, file=v, with_comments=with_comments)
         return v.getvalue()
 
-
 else:
     # python >= 3.9 (we use _ast._Unparser)
 
@@ -245,7 +244,6 @@ except AttributeError:
             if decorator_list is None:
                 decorator_list = []
             super().__init__(name, args, body, decorator_list, returns)
-
 
 else:
     # gast >= 0.3.0

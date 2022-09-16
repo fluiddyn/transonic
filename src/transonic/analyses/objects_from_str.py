@@ -47,7 +47,13 @@ def find_def_code(variables: set, module: dict, ancestors, udc, duc):
 
 def create_objects_from_names(names, module, ancestors, udc, duc):
     """create a namespace for the variables defined at the module level"""
-    code_def_var = find_def_code(names, module, ancestors, udc, duc,)
+    code_def_var = find_def_code(
+        names,
+        module,
+        ancestors,
+        udc,
+        duc,
+    )
     namespace = {}
     exec(code_def_var, namespace)
     return namespace

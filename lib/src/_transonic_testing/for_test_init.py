@@ -15,7 +15,7 @@ def func(a, b):
 
 
 def func_tmp(arg):
-    return arg ** 2
+    return arg**2
 
 
 def func0(a, b):
@@ -56,7 +56,7 @@ def func1(a, b):
 
         result = 0.0
         for _ in range(n):
-            result += a ** 2 + b ** 3
+            result += a**2 + b**3
 
 
 @boost

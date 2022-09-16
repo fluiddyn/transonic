@@ -22,9 +22,7 @@ from transonic.typing import format_type_as_backend_type, str2type
 
 
 def _format_types_as_backend_types(types, backend_type_formatter, **kwargs):
-    """Compute a list of Pythran/Cython/... types
-
-    """
+    """Compute a list of Pythran/Cython/... types"""
     backend_types = []
     for type_ in types:
         backend_types.append(
@@ -44,9 +42,7 @@ def _format_types_as_backend_types(types, backend_type_formatter, **kwargs):
 def compute_signatures_from_typeobjects(
     types_in, backend_type_formatter
 ) -> List[List[str]]:
-    """Compute a list of lists (signatures) of strings (backend types)
-
-    """
+    """Compute a list of lists (signatures) of strings (backend types)"""
     if isinstance(types_in, dict):
         types_in = types_in.values()
 

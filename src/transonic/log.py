@@ -9,6 +9,7 @@ import logging
 from types import MethodType
 import os
 
+
 def create_logger(name, show_time=False, show_path=False):
     """Returns a logger instance using ``rich`` package if available; else
     defaults to ``logging`` standard library.

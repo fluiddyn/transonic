@@ -6,7 +6,7 @@ develop:
 	pip install -e .[dev]
 
 black:
-	black -l 82 transonic transonic_cl data_tests tests
+	black -l 82 src lib data_tests tests
 
 tests_pythran:
 	TRANSONIC_BACKEND="pythran" pytest --nbval-lax tests data_tests/ipynb
