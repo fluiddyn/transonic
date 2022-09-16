@@ -37,9 +37,13 @@ clean:
 
 tests_coverage_short:
 	mkdir -p .coverage
-	COVERAGE_FILE=.coverage/coverage.python TRANSONIC_BACKEND="python" $(COV) --nbval-lax tests data_tests/ipynb
+	COVERAGE_FILE=.coverage/coverage.python TRANSONIC_BACKEND="python" $(COV) tests
 	COVERAGE_FILE=.coverage/coverage.numba TRANSONIC_BACKEND="numba" $(COV) tests
-	COVERAGE_FILE=.coverage/coverage.pythran $(COV) --nbval-lax tests data_tests/ipynb
+	COVERAGE_FILE=.coverage/coverage.pythran $(COV) tests
+
+tests_ipynb:
+	TRANSONIC_BACKEND="python" pytest --nbval-lax data_tests/ipynb
+	pytest --nbval-lax data_tests/ipynb
 
 tests_coverage_mpi:
 	mpirun -np 2 coverage run --rcfile=setup.cfg -m mpi4py -m pytest tests
