@@ -181,12 +181,12 @@ if nb_proc > 1:
             ret = util.has_to_build(output_file, input_file)
         return bcast(ret, tag=_tag + 2)
 
-    def modification_date(filename):
+    def modification_date(pathfile):
         from . import util
 
         ret = None
         if rank == 0:
-            ret = util.modification_date(filename)
+            ret = util.modification_date(pathfile)
         return bcast(ret, tag=_tag + 3)
 
 

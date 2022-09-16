@@ -52,6 +52,7 @@ import os
 import sys
 import time
 from functools import wraps
+from pathlib import Path
 
 from transonic.analyses.justintime import analysis_jit
 from transonic.aheadoftime import TransonicTemporaryJITMethod
@@ -73,7 +74,7 @@ from transonic.util import (
     format_str,
     strtobool,
     get_frame,
-    _get_filename_from_frame
+    _get_pathfile_from_frame,
 )
 
 modules_backends = {backend_name: {} for backend_name in backends.keys()}
@@ -96,11 +97,15 @@ class ModuleJIT:
         if frame is None:
             frame = get_frame(1)
 
-        self.filename = _get_filename_from_frame(frame)
-        if any(self.filename.startswith(start) for start in ("<ipython-", "/tmp/ipykernel_")):
+        self.pathfile = _get_pathfile_from_frame(frame)
+        path = Path(self.pathfile)
+
+        if self.pathfile.startswith("<ipython-") or (
+            path.stem.isdigit() and path.parent.name.startswith("ipykernel_")
+        ):
             self.is_dummy_file = True
-            self._ipython_src, self.filename = get_info_from_ipython()
-            self.module_name = self.filename
+            self._ipython_src, self.pathfile = get_info_from_ipython()
+            self.module_name = self.pathfile
         else:
             self.is_dummy_file = False
             self.module_name = get_module_name(frame)
@@ -114,7 +119,7 @@ class ModuleJIT:
             codes_dependance_classes,
             code_ext,
             special,
-        ) = analysis_jit(self.get_source(), self.filename, backend_name)
+        ) = analysis_jit(self.get_source(), self.pathfile, backend_name)
 
         self.info_analysis = {
             "jitted_dicts": jitted_dicts,
@@ -146,7 +151,7 @@ class ModuleJIT:
         try:
             mod = sys.modules[self.module_name]
         except KeyError:
-            with open(self.filename) as file:
+            with open(self.pathfile) as file:
                 return file.read()
         else:
             return inspect.getsource(mod)
@@ -181,9 +186,7 @@ def _get_module_jit(backend_name: str = None, depth_frame: int = 2, frame=None):
 
 
 def jit(func=None, backend: str = None, native=False, xsimd=False, openmp=False):
-    """Decorator to record that the function has to be jit compiled
-
-    """
+    """Decorator to record that the function has to be jit compiled"""
     frame = get_frame(1)
     decor = JIT(frame, backend=backend, native=native, xsimd=xsimd, openmp=openmp)
     if callable(func):
@@ -193,8 +196,7 @@ def jit(func=None, backend: str = None, native=False, xsimd=False, openmp=False)
 
 
 class JIT:
-    """Decorator used internally by the public jit decorator
-    """
+    """Decorator used internally by the public jit decorator"""
 
     def __init__(
         self, frame, backend: str, native=False, xsimd=False, openmp=False
@@ -249,7 +251,7 @@ class JIT:
             path_backend_header = False
 
         if path_backend.exists():
-            if not mod.is_dummy_file and has_to_build(path_backend, mod.filename):
+            if not mod.is_dummy_file and has_to_build(path_backend, mod.pathfile):
                 has_to_write = True
             else:
                 has_to_write = False

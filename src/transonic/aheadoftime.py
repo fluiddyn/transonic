@@ -43,7 +43,7 @@ from transonic.util import (
     is_method,
     write_if_has_to_write,
     find_module_name_from_path,
-    _get_filename_from_frame,
+    _get_pathfile_from_frame,
     get_frame,
 )
 
@@ -231,7 +231,7 @@ class Transonic:
 
         module_backend_name += f"__{backend.name}__." + module_short_name
 
-        self.path_mod = path_mod = Path(_get_filename_from_frame(frame))
+        self.path_mod = path_mod = Path(_get_pathfile_from_frame(frame))
 
         suffix = ".py"
         self.path_backend = path_backend = (

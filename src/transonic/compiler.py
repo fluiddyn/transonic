@@ -38,9 +38,9 @@ from transonic.progress import Progress
 ext_suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
 
 
-def modification_date(filename):
+def modification_date(pathfile):
     """Get the modification date of a file"""
-    return datetime.fromtimestamp(os.path.getmtime(str(filename)))
+    return datetime.fromtimestamp(os.path.getmtime(str(pathfile)))
 
 
 def has_to_build(output_file: Path, input_file: Path):

@@ -195,7 +195,7 @@ def find_module_name_from_path(path_py: Path):
 
     return path_py.stem
 
-def _get_filename_from_frame(frame):
+def _get_pathfile_from_frame(frame):
     return frame.f_code.co_filename
 
 
@@ -205,18 +205,18 @@ def get_module_name(frame):
         module = inspect.getmodule(frame)
     except AttributeError:
         # bug when runpy.run_path is called with pathlib.Path
-        return _get_filename_from_frame(frame)
+        return _get_pathfile_from_frame(frame)
 
-    filename = None
+    pathfile = None
     if module is not None:
         module_name = module.__name__
         if module_name in ("__main__", "<run_path>"):
-            filename = _get_filename_from_frame(frame)
+            pathfile = _get_pathfile_from_frame(frame)
     else:
-        filename = _get_filename_from_frame(frame)
+        pathfile = _get_pathfile_from_frame(frame)
 
-    if filename is not None:
-        module_name = find_module_name_from_path(Path(filename))
+    if pathfile is not None:
+        module_name = find_module_name_from_path(Path(pathfile))
 
     if module_name is None:
         # ipython ?
