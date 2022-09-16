@@ -8,7 +8,12 @@ See the `ROADMAP.rst file
   Unreleased_
   -----------
 
-.. _Unreleased: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.0...branch%2Fdefault
+.. _Unreleased: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.1...branch%2Fdefault
+
+0.5.1_ (2022-09-16)
+-------------------
+
+- Fix 2 bugs (``runpath`` with ``pathlib.Path`` and detection IPython)
 
 0.5.0_ (2022-02-04)
 -------------------
@@ -276,6 +281,7 @@ See the `ROADMAP.rst file
 ------------------
 
 - Add a dist package
-
+-
+.. _0.5.1: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.0...0.5.1
 .. _0.5.0: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.4.12...0.5.0
 .. _0.4.12: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.4.11...0.4.12

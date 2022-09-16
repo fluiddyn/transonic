@@ -5,16 +5,16 @@ step_without_pythran:
   image: fluiddyn/python3-stable
   script:
     - pip install -U tox --user
-    - tox -e py36,codecov
+    - tox -e py38,codecov
 
 step_pythran_then_cython:
   image: fluiddyn/python3-stable
   script:
     - pip install -U tox --user
-    - tox -e py36-pythran,py36-cython,codecov
+    - tox -e py38-pythran,py38-cython,codecov
 
 step_pythran_cython:
   image: fluiddyn/python3-stable
   script:
     - pip install -U tox --user
-    - tox -e py36-pythran-cython
+    - tox -e py38-pythran-cython

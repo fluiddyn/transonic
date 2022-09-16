@@ -1,7 +1,7 @@
 Make your Python code fly at *transonic* speeds!
 ================================================
 
-|release| |docs| |coverage| |travis| |appveyor| |sonarcloud|
+|release| |docs| |coverage| |heptapod_ci| |appveyor| |sonarcloud|
 
 .. |release| image:: https://img.shields.io/pypi/v/transonic.svg
    :target: https://pypi.python.org/pypi/transonic/
@@ -15,9 +15,9 @@ Make your Python code fly at *transonic* speeds!
    :target: https://codecov.io/gh/fluiddyn/transonic/branch/master/
    :alt: Code coverage
 
-.. |travis| image:: https://travis-ci.org/fluiddyn/transonic.svg?branch=master
-   :target: https://travis-ci.org/fluiddyn/transonic
-   :alt: Travis CI status
+.. |heptapod_ci| image:: https://foss.heptapod.net/fluiddyn/transonic/badges/branch/default/pipeline.svg
+   :target: https://foss.heptapod.net/fluiddyn/transonic/-/pipelines
+   :alt: Heptapod CI
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/i99h00kp0jliel8t?svg=true
    :target: https://ci.appveyor.com/project/fluiddyn/transonic
