@@ -165,10 +165,11 @@ def init_transonic_extensions(
     elif backend == "pythran":
         if not can_import_pythran:
             try:
-                from pythran.dist import PythranBuildExt, PythranExtension
+                from pythran.dist import PythranExtension
             except ImportError as err:
                 raise RuntimeError(
-                    f"backend = {backend} but Pythran is not importable"
+                    f"backend = {backend} but Pythran is not importable. "
+                    f"(sys.argv = {sys.argv})"
                 ) from err
 
         BackendExtension = PythranExtension
