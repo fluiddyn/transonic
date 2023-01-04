@@ -163,14 +163,13 @@ def init_transonic_extensions(
         backends["numba"].compile_extensions(paths, None)
         return []
     elif backend == "pythran":
-        if not can_import_pythran:
-            try:
-                from pythran.dist import PythranExtension
-            except ImportError as err:
-                raise RuntimeError(
-                    f"backend = {backend} but Pythran is not importable. "
-                    f"(sys.argv = {sys.argv})"
-                ) from err
+        try:
+            from pythran.dist import PythranExtension
+        except ImportError as err:
+            raise RuntimeError(
+                f"backend = {backend} but Pythran is not importable. "
+                f"(sys.argv = {sys.argv})"
+            ) from err
 
         BackendExtension = PythranExtension
     elif backend == "cython":
