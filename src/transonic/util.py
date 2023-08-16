@@ -66,7 +66,11 @@ except ImportError:
     import autopep8
 
     def format_str(src_contents):
-        return autopep8.fix_code(src_contents)
+        try:
+            return autopep8.fix_code(src_contents)
+        except AttributeError:
+            # workaround https://github.com/hhatto/autopep8/issues/689
+            return src_contents
 
 else:
     try:
