@@ -1,4 +1,4 @@
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 from pathlib import Path
 import numpy as np
 from transonic.dist import (
