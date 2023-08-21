@@ -28,3 +28,17 @@ Please read our documentation on [developer
 essentials](https://fluiddyn.readthedocs.io/en/latest/advice_developers.html),
 and especially on [setting up
 Mercurial](https://fluiddyn.readthedocs.io/en/latest/mercurial_heptapod.html).
+
+## Release
+
+For now, we push on PyPI manually:
+
+```sh
+hg pull
+hg up default
+hg tag 0.5.3
+hg push
+rm -rf dist
+python -m build
+twine upload dist/*
+```
