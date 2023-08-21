@@ -36,3 +36,5 @@ doc/ipynb/*.rst
 
 doc/for_dev/**/*.c
 doc/for_dev/**/*.html
+
+.venv
