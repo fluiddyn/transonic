@@ -8,7 +8,13 @@ See the `ROADMAP.rst file
   Unreleased_
   -----------
 
-.. _Unreleased: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.2...branch%2Fdefault
+.. _Unreleased: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.3...branch%2Fdefault
+
+0.5.3_ (2023-08-21)
+-------------------
+
+- `!110 <https://foss.heptapod.net/fluiddyn/transonic/-/merge_requests/110>`_
+  Quick fix autopep8 bug + fix CI (py3.9)
 
 0.5.2_ (2022-01-04)
 -------------------
@@ -287,6 +293,7 @@ See the `ROADMAP.rst file
 
 - Add a dist package
 
+.. _0.5.3: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.2...0.5.3
 .. _0.5.2: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.1...0.5.2
 .. _0.5.1: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.0...0.5.1
 .. _0.5.0: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.4.12...0.5.0

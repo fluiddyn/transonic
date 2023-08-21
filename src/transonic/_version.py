@@ -1,4 +1,4 @@
-__version__ = "0.5.2.post0"
+__version__ = "0.5.3"
 
 try:
     from pyfiglet import figlet_format
