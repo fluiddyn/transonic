@@ -1,0 +1,16 @@
+[project]
+name = "package_for_test_meson"
+version = "0.1.0"
+description = "Test package for testing Transonic support for Meson"
+authors = [
+    {name = "pierre.augier", email = "pierre.augier@univ-grenoble-alpes.fr"},
+]
+dependencies = []
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "BSD License"}
+
+[build-system]
+build-backend = 'mesonpy'
+# TODO: we have to understand how to add the local transonic as build dependency here
+requires = ['meson-python']
