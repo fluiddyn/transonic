@@ -82,7 +82,7 @@ def test_create_pythran_files():
                 saved_code += file.read()
 
         # warning: it is a very strong requirement!
-        assert code == saved_code, path
+        assert code == saved_code, f"Issue with {path}\nsaved_path = {saved_path}"
 
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")

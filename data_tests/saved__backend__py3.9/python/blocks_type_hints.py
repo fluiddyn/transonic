@@ -1,5 +1,4 @@
 def block0(a, b, n):
-
     # transonic block (
     #     A a; A1 b;
     #     int n

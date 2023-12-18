@@ -5,7 +5,6 @@ except ImportError:
 
 
 def rk2_step0(state_spect_n12, state_spect, tendencies_n, diss2, dt):
-
     # transonic block (
     #     complex128[][][] state_spect_n12, state_spect,
     #                      tendencies_n;
