@@ -82,7 +82,11 @@ def run():
         sys.exit(1)
 
     backend = backends[args.backend]
-    backend.make_backend_files(paths, force=args.force)
+    paths_out = backend.make_backend_files(paths, force=args.force)
+
+    if args.meson:
+        # TODO: create the necessary meson.build files
+        print("TMP", paths_out)
 
     if args.no_compile:
         return
@@ -191,9 +195,18 @@ def parse_args():
         # default="",
     )
 
+    parser.add_argument(
+        "--meson",
+        help="Only prepare the backend directory for Meson",
+        action="store_true",
+    )
+
     args = parser.parse_args()
     if args.pythran_flags != "":
         raise DeprecationWarning("-pf is deprecated. Use -af instead!")
+
+    if args.meson:
+        args.no_compile = True
 
     return args
 

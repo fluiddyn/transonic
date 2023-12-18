@@ -1,5 +1,5 @@
-from package_for_test_meson.bar import compute
+from package_for_test_meson.foo import compute
 
 
-def test_bar():
+def test_foo():
     assert compute() == 1
