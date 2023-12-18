@@ -11,6 +11,6 @@ readme = "README.md"
 license = {text = "BSD License"}
 
 [build-system]
-build-backend = 'mesonpy'
-# TODO: we have to understand how to add the local transonic as build dependency here
-requires = ['meson-python']
+build-backend = "mesonpy"
+# We cannot add the local transonic as build dependency here
+requires = ["meson-python", "transonic"]

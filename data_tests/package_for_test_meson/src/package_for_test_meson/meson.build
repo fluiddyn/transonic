@@ -13,6 +13,6 @@ py.install_sources(
 backend = get_option('deps_backend')
 
 # TODO: the new option --meson has to be implemented in transonic/run.py
-# run_command(['transonic', '--meson', '-b', backend, 'bar.py', 'foo.py'], check: true)
+run_command(['transonic', '--meson', '-b', backend, 'bar.py', 'foo.py'], check: true)
 
 # subdir(f'__{backend}__')
