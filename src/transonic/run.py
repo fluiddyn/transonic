@@ -86,7 +86,28 @@ def run():
 
     if args.meson:
         # TODO: create the necessary meson.build files
-        print("TMP", paths_out)
+        with open(path.parent / str(f"__{backend.name}__") / "meson.build", "w") as f:
+            f.writelines(
+                [
+                    "backend = get_option('deps_backend')\n",
+                    "if backend == 'pythran'\n",
+                    "  pythran = find_program('pythran', native: true)\n",
+                    "  run_command(\n",
+                    "    ['pythran', '-E', 'pseudo_spect.py'],\n"
+                    "  )\n",
+                    "  _pseudo_spect = library(\n",
+                    "    'pseudo_spect',\n",
+                    "    'pseudo_spect.cpp',\n", # TODO dynamic
+                    "    include_directories: incdir_pythran\n",
+                    "  )\n",
+                    "  _pseudo_spect_pythran = py3.extension_module(\n",
+                    "    'pseudo_spect',\n",
+                    "    _pseudo_spect,\n",
+                    "    subdir: 'fluidsim/base/time_stepping/__pythran__',\n",  # TODO: dynamic
+                    "  )\n",
+                    "endif\n"
+                ]
+            )
 
     if args.no_compile:
         return
