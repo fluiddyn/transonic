@@ -82,9 +82,32 @@ def run():
         sys.exit(1)
 
     backend = backends[args.backend]
-    paths_out = backend.make_backend_files(paths, force=args.force)
+    backend.make_backend_files(paths, force=args.force)
 
     if args.meson:
+        path_meson_build = Path("meson.build")
+        if not path_meson_build.exists():
+            raise RuntimeError(
+                "transonic --meson has to be called from a "
+                "directory containing a meson.build file"
+            )
+
+        subdir = None
+
+        with open(path_meson_build) as file:
+            for line in file:
+                if line.strip().startswith("subdir"):
+                    subdir = line.split("'")[1]
+                    break
+
+        if subdir is None:
+            raise RuntimeError(
+                "transonic --meson has to be called from a "
+                "directory containing a meson.build file with a subdir"
+            )
+
+        subdir += f"/__{backend.name}__"
+
         path_dirs = set()
         file_names = []
         stems = []
@@ -97,19 +120,16 @@ def run():
         if len(path_dirs) > 1:
             raise RuntimeError("TODO")
 
-        # TODO: create the necessary meson.build file, see
-        # package_for_test_meson/src/package_for_test_meson/for_test__pythran__meson.build
-
         meson_code = (
             "python_sources = [\n  '"
             + "',\n  '".join(file_names)
-            + """',
+            + f"""',
 ]
 
 py.install_sources(
   python_sources,
   pure: false,
-  subdir: 'package_for_test_meson/__pythran__',
+  subdir: '{subdir}',
 )
 """
         )
@@ -120,20 +140,20 @@ py.install_sources(
             meson_parts.append(
                 f"""
 {name} = custom_target(
-    '{name}',
-    output: ['{name}.cpp'],
-    input: '{name}.py',
-    command: [pythran, '-E', '@INPUT@', '-o', '@OUTDIR@/{name}.cpp']
+  '{name}',
+  output: ['{name}.cpp'],
+  input: '{name}.py',
+  command: [pythran, '-E', '@INPUT@', '-o', '@OUTDIR@/{name}.cpp']
 )
 
 {name} = py.extension_module(
-    '{name}',
-    {name},
-    cpp_args: cpp_args_pythran,
-    dependencies: [pythran_dep, np_dep],
-    # link_args: version_link_args,
-    install: true,
-    subdir: 'package_for_test_meson/__pythran__'
+  '{name}',
+  {name},
+  cpp_args: cpp_args_pythran,
+  dependencies: [pythran_dep, np_dep],
+  # link_args: version_link_args,
+  install: true,
+  subdir: '{subdir}'
 )
 """
             )
