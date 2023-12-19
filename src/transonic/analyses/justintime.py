@@ -79,7 +79,6 @@ def analysis_jit(code, pathfile, backend_name):
     codes_dependance_classes = {}
 
     for key, def_nodes in def_nodes_dict.items():
-
         for def_node in def_nodes:
             def_node.decorator_list = []
 

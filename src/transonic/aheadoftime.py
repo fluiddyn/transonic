@@ -138,7 +138,6 @@ class CheckCompiling:
         self.func = func
 
     def __call__(self, *args, **kwargs):
-
         if self.has_been_replaced:
             return self.func(*args, **kwargs)
 
@@ -183,7 +182,6 @@ class Transonic:
     def __init__(
         self, use_transonified=True, frame=None, reuse=True, backend=None
     ):
-
         if frame is None:
             frame = get_frame(1)
 

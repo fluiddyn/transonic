@@ -139,7 +139,6 @@ def can_import_accelerator(backend: str = backend_default):
 
 
 def print_versions(accelerators=None):
-
     print(f"Transonic {__version__}")
 
     if accelerators is None or "pythran" in accelerators:

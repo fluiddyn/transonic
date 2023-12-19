@@ -61,7 +61,6 @@ def func1(a, b):
 
 @boost
 class Transmitter:
-
     freq: float
 
     def __init__(self, freq):

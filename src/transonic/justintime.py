@@ -92,7 +92,6 @@ class ModuleJIT:
     """Representation of a module using jit"""
 
     def __init__(self, backend_name: str, frame=None):
-
         self.backend_name = backend_name
         if frame is None:
             frame = get_frame(1)
@@ -201,7 +200,6 @@ class JIT:
     def __init__(
         self, frame, backend: str, native=False, xsimd=False, openmp=False
     ):
-
         self.mod = _get_module_jit(backend, frame=frame)
 
         self.backend = self.mod.backend
@@ -291,7 +289,6 @@ class JIT:
         name_mod = mpi.bcast(name_mod)
 
         def backenize_with_new_header(arg_types="no types"):
-
             header_object = backend.jit.make_new_header(func, arg_types)
 
             header_code = backend.jit.merge_old_and_new_header(
@@ -352,7 +349,6 @@ class JIT:
         # this is the function that will be called by the user
         @wraps(func)
         def type_collector(*args, **kwargs):
-
             if self.compiling:
                 if not self.process.is_alive(raise_if_error=True):
                     self.compiling = False

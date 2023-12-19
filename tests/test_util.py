@@ -3,7 +3,6 @@ from transonic.util import query_yes_no, timeit, print_versions, timeit_verbose
 
 
 def test_query_yes_no():
-
     util.input = lambda: "y"
 
     query_yes_no("test", default="y")

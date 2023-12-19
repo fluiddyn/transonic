@@ -76,7 +76,6 @@ class SchedulerPopen:
             self.limit_nb_processes = 1
 
     def block_until_avail(self, parallel=True):
-
         if mpi.rank == 0:
             if parallel:
                 limit = self.limit_nb_processes

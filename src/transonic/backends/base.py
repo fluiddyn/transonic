@@ -222,7 +222,6 @@ class Backend:
         code = []
         signatures_blocks = []
         for block in blocks:
-
             str_variables = ", ".join(block.signatures[0].keys())
             fdef_block = extast.gast.parse(
                 f"""def {block.name}({str_variables}):pass"""
@@ -441,7 +440,6 @@ class BackendAOT(Backend):
         return compiling, process
 
     def _make_header_1_function(self, fdef, annotations):
-
         try:
             annots = annotations["__in_comments__"][fdef.name]
         except KeyError:

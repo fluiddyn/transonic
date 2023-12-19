@@ -56,7 +56,6 @@ class TestsInit(unittest.TestCase):
         print(mpi.rank, "end tearDownClass")
 
     def test_transonified(self):
-
         print(mpi.rank, "start test", flush=1)
 
         try:
@@ -74,7 +73,6 @@ class TestsInit(unittest.TestCase):
         print(mpi.rank, "before if self.path_backend.exists()", flush=1)
 
         if self.path_backend.exists():
-
             print(mpi.rank, "before self.path_backend.unlink()", flush=1)
 
             self.path_backend.unlink()
@@ -102,7 +100,6 @@ class TestsInit(unittest.TestCase):
         f"{backend.name} is required for TRANSONIC_COMPILE_AT_IMPORT",
     )
     def test_pythranize(self):
-
         os.environ["TRANSONIC_COMPILE_AT_IMPORT"] = "1"
 
         try:

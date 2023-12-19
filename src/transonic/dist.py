@@ -207,7 +207,6 @@ def init_transonic_extensions(
             or not os.path.exists(bin_file)
             or modification_date(bin_file) < modification_date(py_file)
         ):
-
             if logger:
                 logger.info(
                     "Extension has to be built: {} -> {} ".format(

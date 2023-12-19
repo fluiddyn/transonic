@@ -16,7 +16,6 @@ class MyClass:
         self.b = b
 
     def compute(self, n):
-
         a = self.a
         b = self.b
 
@@ -39,7 +38,6 @@ class MyClass:
 
 
 if __name__ == "__main__":
-
     shape = 100, 100
     a = np.random.rand(*shape)
     b = np.random.rand(*shape)

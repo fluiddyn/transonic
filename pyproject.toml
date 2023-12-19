@@ -7,3 +7,7 @@ addopts = "--doctest-modules"
 
 # [tool.pytest.ini_options]
 # addopts = "--cov --cov-config=pyproject.toml --no-cov-on-fail"
+
+[tool.black]
+line-length = 82
+target-version = ['py38']

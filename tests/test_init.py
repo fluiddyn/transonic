@@ -8,7 +8,6 @@ from transonic.mpi import Path
 
 
 def test_not_transonified():
-
     path_for_test = (
         Path(__file__).parent.parent / "_transonic_testing/for_test_init.py"
     )

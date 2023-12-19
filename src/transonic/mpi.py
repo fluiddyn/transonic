@@ -45,7 +45,6 @@ if nb_proc == 1:
         pass
 
 else:
-
     _tag = 3 * 7 * 9 * sum(ord(letter) for letter in "mpi transonic")
 
     def bcast(value, root=0, timeout=mpi_timeout, tag=_tag):
@@ -111,7 +110,6 @@ else:
 
 class ShellProcessMPI:
     def __init__(self, process, root=0):
-
         if rank != root:
             assert process is None
 

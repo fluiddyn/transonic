@@ -44,7 +44,6 @@ from transonic.analyses.capturex import CaptureX
 
 
 def _fill_ast_annotations_function(function_def, ast_annotations):
-
     dict_node = ast_annotations.value
     for arg in function_def.args.args:
         if arg.annotation is not None:
@@ -58,7 +57,6 @@ def _fill_ast_annotations_function(function_def, ast_annotations):
 
 
 def _fill_ast_annotations_class(class_def, ast_annotations):
-
     dict_node = ast_annotations.value
     for node in class_def.body:
         if not isinstance(node, ast.AnnAssign):

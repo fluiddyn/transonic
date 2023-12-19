@@ -33,7 +33,6 @@ def produce_code_class(cls):
 
 
 def make_code_method_jit(cls, func_name):
-
     func = cls.__dict__[func_name]
     func = func.func
 
@@ -113,7 +112,6 @@ def make_new_code_method_from_objects(cls, func):
 
 
 def make_new_code_method_from_source(source, func_name, cls_name):
-
     tokens = []
     attributes = set()
 

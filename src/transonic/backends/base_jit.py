@@ -85,7 +85,6 @@ class SubBackendJIT:
         return exports
 
     def merge_old_and_new_header(self, path_backend_header, header, func):
-
         try:
             path_backend_header_exists = path_backend_header.exists()
         except TimeoutError:

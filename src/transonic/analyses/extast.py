@@ -107,7 +107,6 @@ else:
             super().visit_FunctionDef(node)
 
     def unparse(tree, with_comments=True):
-
         module = type(tree).__module__
         if "gast" in module:
             tree = gast_to_ast(tree)
@@ -160,12 +159,10 @@ class CommentInserter(gast.NodeVisitor):
         self.modify_tree()
 
     def visit(self, node):
-
         if self._done:
             return
 
         if hasattr(node, "lineno") and node.lineno is not None:
-
             linenos = self.lineno_comments
 
             while node.lineno > linenos[self.index_comment]:
@@ -183,7 +180,6 @@ class CommentInserter(gast.NodeVisitor):
         super().visit(node)
 
     def modify_tree(self):
-
         # todo: debug this buggy code!
 
         for lineno, line in zip(self.lineno_comments, self.lines_comments):
@@ -207,7 +203,6 @@ class CommentInserter(gast.NodeVisitor):
                     self.tree.body.insert(0, CommentLine(line, lineno))
 
     def insert_comment_in_parent_before_node(self, line, lineno, node):
-
         parent = self.ancestors.parent(node)
         comment = line.strip()
 

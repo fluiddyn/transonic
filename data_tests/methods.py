@@ -7,7 +7,6 @@ A = Array[float, "2d"]
 
 @boost
 class Transmitter:
-
     freq: float
     arr: A
 

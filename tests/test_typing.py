@@ -22,7 +22,6 @@ from transonic.backends.typing import base_type_formatter
 
 
 def compare_array_types(A0, A1):
-
     assert A0.dtype == A1.dtype
 
     if len(A0.ndim.values) > 1:
@@ -131,7 +130,6 @@ def test_typeof_np_scalar():
 
 
 def test_shape():
-
     assert str2shape("[]") == (None,)
     assert str2shape("[:]") == (None,)
     assert str2shape("[][]") == (None,) * 2

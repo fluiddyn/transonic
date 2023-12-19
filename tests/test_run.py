@@ -19,7 +19,6 @@ header_suffixes = {"pythran": ".pythran", "cython": ".pxd"}
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
 def test_create_pythran_files():
-
     if path_dir_out.exists():
         rmtree(path_dir_out)
 
@@ -88,7 +87,6 @@ def test_create_pythran_files():
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
 def test_create_pythran_simple():
-
     sys.argv = "transonic --version".split()
     run()
 
@@ -99,7 +97,6 @@ def test_create_pythran_simple():
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
 def test_create_trans_classic():
-
     util.input = lambda: "y"
 
     if path_dir_out.exists():

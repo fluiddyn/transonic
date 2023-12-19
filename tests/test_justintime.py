@@ -68,7 +68,6 @@ def test_fib():
 
 
 def test_jit_simple():
-
     from _transonic_testing.for_test_justintime import func_identity
 
     func_identity(1)

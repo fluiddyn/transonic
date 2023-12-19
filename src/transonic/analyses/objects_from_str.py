@@ -19,7 +19,6 @@ def find_last_def_node(variable, module):
 
 
 def find_def_code(variables: set, module: dict, ancestors, udc, duc):
-
     nodes_def_vars = [
         find_last_def_node(variable, module) for variable in variables
     ]

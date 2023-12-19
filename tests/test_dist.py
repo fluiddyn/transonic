@@ -22,7 +22,6 @@ from transonic.util import can_import_accelerator
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
 def test_detect_backend_extensions():
-
     shutil.rmtree(path_data_tests / f"__{backend_default}__", ignore_errors=True)
 
     names = [
@@ -60,7 +59,6 @@ def test_detect_backend_extensions():
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
 def test_modification_date():
-
     modification_date(path_data_tests / "no_pythran_.py")
     get_logger("bar")
 

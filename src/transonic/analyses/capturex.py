@@ -21,7 +21,6 @@ class CaptureX(ast.NodeVisitor):
         consider_annotations=True,
         blocks=None,
     ):
-
         if defuse_chains is None:
             self.du_chains = du = beniget.DefUseChains()
             du.visit(module_node)
@@ -55,7 +54,6 @@ class CaptureX(ast.NodeVisitor):
                     self.visit(node)
 
     def visit_Name(self, node):
-
         parent_node = self.ancestors.parents(node)[-1]
         if (
             isinstance(parent_node, ast.FunctionDef)
@@ -155,7 +153,6 @@ class CaptureX(ast.NodeVisitor):
 
 
 if __name__ == "__main__":
-
     code = "a = 1; b = [a, a]\ndef foo():\n return b"
     # code = "a = 1; b = len([a, a])\ndef foo():\n return b"
     # code = "import numpy as np\na = np.int(1)\ndef foo():\n return np.zeros(a)"

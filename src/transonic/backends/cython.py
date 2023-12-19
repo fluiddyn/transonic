@@ -115,7 +115,6 @@ class HeaderFunction:
         types: dict = None,
         imports=None,
     ):
-
         if path is not None:
             self.path = path
             with open(path) as file:
@@ -153,7 +152,6 @@ class HeaderFunction:
         self.imports = imports
 
     def make_code(self):
-
         bits = [self.imports + "\n\n"]
 
         for arg, types in self.types.items():
@@ -227,7 +225,6 @@ class CythonBackend(BackendAOT):
     def _make_header_from_fdef_annotations(
         self, fdef, annotations: dict, locals_types=None, returns=None
     ):
-
         if hasattr(fdef, "_transonic_keywords"):
             decorator_keywords = fdef._transonic_keywords
         else:
@@ -354,7 +351,6 @@ class CythonBackend(BackendAOT):
         return signatures_func
 
     def _make_code_from_fdef_node(self, fdef):
-
         if hasattr(fdef, "_transonic_keywords"):
             decorator_keywords = fdef._transonic_keywords
         else:

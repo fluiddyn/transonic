@@ -82,7 +82,6 @@ class FusedType:
         raise NotImplementedError
 
     def get_all_formatted_backend_types(self, type_formatter):
-
         template_params = self.get_template_parameters()
         values_template_parameters = {
             param.__name__: param.values for param in template_params
@@ -123,7 +122,6 @@ class TemplateVar:
         return (self,)
 
     def __init__(self, *args, name_calling_module=None):
-
         if not args:
             raise ValueError
 
@@ -191,7 +189,6 @@ class Type(TemplateVar, FusedType):
         return f"Type({', '.join(repr_values)})"
 
     def format_as_backend_type(self, backend_type_formatter, **kwargs):
-
         dtype = None
 
         for key, value in kwargs.items():
@@ -229,7 +226,6 @@ class NDim(TemplateVar):
     _letter = "N"
 
     def __init__(self, *args, shift=0, name_calling_module=None):
-
         if name_calling_module is None:
             name_calling_module = get_name_calling_module()
 
@@ -349,7 +345,6 @@ class ArrayMeta(Meta):
     """Metaclass for the Array class"""
 
     def __getitem__(self, parameters):
-
         if not isinstance(parameters, tuple):
             parameters = (parameters,)
 
@@ -510,7 +505,6 @@ class ArrayMeta(Meta):
         return f"Array[{', '.join(strings)}]"
 
     def format_as_backend_type(self, backend_type_formatter, **kwargs):
-
         dtype = ndim = None
 
         for var in self.parameters.values():
@@ -581,7 +575,6 @@ class UnionMeta(Meta):
     """Metaclass for the Union class"""
 
     def __getitem__(self, types):
-
         types_in = types
         if not isinstance(types_in, tuple):
             types_in = (types_in,)
@@ -781,7 +774,6 @@ class TupleMeta(Meta):
     """Metaclass for the Tuple class"""
 
     def __getitem__(self, types):
-
         if not isinstance(types, tuple):
             types = (types,)
 
@@ -1029,7 +1021,6 @@ class ConstType(Type):
         return self.type.get_template_parameters()
 
     def short_repr(self):
-
         if hasattr(self.type, "short_repr"):
             short_repr_type = self.type.short_repr()
         else:

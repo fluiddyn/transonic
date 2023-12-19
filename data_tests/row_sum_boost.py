@@ -36,7 +36,6 @@ def row_sum_loops(arr: V2d, columns: V1d_i):
 
 
 if __name__ == "__main__":
-
     from util import check, bench
 
     functions = [row_sum, row_sum_loops]

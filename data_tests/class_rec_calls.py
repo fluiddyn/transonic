@@ -3,7 +3,6 @@ from transonic import boost
 
 @boost
 class Myclass:
-
     attr: int
     attr2: int
 
