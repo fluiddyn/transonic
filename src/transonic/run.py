@@ -116,47 +116,12 @@ def run():
             stems.append(path.stem)
 
         if len(path_dirs) > 1:
-            raise RuntimeError("TODO")
-
-        meson_code = (
-            "python_sources = [\n  '"
-            + "',\n  '".join(file_names)
-            + f"""',
-]
-
-py.install_sources(
-  python_sources,
-  pure: false,
-  subdir: '{subdir}',
-)
-"""
-        )
-
-        meson_parts = []
-
-        for name in stems:
-            meson_parts.append(
-                f"""
-{name} = custom_target(
-  '{name}',
-  output: ['{name}.cpp'],
-  input: '{name}.py',
-  command: [pythran, '-E', '@INPUT@', '-o', '@OUTDIR@/{name}.cpp']
-)
-
-{name} = py.extension_module(
-  '{name}',
-  {name},
-  cpp_args: cpp_args_pythran,
-  dependencies: [pythran_dep, np_dep],
-  # link_args: version_link_args,
-  install: true,
-  subdir: '{subdir}'
-)
-"""
+            raise RuntimeError(
+                "with the --meson option, only file names should be "
+                "given and not paths"
             )
 
-        meson_code += "".join(meson_parts)
+        meson_code = backend.make_meson_code(file_names, subdir)
         with open(Path(f"__{backend.name}__") / "meson.build", "w") as file:
             file.write(meson_code)
 

@@ -386,3 +386,6 @@ class CythonBackend(BackendAOT):
             "except ImportError:\n"
             "    from transonic_cl import cython\n\n"
         )
+
+    def make_meson_code(self, file_names, subdir):
+        raise NotImplementedError("No Meson support for the Cython backend")

@@ -1,0 +1,10 @@
+python_sources = [
+  'bar.py',
+  'foo.py',
+]
+
+py.install_sources(
+  python_sources,
+  pure: false,
+  subdir: 'package_for_test_meson/__pythran__',
+)

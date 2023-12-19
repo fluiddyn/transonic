@@ -8,6 +8,8 @@ from shutil import copy
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from transonic.run import run
 from transonic.config import backend_default
 
@@ -37,6 +39,7 @@ def test_install_package():
     """
 
 
+@pytest.mark.xfail(backend_default == "cython", reason="Not yet implemented")
 def test_meson_option(tmpdir, monkeypatch):
     """Only run `transonic --meson foo.py bar.py` in
     data_tests/package_for_test_meson/src/package_for_test_meson
@@ -56,5 +59,17 @@ def test_meson_option(tmpdir, monkeypatch):
         run()
 
     path_result = tmpdir / f"__{backend_default}__/meson.build"
-
     assert path_result.exists()
+
+    if backend_default == "numba":
+        backend_default == "python"
+
+    saved_output_path = path_dir / f"for_test__{backend_default}__meson.build"
+    assert saved_output_path.exists()
+
+    saved_meson_build = saved_output_path.read_text()
+    produced_meson_build = path_result.read_text("utf8")
+
+    assert saved_meson_build == produced_meson_build
+
+    # TODO: check produced meson.build

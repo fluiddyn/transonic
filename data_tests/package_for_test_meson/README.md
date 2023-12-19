@@ -12,7 +12,7 @@ pytest tests
 Since we cannot use a relative path in build-system.requires, we need to
 manually install the build dependencies and install with `--no-build-isolation`.
 
-We can also do something simple:
+We can also do something simpler:
 
 ```
 cd src/package_for_test_meson/

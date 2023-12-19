@@ -399,6 +399,21 @@ class Backend:
     ):
         raise NotImplementedError
 
+    def make_meson_code(self, file_names, subdir):
+        return (
+            "python_sources = [\n  '"
+            + "',\n  '".join(file_names)
+            + f"""',
+]
+
+py.install_sources(
+  python_sources,
+  pure: false,
+  subdir: '{subdir}',
+)
+"""
+        )
+
 
 class BackendAOT(Backend):
     """Backend for ahead-of-time compilers"""

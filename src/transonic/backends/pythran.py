@@ -50,3 +50,32 @@ class PythranBackend(BackendAOT):
         if signatures_func:
             signatures_func[-1] = signatures_func[-1] + "\n"
         return signatures_func
+
+    def make_meson_code(self, file_names, subdir):
+
+        meson_parts = []
+
+        stems = [name[:-3] for name in file_names]
+        for name in stems:
+            meson_parts.append(
+                f"""
+{name} = custom_target(
+  '{name}',
+  output: ['{name}.cpp'],
+  input: '{name}.py',
+  command: [pythran, '-E', '@INPUT@', '-o', '@OUTDIR@/{name}.cpp']
+)
+
+{name} = py.extension_module(
+  '{name}',
+  {name},
+  cpp_args: cpp_args_pythran,
+  dependencies: [pythran_dep, np_dep],
+  # link_args: version_link_args,
+  install: true,
+  subdir: '{subdir}'
+)
+"""
+            )
+
+        return "".join(meson_parts)
