@@ -10,7 +10,6 @@ py.install_sources(
   subdir: 'package_for_test_meson',
 )
 
-# TODO: the new option --meson has to be implemented in transonic/run.py
 run_command(['transonic', '--meson', '-b', backend, 'bar.py', 'foo.py'], check: true)
 
 subdir('__' + backend + '__')

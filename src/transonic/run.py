@@ -91,12 +91,10 @@ def run():
                 "transonic --meson has to be called from a "
                 "directory containing a meson.build file"
             )
-
         subdir = None
-
         with open(path_meson_build) as file:
             for line in file:
-                if line.strip().startswith("subdir"):
+                if line.strip().startswith("subdir:"):
                     subdir = line.split("'")[1]
                     break
 
@@ -159,9 +157,6 @@ py.install_sources(
             )
 
         meson_code += "".join(meson_parts)
-
-        print(meson_code)
-
         with open(Path(f"__{backend.name}__") / "meson.build", "w") as file:
             file.write(meson_code)
 
