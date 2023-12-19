@@ -86,21 +86,64 @@ def run():
 
     if args.meson:
         path_dirs = set()
-        path_files = []
+        file_names = []
+        stems = []
         for path in paths:
             path = Path(path)
             path_dirs.add(path.parent)
-            path_files.append(path.name)
+            file_names.append(path.name)
+            stems.append(path.stem)
 
         if len(path_dirs) > 1:
             raise RuntimeError("TODO")
 
         # TODO: create the necessary meson.build file, see
         # package_for_test_meson/src/package_for_test_meson/for_test__pythran__meson.build
-        with open(
-            path.parent / str(f"__{backend.name}__") / "meson.build", "w"
-        ) as file:
-            file.write(dedent("""..."""))
+
+        meson_code = (
+            "python_sources = [\n  '"
+            + "',\n  '".join(file_names)
+            + """',
+]
+
+py.install_sources(
+  python_sources,
+  pure: false,
+  subdir: 'package_for_test_meson/__pythran__',
+)
+"""
+        )
+
+        meson_parts = []
+
+        for name in stems:
+            meson_parts.append(
+                f"""
+{name} = custom_target(
+    '{name}',
+    output: ['{name}.cpp'],
+    input: '{name}.py',
+    command: [pythran, '-E', '@INPUT@', '-o', '@OUTDIR@/{name}.cpp']
+)
+
+{name} = py.extension_module(
+    '{name}',
+    {name},
+    cpp_args: cpp_args_pythran,
+    dependencies: [pythran_dep, np_dep],
+    # link_args: version_link_args,
+    install: true,
+    subdir: 'package_for_test_meson/__pythran__'
+)
+"""
+            )
+
+        meson_code += "".join(meson_parts)
+
+        print(meson_code)
+
+        with open(Path(f"__{backend.name}__") / "meson.build", "w") as file:
+            file.write(meson_code)
 
     if args.no_compile:
         return
