@@ -3,6 +3,8 @@
 """
 
 import sys
+import subprocess
+import os
 
 from shutil import copy
 from pathlib import Path
@@ -12,33 +14,76 @@ import pytest
 
 from transonic.run import run
 from transonic.config import backend_default
+from transonic.mpi import nb_proc
 
 test_dir = Path(__file__).absolute().parent
 
-path_root_package_for_test_meson = (
-    test_dir.parent / "data_tests/package_for_test_meson"
-)
+path_root_package = test_dir.parent / "data_tests/package_for_test_meson"
+assert path_root_package.exists()
 
-assert path_root_package_for_test_meson.exists()
-
-
-# def test_install_package():
-#     """
-#     TODO: we'd like to test the installation of the package data_tests/package_for_test_meson
-
-#     The test is a bit complex because we need to
-
-#     - create and activate a temporary virtual environment
-#     - install transonic in editable mode
-#     - install other build requirements (meson-python and ninja)
-#     - make sure that there is not backend directories in package_for_test_meson (__pythran__, ...)
-#     - install package_for_test_meson with `pip install . --no-build-isolation` (+ give the backend)
-#     - test package_for_test_meson with `pytest tests`
-#     - clean up the temporary virtual environment and package_for_test_meson directory
-
-#     """
+path_src_package = path_root_package / "src/package_for_test_meson"
+assert path_src_package.exists()
 
 
+def run_in_venv(virtualenv, command, cwd=None):
+    try:
+        env = virtualenv.env
+    except AttributeError:
+        path_bin = virtualenv.virtualenv / "bin"
+        env = os.environ.copy()
+        env["PATH"] = str(path_bin) + ":" + os.environ["PATH"]
+        virtualenv.env = env
+
+    args = [virtualenv.python, "-m"]
+    args.extend(command.split())
+    subprocess.run(args, cwd=cwd, check=True, env=env)
+
+
+@pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
+@pytest.mark.xfail(backend_default != "pythran", reason="Not yet implemented")
+def test_install_package(tmpdir, virtualenv):
+    """
+    Test the installation of the package data_tests/package_for_test_meson
+
+    - create and activate a temporary virtual environment
+    - create a clean package_for_test_meson in tmp directory
+    - install transonic from source
+    - install other build requirements (meson-python and ninja) and pytest
+    - install pythran for the pythran backend
+    - install package_for_test_meson with `pip install . --no-build-isolation` (+ give the backend)
+    - test package_for_test_meson with `pytest tests`
+
+    """
+
+    assert virtualenv.python.endswith("/bin/python")
+
+    for name in ("pyproject.toml", "meson.build", "meson.options", "README.md"):
+        copy(path_root_package / name, tmpdir)
+
+    src_dir = path_root_package / "tests"
+    dst_dir = tmpdir / "tests"
+    dst_dir.mkdir()
+    for name in ("test_bar.py", "test_foo.py"):
+        copy(src_dir / name, dst_dir)
+
+    src_dir = path_src_package
+    dst_dir = Path(tmpdir / "src/package_for_test_meson")
+    dst_dir.mkdir(parents=True)
+    for name in ("bar.py", "foo.py", "meson.build", "__init__.py"):
+        copy(src_dir / name, dst_dir)
+
+    run_in_venv(virtualenv, f"pip install {test_dir.parent}")
+    run_in_venv(virtualenv, "pip install meson-python meson ninja pytest")
+
+    if backend_default == "pythran":
+        run_in_venv(virtualenv, "pip install pythran")
+
+    # TODO: we need to be able to set the backend used for the installation here
+    run_in_venv(virtualenv, "pip install . --no-build-isolation", cwd=tmpdir)
+    run_in_venv(virtualenv, "pytest tests", cwd=tmpdir)
+
+
+@pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
 @pytest.mark.xfail(backend_default == "cython", reason="Not yet implemented")
 def test_meson_option(tmpdir, monkeypatch):
     """Only run `transonic --meson foo.py bar.py` in
@@ -46,11 +91,8 @@ def test_meson_option(tmpdir, monkeypatch):
     and compare with for_test__pythran__meson.build (same directory)
     """
 
-    path_dir = path_root_package_for_test_meson / "src/package_for_test_meson"
-    assert path_dir.exists()
-
     for name in ("bar.py", "foo.py", "meson.build"):
-        copy(path_dir / name, tmpdir)
+        copy(path_src_package / name, tmpdir)
 
     monkeypatch.chdir(tmpdir)
 
@@ -61,12 +103,12 @@ def test_meson_option(tmpdir, monkeypatch):
     path_result = tmpdir / f"__{backend_default}__/meson.build"
     assert path_result.exists()
 
-    saved_output_path = path_dir / f"for_test__{backend_default}__meson.build"
+    saved_output_path = (
+        path_src_package / f"for_test__{backend_default}__meson.build"
+    )
     assert saved_output_path.exists()
 
     saved_meson_build = saved_output_path.read_text()
     produced_meson_build = path_result.read_text("utf8")
 
     assert saved_meson_build == produced_meson_build
-
-    # TODO: check produced meson.build

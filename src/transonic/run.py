@@ -119,8 +119,17 @@ def run():
                 "given and not paths"
             )
 
-        with open(Path(f"__{backend.name}__") / "meson.build", "w") as file:
-            file.write(backend.make_meson_code(file_names, subdir))
+        meson_code = backend.make_meson_code(file_names, subdir)
+
+        meson_path = Path(f"__{backend.name}__") / "meson.build"
+        if not meson_path.exists():
+            has_to_write = True
+        else:
+            old_meson_code = meson_path.read_text()
+            has_to_write = old_meson_code != meson_code
+
+        if has_to_write:
+            meson_path.write_text(meson_code)
 
     if args.no_compile:
         return

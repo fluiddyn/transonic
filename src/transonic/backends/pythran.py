@@ -52,7 +52,6 @@ class PythranBackend(BackendAOT):
         return signatures_func
 
     def make_meson_code(self, file_names, subdir):
-
         meson_parts = []
 
         stems = [name[:-3] for name in file_names]
