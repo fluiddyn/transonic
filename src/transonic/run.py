@@ -108,12 +108,10 @@ def run():
 
         path_dirs = set()
         file_names = []
-        stems = []
         for path in paths:
             path = Path(path)
             path_dirs.add(path.parent)
             file_names.append(path.name)
-            stems.append(path.stem)
 
         if len(path_dirs) > 1:
             raise RuntimeError(
@@ -121,9 +119,8 @@ def run():
                 "given and not paths"
             )
 
-        meson_code = backend.make_meson_code(file_names, subdir)
         with open(Path(f"__{backend.name}__") / "meson.build", "w") as file:
-            file.write(meson_code)
+            file.write(backend.make_meson_code(file_names, subdir))
 
     if args.no_compile:
         return

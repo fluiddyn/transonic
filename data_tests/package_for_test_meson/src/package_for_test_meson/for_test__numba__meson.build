@@ -6,5 +6,5 @@ python_sources = [
 py.install_sources(
   python_sources,
   pure: false,
-  subdir: 'package_for_test_meson/__python__',
+  subdir: 'package_for_test_meson/__numba__',
 )

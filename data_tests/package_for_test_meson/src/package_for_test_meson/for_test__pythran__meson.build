@@ -1,33 +1,34 @@
+
 bar = custom_target(
-    'bar',
-    output: ['bar.cpp'],
-    input: 'bar.py',
-    command: [pythran, '-E', '@INPUT@', '-o', '@OUTDIR@/bar.cpp']
+  'bar',
+  output: ['bar.cpp'],
+  input: 'bar.py',
+  command: [pythran, '-E', '@INPUT@', '-o', '@OUTDIR@/bar.cpp']
 )
 
 bar = py.extension_module(
-    'bar',
-    bar,
-    cpp_args: cpp_args_pythran,
-    dependencies: [pythran_dep, np_dep],
-    # link_args: version_link_args,
-    install: true,
-    subdir: 'package_for_test_meson/__pythran__'
+  'bar',
+  bar,
+  cpp_args: cpp_args_pythran,
+  dependencies: [pythran_dep, np_dep],
+  # link_args: version_link_args,
+  install: true,
+  subdir: 'package_for_test_meson/__pythran__'
 )
 
 foo = custom_target(
-    'foo',
-    output: ['foo.cpp'],
-    input: 'foo.py',
-    command: [pythran, '-E', '@INPUT@', '-o', '@OUTDIR@/foo.cpp']
+  'foo',
+  output: ['foo.cpp'],
+  input: 'foo.py',
+  command: [pythran, '-E', '@INPUT@', '-o', '@OUTDIR@/foo.cpp']
 )
 
 foo = py.extension_module(
-    'foo',
-    foo,
-    cpp_args: cpp_args_pythran,
-    dependencies: [pythran_dep, np_dep],
-    # link_args: version_link_args,
-    install: true,
-    subdir: 'package_for_test_meson/__pythran__'
+  'foo',
+  foo,
+  cpp_args: cpp_args_pythran,
+  dependencies: [pythran_dep, np_dep],
+  # link_args: version_link_args,
+  install: true,
+  subdir: 'package_for_test_meson/__pythran__'
 )

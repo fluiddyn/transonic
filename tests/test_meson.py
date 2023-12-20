@@ -22,21 +22,21 @@ path_root_package_for_test_meson = (
 assert path_root_package_for_test_meson.exists()
 
 
-def test_install_package():
-    """
-    TODO: we'd like to test the installation of the package data_tests/package_for_test_meson
+# def test_install_package():
+#     """
+#     TODO: we'd like to test the installation of the package data_tests/package_for_test_meson
 
-    The test is a bit complex because we need to
+#     The test is a bit complex because we need to
 
-    - create and activate a temporary virtual environment
-    - install transonic in editable mode
-    - install other build requirements (meson-python and ninja)
-    - make sure that there is not backend directories in package_for_test_meson (__pythran__, ...)
-    - install package_for_test_meson with `pip install . --no-build-isolation` (+ give the backend)
-    - test package_for_test_meson with `pytest tests`
-    - clean up the temporary virtual environment and package_for_test_meson directory
+#     - create and activate a temporary virtual environment
+#     - install transonic in editable mode
+#     - install other build requirements (meson-python and ninja)
+#     - make sure that there is not backend directories in package_for_test_meson (__pythran__, ...)
+#     - install package_for_test_meson with `pip install . --no-build-isolation` (+ give the backend)
+#     - test package_for_test_meson with `pytest tests`
+#     - clean up the temporary virtual environment and package_for_test_meson directory
 
-    """
+#     """
 
 
 @pytest.mark.xfail(backend_default == "cython", reason="Not yet implemented")
@@ -49,20 +49,17 @@ def test_meson_option(tmpdir, monkeypatch):
     path_dir = path_root_package_for_test_meson / "src/package_for_test_meson"
     assert path_dir.exists()
 
-    for name in ("foo.py", "bar.py", "meson.build"):
+    for name in ("bar.py", "foo.py", "meson.build"):
         copy(path_dir / name, tmpdir)
 
     monkeypatch.chdir(tmpdir)
 
-    argv = "transonic --meson foo.py bar.py".split()
+    argv = "transonic --meson bar.py foo.py".split()
     with patch.object(sys, "argv", argv):
         run()
 
     path_result = tmpdir / f"__{backend_default}__/meson.build"
     assert path_result.exists()
-
-    if backend_default == "numba":
-        backend_default == "python"
 
     saved_output_path = path_dir / f"for_test__{backend_default}__meson.build"
     assert saved_output_path.exists()
