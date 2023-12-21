@@ -40,7 +40,9 @@ def run_in_venv(virtualenv, command, cwd=None):
 
 
 @pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
-@pytest.mark.xfail(backend_default != "pythran", reason="Not yet implemented")
+@pytest.mark.xfail(
+    backend_default not in ["pythran", "python"], reason="Not yet implemented"
+)
 def test_install_package(tmpdir, virtualenv):
     """
     Test the installation of the package data_tests/package_for_test_meson
@@ -78,8 +80,13 @@ def test_install_package(tmpdir, virtualenv):
     if backend_default == "pythran":
         run_in_venv(virtualenv, "pip install pythran")
 
-    # TODO: we need to be able to set the backend used for the installation here
-    run_in_venv(virtualenv, "pip install . --no-build-isolation", cwd=tmpdir)
+    install_command = "pip install . --no-build-isolation"
+    if backend_default == "python":
+        install_command += (
+            " --config-settings=setup-args=-Dtransonic-backend=python"
+        )
+
+    run_in_venv(virtualenv, install_command, cwd=tmpdir)
     run_in_venv(virtualenv, "pytest tests", cwd=tmpdir)
 
 
