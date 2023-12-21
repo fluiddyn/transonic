@@ -32,7 +32,7 @@ endif
 inc_np = include_directories(incdir_numpy)
 np_dep = declare_dependency(include_directories: inc_np)
 
-backend = get_option('deps_backend')
+backend = get_option('transonic-backend')
 
 if backend == 'pythran'
 
