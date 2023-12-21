@@ -1,18 +1,17 @@
-# TODO: I guess the languages depend on the backend
+# TODO: the languages should depend on the backend
 # for example no cpp for backend "python"
-
-# TODO: build dependencies (Cython, Pythran, ...) depend on the backend
+# but the first statement should be this line...
 
 project('package_for_test_meson', 'cpp')
 
 py = import('python').find_installation(pure: false)
 
-
-# taken from Scipy (TODO: adapt)
+# Taken from Scipy
 
 # This uses the path as is, and avoids running the interpreter.
 incdir_numpy = meson.get_external_property('numpy-include-dir', 'not-given')
 if incdir_numpy == 'not-given'
+  # see also what is done in Scipy and Fluidsim (more robust)
   incdir_numpy = run_command(py,
     [
       '-c',
@@ -28,7 +27,6 @@ else
   _incdir_numpy_abs = incdir_numpy
 endif
 
-
 inc_np = include_directories(incdir_numpy)
 np_dep = declare_dependency(include_directories: inc_np)
 
@@ -41,7 +39,6 @@ if backend == 'pythran'
   # activation bug the default <prefix>/include/ may not be visible (see
   # gh-15698). Hence look for xsimd explicitly.
   # xsimd_dep = dependency('xsimd', required: false)
-
 
   # This external-property may not be needed if we can use the native include
   # dir, see https://github.com/serge-sans-paille/pythran/issues/1394
