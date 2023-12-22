@@ -45,6 +45,10 @@ def test_detect_backend_extensions():
     ext_names = detect_transonic_extensions(path_data_tests)
 
     if can_import_accelerator():
+        ext_names = [
+            name for name in ext_names if "package_for_test_meson" not in name
+        ]
+
         # -2 files (no_pythran.py and assign_fun_jit.py)
         number_not_transonized = 2
 
