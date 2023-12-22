@@ -2,25 +2,30 @@ variables:
   CODECOV_TOKEN: b1c3afe7-4ef3-4c69-9656-78beec52ec16
 
 install_test_without_tox:
-  image: fluiddyn/python3-stable:lastest
+  image: python:3.10-bullseye
+  # fluiddyn/python3-stable:lastest
   script:
+    - export PATH=/root/.local/bin:$PATH
     - pip install -U pdm --user
     - pdm sync --no-self --group base_test -v
 
 step_without_pythran:
-  image: fluiddyn/python3-stable:lastest
+  image: python:3.10-bullseye
   script:
+    - export PATH=/root/.local/bin:$PATH
     - pip install -U pdm tox tox-pdm --user
     - tox -e py39,codecov
 
 step_pythran_then_cython:
-  image: fluiddyn/python3-stable:lastest
+  image: python:3.10-bullseye
   script:
+    - export PATH=/root/.local/bin:$PATH
     - pip install -U pdm tox tox-pdm --user
     - tox -e py39-pythran,py39-cython,codecov
 
 step_pythran_cython:
-  image: fluiddyn/python3-stable:lastest
+  image: python:3.10-bullseye
   script:
+    - export PATH=/root/.local/bin:$PATH
     - pip install -U pdm tox tox-pdm --user
     - tox -e py39-pythran-cython
