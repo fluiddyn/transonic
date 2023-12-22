@@ -7,35 +7,31 @@ variables:
   OMPI_ALLOW_RUN_AS_ROOT: "1"
   OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: "1"
 
+image: registry.heptapod.net:443/fluiddyn/transonic/ci/default:stable
+
+before_script:
+  - export PATH=/root/.local/bin:$PATH
+  - pip install -U pdm tox tox-pdm --user
+
 install_test_without_tox:
   stage: test
-  image: registry.heptapod.net:443/fluiddyn/transonic/ci/default:stable
   script:
-    - echo $PATH
-    - export PATH=/root/.local/bin:$PATH
-    - pip install -U pdm --user
     - pdm sync --no-self --group base_test -v
 
-# step_without_pythran:
-#   image: python:3.10-bullseye
-#   script:
-#     - export PATH=/root/.local/bin:$PATH
-#     - pip install -U pdm tox tox-pdm --user
-#     - tox -e py39,codecov
+step_without_pythran:
+  stage: test
+  script:
+    - tox -e py310,codecov
 
-# step_pythran_then_cython:
-#   image: python:3.10-bullseye
-#   script:
-#     - export PATH=/root/.local/bin:$PATH
-#     - pip install -U pdm tox tox-pdm --user
-#     - tox -e py39-pythran,py39-cython,codecov
+step_pythran_then_cython:
+  stage: test
+  script:
+    - tox -e py310-pythran,py310-cython,codecov
 
-# step_pythran_cython:
-#   image: python:3.10-bullseye
-#   script:
-#     - export PATH=/root/.local/bin:$PATH
-#     - pip install -U pdm tox tox-pdm --user
-#     - tox -e py39-pythran-cython
+step_pythran_cython:
+  stage: test
+  script:
+    - tox -e py310-pythran-cython
 
 
 # Build an image for the above tasks; this should be a scheduled job, as
@@ -44,8 +40,8 @@ CI image:
   stage: image
   tags:
     - container-registry-push
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
   #   - if: '$CI_BUILD_IMAGES == "1"'
   image:
     name: gcr.io/kaniko-project/executor:debug
