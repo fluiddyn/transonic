@@ -7,17 +7,12 @@ name = "transonic"
 version = "0.5.3"
 description = "Make your Python code fly at transonic speeds!"
 authors = [
-    {name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr"},
+    { name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr" },
 ]
-dependencies = [
-    "autopep8",
-    "beniget ~=0.4.0",
-    "gast ~=0.5.0",
-    "numpy",
-]
+dependencies = ["autopep8", "beniget ~=0.4.0", "gast ~=0.5.0", "numpy"]
 requires-python = ">= 3.9"
 readme = "README.rst"
-license = {text = "BSD License"}
+license = { text = "BSD License" }
 keywords = ["pythran"]
 classifiers = [
     "License :: OSI Approved :: BSD License",
@@ -59,11 +54,7 @@ base_test = [
     "scipy",
     "-e transonic_testing @ file:///${PROJECT_ROOT}/_transonic_testing",
 ]
-test = [
-    "cython",
-    "mpi4py",
-    "pythran",
-]
+test = ["cython", "mpi4py", "pythran"]
 doc = [
     "jupyterlab",
     "nbsphinx",
@@ -73,12 +64,7 @@ doc = [
     "sphinx<7",
     "sphinx_rtd_theme",
 ]
-dev = [
-    "pip",
-    "build",
-    "pylint",
-    "twine",
-]
+dev = ["pip", "build", "pylint", "twine"]
 
 
 [tool.pytest]
@@ -90,3 +76,45 @@ addopts = "--doctest-modules"
 [tool.black]
 line-length = 82
 target-version = ['py38']
+
+
+[tool.coverage.run]
+branch = true
+
+source = ["src/transonic", "src/transonic_cl", "./tests"]
+data_file = ".coverage/coverage"
+omit = [
+    "*/try_*.py",
+    "*/_old_*.py",
+    "transonic/__pythran__/for_test_init.py",
+    "transonic/__cython__/for_test_init.py",
+    "transonic/__numba__/for_test_init.py",
+]
+parallel = true
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self\\.debug",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+]
+show_missing = true
+ignore_errors = true
+
+[tool.coverage.html]
+directory = ".coverage/html"
+
+[tool.coverage.xml]
+output = ".coverage/coverage.xml"
