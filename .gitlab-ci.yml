@@ -4,17 +4,17 @@ variables:
 step_without_pythran:
   image: fluiddyn/python3-stable:lastest
   script:
-    - pip install -U tox --user
+    - pip install -U pdm tox tox-pdm --user
     - tox -e py39,codecov
 
 step_pythran_then_cython:
   image: fluiddyn/python3-stable:lastest
   script:
-    - pip install -U tox --user
+    - pip install -U pdm tox tox-pdm --user
     - tox -e py39-pythran,py39-cython,codecov
 
 step_pythran_cython:
   image: fluiddyn/python3-stable:lastest
   script:
-    - pip install -U tox --user
+    - pip install -U pdm tox tox-pdm --user
     - tox -e py39-pythran-cython

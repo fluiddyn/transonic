@@ -1,6 +1,85 @@
 [build-system]
-requires = ["setuptools>=49.5.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
+name = "transonic"
+version = "0.5.3"
+description = "Make your Python code fly at transonic speeds!"
+authors = [
+    {name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr"},
+]
+dependencies = [
+    "autopep8",
+    "beniget ~=0.4.0",
+    "gast ~=0.5.0",
+    "numpy",
+]
+requires-python = ">= 3.9"
+readme = "README.rst"
+license = {text = "BSD License"}
+keywords = ["pythran"]
+classifiers = [
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Source = "https://foss.heptapod.net/fluiddyn/transonic"
+Documentation = "https://transonic.readthedocs.io"
+"Git Mirror" = "https://github.com/fluiddyn/transonic"
+
+[project.optional-dependencies]
+mpi = ["mpi4py"]
+
+[project.scripts]
+transonic = "transonic.run:run"
+
+[tool.pdm]
+package-dir = "src"
+
+[tool.pdm.dev-dependencies]
+
+base_test = [
+    "black",
+    "coverage[toml]",
+    "mpi4py",
+    "nbval ~=0.9.6",
+    "numba",
+    "numpy",
+    "pytest",
+    "pytest-cov",
+    "pytest-virtualenv",
+    # setuptools still needed for pytest-virtualenv
+    "setuptools",
+    "scipy",
+    "-e transonic_testing @ file:///${PROJECT_ROOT}/_transonic_testing",
+]
+test = [
+    "cython",
+    "mpi4py",
+    "pythran",
+]
+doc = [
+    "jupyterlab",
+    "nbsphinx",
+    "numpydoc",
+    "recommonmark",
+    "sphinx-autobuild",
+    "sphinx<7",
+    "sphinx_rtd_theme",
+]
+dev = [
+    "pip",
+    "build",
+    "pylint",
+    "twine",
+]
+
 
 [tool.pytest]
 addopts = "--doctest-modules"
