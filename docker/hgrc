@@ -1,0 +1,29 @@
+# example user config (see 'hg help config' for more info)
+[ui]
+# name and email, e.g.
+# username = Jane Doe <jdoe@example.com>
+editor = emacs -nw -Q
+
+# We recommend enabling tweakdefaults to get slight improvements to
+# the UI over time. Make sure to set HGPLAIN in the environment when
+# writing scripts!
+tweakdefaults = True
+
+[extensions]
+# uncomment these lines to enable some popular extensions
+# (see 'hg help extensions' for more info)
+#
+churn =
+shelve =
+hgext.extdiff =
+rebase =
+absorb =
+evolve =
+topic =
+hggit =
+
+[extdiff]
+cmd.meld =
+
+[trusted]
+users = root
