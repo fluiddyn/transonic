@@ -1,0 +1,17 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "transonic_testing"
+authors = [{name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr"}]
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: MIT License"]
+version = "0.1.0"
+dynamic = ["description"]
+
+[project.urls]
+Home = "https://transonic.readthedocs.io"
+
+[tool.flit.module]
+name = "_transonic_testing"
