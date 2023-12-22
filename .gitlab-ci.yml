@@ -1,6 +1,12 @@
 variables:
   CODECOV_TOKEN: b1c3afe7-4ef3-4c69-9656-78beec52ec16
 
+install_test_without_tox:
+  image: fluiddyn/python3-stable:lastest
+  script:
+    - pip install -U pdm --user
+    - pdm sync --no-self --group base_test -v
+
 step_without_pythran:
   image: fluiddyn/python3-stable:lastest
   script:
