@@ -1,6 +1,7 @@
 stages:
   - image
   - test
+  - publish
 
 variables:
   CODECOV_TOKEN: b1c3afe7-4ef3-4c69-9656-78beec52ec16
@@ -12,11 +13,6 @@ image: registry.heptapod.net:443/fluiddyn/transonic/ci/default:stable
 before_script:
   - export PATH=/root/.local/bin:$PATH
   - pip install -U pdm tox tox-pdm --user
-
-install_test_without_tox:
-  stage: test
-  script:
-    - pdm sync --no-self --group base_test -v
 
 step_without_pythran:
   stage: test
@@ -33,6 +29,26 @@ step_pythran_cython:
   script:
     - tox -e py310-pythran-cython
 
+pages:
+  stage: publish
+  script:
+    - pdm install -G doc
+    - pdm run xvfb-run --auto-servernum sphinx-build -W -b html -d doc/_build/doctrees doc doc/_build/html
+    - mkdir -p public/$CI_COMMIT_REF_NAME
+    - rsync -rvc --delete doc/_build/html/* public/$CI_COMMIT_REF_NAME/
+    # This directory can become too large leading to error.
+    # It can be purged with the botton "Clear runner caches"
+    # in https://foss.heptapod.net/fluiddyn/transonic/-/pipelines
+    - ls public
+    - echo "CI_COMMIT_REF_NAME="$CI_COMMIT_REF_NAME
+    - echo See https://fluiddyn.pages.heptapod.net/transonic/$CI_COMMIT_REF_NAME
+  needs: []
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME"
+    paths:
+      - public
+    expire_in: 5 days
+  when: always
 
 # Build an image for the above tasks; this should be a scheduled job, as
 # it is quite unnecessary to run on every invocation.
@@ -42,7 +58,7 @@ CI image:
     - container-registry-push
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-  #   - if: '$CI_BUILD_IMAGES == "1"'
+    - if: '$CI_BUILD_IMAGES == "1"'
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [ "" ]
