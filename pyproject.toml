@@ -63,6 +63,8 @@ doc = [
     "sphinx-autobuild",
     "sphinx<7",
     "sphinx_rtd_theme",
+    # setuptools for transonic.dist
+    "setuptools",
 ]
 dev = ["pip", "build", "pylint", "twine"]
 
