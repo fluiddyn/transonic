@@ -6,8 +6,10 @@ COPY docker/hgrc $HOME/.hgrc
 RUN apt-get update
 
 RUN apt-get install -y --no-install-recommends emacs vim libopenmpi-dev
+# python3-pip is just for Mercurial (hg-git, hg-evolve)
 RUN apt-get install -y --no-install-recommends mercurial python3-pip git
 RUN apt-get install -y --no-install-recommends rsync libgl1 xvfb xauth libgl1-mesa-dev
+RUN apt-get install -y --no-install-recommends pandoc
 
 RUN rm -rf /var/lib/apt/lists/*
 
