@@ -61,3 +61,6 @@ report_coverage:
 
 coverage_short: tests_coverage_short report_coverage
 coverage: tests_coverage report_coverage
+
+lint:
+	pylint -rn --rcfile=pylintrc --jobs=$(shell nproc) fluidsim --exit-zero

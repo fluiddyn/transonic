@@ -1,5 +1,6 @@
 stages:
   - image
+  - lint
   - test
   - publish
 
@@ -14,51 +15,15 @@ before_script:
   - export PATH=/root/.local/bin:$PATH
   - pip install -U pdm tox tox-pdm --user
 
-step_without_pythran:
-  stage: test
-  script:
-    - tox -e py310,codecov
-
-step_pythran_then_cython:
-  stage: test
-  script:
-    - tox -e py310-pythran,py310-cython,codecov
-
-step_pythran_cython:
-  stage: test
-  script:
-    - tox -e py310-pythran-cython
-
-pages:
-  stage: publish
-  script:
-    - pdm install -G doc
-    - pdm run xvfb-run --auto-servernum sphinx-build -W -b html -d doc/_build/doctrees doc doc/_build/html
-    - mkdir -p public/$CI_COMMIT_REF_NAME
-    - rsync -rvc --delete doc/_build/html/* public/$CI_COMMIT_REF_NAME/
-    # This directory can become too large leading to error.
-    # It can be purged with the botton "Clear runner caches"
-    # in https://foss.heptapod.net/fluiddyn/transonic/-/pipelines
-    - ls public
-    - echo "CI_COMMIT_REF_NAME="$CI_COMMIT_REF_NAME
-    - echo See https://fluiddyn.pages.heptapod.net/transonic/$CI_COMMIT_REF_NAME
-  needs: []
-  artifacts:
-    name: "$CI_COMMIT_REF_NAME"
-    paths:
-      - public
-    expire_in: 5 days
-  when: always
-
 # Build an image for the above tasks; this should be a scheduled job, as
 # it is quite unnecessary to run on every invocation.
 CI image:
   stage: image
   tags:
     - container-registry-push
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "schedule"'
-  #   - if: '$CI_BUILD_IMAGES == "1"'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_BUILD_IMAGES == "1"'
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [ "" ]
@@ -82,3 +47,60 @@ CI image:
       --single-snapshot
       --cleanup
       --destination registry.heptapod.net:443/fluiddyn/transonic/ci/$CI_COMMIT_HG_BRANCH:stable
+
+validate_code:
+  stage: lint
+  needs:
+    - job: "CI image"
+      optional: true
+  script:
+    - pdm install -G dev
+    - pdm run make lint
+
+step_without_pythran:
+  stage: test
+  needs:
+    - job: "CI image"
+      optional: true
+  script:
+    - tox -e py310,codecov
+
+step_pythran_then_cython:
+  stage: test
+  needs:
+    - job: "CI image"
+      optional: true
+  script:
+    - tox -e py310-pythran,py310-cython,codecov
+
+step_pythran_cython:
+  stage: test
+  needs:
+    - job: "CI image"
+      optional: true
+  script:
+    - tox -e py310-pythran-cython
+
+pages:
+  stage: publish
+  needs:
+    - job: "CI image"
+      optional: true
+  script:
+    - pdm install -G doc
+    - pdm run xvfb-run --auto-servernum sphinx-build -W -b html -d doc/_build/doctrees doc doc/_build/html
+    - mkdir -p public/$CI_COMMIT_REF_NAME
+    - rsync -rvc --delete doc/_build/html/* public/$CI_COMMIT_REF_NAME/
+    # This directory can become too large leading to error.
+    # It can be purged with the botton "Clear runner caches"
+    # in https://foss.heptapod.net/fluiddyn/transonic/-/pipelines
+    - ls public
+    - echo "CI_COMMIT_REF_NAME="$CI_COMMIT_REF_NAME
+    - echo See https://fluiddyn.pages.heptapod.net/transonic/$CI_COMMIT_REF_NAME
+  needs: []
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME"
+    paths:
+      - public
+    expire_in: 5 days
+  when: always
