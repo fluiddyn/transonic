@@ -1,5 +1,5 @@
 
-COV=pytest --cov --cov-config=setup.cfg
+COV=pytest --cov --cov-config=pyproject.toml
 
 develop:
 	pip install -e _transonic_testing/.
@@ -28,7 +28,7 @@ tests_nbval:
 
 tests_cov:
 	mkdir -p .coverage
-	pytest tests --cov-config setup.cfg
+	pytest tests --cov-config pyproject.toml
 
 clean:
 	rm -rf $(HOME)/.transonic/*/*/_transonic_testing/
@@ -46,7 +46,7 @@ tests_ipynb:
 	pytest --nbval-lax data_tests/ipynb
 
 tests_coverage_mpi:
-	mpirun -np 2 coverage run --rcfile=setup.cfg -m mpi4py -m pytest tests
+	mpirun -np 2 coverage run --rcfile=pyproject.toml -m mpi4py -m pytest tests
 
 tests_coverage: tests_coverage_short tests_coverage_mpi
 	COVERAGE_FILE=.coverage/coverage.cython TRANSONIC_BACKEND="cython" $(COV) tests
@@ -61,3 +61,6 @@ report_coverage:
 
 coverage_short: tests_coverage_short report_coverage
 coverage: tests_coverage report_coverage
+
+lint:
+	pylint -rn --rcfile=pylintrc --jobs=$(shell nproc) fluidsim --exit-zero

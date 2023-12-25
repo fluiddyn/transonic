@@ -34,14 +34,30 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.todo",
-    # 'sphinx.ext.pngmath',
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "numpydoc",
-    "nbsphinx",
-    "recommonmark",
+    "myst_nb",
 ]
+
+# Execute ipynb files into with a cache ...
+nb_execution_mode = "cache"
+nb_execution_cache_path = "./_build/jupyter_cache"
+# os.makedirs(nb_execution_cache_path, exist_ok=True)
+nb_execution_excludepatterns = [
+    "ipynb/executed/*",
+]
+
+# The suffix of source filenames.
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".ipynb": "myst-nb",
+    ".myst": "myst-nb",
+}
+# nb_render_plugin = "default"
+nb_merge_streams = True
+nb_execution_show_tb = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -53,8 +69,8 @@ templates_path = ["_templates"]
 master_doc = "index"
 
 # General information about the project.
-project = u"Transonic"
-copyright = u"2018, Pierre Augier"
+project = "Transonic"
+copyright = "2023, Pierre Augier"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -208,8 +224,8 @@ latex_documents = [
     (
         "index",
         "transonic.tex",
-        u"Transonic Documentation",
-        u"Pierre Augier",
+        "Transonic Documentation",
+        "Pierre Augier",
         "manual",
     )
 ]
@@ -240,7 +256,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ("index", "Transonic", u"Transonic Documentation", [u"Pierre Augier"], 1)
+    ("index", "Transonic", "Transonic Documentation", ["Pierre Augier"], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -256,8 +272,8 @@ texinfo_documents = [
     (
         "index",
         "Transonic",
-        u"Transonic Documentation",
-        u"Pierre Augier",
+        "Transonic Documentation",
+        "Pierre Augier",
         "Transonic",
         "One line description of project.",
         "Miscellaneous",
