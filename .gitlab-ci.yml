@@ -56,9 +56,9 @@ CI image:
   stage: image
   tags:
     - container-registry-push
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - if: '$CI_BUILD_IMAGES == "1"'
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  #   - if: '$CI_BUILD_IMAGES == "1"'
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [ "" ]
