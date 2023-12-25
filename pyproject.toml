@@ -57,7 +57,8 @@ base_test = [
 test = ["cython", "mpi4py", "pythran"]
 doc = [
     "jupyterlab",
-    "nbsphinx",
+    # "nbsphinx",
+    "myst-nb",
     "numpydoc",
     "recommonmark",
     "sphinx-autobuild",

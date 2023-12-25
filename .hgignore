@@ -40,3 +40,4 @@ doc/for_dev/**/*.html
 .venv
 
 .pdm-python
+.pdm-build
