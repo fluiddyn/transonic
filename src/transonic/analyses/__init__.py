@@ -77,13 +77,18 @@ def find_decorated_function(module, function_name: str, pathfile: str = None):
 
 
 def get_decorated_dicts(
-    module, ancestors, duc, pathfile: str, backend_name, decorator="boost"
+    module,
+    ancestors,
+    duc,
+    pathfile: str,
+    backend_name="__all__",
+    decorator="boost",
 ):
     """Get the definitions of the decorated functions and classes"""
 
     kinds = ("functions", "functions_ext", "methods", "classes")
 
-    backend_names = ("pythran", "cython", "numba", "python")
+    backend_names = ("__all__", "pythran", "cython", "numba", "python")
     decorated_dicts = {
         kind: {name: {} for name in backend_names} for kind in kinds
     }
@@ -268,7 +273,16 @@ def get_types_from_transonic_signature(signature: str, function_name: str):
     return types
 
 
-def analyse_aot(code, pathfile, backend_name):
+def analyse_files(paths_py):
+    analyses = {}
+    for path in paths_py:
+        with open(path) as file:
+            code = file.read()
+        analyses[path] = analyse_aot(code, path)
+    return analyses
+
+
+def analyse_aot(code, pathfile):
     """Gather the informations for ``@boost`` and blocks"""
     debug = logger.debug
 
@@ -283,9 +297,7 @@ def analyse_aot(code, pathfile, backend_name):
     debug(code_dependance_annotations)
 
     debug("find boosted objects")
-    boosted_dicts = get_decorated_dicts(
-        module, ancestors, duc, None, backend_name
-    )
+    boosted_dicts = get_decorated_dicts(module, ancestors, duc, None)
     debug(pformat(boosted_dicts))
 
     debug("compute the annotations")
