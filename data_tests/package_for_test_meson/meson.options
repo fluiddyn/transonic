@@ -1,1 +1,1 @@
-option('transonic-backend', type: 'string', value: 'pythran', description: 'pythran(default), python, numba')
+option('transonic-backend', type: 'string', value: 'python,pythran,numba', description: 'pythran, python, numba')
