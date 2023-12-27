@@ -83,7 +83,18 @@ def run():
         sys.exit(1)
 
     analyses = analyse_files(paths)
-    backend = backends[args.backend]
+
+    if "," in args.backend:
+        backend_names = args.backend.split(",")
+    else:
+        backend_names = [args.backend]
+
+    for backend_name in backend_names:
+        backend = backends[backend_name]
+        run_1_backend(paths, backend, args, analyses)
+
+
+def run_1_backend(paths, backend, args, analyses):
     backend.make_backend_files(paths, force=args.force, analyses=analyses)
 
     if args.meson:
