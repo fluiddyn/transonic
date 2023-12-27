@@ -32,7 +32,8 @@ np_dep = declare_dependency(include_directories: inc_np)
 
 backend = get_option('transonic-backend')
 
-if backend == 'pythran'
+use_pythran = backend.contains('pythran')
+if use_pythran
 
   pythran = find_program('pythran', native: true)
   # xsimd is unvendored from pythran by conda-forge, and due to a compiler

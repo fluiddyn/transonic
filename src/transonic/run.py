@@ -27,6 +27,7 @@ from transonic.util import (
     clear_cached_extensions,
     can_import_accelerator,
 )
+from transonic.analyses import analyse_files
 
 doc = """
 transonic: easily speedup your Python code with Pythran
@@ -81,8 +82,20 @@ def run():
         logger.error(f"No input file found (args.path = {args.path})")
         sys.exit(1)
 
-    backend = backends[args.backend]
-    backend.make_backend_files(paths, force=args.force)
+    analyses = analyse_files(paths)
+
+    if "," in args.backend:
+        backend_names = args.backend.split(",")
+    else:
+        backend_names = [args.backend]
+
+    for backend_name in backend_names:
+        backend = backends[backend_name]
+        run_1_backend(paths, backend, args, analyses)
+
+
+def run_1_backend(paths, backend, args, analyses):
+    backend.make_backend_files(paths, force=args.force, analyses=analyses)
 
     if args.meson:
         path_meson_build = Path("meson.build")

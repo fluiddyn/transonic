@@ -18,12 +18,13 @@ from typing import Iterable, Optional
 
 import transonic
 
-from transonic.analyses import extast, analyse_aot
+from transonic.analyses import extast, analyse_aot, analyse_files
 from transonic.log import logger
 from transonic.compiler import compile_extension, ext_suffix
 from transonic import mpi
 from transonic.mpi import PathSeq
 from transonic.signatures import compute_signatures_from_typeobjects
+from transonic.config import backend_default
 
 from transonic.util import (
     has_to_build,
@@ -62,18 +63,22 @@ class Backend:
         code = extast.unparse(transformed)
         return format_str(code)
 
-    def make_backend_files(self, paths_py, force=False, log_level=None):
+    def make_backend_files(
+        self, paths_py, force=False, log_level=None, analyses=None
+    ):
         """Create backend files from a list of Python files"""
 
         if log_level is not None:
             logger.set_level(log_level)
 
+        paths_py = tuple(paths_py)
+        if analyses is None:
+            analyses = analyse_files(paths_py)
+
         paths_out = []
         for path in paths_py:
-            with open(path) as file:
-                code = file.read()
-            analyse = analyse_aot(code, path, self.name)
-            path_out = self.make_backend_file(path, analyse, force=force)
+            analysis = analyses[path]
+            path_out = self.make_backend_file(path, analysis, force=force)
             if path_out:
                 paths_out.append(path_out)
 
@@ -93,7 +98,7 @@ class Backend:
         return paths_out
 
     def make_backend_file(
-        self, path_py: Path, analyse=None, force=False, log_level=None
+        self, path_py: Path, analysis=None, force=False, log_level=None
     ):
         """Create a Python file from a Python file (if necessary)"""
 
@@ -123,13 +128,13 @@ class Backend:
         if path_dir is None:
             return
 
-        if not analyse:
+        if not analysis:
             with open(path_py) as file:
                 code = file.read()
-            analyse = analyse_aot(code, path_py, self.name)
+            analysis = analyse_aot(code, path_py)
 
         code_backend, codes_ext, code_header = self._make_backend_code(
-            path_py, analyse
+            path_py, analysis
         )
         if not code_backend:
             return
@@ -173,14 +178,16 @@ class Backend:
     def _make_beginning_code(self):
         return ""
 
-    def _make_backend_code(self, path_py, analyse):
+    def _make_backend_code(self, path_py, analysis):
         """Create a backend code from a Python file"""
 
-        boosted_dicts, code_dependance, annotations, blocks, codes_ext = analyse
+        boosted_dicts, code_dependance, annotations, blocks, codes_ext = analysis
 
-        boosted_dicts = {
-            key: value[self.name] for key, value in boosted_dicts.items()
-        }
+        # update the tmp boosted_dicts with __all__
+        tmp = {key: value[self.name] for key, value in boosted_dicts.items()}
+        for key, value in tmp.items():
+            value.update(boosted_dicts[key]["__all__"])
+        boosted_dicts = tmp
 
         lines_code = ["\n" + code_dependance + "\n"]
         lines_header = self._make_first_lines_header()

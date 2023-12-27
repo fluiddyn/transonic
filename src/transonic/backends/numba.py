@@ -82,9 +82,9 @@ class NumbaBackend(PythonBackend):
         process = None
         return compiling, process
 
-    def _make_backend_code(self, path_py, analyse):
+    def _make_backend_code(self, path_py, analysis):
         """Create a backend code from a Python file"""
-        code, codes_ext, header = super()._make_backend_code(path_py, analyse)
+        code, codes_ext, header = super()._make_backend_code(path_py, analysis)
 
         if not code:
             return code, codes_ext, header

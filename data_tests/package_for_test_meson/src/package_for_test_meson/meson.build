@@ -12,4 +12,12 @@ py.install_sources(
 
 run_command(['transonic', '--meson', '-b', backend, 'bar.py', 'foo.py'], check: true)
 
-subdir('__' + backend + '__')
+if backend.contains(',')
+    backends = backend.split(',')
+else
+    backends = [backend]
+endif
+
+foreach backend : backends
+  subdir('__' + backend + '__')
+endforeach
