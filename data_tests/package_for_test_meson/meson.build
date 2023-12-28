@@ -32,6 +32,12 @@ np_dep = declare_dependency(include_directories: inc_np)
 
 backend = get_option('transonic-backend')
 
+if backend.contains(',')
+    backends = backend.split(',')
+else
+    backends = [backend]
+endif
+
 use_pythran = backend.contains('pythran')
 if use_pythran
 
