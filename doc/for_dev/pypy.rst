@@ -1,9 +1,7 @@
 Transonic with Pypy3.6
 ======================
 
-It is possible to use Transonic with Pypy3.6-7.2. In May 2019, this version is
-not yet released, so one has to use a Pypy3.6 `nightly build
-<http://buildbot.pypy.org/nightly/py3.6/>`_.
+It is possible to use Transonic with Pypy3.6-7.2.
 
 .. code :: bash
 

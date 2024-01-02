@@ -1,7 +1,7 @@
 Debugging
 =========
 
-To debug the command-line applicaiton ``transonic`` for source-to-source
+To debug the command-line application ``transonic`` for source-to-source
 compilation issues, one approach is to invoke it via ``pdb``. For example,
 let's say you tried to use ``transonic`` as follows but errored::
 
@@ -21,4 +21,3 @@ course, use other `pdb commands`_.
     If no error is thrown while using ``--no-compile`` option and it fails
     without it, it is most likely a bug in backend. Report it upstream in the
     backend's issue tracker.
-

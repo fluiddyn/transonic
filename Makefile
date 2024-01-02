@@ -8,6 +8,8 @@ develop:
 black:
 	black -l 82 src _transonic_testing data_tests tests
 
+format: black
+
 tests_pythran:
 	TRANSONIC_BACKEND="pythran" pytest --nbval-lax tests data_tests/ipynb
 
