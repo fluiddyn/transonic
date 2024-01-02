@@ -57,6 +57,7 @@ modules, classes and functions.
    changes
    roadmap
    thanks
+   for_dev/CONTRIBUTING
    Advice for FluidDyn developers <http://fluiddyn.readthedocs.io/en/latest/advice_developers.html>
    for_dev
 

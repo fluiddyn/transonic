@@ -29,6 +29,32 @@ essentials](https://fluiddyn.readthedocs.io/en/latest/advice_developers.html),
 and especially on [setting up
 Mercurial](https://fluiddyn.readthedocs.io/en/latest/mercurial_heptapod.html).
 
+## Setup a development environment and use it
+
+We use [PDM](https://pdm-project.org) so the first step is to [install this
+tool](https://pdm-project.org/latest/#installation). Then, in the root
+directory of the repository, you can create and activate a local virtual environment with:
+
+```sh
+pdm install
+source .venv/bin/activate
+```
+
+There is a Makefile with few useful commands. For example, one can run some tests with
+
+```sh
+make tests_python
+make tests_pythran
+```
+
+To build the documentation:
+
+```sh
+cd doc
+make cleanall
+make
+```
+
 ## Release
 
 For now, we push on PyPI manually:
@@ -38,7 +64,5 @@ hg pull
 hg up default
 hg tag 0.5.3
 hg push
-rm -rf dist
-python -m build
-twine upload dist/*
+pdm publish
 ```
