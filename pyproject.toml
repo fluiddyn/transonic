@@ -11,7 +11,7 @@ authors = [
 ]
 dependencies = ["autopep8", "beniget ~=0.4.0", "gast ~=0.5.0", "numpy"]
 requires-python = ">= 3.9"
-readme = "README.rst"
+readme = "README.md"
 license = { text = "BSD License" }
 keywords = ["pythran"]
 classifiers = [
