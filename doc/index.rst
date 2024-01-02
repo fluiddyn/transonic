@@ -24,8 +24,8 @@ You can try Transonic online by clicking this button: |mybinder|.
    :maxdepth: 2
    :caption: Get started
 
+   overview
    install
-   short-tour
 
 .. toctree::
    :maxdepth: 2
