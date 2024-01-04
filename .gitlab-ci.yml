@@ -97,7 +97,6 @@ pages:
     - ls public
     - echo "CI_COMMIT_REF_NAME="$CI_COMMIT_REF_NAME
     - echo See https://fluiddyn.pages.heptapod.net/transonic/$CI_COMMIT_REF_NAME
-  needs: []
   artifacts:
     name: "$CI_COMMIT_REF_NAME"
     paths:

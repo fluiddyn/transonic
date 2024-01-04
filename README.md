@@ -1,45 +1,14 @@
----
-substitutions:
-  appveyor: |-
-    ```{image} https://ci.appveyor.com/api/projects/status/i99h00kp0jliel8t?svg=true
-    :alt: AppVeyor status
-    :target: https://ci.appveyor.com/project/fluiddyn/transonic
-    ```
-  coverage: |-
-    ```{image} https://codecov.io/gh/fluiddyn/transonic/branch/master/graph/badge.svg
-    :alt: Code coverage
-    :target: https://codecov.io/gh/fluiddyn/transonic/branch/master/
-    ```
-  docs: |-
-    ```{image} https://readthedocs.org/projects/transonic/badge/?version=latest
-    :alt: Documentation status
-    :target: http://transonic.readthedocs.org
-    ```
-  heptapod_ci: |-
-    ```{image} https://foss.heptapod.net/fluiddyn/transonic/badges/branch/default/pipeline.svg
-    :alt: Heptapod CI
-    :target: https://foss.heptapod.net/fluiddyn/transonic/-/pipelines
-    ```
-  mybinder: |-
-    ```{image} https://mybinder.org/badge_logo.svg
-    :alt: mybinder
-    :target: https://mybinder.org/v2/gh/fluiddyn/transonic/branch/default?urlpath=lab/tree/doc/ipynb/executed
-    ```
-  release: |-
-    ```{image} https://img.shields.io/pypi/v/transonic.svg
-    :alt: Latest version
-    :target: https://pypi.python.org/pypi/transonic/
-    ```
-  sonarcloud: |-
-    ```{image} https://sonarcloud.io/api/project_badges/measure?project=fluiddyn_transonic&metric=alert_status
-    :alt: Quality Gate Status
-    :target: https://sonarcloud.io/dashboard?id=fluiddyn_transonic
-    ```
----
-
 # Make your Python code fly at *transonic* speeds!
 
-{{ release }} {{ docs }} {{ coverage }} {{ heptapod_ci }} {{ appveyor }} {{ sonarcloud }}
+[![Latest version](https://badge.fury.io/py/transonic.svg)](https://pypi.python.org/pypi/transonic/)
+[![Code coverage](https://codecov.io/gh/fluiddyn/transonic/branch/branch%2Fdefault/graph/badge.svg)](https://codecov.io/gh/fluiddyn/transonic)
+[![Documentation status](https://readthedocs.org/projects/transonic/badge/?version=latest)](http://transonic.readthedocs.org)
+![Supported Python versions](https://img.shields.io/pypi/pyversions/transonic.svg)
+[![Heptapod CI](https://foss.heptapod.net/fluiddyn/transonic/badges/branch/default/pipeline.svg)](https://foss.heptapod.net/fluiddyn/transonic/-/pipelines)
+[![mybinder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fluiddyn/transonic/branch/default?urlpath=lab/tree/doc/ipynb/executed)
+[![sonarcloud](https://sonarcloud.io/api/project_badges/measure?project=fluiddyn_transonic&metric=alert_status)](https://sonarcloud.io/dashboard?id=fluiddyn_transonic)
+
+<!-- [![Github Actions](https://github.com/fluiddyn/transonic/actions/workflows/ci.yml/badge.svg?branch=branch/default)](https://github.com/fluiddyn/transonic/actions) -->
 
 **Documentation**: <https://transonic.readthedocs.io>
 
@@ -51,27 +20,25 @@ accelerate modern Python-Numpy code with different accelerators (currently
 Transonic run fine without any accelerators installed (of course without
 speedup)!
 
-You can try Transonic online by clicking this button: {{ mybinder }}.
-
-```{warning}
-Transonic is still in an active development stage (see our [roadmap](https://transonic.readthedocs.io/en/latest/roadmap.html)). Remarks and
-suggestions are very welcome.
-
-However, Transonic is now really usable, useful and used "in production" in
-[FluidSim](https://foss.heptapod.net/fluiddyn/fluidsim) and [FluidFFT](https://foss.heptapod.net/fluiddyn/fluidfft) (see examples for [blocks](https://foss.heptapod.net/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py),
-[@boost](https://foss.heptapod.net/fluiddyn/fluidfft/src/default/fluidfft/fft3d/operators.py)
-and [@jit](https://foss.heptapod.net/fluiddyn/fluidsim/src/default/fluidsim/solvers/plate2d/output/correlations_freq.py)).
-```
+> [!WARNING]
+> Transonic is still in an active development stage (see our
+> [roadmap](https://transonic.readthedocs.io/en/latest/roadmap.html)).
+> Remarks and suggestions are very welcome.
+>
+> However, Transonic is now really usable, useful and used "in production" in
+> [FluidSim](https://foss.heptapod.net/fluiddyn/fluidsim) and
+> [FluidFFT](https://foss.heptapod.net/fluiddyn/fluidfft) (see examples for
+> [blocks](https://foss.heptapod.net/fluiddyn/fluidsim/src/default/fluidsim/base/time_stepping/pseudo_spect.py) and
+> [@boost](https://foss.heptapod.net/fluiddyn/fluidfft/src/default/fluidfft/fft3d/operators.py)).
 
 ## The long-term project
 
-```{note}
-The context of the creation of Transonic is presented in these documents:
-
-- [Transonic Vision](https://fluiddyn.netlify.app/transonic-vision.html)
-- [Make your numerical Python code fly at transonic speed (EuroScipy 2019)](http://www.legi.grenoble-inp.fr/people/Pierre.Augier/docs/ipynbslides/20190904-euroscipy-transonic/pres.slides.html#/),
-- [Overview of the Python HPC landscape and zoom on Transonic](http://www.legi.grenoble-inp.fr/people/Pierre.Augier/docs/ipynbslides/20190319_PySciDataGre_transonic/pres_20190319_PySciDataGre_transonic.slides.html).
-```
+> [!NOTE]
+> The context of the creation of Transonic is presented in these documents:
+>
+> - [Transonic Vision](https://fluiddyn.netlify.app/transonic-vision.html)
+> - [Make your numerical Python code fly at transonic speed (EuroScipy 2019)](http://www.legi.grenoble-inp.fr/people/Pierre.Augier/docs/ipynbslides/20190904-euroscipy-transonic/pres.slides.html#/),
+> - [Overview of the Python HPC landscape and zoom on Transonic](http://www.legi.grenoble-inp.fr/people/Pierre.Augier/docs/ipynbslides/20190319_PySciDataGre_transonic/pres_20190319_PySciDataGre_transonic.slides.html).
 
 Transonic targets Python end-users and library developers.
 
@@ -132,10 +99,9 @@ and blocks of code). The default Transonic backend uses Pythran and works well.
 great for Pythran users](https://transonic.readthedocs.io/en/latest/backends/pythran.html). There are
 also (more experimental) backends for Cython and Numba.
 
-```{note}
-Transonic can be used in libraries and applications using MPI (as
-[FluidSim](https://foss.heptapod.net/fluiddyn/fluidsim)).
-```
+> [!NOTE]
+> Transonic can be used in libraries and applications using MPI (as
+> [FluidSim](https://foss.heptapod.net/fluiddyn/fluidsim)).
 
 ## Installation and configuration
 
