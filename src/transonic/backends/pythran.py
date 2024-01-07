@@ -62,7 +62,7 @@ class PythranBackend(BackendAOT):
   '{name}',
   output: ['{name}.cpp'],
   input: '{name}.py',
-  command: [pythran, '-E', '@INPUT@', '-o', '@OUTDIR@/{name}.cpp']
+  command: [pythran, '-E', '--config', 'pythran.complex_hook=pythran_complex_hook', '@INPUT@', '-o', '@OUTDIR@/{name}.cpp']
 )
 
 {name} = py.extension_module(
