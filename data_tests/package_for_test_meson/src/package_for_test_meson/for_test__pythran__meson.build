@@ -3,7 +3,7 @@ bar = custom_target(
   'bar',
   output: ['bar.cpp'],
   input: 'bar.py',
-  command: [pythran, '-E', '@INPUT@', '-o', '@OUTDIR@/bar.cpp']
+  command: [pythran, '-E', '--config', 'pythran.complex_hook=pythran_complex_hook', '@INPUT@', '-o', '@OUTDIR@/bar.cpp']
 )
 
 bar = py.extension_module(
@@ -20,7 +20,7 @@ foo = custom_target(
   'foo',
   output: ['foo.cpp'],
   input: 'foo.py',
-  command: [pythran, '-E', '@INPUT@', '-o', '@OUTDIR@/foo.cpp']
+  command: [pythran, '-E', '--config', 'pythran.complex_hook=pythran_complex_hook', '@INPUT@', '-o', '@OUTDIR@/foo.cpp']
 )
 
 foo = py.extension_module(
