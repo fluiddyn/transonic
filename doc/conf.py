@@ -44,7 +44,6 @@ extensions = [
 # Execute ipynb files into with a cache ...
 nb_execution_mode = "cache"
 nb_execution_cache_path = "./_build/jupyter_cache"
-# os.makedirs(nb_execution_cache_path, exist_ok=True)
 nb_execution_excludepatterns = [
     "ipynb/executed/*",
 ]
@@ -299,3 +298,18 @@ autodoc_default_options = {"show-inheritance": None}
 autodoc_member_order = "bysource"
 
 todo_include_todos = True
+
+myst_enable_extensions = [
+    "amsmath",
+    # "attrs_inline",
+    "colon_fence",
+    # "deflist",
+    "dollarmath",
+    # "fieldlist",
+    # "linkify",
+    # "replacements",
+    # "smartquotes",
+    # "strikethrough",
+    "substitution",
+    # "tasklist",
+]
