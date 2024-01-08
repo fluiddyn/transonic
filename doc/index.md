@@ -1,24 +1,12 @@
----
-myst:
-  substitutions:
-    mybinder: |-
-      ```{image} https://mybinder.org/badge_logo.svg
-      :alt: mybinder
-      :target: https://mybinder.org/v2/gh/fluiddyn/transonic/branch/default?urlpath=lab/tree/doc/ipynb/executed
-      ```
----
-
-% Transonic documentation master file
+# Transonic documentation
 
 Transonic is a pure Python package (requiring Python >= 3.9) to easily
 accelerate modern Python-Numpy code with different accelerators (currently
-[Cython](https://cython.org/), [Pythran](https://github.com/serge-sans-paille/pythran) and [Numba](https://numba.pydata.org/), but potentially later [Cupy](https://cupy.chainer.org/), [PyTorch](https://pytorch.org/), [JAX](https://github.com/google/jax), [Weld](https://www.weld.rs/), [Pyccel](https://github.com/pyccel/pyccel), [Uarray](https://github.com/Quansight-Labs/uarray), etc...).
+[Cython](https://cython.org/), [Pythran](https://github.com/serge-sans-paille/pythran) and [Numba](https://numba.pydata.org/), but potentially later [Cupy](https://cupy.chainer.org/), [PyTorch](https://pytorch.org/), [JAX](https://github.com/google/jax), [Weld](https://www.weld.rs/), [Pyccel](https://github.com/pyccel/pyccel), etc...).
 
-**The accelerators are not hard dependencies of Transonic:** Python codes using
+**The accelerators are not hard dependencies of Transonic:** Python code using
 Transonic run fine without any accelerators installed (of course without
 speedup)!
-
-You can try Transonic online by clicking this button: {{ mybinder }}.
 
 ```{toctree}
 :caption: Get started
@@ -26,13 +14,8 @@ You can try Transonic online by clicking this button: {{ mybinder }}.
 
 overview
 install
-```
-
-```{toctree}
-:caption: Backends
-:maxdepth: 2
-
 backends
+packaging
 ```
 
 ```{toctree}
@@ -51,7 +34,7 @@ examples/writing_benchmarks/bench
 ipynb/executed/bench_fxfy
 ```
 
-# Modules Reference
+## API Reference
 
 Here is presented the organization of the package and the documentation of the
 modules, classes and functions.
@@ -59,7 +42,7 @@ modules, classes and functions.
 ```{eval-rst}
 .. autosummary::
    :toctree: generated/
-   :caption: Modules Reference
+   :caption: API Reference
 
     transonic.aheadoftime
     transonic.analyses

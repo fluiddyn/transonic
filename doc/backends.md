@@ -1,4 +1,4 @@
-# Supports Pythran, Cython, Numba, ...
+# Supported backends
 
 Transonic can use different tools to accelerate the code. We use the name
 **backend**.
