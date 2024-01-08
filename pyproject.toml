@@ -66,6 +66,7 @@ doc = [
     "sphinx_rtd_theme",
     # setuptools for transonic.dist
     "setuptools",
+    "sphinx-copybutton",
 ]
 dev = ["pip", "build", "pylint", "twine"]
 
