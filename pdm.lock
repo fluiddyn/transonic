@@ -5,7 +5,7 @@
 groups = ["default", "base_test", "dev", "doc", "test"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:1df341d5ca4eefd4701042bf41809ee02b10492460dfef216717ebf8c69968e7"
+content_hash = "sha256:644c27458af10cf487acfb020f14d6668470fde862d7ba68613afe1a53fb71b8"
 
 [[package]]
 name = "alabaster"
@@ -2764,6 +2764,20 @@ dependencies = [
 files = [
     {file = "sphinx-autobuild-2021.3.14.tar.gz", hash = "sha256:de1ca3b66e271d2b5b5140c35034c89e47f263f2cd5db302c9217065f7443f05"},
     {file = "sphinx_autobuild-2021.3.14-py3-none-any.whl", hash = "sha256:8fe8cbfdb75db04475232f05187c776f46f6e9e04cacf1e49ce81bdac649ccac"},
+]
+
+[[package]]
+name = "sphinx-copybutton"
+version = "0.5.2"
+requires_python = ">=3.7"
+summary = "Add a copy button to each of your code cells."
+groups = ["doc"]
+dependencies = [
+    "sphinx>=1.8",
+]
+files = [
+    {file = "sphinx-copybutton-0.5.2.tar.gz", hash = "sha256:4cf17c82fb9646d1bc9ca92ac280813a3b605d8c421225fd9913154103ee1fbd"},
+    {file = "sphinx_copybutton-0.5.2-py3-none-any.whl", hash = "sha256:fb543fd386d917746c9a2c50360c7905b605726b9355cd26e9974857afeae06e"},
 ]
 
 [[package]]

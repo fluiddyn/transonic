@@ -39,6 +39,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "numpydoc",
     "myst_nb",
+    "sphinx_copybutton",
 ]
 
 # Execute ipynb files into with a cache ...
