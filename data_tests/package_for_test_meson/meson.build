@@ -4,31 +4,10 @@
 
 project('package_for_test_meson', 'cpp')
 
-py = import('python').find_installation(pure: false)
-
-# Taken from Scipy
-
-# This uses the path as is, and avoids running the interpreter.
-incdir_numpy = meson.get_external_property('numpy-include-dir', 'not-given')
-if incdir_numpy == 'not-given'
-  # see also what is done in Scipy and Fluidsim (more robust)
-  incdir_numpy = run_command(py,
-    [
-      '-c',
-      '''import numpy as np
-incdir = np.get_include()
-print(incdir)
-  '''
-    ],
-    check: true
-  ).stdout().strip()
-
-else
-  _incdir_numpy_abs = incdir_numpy
-endif
-
-inc_np = include_directories(incdir_numpy)
-np_dep = declare_dependency(include_directories: inc_np)
+# https://mesonbuild.com/Python-module.html
+py_mod = import('python')
+py = py_mod.find_installation('python3', pure: false)
+py_dep = py.dependency()
 
 backend = get_option('transonic-backend')
 
@@ -40,24 +19,47 @@ endif
 
 use_pythran = backend.contains('pythran')
 if use_pythran
+  incdir_numpy = run_command(
+    py,
+    [
+      '-c',
+      '''import os
+import numpy as np
+try:
+  incdir = os.path.relpath(np.get_include())
+except Exception:
+  incdir = np.get_include()
+print(incdir)'''
+    ],
+    check: true
+  ).stdout().strip()
 
-  pythran = find_program('pythran', native: true)
+  inc_np = include_directories(incdir_numpy)
+  np_dep = declare_dependency(include_directories: inc_np)
 
-  # This external-property may not be needed if we can use the native include
-  # dir, see https://github.com/serge-sans-paille/pythran/issues/1394
-  incdir_pythran = meson.get_external_property('pythran-include-dir', 'not-given')
-  if incdir_pythran == 'not-given'
-    incdir_pythran = run_command(py,
+  incdir_pythran = run_command(
+      py,
       [
         '-c',
-      '''import pythran
-incdir = pythran.get_include()
-print(incdir)
-'''
+        '''import os
+import pythran;
+incdir = os.path.dirname(pythran.__file__)
+try:
+  incdir = os.path.relpath(incdir)
+except Exception:
+  pass
+print(incdir)'''
       ],
       check: true
     ).stdout().strip()
-  endif
+
+  pythran = find_program('pythran', native: true)
+
+  cpp_args_pythran = [
+    '-DENABLE_PYTHON_MODULE',
+    '-D__PYTHRAN__=3',
+    '-DPYTHRAN_BLAS_NONE'
+  ]
 
   if get_option('use-xsimd') == true
     # xsimd is unvendored from pythran by conda-forge, and due to a compiler
@@ -68,22 +70,21 @@ print(incdir)
       include_directories: incdir_pythran,
       dependencies: xsimd_dep,
     )
+    cpp_args_pythran += ['-DUSE_XSIMD']
   else
     pythran_dep = declare_dependency(
       include_directories: incdir_pythran,
     )
   endif
 
-  cpp_args_pythran = [
-    '-DENABLE_PYTHON_MODULE',
-    '-D__PYTHRAN__=3',
-    '-DPYTHRAN_BLAS_NONE'
-  ]
-
   pythran_complex_hook = get_option('pythran-complex-hook')
+  if pythran_complex_hook == 'os-dependent'
+    pythran_complex_hook = host_machine.system() == 'linux'
+  endif
 
-else
-  pythran_dep = []
+  if get_option('native')
+    cpp_args_pythran += ['-march=native', '-Ofast']
+  endif
 
 endif
 

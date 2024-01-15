@@ -4,12 +4,24 @@ option(
     value: 'pythran,python,numba',
     description:
       'pythran,python,numba (default), cython, numpy, numba; ' +
-      'or comma separated value representing multi-backends'
+      'or comma separated value representing multi-backends',
 )
-option('use-xsimd', type: 'boolean', value: true, description: 'use xsimd')
 option(
-    'pythran-complex-hook',
+    'native',
+    type: 'boolean',
+    value: false,
+    description: 'Performance oriented and not portable build',
+)
+option(
+    'use-xsimd',
     type: 'boolean',
     value: true,
-    description: 'Pythran complex_hook option'
+    description: 'Turns on xsimd vectorization',
+)
+option(
+    'pythran-complex-hook',
+    type: 'combo',
+    choices: ['os-dependent', 'true', 'false'],
+    value: 'os-dependent',
+    description: 'Pythran complex_hook option',
 )

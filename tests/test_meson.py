@@ -25,16 +25,16 @@ path_src_package = path_root_package / "src/package_for_test_meson"
 assert path_src_package.exists()
 
 
-def run_in_venv(virtualenv, command, cwd=None):
+def run_in_venv(venv, command, cwd=None):
     try:
-        env = virtualenv.env
+        env = venv.env
     except AttributeError:
-        path_bin = virtualenv.virtualenv / "bin"
+        path_bin = Path(venv.path) / "bin"
         env = os.environ.copy()
         env["PATH"] = str(path_bin) + ":" + os.environ["PATH"]
-        virtualenv.env = env
+        venv.env = env
 
-    args = [virtualenv.python, "-m"]
+    args = [venv.python, "-m"]
     args.extend(command.split())
     subprocess.run(args, cwd=cwd, check=True, env=env)
 
@@ -43,7 +43,7 @@ def run_in_venv(virtualenv, command, cwd=None):
 @pytest.mark.xfail(
     backend_default not in ["pythran", "python"], reason="Not yet implemented"
 )
-def test_install_package(tmpdir, virtualenv):
+def test_install_package(tmpdir, venv):
     """
     Test the installation of the package data_tests/package_for_test_meson
 
@@ -57,7 +57,7 @@ def test_install_package(tmpdir, virtualenv):
 
     """
 
-    assert virtualenv.python.endswith("/bin/python")
+    assert venv.python.endswith("/bin/python")
 
     for name in ("pyproject.toml", "meson.build", "meson.options", "README.md"):
         copy(path_root_package / name, tmpdir)
@@ -74,11 +74,11 @@ def test_install_package(tmpdir, virtualenv):
     for name in ("bar.py", "foo.py", "meson.build", "__init__.py"):
         copy(src_dir / name, dst_dir)
 
-    run_in_venv(virtualenv, f"pip install {test_dir.parent}")
-    run_in_venv(virtualenv, "pip install meson-python meson ninja pytest")
+    run_in_venv(venv, f"pip install {test_dir.parent}")
+    run_in_venv(venv, "pip install meson-python meson ninja pytest")
 
     if backend_default == "pythran":
-        run_in_venv(virtualenv, "pip install pythran")
+        run_in_venv(venv, "pip install pythran")
 
     install_command = "pip install . --no-build-isolation"
     if backend_default == "python":
@@ -86,8 +86,8 @@ def test_install_package(tmpdir, virtualenv):
             " --config-settings=setup-args=-Dtransonic-backend=python"
         )
 
-    run_in_venv(virtualenv, install_command, cwd=tmpdir)
-    run_in_venv(virtualenv, "pytest tests", cwd=tmpdir)
+    run_in_venv(venv, install_command, cwd=tmpdir)
+    run_in_venv(venv, "pytest tests", cwd=tmpdir)
 
 
 @pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")

@@ -47,9 +47,7 @@ base_test = [
     "numpy",
     "pytest",
     "pytest-cov",
-    "pytest-virtualenv",
-    # setuptools still needed for pytest-virtualenv
-    "setuptools",
+    "pytest-venv",
     "scipy",
     "-e transonic_testing @ file:///${PROJECT_ROOT}/_transonic_testing",
 ]
