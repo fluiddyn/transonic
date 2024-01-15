@@ -7,26 +7,19 @@ stages:
   - release
 
 variables:
-  CODECOV_TOKEN: b1c3afe7-4ef3-4c69-9656-78beec52ec16
-  OMPI_ALLOW_RUN_AS_ROOT: "1"
-  OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: "1"
   PDM_CACHE_DIR: ${CI_PROJECT_DIR}/.pdm-cache
 
 image: registry.heptapod.net:443/fluiddyn/transonic/ci/default:stable
 
-before_script:
-  - export PATH=/root/.local/bin:$PATH
-  - pip install -U pdm tox tox-pdm --user
-
 # Build an image for the above tasks; this should be a scheduled job, as
 # it is quite unnecessary to run on every invocation.
-CI image:
+image:build:
   stage: image
   tags:
     - container-registry-push
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - if: '$CI_BUILD_IMAGES == "1"'
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  #   - if: '$CI_BUILD_IMAGES == "1"'
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [ "" ]
@@ -49,12 +42,13 @@ CI image:
       --dockerfile $CI_PROJECT_DIR/docker/Dockerfile
       --single-snapshot
       --cleanup
-      --destination registry.heptapod.net:443/fluiddyn/transonic/ci/$CI_COMMIT_HG_BRANCH:stable
+      --destination registry.heptapod.net:443/fluiddyn/transonic/ci/default:stable
+      # --destination registry.heptapod.net:443/fluiddyn/transonic/ci/$CI_COMMIT_HG_BRANCH:stable
 
 validate_code:
   stage: lint
   needs:
-    - job: "CI image"
+    - job: "image:build"
       optional: true
   script:
     - pdm install -G dev
@@ -63,31 +57,31 @@ validate_code:
 step_without_pythran:
   stage: test
   needs:
-    - job: "CI image"
+    - job: "image:build"
       optional: true
   script:
-    - tox -e py310,codecov
+    - nox -s test_without_pythran
 
 step_pythran_then_cython:
   stage: test
   needs:
-    - job: "CI image"
+    - job: "image:build"
       optional: true
   script:
-    - tox -e py310-pythran,py310-cython,codecov
+    - nox -s test_with_pythran test_with_cython
 
 step_pythran_cython:
   stage: test
   needs:
-    - job: "CI image"
+    - job: "image:build"
       optional: true
   script:
-    - tox -e py310-pythran-cython
+    - nox -s test_with_pythran_cython
 
 pages:
   stage: publish
   needs:
-    - job: "CI image"
+    - job: "image:build"
       optional: true
   script:
     - pdm install -G doc

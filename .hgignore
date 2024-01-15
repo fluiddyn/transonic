@@ -12,11 +12,12 @@ doc/**.zip
 
 *.so
 
-build/*
+build
 dist/*.tar.gz
 dist*
-.tox/*
-.coverage/*
+.tox
+.coverage
+.nox
 
 **/tmp*.py
 

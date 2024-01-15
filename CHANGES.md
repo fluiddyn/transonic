@@ -1,11 +1,13 @@
 # Release notes
 
-## Future
-
-See the [ROADMAP.md file](https://transonic.readthedocs.io/en/latest/roadmap.html).
-
 % Unreleased_
 % -----------
+
+## [0.6.0] (unpublished)
+
+- Support for [Meson build](https://transonic.readthedocs.io/en/latest/packaging.html)
+  through `transonic --meson`
+- Support for Python 3.12
 
 ## [0.5.3] (2023-08-21)
 
