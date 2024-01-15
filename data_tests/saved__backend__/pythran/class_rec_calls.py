@@ -1,13 +1,15 @@
 def __for_method__Myclass__func(self_attr, self_attr2, arg):
-    if __for_method__Myclass__func(self_attr, self_attr2, (arg - 1)) < 1:
+    if __for_method__Myclass__func(self_attr, self_attr2, arg - 1) < 1:
         return 1
     else:
         a = __for_method__Myclass__func(
-            self_attr, self_attr2, (arg - 1)
-        ) * __for_method__Myclass__func(self_attr, self_attr2, (arg - 1))
+            self_attr, self_attr2, arg - 1
+        ) * __for_method__Myclass__func(self_attr, self_attr2, arg - 1)
         return (
-            a + ((self_attr * self_attr2) * arg)
-        ) + __for_method__Myclass__func(self_attr, self_attr2, (arg - 1))
+            a
+            + self_attr * self_attr2 * arg
+            + __for_method__Myclass__func(self_attr, self_attr2, arg - 1)
+        )
 
 
 __code_new_method__Myclass__func = """

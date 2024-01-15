@@ -42,12 +42,7 @@ def test_create_pythran_files():
         "exterior_import_boost_2.py",
     ]
 
-    try:
-        from ast import unparse
-    except ImportError:
-        dir_saved_files = "saved__backend__"
-    else:
-        dir_saved_files = "saved__backend__py3.9"
+    dir_saved_files = "saved__backend__"
 
     for path in paths:
         if path.name in no_compare:

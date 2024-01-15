@@ -11,7 +11,7 @@ def rk2_step0(state_spect_n12, state_spect, tendencies_n, diss2, dt):
     #     float64[][] diss2;
     #     float dt
     # )
-    state_spect_n12[:] = (state_spect + ((dt / 2) * tendencies_n)) * diss2
+    state_spect_n12[:] = (state_spect + dt / 2 * tendencies_n) * diss2
 
 
 arguments_blocks = {

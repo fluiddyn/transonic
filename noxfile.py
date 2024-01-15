@@ -13,7 +13,7 @@ def _test(session):
 
 
 def _install_base(session):
-    command = "pdm install -G base_test"
+    command = "pdm sync -G base_test"
     session.run_always(*command.split(), external=True)
 
     py_version = session.python if session.python is not None else sys.version.split(maxsplit=1)[0]

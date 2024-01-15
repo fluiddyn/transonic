@@ -8,12 +8,12 @@ def row_sum(arr, columns):
 def row_sum_loops(arr, columns):
     # locals type annotations are used only for Cython
     # arr.dtype not supported for memoryview
-    dtype = type(arr[(0, 0)])
+    dtype = type(arr[0, 0])
     res = np.empty(arr.shape[0], dtype=dtype)
     for i in range(arr.shape[0]):
         sum_ = dtype(0)
         for j in range(columns.shape[0]):
-            sum_ += arr[(i, columns[j])]
+            sum_ += arr[i, columns[j]]
         res[i] = sum_
     return res
 
