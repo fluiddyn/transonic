@@ -1,4 +1,6 @@
 import os
+import sys
+from packaging import version
 
 import nox
 
@@ -13,6 +15,10 @@ def _test(session):
 def _install_base(session):
     command = "pdm install -G base_test"
     session.run_always(*command.split(), external=True)
+
+    py_version = session.python if session.python is not None else sys.version.split(maxsplit=1)[0]
+    if version.parse(py_version) < version.parse("3.12"):
+        session.run_always("pip", "install", "numba")
 
 
 @nox.session

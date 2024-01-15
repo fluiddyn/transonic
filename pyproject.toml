@@ -4,7 +4,7 @@ build-backend = "pdm.backend"
 
 [project]
 name = "transonic"
-version = "0.5.3"
+version = "0.6.0"
 description = "Make your Python code fly at transonic speeds!"
 authors = [
     { name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr" },
@@ -44,7 +44,6 @@ base_test = [
     "coverage[toml]",
     "mpi4py",
     "nbval ~=0.9.6",
-    "numba",
     "numpy",
     "pytest",
     "pytest-cov",
@@ -54,7 +53,7 @@ base_test = [
     "scipy",
     "-e transonic_testing @ file:///${PROJECT_ROOT}/_transonic_testing",
 ]
-test = ["cython", "mpi4py", "pythran"]
+test = ["cython", "mpi4py", "pythran", "numba"]
 doc = [
     "jupyterlab",
     # "nbsphinx",
