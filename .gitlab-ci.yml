@@ -3,11 +3,14 @@ stages:
   - lint
   - test
   - publish
+  - build
+  - release
 
 variables:
   CODECOV_TOKEN: b1c3afe7-4ef3-4c69-9656-78beec52ec16
   OMPI_ALLOW_RUN_AS_ROOT: "1"
   OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: "1"
+  PDM_CACHE_DIR: ${CI_PROJECT_DIR}/.pdm-cache
 
 image: registry.heptapod.net:443/fluiddyn/transonic/ci/default:stable
 
@@ -103,3 +106,36 @@ pages:
       - public
     expire_in: 5 days
   when: always
+
+build:package:
+  stage: build
+  before_script:
+    - pdm config cache_dir ${PDM_CACHE_DIR}
+  script:
+    - pdm build || pdm lock --group :all --refresh
+  needs: []
+  artifacts:
+    when: always
+    paths:
+      - pdm.lock
+      - dist
+    expire_in: 24 hrs
+  cache:
+    when: always
+    key: pdmcache-$CI_COMMIT_BRANCH
+    paths:
+      - ${PDM_CACHE_DIR}
+
+# manually set PDM_PUBLISH_PASSWORD in web interface to your pypi API token
+release:package:
+  stage: release
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID'
+      when: never
+    - if: '$CI_COMMIT_TAG'
+      when: on_success
+  variables:
+    PDM_PUBLISH_USERNAME: __token__
+  script:
+    - pdm publish --no-build
+  needs: [ "build:package" ]
