@@ -24,14 +24,32 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pdm nox coverage
-    - name: Test with nox
+    - name: Test without Pythran
       run: |
-        nox -s "test(with_pythran=0, with_cython=0)" "test(with_pythran=1, with_cython=0)" "test(with_pythran=0, with_cython=1)"
+        rm -rf .coverage
+        nox -s "test(with_pythran=0, with_cython=0)"
         coverage combine
         coverage report
         coverage xml
+        mv .coverage/coverage.xml coverage_without_pythran.xml
+    - name: Test with Pythran
+      run: |
+        rm -rf .coverage
+        nox -s "test(with_pythran=1, with_cython=0)"
+        coverage combine
+        coverage report
+        coverage xml
+        mv .coverage/coverage.xml coverage_with_pythran.xml
+    - name: Test with Cython
+      run: |
+        rm -rf .coverage
+        nox -s "test(with_pythran=0, with_cython=1)"
+        coverage combine
+        coverage xml
+        mv .coverage/coverage.xml coverage_with_cython.xml
     - uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: false # optional (default = false)
         verbose: true # optional (default = false)
+        files: coverage_without_pythran.xml,coverage_with_pythran.xml,coverage_with_cython.xml
