@@ -14,7 +14,7 @@ jobs:
     steps:
     - name: apt install
       run: |
-        sudo apt install -y libopenmpi-dev
+        sudo apt install -y libopenmpi-dev libopenblas-dev
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
