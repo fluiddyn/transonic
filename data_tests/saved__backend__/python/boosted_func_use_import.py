@@ -1,5 +1,5 @@
 import numpy as np
-from exterior_import_boost import func_import
+from __ext__func__exterior_import_boost import func_import
 
 
 def func(a, b):

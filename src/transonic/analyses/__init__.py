@@ -376,14 +376,14 @@ def analyse_aot(code, pathfile):
     code_ext = {"function": {}, "class": {}}
     code_dependance = capturex.make_code_external()
     # TODO implement class for new backends + debug this code :-)
-    if boosted_dicts["functions"]["pythran"]:
-        func = next(iter(boosted_dicts["functions"]["pythran"]))
+    if boosted_dicts["functions"]["__all__"]:
+        func = next(iter(boosted_dicts["functions"]["__all__"]))
         code_dependance, code_ext, _, _ = get_exterior_code(
             {func: code_dependance}, pathfile, classes="function", relative=True
         )
         code_dependance = code_dependance[func]
-    if boosted_dicts["classes"]["pythran"]:
-        cls = next(iter(boosted_dicts["classes"]["pythran"]))
+    if boosted_dicts["classes"]["__all__"]:
+        cls = next(iter(boosted_dicts["classes"]["__all__"]))
         code_dependance, code_ext, _, _ = get_exterior_code(
             {cls: code_dependance}, pathfile, classes="class", relative=True
         )

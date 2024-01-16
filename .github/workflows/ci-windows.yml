@@ -1,0 +1,31 @@
+name: CI-windows
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  tests:
+    runs-on: windows-2022
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: prefix-dev/setup-pixi@v0.4.1
+      with:
+        pixi-version: v0.11.1
+        cache: false
+    - name: Tests
+      run: |
+        pixi run install-editable
+        pixi run pytest tests
+        pixi run mpirun -np 2 pytest tests
+        echo "TRANSONIC_BACKEND=python" >> $GITHUB_ENV
+        pixi run pytest tests
+        echo "TRANSONIC_BACKEND=numba" >> $GITHUB_ENV
+        pixi run pytest tests

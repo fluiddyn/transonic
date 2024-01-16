@@ -1,6 +1,6 @@
 # __protected__ from numba import njit
 import numpy as np
-from exterior_import_boost import func_import
+from __ext__func__exterior_import_boost import func_import
 
 # __protected__ @njit(cache=True, fastmath=True)
 

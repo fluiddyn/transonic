@@ -1,8 +1,0 @@
-export func()
-export func(int)
-export func(int, None)
-export func(int, None, float64)
-export func(int, str)
-export func(int, str, float64)
-
-export __transonic__

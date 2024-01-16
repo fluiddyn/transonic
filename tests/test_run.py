@@ -42,12 +42,7 @@ def test_create_pythran_files():
         "exterior_import_boost_2.py",
     ]
 
-    try:
-        from ast import unparse
-    except ImportError:
-        dir_saved_files = "saved__backend__"
-    else:
-        dir_saved_files = "saved__backend__py3.9"
+    dir_saved_files = "saved__backend__"
 
     for path in paths:
         if path.name in no_compare:
@@ -63,6 +58,10 @@ def test_create_pythran_files():
             code = file.read()
         with open(saved_path) as file:
             saved_code = file.read()
+
+        if sys.version_info[:2] > (3, 10):
+            if path.name == "subpackages.py":
+                saved_code = saved_code.replace("(nx, ny) =", "nx, ny =")
 
         code = code.split("__transonic__ = ", 1)[0]
         saved_code = saved_code.split("__transonic__ = ", 1)[0]
