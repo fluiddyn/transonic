@@ -4,7 +4,7 @@ build-backend = "pdm.backend"
 
 [project]
 name = "transonic"
-version = "0.6.0"
+version = "0.6.0rc0"
 description = "Make your Python code fly at transonic speeds!"
 authors = [
     { name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr" },

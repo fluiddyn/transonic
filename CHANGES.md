@@ -6,7 +6,7 @@
 ## [0.6.0] (unpublished)
 
 - Support for [Meson build](https://transonic.readthedocs.io/en/latest/packaging.html)
-  through `transonic --meson`
+  through `transonic --meson` and multi-backends
 - Support for Python 3.12
 
 ## [0.5.3] (2023-08-21)
