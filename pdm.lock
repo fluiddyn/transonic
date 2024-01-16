@@ -5,7 +5,7 @@
 groups = ["default", "base_test", "dev", "doc", "mpi", "test"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:2ee032cde30f51d683cf1c67788207359de6de2689d3082e3ee48da9b7263784"
+content_hash = "sha256:947d7510c400794a3ee19d3303734c783a19ced37af5e0a08260056d77e79104"
 
 [[package]]
 name = "alabaster"
@@ -896,7 +896,7 @@ files = [
 
 [[package]]
 name = "ipykernel"
-version = "6.28.0"
+version = "6.29.0"
 requires_python = ">=3.8"
 summary = "IPython Kernel for Jupyter"
 groups = ["base_test", "doc"]
@@ -916,8 +916,8 @@ dependencies = [
     "traitlets>=5.4.0",
 ]
 files = [
-    {file = "ipykernel-6.28.0-py3-none-any.whl", hash = "sha256:c6e9a9c63a7f4095c0a22a79f765f079f9ec7be4f2430a898ddea889e8665661"},
-    {file = "ipykernel-6.28.0.tar.gz", hash = "sha256:69c11403d26de69df02225916f916b37ea4b9af417da0a8c827f84328d88e5f3"},
+    {file = "ipykernel-6.29.0-py3-none-any.whl", hash = "sha256:076663ca68492576f051e4af7720d33f34383e655f2be0d544c8b1c9de915b2f"},
+    {file = "ipykernel-6.29.0.tar.gz", hash = "sha256:b5dd3013cab7b330df712891c96cd1ab868c27a7159e606f762015e9bf8ceb3f"},
 ]
 
 [[package]]

@@ -95,7 +95,9 @@ def run():
 
 
 def run_1_backend(paths, backend, args, analyses):
-    backend.make_backend_files(paths, force=args.force, analyses=analyses)
+    backend.make_backend_files(
+        paths, force=args.force, analyses=analyses, for_meson=args.meson
+    )
 
     if args.meson:
         path_meson_build = Path("meson.build")

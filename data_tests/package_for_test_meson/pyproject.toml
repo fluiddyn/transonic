@@ -13,4 +13,4 @@ license = {text = "BSD License"}
 [build-system]
 build-backend = "mesonpy"
 # We cannot add the local transonic as build dependency here
-requires = ["meson-python", "transonic"]
+requires = ["meson-python", "transonic", "pythran"]

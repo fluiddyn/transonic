@@ -1,48 +1,69 @@
 import os
 import sys
 from packaging import version
+from pathlib import Path
 
 import nox
 
 os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
+nox.options.reuse_existing_virtualenvs = 1
 
 
-def _test(session):
-    session.run("make", "tests_ipynb", external=True)
-    session.run("make", "tests_coverage", external=True)
-
-
-def _install_base(session):
+@nox.parametrize("with_cython", [0, 1])
+@nox.parametrize("with_pythran", [0, 1])
+@nox.session
+def test(session, with_pythran, with_cython):
     command = "pdm sync -G base_test"
     session.run_always(*command.split(), external=True)
 
-    py_version = session.python if session.python is not None else sys.version.split(maxsplit=1)[0]
+    py_version = (
+        session.python
+        if session.python is not None
+        else sys.version.split(maxsplit=1)[0]
+    )
     if version.parse(py_version) < version.parse("3.12"):
         session.install("numba")
+    else:
+        session.install("setuptools")
 
+    if with_pythran:
+        session.install("pythran")
+    if with_cython:
+        session.install("cython")
 
-@nox.session
-def test_without_pythran(session):
-    _install_base(session)
-    _test(session)
+    if version.parse(py_version) < version.parse("3.12"):
+        for backend in ("python", "pythran"):
+            print(f"TRANSONIC_BACKEND={backend}")
+            session.run(
+                "pytest",
+                "--nbval-lax",
+                "data_tests/ipynb",
+                env={"TRANSONIC_BACKEND": backend},
+            )
 
+    path_coverage = Path(".coverage")
+    path_coverage.mkdir(exist_ok=True)
 
-@nox.session
-def test_with_pythran(session):
-    _install_base(session)
-    session.install("pythran")
-    _test(session)
+    code_dependencies = 10 * with_pythran + with_cython
 
+    for backend in ("python", "pythran", "numba", "cython"):
+        print(f"TRANSONIC_BACKEND={backend}")
+        session.run(
+            "pytest",
+            "--cov",
+            "--cov-config=pyproject.toml",
+            "tests",
+            env={
+                "COVERAGE_FILE": f".coverage/coverage{code_dependencies}.{backend}",
+                "TRANSONIC_BACKEND": backend,
+            },
+        )
 
-@nox.session
-def test_with_cython(session):
-    _install_base(session)
-    session.install("cython")
-    _test(session)
-
-
-@nox.session
-def test_with_pythran_cython(session):
-    _install_base(session)
-    session.install("pythran", "cython")
-    _test(session)
+    command = "mpirun -np 2 coverage run --rcfile=pyproject.toml -m mpi4py -m pytest tests"
+    session.run(
+        *command.split(),
+        external=True,
+        env={
+            "TRANSONIC_BACKEND": "pythran",
+        },
+    )
