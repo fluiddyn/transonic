@@ -75,23 +75,31 @@ step_without_pythran:
     - job: "image:build"
       optional: true
   script:
-    - nox -s test_without_pythran
+    - nox -s "test(with_pythran=0, with_cython=0)"
 
-step_pythran_then_cython:
+step_with_pythran:
   stage: test
   needs:
     - job: "image:build"
       optional: true
   script:
-    - nox -s test_with_pythran test_with_cython
+    - nox -s "test(with_pythran=1, with_cython=0)"
 
-step_pythran_cython:
+step_with_cython:
   stage: test
   needs:
     - job: "image:build"
       optional: true
   script:
-    - nox -s test_with_pythran_cython
+    - nox -s "test(with_pythran=0, with_cython=1)"
+
+step_with_pythran_cython:
+  stage: test
+  needs:
+    - job: "image:build"
+      optional: true
+  script:
+    - nox -s "test(with_pythran=1, with_cython=1)"
 
 
 pages:

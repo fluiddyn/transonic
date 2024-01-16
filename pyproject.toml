@@ -81,7 +81,7 @@ target-version = ['py38']
 [tool.coverage.run]
 branch = true
 
-source = ["src/transonic", "src/transonic_cl", "./tests"]
+source = ["./src/transonic", "./src/transonic_cl", "./tests"]
 data_file = ".coverage/coverage"
 omit = [
     "*/try_*.py",

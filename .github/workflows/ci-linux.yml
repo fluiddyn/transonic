@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
     - name: apt install
@@ -23,10 +23,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pdm nox
+        pip install pdm nox coverage
     - name: Test with nox
       run: |
-        nox -s test_without_pythran test_with_pythran
+        nox -s "test(with_pythran=0, with_cython=0)" "test(with_pythran=1, with_cython=0)" "test(with_pythran=0, with_cython=1)"
+        coverage combine
+        coverage report
+        coverage xml
     - uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
