@@ -18,7 +18,7 @@ def _install_base(session):
 
     py_version = session.python if session.python is not None else sys.version.split(maxsplit=1)[0]
     if version.parse(py_version) < version.parse("3.12"):
-        session.run_always("pip", "install", "numba")
+        session.install("numba")
 
 
 @nox.session

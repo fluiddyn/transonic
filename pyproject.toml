@@ -44,7 +44,6 @@ base_test = [
     "coverage[toml]",
     "mpi4py",
     "nbval ~=0.9.6",
-    "numpy",
     "pytest",
     "pytest-cov",
     "pytest-venv",

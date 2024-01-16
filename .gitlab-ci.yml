@@ -1,4 +1,5 @@
 stages:
+  - pixi
   - image
   - lint
   - test
@@ -10,6 +11,18 @@ variables:
   PDM_CACHE_DIR: ${CI_PROJECT_DIR}/.pdm-cache
 
 image: registry.heptapod.net:443/fluiddyn/transonic/ci/default:stable
+
+
+pixi:test:
+  stage: pixi
+  image: registry.heptapod.net:443/fluiddyn/fluidsim/ci/default:pixi
+  script:
+    - pixi info
+    - pixi run install-editable
+    - pixi run pytest tests
+    - pixi run mpirun -np 2 pytest tests
+    - TRANSONIC_BACKEND=python pixi run pytest tests
+
 
 # Build an image for the above tasks; this should be a scheduled job, as
 # it is quite unnecessary to run on every invocation.
@@ -45,6 +58,7 @@ image:build:
       --destination registry.heptapod.net:443/fluiddyn/transonic/ci/$CI_COMMIT_HG_BRANCH:stable
       # --destination registry.heptapod.net:443/fluiddyn/transonic/ci/default:stable
 
+
 validate_code:
   stage: lint
   needs:
@@ -53,6 +67,7 @@ validate_code:
   script:
     - pdm install -G dev
     - pdm run make lint
+
 
 step_without_pythran:
   stage: test
@@ -78,6 +93,7 @@ step_pythran_cython:
   script:
     - nox -s test_with_pythran_cython
 
+
 pages:
   stage: publish
   needs:
@@ -101,6 +117,7 @@ pages:
     expire_in: 5 days
   when: always
 
+
 build:package:
   stage: build
   before_script:
@@ -119,6 +136,7 @@ build:package:
     key: pdmcache-$CI_COMMIT_BRANCH
     paths:
       - ${PDM_CACHE_DIR}
+
 
 # manually set PDM_PUBLISH_PASSWORD in web interface to your pypi API token
 release:package:
