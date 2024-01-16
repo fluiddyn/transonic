@@ -64,7 +64,7 @@ class Backend:
         return format_str(code)
 
     def make_backend_files(
-        self, paths_py, force=False, log_level=None, analyses=None
+        self, paths_py, force=False, log_level=None, analyses=None, **kwargs
     ):
         """Create backend files from a list of Python files"""
 
@@ -78,7 +78,9 @@ class Backend:
         paths_out = []
         for path in paths_py:
             analysis = analyses[path]
-            path_out = self.make_backend_file(path, analysis, force=force)
+            path_out = self.make_backend_file(
+                path, analysis, force=force, **kwargs
+            )
             if path_out:
                 paths_out.append(path_out)
 
@@ -98,7 +100,7 @@ class Backend:
         return paths_out
 
     def make_backend_file(
-        self, path_py: Path, analysis=None, force=False, log_level=None
+        self, path_py: Path, analysis=None, force=False, log_level=None, **kwargs
     ):
         """Create a Python file from a Python file (if necessary)"""
 
@@ -134,7 +136,7 @@ class Backend:
             analysis = analyse_aot(code, path_py)
 
         code_backend, codes_ext, code_header = self._make_backend_code(
-            path_py, analysis
+            path_py, analysis, **kwargs
         )
         if not code_backend:
             return
@@ -178,7 +180,7 @@ class Backend:
     def _make_beginning_code(self):
         return ""
 
-    def _make_backend_code(self, path_py, analysis):
+    def _make_backend_code(self, path_py, analysis, **kwargs):
         """Create a backend code from a Python file"""
 
         boosted_dicts, code_dependance, annotations, blocks, codes_ext = analysis

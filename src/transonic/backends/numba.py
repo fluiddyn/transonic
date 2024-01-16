@@ -82,11 +82,17 @@ class NumbaBackend(PythonBackend):
         process = None
         return compiling, process
 
-    def _make_backend_code(self, path_py, analysis):
+    def _make_backend_code(self, path_py, analysis, **kwargs):
         """Create a backend code from a Python file"""
         code, codes_ext, header = super()._make_backend_code(path_py, analysis)
 
         if not code:
             return code, codes_ext, header
 
-        return add_numba_comments(code), codes_ext, header
+        code = add_numba_comments(code)
+
+        for_meson = kwargs.get("for_meson", False)
+        if for_meson:
+            code = format_str(code.replace("# __protected__ ", ""))
+
+        return code, codes_ext, header
