@@ -5,7 +5,7 @@
 [![Documentation status](https://readthedocs.org/projects/transonic/badge/?version=latest)](http://transonic.readthedocs.org)
 ![Supported Python versions](https://img.shields.io/pypi/pyversions/transonic.svg)
 [![Heptapod CI](https://foss.heptapod.net/fluiddyn/transonic/badges/branch/default/pipeline.svg)](https://foss.heptapod.net/fluiddyn/transonic/-/pipelines)
-[![Github Actions](https://github.com/fluiddyn/transonic/actions/workflows/ci.yml/badge.svg?branch=branch/default)](https://github.com/fluiddyn/transonic/actions)
+[![Github Actions](https://github.com/fluiddyn/transonic/actions/workflows/ci-linux.yml/badge.svg?branch=branch/default)](https://github.com/fluiddyn/transonic/actions)
 [![mybinder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fluiddyn/transonic/branch/default?urlpath=lab/tree/doc/ipynb/executed)
 [![sonarcloud](https://sonarcloud.io/api/project_badges/measure?project=fluiddyn_transonic&metric=alert_status)](https://sonarcloud.io/dashboard?id=fluiddyn_transonic)
 
