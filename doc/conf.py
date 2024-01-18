@@ -56,6 +56,7 @@ source_suffix = {
     ".myst": "myst-nb",
 }
 # nb_render_plugin = "default"
+nb_execution_raise_on_error = True
 nb_merge_streams = True
 nb_execution_show_tb = True
 
