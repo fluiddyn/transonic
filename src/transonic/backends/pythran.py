@@ -62,7 +62,8 @@ class PythranBackend(BackendAOT):
   '{name}',
   output: ['{name}.cpp'],
   input: '{name}.py',
-  command: [pythran, '-E', '--config', 'pythran.complex_hook=pythran_complex_hook', '@INPUT@', '-o', '@OUTDIR@/{name}.cpp']
+  command: [pythran, '-E', '--config', 'pythran.complex_hook=pythran_complex_hook', '@INPUT@', '-o', '@OUTDIR@/{name}.cpp'],
+  env: ['PYTHRANRC='],
 )
 
 {name} = py.extension_module(
@@ -72,7 +73,7 @@ class PythranBackend(BackendAOT):
   dependencies: [pythran_dep, np_dep],
   # link_args: version_link_args,
   install: true,
-  subdir: '{subdir}'
+  subdir: '{subdir}',
 )
 """
             )
