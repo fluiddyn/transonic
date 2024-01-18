@@ -3,7 +3,8 @@ bar = custom_target(
   'bar',
   output: ['bar.cpp'],
   input: 'bar.py',
-  command: [pythran, '-E', '--config', 'pythran.complex_hook=pythran_complex_hook', '@INPUT@', '-o', '@OUTDIR@/bar.cpp']
+  command: [pythran, '-E', '--config', 'pythran.complex_hook=pythran_complex_hook', '@INPUT@', '-o', '@OUTDIR@/bar.cpp'],
+  env: ['PYTHRANRC='],
 )
 
 bar = py.extension_module(
@@ -13,14 +14,15 @@ bar = py.extension_module(
   dependencies: [pythran_dep, np_dep],
   # link_args: version_link_args,
   install: true,
-  subdir: 'package_for_test_meson/__pythran__'
+  subdir: 'package_for_test_meson/__pythran__',
 )
 
 foo = custom_target(
   'foo',
   output: ['foo.cpp'],
   input: 'foo.py',
-  command: [pythran, '-E', '--config', 'pythran.complex_hook=pythran_complex_hook', '@INPUT@', '-o', '@OUTDIR@/foo.cpp']
+  command: [pythran, '-E', '--config', 'pythran.complex_hook=pythran_complex_hook', '@INPUT@', '-o', '@OUTDIR@/foo.cpp'],
+  env: ['PYTHRANRC='],
 )
 
 foo = py.extension_module(
@@ -30,5 +32,5 @@ foo = py.extension_module(
   dependencies: [pythran_dep, np_dep],
   # link_args: version_link_args,
   install: true,
-  subdir: 'package_for_test_meson/__pythran__'
+  subdir: 'package_for_test_meson/__pythran__',
 )
