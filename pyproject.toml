@@ -33,6 +33,7 @@ mpi = ["mpi4py"]
 
 [project.scripts]
 transonic = "transonic.run:run"
+transonic-get-include = "transonic_cl.get_includes:main"
 
 [tool.pdm]
 package-dir = "src"

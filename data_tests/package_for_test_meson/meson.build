@@ -19,40 +19,11 @@ endif
 
 use_pythran = backend.contains('pythran')
 if use_pythran
-  incdir_numpy = run_command(
-    py,
-    [
-      '-c',
-      '''import os
-import numpy as np
-try:
-  incdir = os.path.relpath(np.get_include())
-except Exception:
-  incdir = np.get_include()
-print(incdir)'''
-    ],
-    check: true
-  ).stdout().strip()
-
+  incdir_numpy = run_command('transonic-get-include', 'numpy', check: true).stdout().strip()
   inc_np = include_directories(incdir_numpy)
   np_dep = declare_dependency(include_directories: inc_np)
 
-  incdir_pythran = run_command(
-      py,
-      [
-        '-c',
-        '''import os
-import pythran;
-incdir = os.path.dirname(pythran.__file__)
-try:
-  incdir = os.path.relpath(incdir)
-except Exception:
-  pass
-print(incdir)'''
-      ],
-      check: true
-    ).stdout().strip()
-
+  incdir_pythran = run_command('transonic-get-include', 'pythran', check: true).stdout().strip()
   pythran = find_program('pythran', native: true)
 
   cpp_args_pythran = [
