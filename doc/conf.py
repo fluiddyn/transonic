@@ -80,6 +80,8 @@ copyright = "2023, Pierre Augier"
 
 # The full version, including alpha/beta/rc tags.
 release = transonic.__version__
+if "+" in release:
+    release = release.split("+")[0]
 # The short X.Y version.
 version = release.split(".")
 version = "{}.{}.{}".format(version[0], version[1], version[2])
