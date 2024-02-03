@@ -1,18 +1,25 @@
 # Release notes
 
-% Unreleased_
-% -----------
+See also the
+[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.1...branch%2Fdefault).
 
-## [0.6.0] (unpublished)
+## [0.6.1] (unpublished)
 
-- Support for [Meson build](https://transonic.readthedocs.io/en/latest/packaging.html)
-  through `transonic --meson` and multi-backends
+- Add `transonic-get-include` command for Meson builds.
+- Use `PYTHRANRC=''` for Meson
+- Fix `__version__`
+
+## [0.6.0] (2024-01-16)
+
+- Support for
+  [Meson build](https://transonic.readthedocs.io/en/latest/packaging.html) through
+  `transonic --meson` and multi-backends
 - Support for Python 3.12
 
 ## [0.5.3] (2023-08-21)
 
-- [!110](https://foss.heptapod.net/fluiddyn/transonic/-/merge_requests/110)
-  Quick fix autopep8 bug + fix CI (py3.9)
+- [!110](https://foss.heptapod.net/fluiddyn/transonic/-/merge_requests/110) Quick
+  fix autopep8 bug + fix CI (py3.9)
 
 ## [0.5.2] (2022-01-04)
 
@@ -42,8 +49,8 @@
 
 ## 0.4.9 (2021-07-02)
 
-- Avoid new Gast and Beniget versions by pinning to the previous versions
-  (0.4.0 and 0.3.0). No Python 3.10 support!
+- Avoid new Gast and Beniget versions by pinning to the previous versions (0.4.0
+  and 0.3.0). No Python 3.10 support!
 
 ## 0.4.8 (2021-05-03)
 
@@ -79,8 +86,8 @@
 
 ## 0.4.1 (2019-10-08)
 
-- Cython backend: less bugs, better support for fused types, nonecheck,
-  cdivision, ...
+- Cython backend: less bugs, better support for fused types, nonecheck, cdivision,
+  ...
 - Fix default parameters for Pythran
 
 ## 0.4.0 (2019-09-22)
@@ -90,8 +97,8 @@
   - memoryviews for Cython
   - memory layout for arrays (C, Fortran, C_or_F and strided)
 
-- More than one backend in one process + API to select the backend for modules
-  and functions
+- More than one backend in one process + API to select the backend for modules and
+  functions
 
 ## 0.3.3 (2019-08-30)
 
@@ -115,11 +122,12 @@
 
 ## 0.2.4 (2019-06-28)
 
-- Support source in multiple files ([#14](https://foss.heptapod.net/fluiddyn/transonic/issues/14) and #21)
+- Support source in multiple files
+  ([#14](https://foss.heptapod.net/fluiddyn/transonic/issues/14) and #21)
 - Fix issues #8 (Recursion for boosted method), #17 (Bad formating for Pythran
   error), #18 (Improve logging jit), #19 (Change default arguments of jit
-  decorator) and #20 (No Pythran signature generated for boosted functions
-  without arguments)!
+  decorator) and #20 (No Pythran signature generated for boosted functions without
+  arguments)!
 
 ## 0.2.3 (2019-06-11)
 
@@ -164,9 +172,8 @@
 
 ## 0.1.9 (2019-01-29)
 
-- Common setup functions such as {code}`get_logger`,
-  {code}`ParallelBuildExt` and {code}`init_pythran_extensions` in
-  {code}`transonic.dist`.
+- Common setup functions such as {code}`get_logger`, {code}`ParallelBuildExt` and
+  {code}`init_pythran_extensions` in {code}`transonic.dist`.
 
 ## 0.1.8 (2019-01-19)
 
@@ -178,13 +185,12 @@
 
 ## 0.1.6 (2018-12-14)
 
-- Better logging and commandline (no compilation if the extension is
-  up-to-date)
+- Better logging and commandline (no compilation if the extension is up-to-date)
 
 ## 0.1.5 (2018-12-12)
 
-- {code}`jit` for simple methods (without assignation to attributes
-  and call of other methods)
+- {code}`jit` for simple methods (without assignation to attributes and call of
+  other methods)
 - {code}`Union` for annotations
 - {code}`include` decorator
 
@@ -207,8 +213,7 @@
 - Fix bug C-style `[][]`
 - {code}`Array[float, "2d"]` supported
 - {code}`NDim(0)` supported
-- Function {code}`set_compile_jit()` to disable compilation of
-  jit functions
+- Function {code}`set_compile_jit()` to disable compilation of jit functions
 
 ## 0.1.1 (2018-11-28)
 
@@ -250,4 +255,5 @@
 [0.5.1]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.0...0.5.1
 [0.5.2]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.1...0.5.2
 [0.5.3]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.2...0.5.3
-[unreleased]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.3...branch%2Fdefault
+[0.6.0]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.3...0.6.0
+[0.6.1]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.0...0.6.1
