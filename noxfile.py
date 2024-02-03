@@ -67,3 +67,11 @@ def test(session, with_pythran, with_cython):
             "TRANSONIC_BACKEND": "pythran",
         },
     )
+
+
+@nox.session
+def doc(session):
+    session.run_always("pdm", "sync", "-G", "doc", external=True)
+    session.chdir("doc")
+    session.run("make", "cleanall", external=True)
+    session.run("make", external=True)

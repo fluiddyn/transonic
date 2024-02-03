@@ -1,4 +1,6 @@
-__version__ = "0.5.3"
+from importlib import metadata
+
+__version__ = metadata.version(__package__)
 
 try:
     from pyfiglet import figlet_format
