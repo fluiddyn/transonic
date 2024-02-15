@@ -1,4 +1,7 @@
-from transonic import boost
+from transonic import boost, Transonic
+
+# used for testing
+ts = Transonic()
 
 
 @boost

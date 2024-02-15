@@ -45,6 +45,18 @@ def run_in_venv(venv, command, cwd=None):
     subprocess.run(args, cwd=cwd, check=True, env=env)
 
 
+def eval_in_venv(venv, code):
+    process = subprocess.run(
+        [venv.python, "-c", code],
+        env=venv.env,
+        check=True,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    return process.stdout
+
+
 @pytest.mark.xfail(
     sys.platform.startswith("win"), reason="Buggy on Windows (TODO: debug)"
 )
@@ -89,7 +101,7 @@ def test_install_package(tmpdir, venv):
     if backend_default == "pythran":
         run_in_venv(venv, "pip install pythran")
 
-    install_command = "pip install . --no-build-isolation"
+    install_command = "pip install -e . --no-build-isolation"
     if backend_default == "python":
         install_command += (
             " --config-settings=setup-args=-Dtransonic-backend=python"
@@ -97,6 +109,12 @@ def test_install_package(tmpdir, venv):
 
     run_in_venv(venv, install_command, cwd=tmpdir)
     run_in_venv(venv, "pytest tests", cwd=tmpdir)
+
+    out = eval_in_venv(
+        venv, "from package_for_test_meson.foo import ts; print(ts.is_compiled)"
+    ).strip()
+    is_compiled = out == "True"
+    assert is_compiled
 
 
 @pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")

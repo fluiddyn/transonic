@@ -52,7 +52,12 @@ class PythonBackend(BackendJIT):
         if name_ext_file is None:
             name_ext_file = self.name_ext_from_path_backend(path_backend)
 
-        copyfile(path_backend, path_backend.with_name(name_ext_file))
+        if not path_backend.exists():
+            raise IOError("not path_backend.exists()")
+
+        path_ext = path_backend.with_name(name_ext_file)
+        if path_backend != path_ext:
+            copyfile(path_backend, path_ext)
         compiling = False
         process = None
         return compiling, process

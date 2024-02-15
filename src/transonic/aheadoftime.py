@@ -27,6 +27,7 @@ import subprocess
 import os
 import functools
 import sys
+from importlib import import_module
 
 from transonic.backends import backends, get_backend_name_module
 from transonic.config import has_to_replace, backend_default
@@ -236,9 +237,20 @@ class Transonic:
             path_mod.parent / f"__{backend.name}__" / (module_short_name + suffix)
         )
 
-        path_ext = None
+        # for Meson, we try to import module_backend_name
+        try:
+            _module_backend = import_module(module_backend_name)
+        except ImportError:
+            path_ext = None
+        else:
+            if backend.check_if_compiled(_module_backend):
+                path_ext = Path(_module_backend.__file__)
+                if not path_ext.exists():
+                    path_ext = None
+            else:
+                path_ext = None
 
-        if has_to_compile_at_import() and path_mod.exists():
+        if has_to_compile_at_import() and path_mod.exists() and path_ext is None:
             if mpi.has_to_build(path_backend, path_mod):
                 if path_backend.exists():
                     time_backend = mpi.modification_date(path_backend)
