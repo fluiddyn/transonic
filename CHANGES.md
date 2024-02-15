@@ -1,9 +1,13 @@
 # Release notes
 
 See also the
-[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.1...branch%2Fdefault).
+[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.2...branch%2Fdefault).
 
-## [0.6.1] (unpublished)
+## [0.6.2] (2024-02-15)
+
+- Fix the detection of extensions for editable installations with Meson
+
+## [0.6.1] (2024-02-03)
 
 - Add `transonic-get-include` command for Meson builds.
 - Use `PYTHRANRC=''` for Meson
@@ -257,3 +261,4 @@ See also the
 [0.5.3]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.2...0.5.3
 [0.6.0]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.3...0.6.0
 [0.6.1]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.0...0.6.1
+[0.6.2]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.1...0.6.2
