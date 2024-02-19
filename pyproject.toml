@@ -35,6 +35,7 @@ mpi = ["mpi4py"]
 transonic = "transonic.run:run"
 transonic-get-include = "transonic_cl.get_includes:main"
 transonic-init-meson = "transonic.init_meson:main"
+transonic-clean-dir = "transonic.clean_dir:main"
 
 [tool.pdm]
 package-dir = "src"
