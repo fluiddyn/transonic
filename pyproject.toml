@@ -4,7 +4,7 @@ build-backend = "pdm.backend"
 
 [project]
 name = "transonic"
-version = "0.6.2"
+version = "0.6.3"
 description = "Make your Python code fly at transonic speeds!"
 authors = [
     { name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr" },
@@ -34,6 +34,8 @@ mpi = ["mpi4py"]
 [project.scripts]
 transonic = "transonic.run:run"
 transonic-get-include = "transonic_cl.get_includes:main"
+transonic-init-meson = "transonic_cl.init_meson:main"
+transonic-clean-dir = "transonic_cl.clean_dir:main"
 
 [tool.pdm]
 package-dir = "src"
