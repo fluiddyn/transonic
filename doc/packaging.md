@@ -24,6 +24,21 @@ and Scikit-image. The data necessary to build the package is staggered in
   [a call to Transonic](https://foss.heptapod.net/fluiddyn/fluidsim/-/blob/branch/default/fluidsim/operators/meson.build)
   to automatically create backends directories with their `meson.build` file.
 
+````{tip}
+
+To help developers to switch to the Meson build system, Transonic provides
+a command to automatically create the different `meson.build` files. One needs
+to give the path of the root directory of the package, for example from  the
+root directory of the
+[Fluidfft repository](https://foss.heptapod.net/fluiddyn/fluidfft),
+one could have used:
+
+```sh
+transonic-init-meson src/fluidfft
+```
+
+````
+
 Note that Transonic can use for this step more that one backend with something
 like
 
