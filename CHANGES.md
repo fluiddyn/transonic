@@ -1,7 +1,11 @@
 # Release notes
 
 See also the
-[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.2...branch%2Fdefault).
+[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.3...branch%2Fdefault).
+
+## [0.6.3] (2024-02-20)
+
+- New helper commands `transonic-init-meson` and `transonic-clean-dir`.
 
 ## [0.6.2] (2024-02-15)
 
@@ -262,3 +266,4 @@ See also the
 [0.6.0]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.3...0.6.0
 [0.6.1]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.0...0.6.1
 [0.6.2]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.1...0.6.2
+[0.6.3]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.2...0.6.3
