@@ -26,6 +26,8 @@ def test(session, with_pythran, with_cython):
     else:
         session.install("setuptools")
 
+    session.install("jax", "jaxlib")
+
     if with_pythran:
         session.install("pythran")
     if with_cython:
@@ -46,7 +48,7 @@ def test(session, with_pythran, with_cython):
 
     code_dependencies = 10 * with_pythran + with_cython
 
-    for backend in ("python", "pythran", "numba", "cython"):
+    for backend in ("python", "pythran", "numba", "jax", "cython"):
         print(f"TRANSONIC_BACKEND={backend}")
         session.run(
             "pytest",

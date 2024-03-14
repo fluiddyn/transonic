@@ -15,6 +15,9 @@ tests_pythran:
 tests_cython:
 	TRANSONIC_BACKEND="cython" pytest tests data_tests/ipynb
 
+tests_jax:
+	TRANSONIC_BACKEND="jax" pytest --lf tests data_tests/ipynb
+
 tests_numba:
 	TRANSONIC_BACKEND="numba" pytest tests data_tests/ipynb
 

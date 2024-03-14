@@ -53,7 +53,14 @@ base_test = [
     "scipy",
     "-e transonic_testing @ file:///${PROJECT_ROOT}/_transonic_testing",
 ]
-test = ["cython", "mpi4py", "pythran", "numba"]
+test = [
+    "cython",
+    "mpi4py",
+    "pythran",
+    "numba",
+    "jax>=0.4.25",
+    "jaxlib>=0.4.25",
+]
 doc = [
     "jupyterlab",
     # "nbsphinx",
