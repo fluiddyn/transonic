@@ -47,7 +47,7 @@ from pathlib import Path
 from warnings import warn
 
 path_root = Path(os.environ.get("TRANSONIC_DIR", Path.home() / ".transonic"))
-
+SUPPORTED_BACKENDS = frozenset(("pythran", "cython", "jax", "numba", "python"))
 
 def strtobool(value):
     """Convert a string representation of truth to true (1) or false (0).
@@ -75,8 +75,7 @@ def set_backend(backend: str):
     """Set the "global variable" backend_default"""
 
     backend = backend.lower()
-    supported_backends = {"pythran", "cython", "jax", "numba", "python"}
-    if backend not in supported_backends:
+    if backend not in SUPPORTED_BACKENDS:
         raise ValueError(f"backend {backend} not supported")
 
     global backend_default, backend_set_by_user
