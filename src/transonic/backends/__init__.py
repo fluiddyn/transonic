@@ -31,16 +31,18 @@ from typing import Iterable
 from transonic.config import backend_default
 from transonic.util import get_module_name, get_frame
 
+from .cython import CythonBackend
+from .jax import JaxBackend
+from .numba import NumbaBackend
 from .py import PythonBackend
 from .pythran import PythranBackend
-from .cython import CythonBackend
-from .numba import NumbaBackend
 
 backends = dict(
-    pythran=PythranBackend(),
     cython=CythonBackend(),
     numba=NumbaBackend(),
+    jax=JaxBackend(),
     python=PythonBackend(),
+    pythran=PythranBackend(),
 )
 
 backend_default_modules = {}
