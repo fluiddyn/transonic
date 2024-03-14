@@ -37,6 +37,7 @@ from .blocks_if import get_block_definitions
 from .parser import parse_transonic_def_commands
 from .objects_from_str import replace_strings_by_objects
 from . import extast
+from ..config import SUPPORTED_BACKENDS
 
 
 __all__ = ["print_dumped", "print_unparsed"]
@@ -88,7 +89,7 @@ def get_decorated_dicts(
 
     kinds = ("functions", "functions_ext", "methods", "classes")
 
-    backend_names = ("__all__", "pythran", "cython", "numba", "python")
+    backend_names = ("__all__", *SUPPORTED_BACKENDS)
     decorated_dicts = {
         kind: {name: {} for name in backend_names} for kind in kinds
     }
