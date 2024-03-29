@@ -1,7 +1,12 @@
 # Release notes
 
 See also the
-[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.3...branch%2Fdefault).
+[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.4...branch%2Fdefault).
+
+## [0.6.4] (2024-03-29)
+
+- The `__transonic__` attribute is now a `str` (should avoid
+  [pythran/issues/2190](https://github.com/serge-sans-paille/pythran/issues/2190)).
 
 ## [0.6.3] (2024-02-20)
 
@@ -267,3 +272,4 @@ See also the
 [0.6.1]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.0...0.6.1
 [0.6.2]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.1...0.6.2
 [0.6.3]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.2...0.6.3
+[0.6.4]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.3...0.6.4
