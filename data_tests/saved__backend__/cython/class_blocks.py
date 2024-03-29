@@ -7,6 +7,7 @@ import numpy as np
 
 
 def block0(a, b, n):
+
     # foo
     # transonic block (
     #     float[][] a, b;
@@ -25,6 +26,7 @@ def block0(a, b, n):
 
 
 def block1(a, b, n):
+
     # transonic block (
     #     float[][] a, b;
     #     int n
