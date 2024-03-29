@@ -220,7 +220,7 @@ class Backend:
         if code:
             code = self._make_beginning_code() + code
             self._append_line_header_variable(lines_header, "__transonic__")
-            code += f"\n\n__transonic__ = ('{transonic.__version__}',)"
+            code += f'\n\n__transonic__ = "{transonic.__version__}"'
 
         return format_str(code), codes_ext, "\n".join(lines_header).strip() + "\n"
 
