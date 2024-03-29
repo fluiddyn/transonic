@@ -282,7 +282,7 @@ package:
   timestamp: 1694604071236
 - platform: linux-64
   name: black
-  version: 23.12.1
+  version: 24.3.0
   category: main
   manager: conda
   dependencies:
@@ -293,21 +293,21 @@ package:
   - platformdirs >=2
   - python >=3.11,<3.12.0a0
   - python_abi 3.11.* *_cp311
-  url: https://conda.anaconda.org/conda-forge/linux-64/black-23.12.1-py311h38be061_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/black-24.3.0-py311h38be061_0.conda
   hash:
-    md5: cb563ab54c59917f004d4faf7a29c610
-    sha256: 90c29112da654aa4f713b03220b884aa4d11a74e642a72bf9d56e872700c7423
+    md5: c233b101ee7d472b8ede793d2ccdcb70
+    sha256: 4abc8381861f75b04e9ad9e0c2f43e2dc15b98cf06ddb0ca31b9251af14037ae
   build: py311h38be061_0
   arch: x86_64
   subdir: linux-64
   build_number: 0
   license: MIT
   license_family: MIT
-  size: 378436
-  timestamp: 1703317664029
+  size: 384636
+  timestamp: 1710784822673
 - platform: win-64
   name: black
-  version: 23.12.1
+  version: 24.3.0
   category: main
   manager: conda
   dependencies:
@@ -318,18 +318,18 @@ package:
   - platformdirs >=2
   - python >=3.11,<3.12.0a0
   - python_abi 3.11.* *_cp311
-  url: https://conda.anaconda.org/conda-forge/win-64/black-23.12.1-py311h1ea47a8_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/black-24.3.0-py311h1ea47a8_0.conda
   hash:
-    md5: aa307be056896f2da4ac4fcf2f348b08
-    sha256: 79f6f11a0057c6c648e72a976b88f3bc5d14b6f0fdb4f66eafefb643c063e692
+    md5: 2bdcd9478a4be51a226a5ebf40c3d79d
+    sha256: 5b0f42cc66115df4be5b8ab66507d139f7e25bc49c1be047b1f270432efa0035
   build: py311h1ea47a8_0
   arch: x86_64
   subdir: win-64
   build_number: 0
   license: MIT
   license_family: MIT
-  size: 395159
-  timestamp: 1703318197279
+  size: 404562
+  timestamp: 1710785192729
 - platform: linux-64
   name: bzip2
   version: 1.0.8
@@ -955,48 +955,48 @@ package:
   - pkg:pypi/executing
 - platform: linux-64
   name: filelock
-  version: 3.13.1
+  version: 3.13.3
   category: main
   manager: pypi
   requires_dist:
   - furo >=2023.9.10 ; extra == 'docs'
-  - sphinx-autodoc-typehints !=1.23.4, >=1.24 ; extra == 'docs'
+  - sphinx-autodoc-typehints !=1.23.4, >=1.25.2 ; extra == 'docs'
   - sphinx >=7.2.6 ; extra == 'docs'
   - covdefaults >=2.3 ; extra == 'testing'
   - coverage >=7.3.2 ; extra == 'testing'
-  - diff-cover >=8 ; extra == 'testing'
+  - diff-cover >=8.0.1 ; extra == 'testing'
   - pytest-cov >=4.1 ; extra == 'testing'
   - pytest-mock >=3.12 ; extra == 'testing'
   - pytest-timeout >=2.2 ; extra == 'testing'
   - pytest >=7.4.3 ; extra == 'testing'
   - typing-extensions >=4.8 ; python_version < '3.11' and extra == 'typing'
   requires_python: '>=3.8'
-  url: https://files.pythonhosted.org/packages/81/54/84d42a0bee35edba99dee7b59a8d4970eccdd44b99fe728ed912106fc781/filelock-3.13.1-py3-none-any.whl#sha256=57dbda9b35157b05fb3e58ee91448612eb674172fab98ee235ccb0b5bee19a1c
+  url: https://files.pythonhosted.org/packages/8b/69/acdf492db27dea7be5c63053230130e0574fd8a376de3555d5f8bbc3d3ad/filelock-3.13.3-py3-none-any.whl#sha256=5ffa845303983e7a0b7ae17636509bc97997d58afeafa72fb141a17b152284cb
   hash:
     md5: null
-    sha256: 57dbda9b35157b05fb3e58ee91448612eb674172fab98ee235ccb0b5bee19a1c
+    sha256: 5ffa845303983e7a0b7ae17636509bc97997d58afeafa72fb141a17b152284cb
 - platform: win-64
   name: filelock
-  version: 3.13.1
+  version: 3.13.3
   category: main
   manager: pypi
   requires_dist:
   - furo >=2023.9.10 ; extra == 'docs'
-  - sphinx-autodoc-typehints !=1.23.4, >=1.24 ; extra == 'docs'
+  - sphinx-autodoc-typehints !=1.23.4, >=1.25.2 ; extra == 'docs'
   - sphinx >=7.2.6 ; extra == 'docs'
   - covdefaults >=2.3 ; extra == 'testing'
   - coverage >=7.3.2 ; extra == 'testing'
-  - diff-cover >=8 ; extra == 'testing'
+  - diff-cover >=8.0.1 ; extra == 'testing'
   - pytest-cov >=4.1 ; extra == 'testing'
   - pytest-mock >=3.12 ; extra == 'testing'
   - pytest-timeout >=2.2 ; extra == 'testing'
   - pytest >=7.4.3 ; extra == 'testing'
   - typing-extensions >=4.8 ; python_version < '3.11' and extra == 'typing'
   requires_python: '>=3.8'
-  url: https://files.pythonhosted.org/packages/81/54/84d42a0bee35edba99dee7b59a8d4970eccdd44b99fe728ed912106fc781/filelock-3.13.1-py3-none-any.whl#sha256=57dbda9b35157b05fb3e58ee91448612eb674172fab98ee235ccb0b5bee19a1c
+  url: https://files.pythonhosted.org/packages/8b/69/acdf492db27dea7be5c63053230130e0574fd8a376de3555d5f8bbc3d3ad/filelock-3.13.3-py3-none-any.whl#sha256=5ffa845303983e7a0b7ae17636509bc97997d58afeafa72fb141a17b152284cb
   hash:
     md5: null
-    sha256: 57dbda9b35157b05fb3e58ee91448612eb674172fab98ee235ccb0b5bee19a1c
+    sha256: 5ffa845303983e7a0b7ae17636509bc97997d58afeafa72fb141a17b152284cb
 - platform: linux-64
   name: gast
   version: 0.5.4
@@ -5069,7 +5069,7 @@ package:
   timestamp: 1702511239004
 - platform: linux-64
   name: virtualenv
-  version: 20.25.0
+  version: 20.25.1
   category: main
   manager: pypi
   requires_dist:
@@ -5097,13 +5097,13 @@ package:
   - setuptools >=68 ; extra == 'test'
   - time-machine >=2.10 ; platform_python_implementation == 'CPython' and extra == 'test'
   requires_python: '>=3.7'
-  url: https://files.pythonhosted.org/packages/83/22/54b1180756d2d6194bcafb7425d437c3034c4bff92129c3e1e633079e2c4/virtualenv-20.25.0-py3-none-any.whl#sha256=4238949c5ffe6876362d9c0180fc6c3a824a7b12b80604eeb8085f2ed7460de3
+  url: https://files.pythonhosted.org/packages/16/65/0d0bdfdac31e2db8c6d6c18fe1e00236f0dea279f9846f94a9aafa49cfc9/virtualenv-20.25.1-py3-none-any.whl#sha256=961c026ac520bac5f69acb8ea063e8a4f071bcc9457b9c1f28f6b085c511583a
   hash:
     md5: null
-    sha256: 4238949c5ffe6876362d9c0180fc6c3a824a7b12b80604eeb8085f2ed7460de3
+    sha256: 961c026ac520bac5f69acb8ea063e8a4f071bcc9457b9c1f28f6b085c511583a
 - platform: win-64
   name: virtualenv
-  version: 20.25.0
+  version: 20.25.1
   category: main
   manager: pypi
   requires_dist:
@@ -5131,10 +5131,10 @@ package:
   - setuptools >=68 ; extra == 'test'
   - time-machine >=2.10 ; platform_python_implementation == 'CPython' and extra == 'test'
   requires_python: '>=3.7'
-  url: https://files.pythonhosted.org/packages/83/22/54b1180756d2d6194bcafb7425d437c3034c4bff92129c3e1e633079e2c4/virtualenv-20.25.0-py3-none-any.whl#sha256=4238949c5ffe6876362d9c0180fc6c3a824a7b12b80604eeb8085f2ed7460de3
+  url: https://files.pythonhosted.org/packages/16/65/0d0bdfdac31e2db8c6d6c18fe1e00236f0dea279f9846f94a9aafa49cfc9/virtualenv-20.25.1-py3-none-any.whl#sha256=961c026ac520bac5f69acb8ea063e8a4f071bcc9457b9c1f28f6b085c511583a
   hash:
     md5: null
-    sha256: 4238949c5ffe6876362d9c0180fc6c3a824a7b12b80604eeb8085f2ed7460de3
+    sha256: 961c026ac520bac5f69acb8ea063e8a4f071bcc9457b9c1f28f6b085c511583a
 - platform: win-64
   name: vs2015_runtime
   version: 14.38.33130
