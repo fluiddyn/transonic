@@ -82,8 +82,9 @@ dev = ["pip", "build", "pylint", "twine"]
 [tool.pytest]
 addopts = "--doctest-modules"
 
-# [tool.pytest.ini_options]
-# addopts = "--cov --cov-config=pyproject.toml --no-cov-on-fail"
+[tool.pytest.ini_options]
+addopts = "--pdbcls=IPython.terminal.debugger:TerminalPdb"
+
 
 [tool.black]
 line-length = 82
