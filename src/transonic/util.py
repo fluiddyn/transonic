@@ -131,7 +131,7 @@ def can_import_accelerator(backend: str = backend_default):
             import numba
         except ImportError:
             return False
-    elif backend =="jax":
+    elif backend == "jax":
         try:
             import jax
         except ImportError:

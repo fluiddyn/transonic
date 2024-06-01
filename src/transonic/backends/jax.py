@@ -41,9 +41,7 @@ def add_jax_comments(code):
 
         # Add JIT decorator
         if isinstance(node, gast.FunctionDef):
-            new_body.append(
-                CommentLine("# __protected__ @jit")
-            )
+            new_body.append(CommentLine("# __protected__ @jit"))
         new_body.append(node)
 
     mod.body = new_body
