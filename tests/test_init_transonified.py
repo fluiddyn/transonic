@@ -100,6 +100,9 @@ class TestsInit(unittest.TestCase):
         for_test_init.check_class()
 
     @unittest.skipIf(
+        backend.name == "jax", "Not yet supported by our JAX backend"
+    )
+    @unittest.skipIf(
         sys.platform.startswith("win") or not can_import_accelerator(),
         f"{backend.name} is required for TRANSONIC_COMPILE_AT_IMPORT",
     )

@@ -21,7 +21,7 @@ needed for the editable mode (see
 We can also install with another backend with:
 
 ```sh
-pip install --no-build-isolation --config-settings=setup-args=-Dtransonic-backend=python .
+pip install --no-build-isolation -C setup-args=-Dtransonic-backend=python .
 # or (but does not work here for another reason)
 python -m build --no-isolation -Csetup-args=-Dtransonic-backend=python .
 ```

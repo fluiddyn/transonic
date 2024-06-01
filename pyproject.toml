@@ -55,7 +55,14 @@ base_test = [
     "scipy",
     "-e transonic_testing @ file:///${PROJECT_ROOT}/_transonic_testing",
 ]
-test = ["cython", "mpi4py", "pythran", "numba"]
+test = [
+    "cython",
+    "mpi4py",
+    "pythran",
+    "numba",
+    "jax>=0.4.25",
+    "jaxlib>=0.4.25",
+]
 doc = [
     "jupyterlab",
     # "nbsphinx",
@@ -75,8 +82,9 @@ dev = ["pip", "build", "pylint", "twine"]
 [tool.pytest]
 addopts = "--doctest-modules"
 
-# [tool.pytest.ini_options]
-# addopts = "--cov --cov-config=pyproject.toml --no-cov-on-fail"
+[tool.pytest.ini_options]
+addopts = "--pdbcls=IPython.terminal.debugger:TerminalPdb"
+
 
 [tool.black]
 line-length = 82
