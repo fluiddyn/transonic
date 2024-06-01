@@ -35,6 +35,7 @@ doc/ipynb/*.rst
 **/__cython__/*
 **/__numba__/*
 **/__python__/*
+**/__jax__/*
 
 doc/for_dev/**/*.c
 doc/for_dev/**/*.html
