@@ -1,4 +1,5 @@
 """A pure Python module containing a few functions"""
+
 import numpy as np
 
 

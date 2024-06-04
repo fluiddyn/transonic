@@ -49,6 +49,7 @@ from warnings import warn
 path_root = Path(os.environ.get("TRANSONIC_DIR", Path.home() / ".transonic"))
 SUPPORTED_BACKENDS = frozenset(("pythran", "cython", "jax", "numba", "python"))
 
+
 def strtobool(value):
     """Convert a string representation of truth to true (1) or false (0).
 

@@ -32,7 +32,8 @@ def add_jax_comments(code):
         # Replace `import numpy as np` -> `import jax.numpy as np`
         if isinstance(node, gast.Import):
             if (alias := node.names[0]).name == "numpy":
-                node = gast.Import([gast.alias(name="jax.numpy", asname=alias.asname or alias.name)])
+                g_alias = gast.alias(name="jax.numpy", asname=alias.asname or alias.name)
+                node = gast.Import([g_alias])
 
         # Replace `from numpy import eye` -> `from jax.numpy import eye`
         elif isinstance(node, gast.ImportFrom):

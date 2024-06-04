@@ -424,9 +424,9 @@ def analyse_aot(code, pathfile):
                 annotations["__locals__"][name_func] = annotations_locals
 
             if fdef.returns:
-                annotations["__returns__"][
-                    name_func
-                ] = extract_returns_annotation(fdef.returns, namespace)
+                annotations["__returns__"][name_func] = (
+                    extract_returns_annotation(fdef.returns, namespace)
+                )
 
     for signatures in annotations["__in_comments__"].values():
         replace_strings_by_objects(signatures, module, ancestors, udc, duc)

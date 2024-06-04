@@ -66,6 +66,7 @@ Internal API
    :private-members:
 
 """
+
 import re
 from enum import Enum, auto
 import itertools

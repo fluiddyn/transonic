@@ -21,9 +21,9 @@ def process_directory(path_dir, path_pack=None):
     if path_pack is None:
         path_pack = path_dir
         print(f"Process {path_dir}")
-        subdir=path_pack.name
+        subdir = path_pack.name
     else:
-        subdir=PurePosixPath(path_dir.relative_to(path_pack.parent))
+        subdir = PurePosixPath(path_dir.relative_to(path_pack.parent))
         print(f"Process subdir {subdir}")
 
     names_py = sorted(path.name for path in path_dir.glob("*.py"))
@@ -77,4 +77,3 @@ def main():
         sys.exit(1)
 
     process_directory(path_pack)
-

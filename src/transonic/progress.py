@@ -5,6 +5,7 @@ Relies on the rich package if it is installed. If not, fall back to simple
 logging messages.
 
 """
+
 from transonic.log import logger
 
 
