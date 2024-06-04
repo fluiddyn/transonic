@@ -2,8 +2,8 @@
 
 ## A short tour of Transonic public API
 
-Transonic supports both ahead-of-time and just-in-time compilations. When using
-the API for AOT compilation, the files need to be "[compiled](compiled)" to get speedup.
+Transonic supports both ahead-of-time and just-in-time compilations. When using the API
+for AOT compilation, the files need to be "[compiled](compiled)" to get speedup.
 
 ### Decorator `boost` and command `# transonic def`
 
@@ -24,17 +24,16 @@ def myfunc(a, b):
 
 Most of this code looks familiar to Pythran users. The differences:
 
-- One can use (for example) h5py and mpi4py (of course not in the Pythran
-  functions).
+- One can use (for example) h5py and mpi4py (of course not in the Pythran functions).
 - `# transonic def` instead of `# pythran export`.
-- A tiny bit of Python... The decorator `@boost` replaces the
-  Python function by the compiled function if Transonic has been used to
-  produced the associated Pythran/Cython/Numba file.
+- A tiny bit of Python... The decorator `@boost` replaces the Python function by the
+  compiled function if Transonic has been used to produced the associated
+  Pythran/Cython/Numba file.
 
 ### With type annotations
 
-The previous example can be rewritten without `# transonic def`. It is
-the recommended syntaxes for ahead-of-time compilation:
+The previous example can be rewritten without `# transonic def`. It is the recommended
+syntaxes for ahead-of-time compilation:
 
 ```python
 import numpy as np
@@ -49,19 +48,19 @@ def myfunc(a: float, d: int):
 ...
 ```
 
-Nice (shorter and clearer than with the Pythran command) but very limited (only
-simple types and only one signature)... So one can also elegantly define many
-signatures using Transonic types and/or Pythran types in strings (see [these
-examples](https://transonic.readthedocs.io/en/latest/examples/type_hints.html) and our
-API to define types (and fused types) in [transonic.typing](https://transonic.readthedocs.io/en/latest/generated/transonic.typing.html)).
+Nice (shorter and clearer than with the Pythran command) but very limited (only simple
+types and only one signature)... So one can also elegantly define many signatures using
+Transonic types and/or Pythran types in strings (see
+[these examples](https://transonic.readthedocs.io/en/latest/examples/type_hints.html) and
+our API to define types (and fused types) in
+[transonic.typing](https://transonic.readthedocs.io/en/latest/generated/transonic.typing.html)).
 
-Moreover, it is possible to add more signatures with `# transonic def`
-commands.
+Moreover, it is possible to add more signatures with `# transonic def` commands.
 
 ### Targetting Cython
 
-Cython needs to know the types of local variables to really speedup the
-computations.  Transonic is able to write fast Cython from such code:
+Cython needs to know the types of local variables to really speedup the computations.
+Transonic is able to write fast Cython from such code:
 
 ```python
 from transonic import boost
@@ -87,8 +86,9 @@ backend with multi-signatures.
 ### Just-In-Time compilation
 
 With Transonic, one can use the Ahead-Of-Time compilers Pythran and Cython in a
-Just-In-Time mode. It is really the **easiest way to speedup a function with
-Pythran**, just by adding a decorator! And it also works [in notebooks](https://transonic.readthedocs.io/en/latest/ipynb/executed/demo_jit.html)!
+Just-In-Time mode. It is really the **easiest way to speedup a function with Pythran**,
+just by adding a decorator! And it also works
+[in notebooks](https://transonic.readthedocs.io/en/latest/ipynb/executed/demo_jit.html)!
 
 ```python
 import numpy as np
@@ -106,16 +106,16 @@ def func1(a, b):
 Note that the `@jit` decorator takes into account type hints (see
 [the example in the documentation](https://transonic.readthedocs.io/en/latest/examples/using_jit.html)).
 
-**Implementation details for just-in-time compilation:** A Pythran file is
-produced for each "JITed" function (function decorated with `@jit`). The
-file is compiled at the first call of the function and the compiled version is
-used as soon as it is ready. The warmup can be quite long but the compiled
-version is saved and can be reused (without warmup!) by another process.
+**Implementation details for just-in-time compilation:** A Pythran file is produced for
+each "JITed" function (function decorated with `@jit`). The file is compiled at the first
+call of the function and the compiled version is used as soon as it is ready. The warmup
+can be quite long but the compiled version is saved and can be reused (without warmup!)
+by another process.
 
 ### Define accelerated blocks
 
-Transonic blocks can be used with classes and more generally in functions
-with lines that cannot be compiled by Pythran.
+Transonic blocks can be used with classes and more generally in functions with lines that
+cannot be compiled by Pythran.
 
 ```python
 from transonic import Transonic
@@ -149,17 +149,16 @@ class MyClass:
 
 For blocks, we need a little bit more of Python.
 
-- At import time, we have `ts = Transonic()`, which detects which
-  Pythran module should be used and imports it. This is done at import time
-  since we want to be very fast at run time.
-- In the function, we define a block with three lines of Python and special
-  Pythran annotations (`# transonic block`). The 3 lines of Python are used
-  (i) at run time to choose between the two branches (`is_transpiled` or
-  not) and (ii) at compile time to detect the blocks.
+- At import time, we have `ts = Transonic()`, which detects which Pythran module should
+  be used and imports it. This is done at import time since we want to be very fast at
+  run time.
+- In the function, we define a block with three lines of Python and special Pythran
+  annotations (`# transonic block`). The 3 lines of Python are used (i) at run time to
+  choose between the two branches (`is_transpiled` or not) and (ii) at compile time to
+  detect the blocks.
 
-Note that the annotations in the command `# transonic block` are
-different (and somehow easier to write) than in the standard command `#
-pythran export`.
+Note that the annotations in the command `# transonic block` are different (and somehow
+easier to write) than in the standard command `# pythran export`.
 
 [Blocks can also be defined with type hints!](https://transonic.readthedocs.io/en/latest/examples/blocks.html)
 
@@ -207,8 +206,8 @@ More examples on how to use Transonic for Object Oriented Programing are given
 
 ### With `transonic` command
 
-There is a command-line tool `transonic` which makes the associated
-Pythran/Cython/Numba files from a Python file. For example one can run:
+There is a command-line tool `transonic` which makes the associated Pythran/Cython/Numba
+files from a Python file. For example one can run:
 
 ```bash
 # Pythran is the default backend
@@ -217,21 +216,18 @@ transonic myfile.py -af "-march=native -DUSE_XSIMD -Ofast"
 transonic myfile.py -b cython
 ```
 
-By default and if the Python compiler is available, the produced files are
-compiled.
+By default and if the Python compiler is available, the produced files are compiled.
 
 ### With the Meson Build system
 
-Transonic is compatible with the [Meson Build system](https://mesonbuild.com/)
-and there is a `--meson` option to be used in the `meson.build` files as shown
-in the [example
-packages](https://foss.heptapod.net/fluiddyn/transonic/-/tree/branch/default/data_tests/package_for_test_meson)
+Transonic is compatible with the [Meson Build system](https://mesonbuild.com/) and there
+is a `--meson` option to be used in the `meson.build` files as shown in the
+[example packages](https://foss.heptapod.net/fluiddyn/transonic/-/tree/branch/default/data_tests/package_for_test_meson)
 and in [Fluidsim](https://foss.heptapod.net/fluiddyn/fluidsim/)).
 
 ### With `setuptools`
 
-There is also a function `make_backend_files` that can be used in a
-`setup.py` like this:
+There is also a function `make_backend_files` that can be used in a `setup.py` like this:
 
 ```python
 from pathlib import Path
@@ -244,6 +240,6 @@ paths = ["fluidsim/base/time_stepping/pseudo_spect.py"]
 make_backend_files([here / path for path in paths])
 ```
 
-Note that `make_backend_files` does not compile the backend files. The
-compilation has to be done after the call of this function (see for example how
-it is done in the [example packages](https://foss.heptapod.net/fluiddyn/transonic/src/default/doc/examples/packages/)).
+Note that `make_backend_files` does not compile the backend files. The compilation has to
+be done after the call of this function (see for example how it is done in the
+[example packages](https://foss.heptapod.net/fluiddyn/transonic/src/default/doc/examples/packages/)).

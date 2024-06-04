@@ -8,9 +8,10 @@ end-before: <!-- end short description -->
 ```
 
 ```{toctree}
-:caption: Get started
-:maxdepth: 2
-
+---
+caption: Get started
+maxdepth: 2
+---
 overview
 install
 backends
@@ -18,9 +19,10 @@ packaging
 ```
 
 ```{toctree}
-:caption: Examples
-:maxdepth: 2
-
+---
+caption: Examples
+maxdepth: 2
+---
 examples/classic
 examples/type_hints
 examples/using_jit
@@ -35,8 +37,8 @@ ipynb/executed/bench_fxfy
 
 ## API Reference
 
-Here is presented the organization of the package and the documentation of the
-modules, classes and functions.
+Here is presented the organization of the package and the documentation of the modules,
+classes and functions.
 
 ```{eval-rst}
 .. autosummary::
@@ -59,9 +61,10 @@ modules, classes and functions.
 ```
 
 ```{toctree}
-:caption: More
-:maxdepth: 1
-
+---
+caption: More
+maxdepth: 1
+---
 Transonic forge on Heptapod <https://foss.heptapod.net/fluiddyn/transonic>
 Transonic in PyPI  <https://pypi.python.org/pypi/transonic/>
 changes
@@ -77,12 +80,3 @@ for_dev
 - {ref}`genindex`
 - {ref}`modindex`
 - {ref}`search`
-
-[cupy]: https://cupy.chainer.org/
-[cython]: https://cython.org/
-[jax]: https://github.com/google/jax
-[numba]: https://numba.pydata.org/
-[pyccel]: https://github.com/pyccel/pyccel
-[pythran]: https://github.com/serge-sans-paille/pythran
-[pytorch]: https://pytorch.org/
-[weld]: https://github.com/weld-project/weld
