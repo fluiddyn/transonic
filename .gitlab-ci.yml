@@ -15,7 +15,7 @@ image: registry.heptapod.net:443/fluiddyn/transonic/ci/default:stable
 
 pixi:test:
   stage: pixi
-  image: registry.heptapod.net:443/fluiddyn/fluidsim/ci/default:pixi
+  image: registry.heptapod.net:443/fluiddyn/fluiddyn/ci/default:pixi
   script:
     - pixi info
     - pixi run install-editable
