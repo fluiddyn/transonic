@@ -4,6 +4,9 @@ COV=pytest --cov --cov-config=pyproject.toml
 develop:
 	pdm sync --clean
 
+lock:
+	pdm lock -G :all
+
 black:
 	black -l 82 src _transonic_testing data_tests tests
 
