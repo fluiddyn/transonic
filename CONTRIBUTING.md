@@ -25,7 +25,7 @@ control software Mercurial and our main repositories are hosted here:
 Please read our documentation on
 [developer essentials](https://fluiddyn.readthedocs.io/en/latest/advice_developers.html),
 and especially on
-[setting up Mercurial](https://fluiddyn.readthedocs.io/en/latest/mercurial_heptapod.html).
+[setting up Mercurial](https://fluidhowto.readthedocs.io/en/latest/mercurial.html).
 
 ## Setup a development environment and use it
 
