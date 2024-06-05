@@ -1,5 +1,6 @@
 import numpy as np
-from transonic import Type, NDim, Array, boost
+
+from transonic import Array, NDim, Type, boost
 
 T = Type(int, np.complex128)
 N = NDim(1, 3)

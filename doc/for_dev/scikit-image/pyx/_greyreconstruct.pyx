@@ -8,8 +8,8 @@ All rights reserved.
 Original author: Lee Kamentsky
 
 """
-cimport numpy as cnp
 cimport cython
+cimport numpy as cnp
 
 
 @cython.boundscheck(False)

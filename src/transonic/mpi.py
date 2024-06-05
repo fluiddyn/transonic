@@ -5,7 +5,7 @@
 
 import os
 from pathlib import Path
-from time import time, sleep
+from time import sleep, time
 
 mpi_timeout = float(os.environ.get("TRANSONIC_MPI_TIMEOUT", "5"))
 

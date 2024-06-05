@@ -14,29 +14,27 @@ from pathlib import Path
 from textwrap import indent
 from typing import Iterable, Optional
 
-# from pprint import pprint
-
 import transonic
-
-from transonic.analyses import extast, analyse_aot, analyse_files
-from transonic.log import logger
-from transonic.compiler import compile_extension, ext_suffix
 from transonic import mpi
+from transonic.analyses import analyse_aot, analyse_files, extast
+from transonic.compiler import compile_extension, ext_suffix
+from transonic.config import backend_default
+from transonic.log import logger
 from transonic.mpi import PathSeq
 from transonic.signatures import compute_signatures_from_typeobjects
-from transonic.config import backend_default
-
 from transonic.util import (
-    has_to_build,
-    format_str,
-    write_if_has_to_write,
     TypeHintRemover,
+    format_str,
+    has_to_build,
     make_hex,
+    write_if_has_to_write,
 )
 
 from .base_jit import SubBackendJIT
 from .for_classes import make_new_code_method_from_nodes
 from .typing import TypeFormatter
+
+# from pprint import pprint
 
 
 class Backend:

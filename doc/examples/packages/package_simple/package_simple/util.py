@@ -1,11 +1,10 @@
-
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
-from transonic import boost, Type
-
+from transonic import Type, boost
 
 T = Type(float, int)
+
 
 @boost
 def func(a: T):

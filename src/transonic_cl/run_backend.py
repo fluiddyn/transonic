@@ -8,14 +8,14 @@ Internal API
 
 """
 
+import logging
+import os
 import subprocess
 import sys
-import logging
-from pathlib import Path
 import sysconfig
-from time import time, sleep
+from pathlib import Path
 from shutil import copyfile
-import os
+from time import sleep, time
 
 logger = logging.getLogger("transonic")
 logger.setLevel(logging.INFO)

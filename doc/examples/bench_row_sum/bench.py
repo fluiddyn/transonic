@@ -1,5 +1,5 @@
-from subprocess import getoutput
 import sys
+from subprocess import getoutput
 
 decorator = "boost"
 if "jit" in sys.argv:

@@ -19,10 +19,10 @@ try:
 except ImportError:
     np = None
 
-from transonic.analyses import extast
-from transonic.signatures import make_signatures_from_typehinted_func
-from transonic.log import logger
 from transonic import mpi
+from transonic.analyses import extast
+from transonic.log import logger
+from transonic.signatures import make_signatures_from_typehinted_func
 from transonic.typing import format_type_as_backend_type, typeof
 from transonic.util import get_source_without_decorator, path_root
 

@@ -3,18 +3,17 @@
 
 """
 
-from tokenize import tokenize, untokenize, NAME, OP
-
 # from token import tok_name
 import inspect
 from io import BytesIO
+from tokenize import NAME, OP, tokenize, untokenize
 
 from transonic.signatures import compute_signatures_from_typeobjects
 
 # from transonic.log import logger
 from transonic.util import (
-    get_source_without_decorator,
     format_str,
+    get_source_without_decorator,
     make_code_from_fdef_node,
 )
 

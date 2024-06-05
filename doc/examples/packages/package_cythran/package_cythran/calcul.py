@@ -1,6 +1,6 @@
 import numpy as np
 
-from transonic import boost, Type, Array, NDim, set_backend_for_this_module
+from transonic import Array, NDim, Type, boost, set_backend_for_this_module
 
 set_backend_for_this_module("pythran")
 

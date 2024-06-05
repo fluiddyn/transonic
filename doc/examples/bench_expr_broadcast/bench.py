@@ -1,6 +1,6 @@
 import numpy as np
 
-from transonic import boost, Array
+from transonic import Array, boost
 
 A = Array[float, "3d"]
 A1 = Array[float, "1d"]
@@ -51,4 +51,6 @@ if __name__ == "__main__":
 
     for backend in ("numba", "pythran"):
         timeit_verbose(f"broadcast_{backend}(a, b, out)", globals=loc, norm=norm)
-        timeit_verbose(f"broadcast_loops_{backend}(a, b, out)", globals=loc, norm=norm)
+        timeit_verbose(
+            f"broadcast_loops_{backend}(a, b, out)", globals=loc, norm=norm
+        )

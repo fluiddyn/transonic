@@ -3,8 +3,8 @@
 
 """
 
-from tokenize import tokenize, COMMENT
 from io import BytesIO
+from tokenize import COMMENT, tokenize
 
 
 def parse_transonic_def_commands(code: str):

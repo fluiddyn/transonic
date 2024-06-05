@@ -1,7 +1,6 @@
 from unittest.mock import patch
 
 from transonic.backends import backends
-
 from transonic_cl.clean_dir import main
 
 cmd = "transonic-clean-dir"

@@ -54,27 +54,27 @@ import time
 from functools import wraps
 from pathlib import Path
 
-from transonic.analyses.justintime import analysis_jit
-from transonic.aheadoftime import TransonicTemporaryJITMethod
-from transonic.backends import backends, get_backend_name_module
-from transonic.config import has_to_replace, backend_default
-from transonic.log import logger
 from transonic import mpi
+from transonic.aheadoftime import TransonicTemporaryJITMethod
+from transonic.analyses.justintime import analysis_jit
+from transonic.backends import backends, get_backend_name_module
+from transonic.config import backend_default, has_to_replace
+from transonic.log import logger
 from transonic.util import (
+    _get_pathfile_from_frame,
+    can_import_accelerator,
+    format_str,
+    get_frame,
+    get_info_from_ipython,
     get_module_name,
     has_to_build,
-    path_root,
-    get_info_from_ipython,
-    make_hex,
     has_to_compile_at_import,
     import_from_path,
     is_method,
-    write_if_has_to_write,
-    can_import_accelerator,
-    format_str,
+    make_hex,
+    path_root,
     strtobool,
-    get_frame,
-    _get_pathfile_from_frame,
+    write_if_has_to_write,
 )
 
 modules_backends = {backend_name: {} for backend_name in backends.keys()}

@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import Iterable
 
 from transonic.config import backend_default
-from transonic.util import get_module_name, get_frame
+from transonic.util import get_frame, get_module_name
 
 from .cython import CythonBackend
 from .jax import JaxBackend

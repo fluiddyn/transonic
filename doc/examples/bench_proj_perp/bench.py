@@ -1,5 +1,6 @@
 import numpy as np
-from transonic import boost, Array, Type
+
+from transonic import Array, Type, boost
 
 A = Array[Type(np.float64, np.complex128), "3d"]
 Af = "float[:,:,:]"

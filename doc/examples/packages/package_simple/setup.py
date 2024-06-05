@@ -2,14 +2,14 @@
 No pyproject.toml file because in some cases, isolated build cannot be used.
 
 """
-import sys
-import os
-from pathlib import Path
 
+import os
+import sys
+from pathlib import Path
 from runpy import run_path
 
+from setuptools import find_packages, setup
 from setuptools.dist import Distribution
-from setuptools import setup, find_packages
 
 if sys.version_info[:2] < (3, 6):
     raise RuntimeError("Python version >= 3.6 required.")
@@ -25,8 +25,9 @@ def install_setup_requires():
 
 install_setup_requires()
 
-from transonic.dist import make_backend_files, init_transonic_extensions
 import numpy as np
+
+from transonic.dist import init_transonic_extensions, make_backend_files
 
 here = Path(__file__).parent.absolute()
 

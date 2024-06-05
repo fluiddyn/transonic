@@ -1,8 +1,8 @@
 import numpy as np
-
-from transonic import jit, boost
-
 from mod1 import func_import
+
+from transonic import boost, jit
+
 
 @boost
 class MyClass2:

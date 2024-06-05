@@ -66,9 +66,10 @@ Internal API
    :private-members:
 
 """
+
+import itertools
 import re
 from enum import Enum, auto
-import itertools
 
 import numpy as np
 

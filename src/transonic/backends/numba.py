@@ -16,7 +16,7 @@ Internal API
 
 from typing import Optional
 
-from transonic.analyses.extast import parse, unparse, CommentLine, gast
+from transonic.analyses.extast import CommentLine, gast, parse, unparse
 from transonic.util import format_str
 
 from .py import PythonBackend, SubBackendJITPython

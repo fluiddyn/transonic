@@ -18,27 +18,26 @@ import re
 from pprint import pformat
 
 import gast as ast
-from transonic.analyses import beniget
 
+from transonic.analyses import beniget
 from transonic.log import logger
 
+from ..config import SUPPORTED_BACKENDS
+from . import extast
+from .blocks_if import get_block_definitions
+from .capturex import CaptureX
+from .objects_from_str import replace_strings_by_objects
+from .parser import parse_transonic_def_commands
 from .util import (
+    extract_returns_annotation,
+    extract_variable_annotations,
     filter_code_typevars,
+    find_path,
     get_annotations,
+    get_exterior_code,
     print_dumped,
     print_unparsed,
-    find_path,
-    get_exterior_code,
-    extract_variable_annotations,
-    extract_returns_annotation,
 )
-from .capturex import CaptureX
-from .blocks_if import get_block_definitions
-from .parser import parse_transonic_def_commands
-from .objects_from_str import replace_strings_by_objects
-from . import extast
-from ..config import SUPPORTED_BACKENDS
-
 
 __all__ = ["print_dumped", "print_unparsed"]
 
@@ -424,9 +423,9 @@ def analyse_aot(code, pathfile):
                 annotations["__locals__"][name_func] = annotations_locals
 
             if fdef.returns:
-                annotations["__returns__"][
-                    name_func
-                ] = extract_returns_annotation(fdef.returns, namespace)
+                annotations["__returns__"][name_func] = (
+                    extract_returns_annotation(fdef.returns, namespace)
+                )
 
     for signatures in annotations["__in_comments__"].values():
         replace_strings_by_objects(signatures, module, ancestors, udc, duc)

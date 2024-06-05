@@ -9,7 +9,7 @@ one.
 
 import numpy as np
 
-from transonic import boost, Array
+from transonic import Array, boost
 
 Auint8 = "uint8[:,:,:]"
 A1dC = Array[np.uint8, "1d", "C"]
@@ -129,7 +129,6 @@ def brightness(img: Auint8, stateimg: Auint8, factor: float, offset: int):
             img[i, j, 0] = lut[stateimg[i, j, 0]]
             img[i, j, 1] = lut[stateimg[i, j, 1]]
             img[i, j, 2] = lut[stateimg[i, j, 2]]
-
 
 
 @boost(boundscheck=False, wraparound=False, cdivision=True, nonecheck=False)
@@ -425,7 +424,9 @@ def hsv_add(
 
 
 @boost(boundscheck=False, wraparound=False, cdivision=True, nonecheck=False)
-def hsv_multiply(img: Auint8, stateimg: Auint8, h_amt: float, s_amt: float, v_amt: float):
+def hsv_multiply(
+    img: Auint8, stateimg: Auint8, h_amt: float, s_amt: float, v_amt: float
+):
     """Modify the image color by specifying multiplicative HSV Values.
 
     Since the underlying images are RGB, all three values HSV

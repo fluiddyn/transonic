@@ -1,6 +1,6 @@
 import numpy as np
 
-from transonic import Transonic, Type, NDim, Array
+from transonic import Array, NDim, Transonic, Type
 
 T = Type(float, complex)
 N = NDim(2, 3)
@@ -28,7 +28,7 @@ class MyClass:
 
             result = np.zeros_like(a)
             for _ in range(n):
-                result += a ** 2 + b ** 3
+                result += a**2 + b**3
 
         return result
 

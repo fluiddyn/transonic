@@ -1,16 +1,16 @@
 import os
-import sys
-from pathlib import Path
 import runpy
 import shutil
+import sys
 from contextlib import suppress
+from pathlib import Path
 
 import pytest
 
+from transonic.config import backend_default
 from transonic.dist import make_backend_files
 from transonic.mpi import nb_proc
 from transonic.path_data_tests import path_data_tests
-from transonic.config import backend_default
 
 cwd = Path.cwd().absolute()
 setup_dir = path_data_tests / "test_packaging"

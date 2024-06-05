@@ -1,12 +1,12 @@
-
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
-from transonic import boost, Type, set_backend_for_this_module
+from transonic import Type, boost, set_backend_for_this_module
 
 set_backend_for_this_module("cython")
 
 T = Type(float, int)
+
 
 @boost
 def func(a: T):

@@ -24,15 +24,14 @@ See also the
 
 ## [0.6.0] (2024-01-16)
 
-- Support for
-  [Meson build](https://transonic.readthedocs.io/en/latest/packaging.html) through
-  `transonic --meson` and multi-backends
+- Support for [Meson build](https://transonic.readthedocs.io/en/latest/packaging.html)
+  through `transonic --meson` and multi-backends
 - Support for Python 3.12
 
 ## [0.5.3] (2023-08-21)
 
-- [!110](https://foss.heptapod.net/fluiddyn/transonic/-/merge_requests/110) Quick
-  fix autopep8 bug + fix CI (py3.9)
+- [!110](https://foss.heptapod.net/fluiddyn/transonic/-/merge_requests/110) Quick fix
+  autopep8 bug + fix CI (py3.9)
 
 ## [0.5.2] (2022-01-04)
 
@@ -62,8 +61,8 @@ See also the
 
 ## 0.4.9 (2021-07-02)
 
-- Avoid new Gast and Beniget versions by pinning to the previous versions (0.4.0
-  and 0.3.0). No Python 3.10 support!
+- Avoid new Gast and Beniget versions by pinning to the previous versions (0.4.0 and
+  0.3.0). No Python 3.10 support!
 
 ## 0.4.8 (2021-05-03)
 
@@ -99,8 +98,7 @@ See also the
 
 ## 0.4.1 (2019-10-08)
 
-- Cython backend: less bugs, better support for fused types, nonecheck, cdivision,
-  ...
+- Cython backend: less bugs, better support for fused types, nonecheck, cdivision, ...
 - Fix default parameters for Pythran
 
 ## 0.4.0 (2019-09-22)
@@ -137,10 +135,9 @@ See also the
 
 - Support source in multiple files
   ([#14](https://foss.heptapod.net/fluiddyn/transonic/issues/14) and #21)
-- Fix issues #8 (Recursion for boosted method), #17 (Bad formating for Pythran
-  error), #18 (Improve logging jit), #19 (Change default arguments of jit
-  decorator) and #20 (No Pythran signature generated for boosted functions without
-  arguments)!
+- Fix issues #8 (Recursion for boosted method), #17 (Bad formating for Pythran error),
+  #18 (Improve logging jit), #19 (Change default arguments of jit decorator) and #20 (No
+  Pythran signature generated for boosted functions without arguments)!
 
 ## 0.2.3 (2019-06-11)
 
@@ -202,8 +199,8 @@ See also the
 
 ## 0.1.5 (2018-12-12)
 
-- {code}`jit` for simple methods (without assignation to attributes and call of
-  other methods)
+- {code}`jit` for simple methods (without assignation to attributes and call of other
+  methods)
 - {code}`Union` for annotations
 - {code}`include` decorator
 
@@ -242,8 +239,8 @@ See also the
 
 ## 0.0.9 (2018-11-20)
 
-- {code}`TRANSONIC_COMPILE_AT_IMPORT` mode for ahead-of-time and just-in-time
-  compilation (works also in IPython)
+- {code}`TRANSONIC_COMPILE_AT_IMPORT` mode for ahead-of-time and just-in-time compilation
+  (works also in IPython)
 - By default, the fluidpythran commandline uses Pythran
 
 ## 0.0.8 (2018-11-16)

@@ -1,10 +1,10 @@
 # Typing
 
-With Transonic, we'd like to use clean and "pythonic" way to declare types. With recent versions of Python (>= 3.6), we can use type annotations.
+With Transonic, we'd like to use clean and "pythonic" way to declare types. With recent
+versions of Python (>= 3.6), we can use type annotations.
 
-Unfortunately, there is not yet a standard way to declare array types in
-Python. Let's summarize how array types are declared in Pythran, Cython and
-Numba.
+Unfortunately, there is not yet a standard way to declare array types in Python. Let's
+summarize how array types are declared in Pythran, Cython and Numba.
 
 ## Pythran
 
@@ -66,8 +66,8 @@ np.int32_t[::1, :]
 There are even more complicated notations with memoryviews:
 <https://cython.readthedocs.io/en/latest/src/userguide/memoryviews.html#specifying-more-general-memory-layouts>
 
-Memoryviews are more general (and in general more efficient) but there are
-useful not supported features, for example broadcasting!
+Memoryviews are more general (and in general more efficient) but there are useful not
+supported features, for example broadcasting!
 
 Not that fused types can be used to define data and array types:
 
@@ -98,8 +98,8 @@ numba.int32[::1]
 numba.types.Array(numba.int32, 1, "C")
 ```
 
-It is also possible to pass signature(s) to the `jit` (or `njit`, or
-`vectorize`) decorators (the order of the signatures is meaningful).
+It is also possible to pass signature(s) to the `jit` (or `njit`, or `vectorize`)
+decorators (the order of the signatures is meaningful).
 
 ```python
 @vectorize([int32(int32, int32),

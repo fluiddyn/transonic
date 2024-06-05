@@ -17,14 +17,14 @@ Internal API
    :private-members:
 
 """
+
 import copy
 import inspect
-
 from warnings import warn
 
-from transonic.analyses.extast import unparse, gast, FunctionDef, Name
+from transonic.analyses.extast import FunctionDef, Name, gast, unparse
 from transonic.signatures import make_signatures_from_typehinted_func
-from transonic.typing import format_type_as_backend_type, MemLayout
+from transonic.typing import MemLayout, format_type_as_backend_type
 
 from .base import BackendAOT, TypeHintRemover, format_str
 from .base_jit import SubBackendJIT

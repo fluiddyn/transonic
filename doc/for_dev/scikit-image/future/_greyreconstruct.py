@@ -9,9 +9,10 @@ All rights reserved.
 Original author: Lee Kamentsky
 
 """
+
 import numpy as np
 
-from transonic import boost, Array, const
+from transonic import Array, boost, const
 
 Au = Array[np.uint32, "1d", "C", "positive_indices"]
 A = Array[np.int32, "1d", "C", "positive_indices"]

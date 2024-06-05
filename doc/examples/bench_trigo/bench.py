@@ -1,6 +1,6 @@
 import numpy as np
 
-from transonic import boost, Array
+from transonic import Array, boost
 
 A = Array[float, "1d"]
 

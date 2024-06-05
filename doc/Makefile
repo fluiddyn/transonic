@@ -174,3 +174,6 @@ notebook:
 
 autobuild:
 	@sphinx-autobuild --watch ../src --re-ignore '_build\/.*' "$(SOURCEDIR)" "$(BUILDDIR)/html"
+
+format:
+	mdformat *.md */*.md

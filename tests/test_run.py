@@ -1,6 +1,6 @@
+import os
 import sys
 import time
-import os
 from shutil import rmtree
 
 import pytest
@@ -10,7 +10,6 @@ from transonic.config import backend_default
 from transonic.mpi import nb_proc
 from transonic.path_data_tests import path_data_tests
 from transonic.run import run
-
 
 path_dir_out = path_data_tests / f"__{backend_default}__"
 header_suffixes = {"pythran": ".pythran", "cython": ".pxd"}

@@ -13,5 +13,5 @@ def my_log(b):
 
 @boost
 def func(a, b):
-    c = multiply(a,b)
+    c = multiply(a, b)
     return (c * my_log(b)).max()

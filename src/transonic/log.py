@@ -6,8 +6,8 @@ Defines the transonic logger (variable :code:`logger`).
 """
 
 import logging
-from types import MethodType
 import os
+from types import MethodType
 
 
 def create_logger(name, show_time=False, show_path=False):

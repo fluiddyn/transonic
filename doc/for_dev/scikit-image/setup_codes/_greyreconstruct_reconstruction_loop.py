@@ -1,6 +1,5 @@
 import numpy as np
 from future._greyreconstruct import reconstruction_loop
-
 from skimage.filters._rank_order import rank_order
 
 y, x = np.mgrid[:20:0.5, :20:0.5]

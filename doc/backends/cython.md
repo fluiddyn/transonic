@@ -1,39 +1,33 @@
 # Cython backend
 
-Cython code is much more complicated than Pythran code... We won't be able to
-support all Cython features!
+Cython code is much more complicated than Pythran code... We won't be able to support all
+Cython features!
 
-However, a descent set of Cython can be supported. We need to find Python
-syntaxes for the most useful Cython special syntaxes.
+However, a descent set of Cython can be supported. We need to find Python syntaxes for
+the most useful Cython special syntaxes.
 
-Note that some Cython features are useless in Pythran (for example cdef of
-local variables, or `nogil`).
+Note that some Cython features are useless in Pythran (for example cdef of local
+variables, or `nogil`).
 
-Note that ideally, we want to write Cython code that can be executed without
-the Cython package and without Cython compilation. It is possible with the
-["pure Python mode" of
-Cython](https://cython.readthedocs.io/en/latest/src/tutorial/pure.html).
+Note that ideally, we want to write Cython code that can be executed without the Cython
+package and without Cython compilation. It is possible with the
+["pure Python mode" of Cython](https://cython.readthedocs.io/en/latest/src/tutorial/pure.html).
 Therefore, we first need examples of Cython code written in this mode.
 
-Note however, that this mode is currently still experimental and that we hit
-simple Cython bugs which limit a lot what can be done in practice with the
-Cython backend. For example:
+Note however, that this mode is currently still experimental and that we hit simple
+Cython bugs which limit a lot what can be done in practice with the Cython backend. For
+example:
 
-- Pure-Python mode and fused types
-  <https://github.com/cython/cython/issues/3142>
-- `cython.locals(arr=np.ndarray[...])`
-  <https://github.com/cython/cython/issues/3129>
+- Pure-Python mode and fused types <https://github.com/cython/cython/issues/3142>
+- `cython.locals(arr=np.ndarray[...])` <https://github.com/cython/cython/issues/3129>
 - Incompatibility ccall/nogil in pure-Python mode:
   <https://github.com/cython/cython/issues/3169>
-- nogil and pxd in pure-Python mode:
-  <https://github.com/cython/cython/issues/3170>
+- nogil and pxd in pure-Python mode: <https://github.com/cython/cython/issues/3170>
 
 More generally, there are many known bugs in Cython which do not help! For example:
 
-- `ctypedef` and buffer
-  <https://github.com/cython/cython/issues/754>
-- Defining a fused type using a fused type
-  <https://stackoverflow.com/questions/57887972>
+- `ctypedef` and buffer <https://github.com/cython/cython/issues/754>
+- Defining a fused type using a fused type <https://stackoverflow.com/questions/57887972>
 
 I think at least some of these bugs have to be solved upstream...
 
@@ -94,8 +88,8 @@ cpdef inline void func(np.ndarray[np.float_t, ndim=1] a, cython.int n) nogil
 
 - all function signatures use `cpdef` (?)
 
-- `boost(inline=True)` is supported for functions, see [this
-  example](https://transonic.readthedocs.io/en/latest/examples/inlined/txt.html).
+- `boost(inline=True)` is supported for functions, see
+  [this example](https://transonic.readthedocs.io/en/latest/examples/inlined/txt.html).
 
 - Return type is supported and there is a void type (`"void"` or `np.void`).
 
@@ -199,9 +193,9 @@ and maybe also:
 transonic.int64[:, :, ::1]
 ```
 
-I tend to think that the default (`"int[:,:]"`) should correspond to
-`"order=C"`. "Fortran" order and "any" order (contiguous C or F) could be
-obtained with `"order=F"` and `"order=any"`.
+I tend to think that the default (`"int[:,:]"`) should correspond to `"order=C"`.
+"Fortran" order and "any" order (contiguous C or F) could be obtained with `"order=F"`
+and `"order=any"`.
 
 Strided arrays could be obtained with `Array[int, NDim(3), "strided"]` or
 `str2type("int[::, ::, ::]")`.
@@ -213,8 +207,8 @@ A_fixed_dim = Array[Type(np.float32, float), "[:, :, 3]"]
 ```
 
 For Cython, we need to be able to specify if an array is a `np.ndarray` or a
-`memoryview`. By default, we will use `np.ndarray` and `memoryview` could be
-obtained with:
+`memoryview`. By default, we will use `np.ndarray` and `memoryview` could be obtained
+with:
 
 ```python
 Array[int, "[:, :, ::1]", "memview"]
@@ -265,8 +259,8 @@ def func(n: int):
 
 ```
 
-Of course there is no equivalent in Pythran, so the Pythran backend would have
-to suppress the `with nogil()`.
+Of course there is no equivalent in Pythran, so the Pythran backend would have to
+suppress the `with nogil()`.
 
 ### Cast
 

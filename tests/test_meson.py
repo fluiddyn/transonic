@@ -2,19 +2,18 @@
 
 """
 
-import sys
-import subprocess
 import os
-
-from shutil import copy
+import subprocess
+import sys
 from pathlib import Path
+from shutil import copy
 from unittest.mock import patch
 
 import pytest
 
-from transonic.run import run
 from transonic.config import backend_default
 from transonic.mpi import nb_proc
+from transonic.run import run
 
 test_dir = Path(__file__).absolute().parent
 

@@ -4,9 +4,9 @@
 #cython: wraparound=False
 import numpy as np
 
-cimport numpy as cnp
 cimport cython
-from libc.math cimport cos, sin, floor, ceil, sqrt, abs, M_PI
+cimport numpy as cnp
+from libc.math cimport M_PI, abs, ceil, cos, floor, sin, sqrt
 
 
 cpdef bilinear_ray_sum(cnp.double_t[:, :] image, cnp.double_t theta,

@@ -2,6 +2,7 @@
 
 import cython
 
+
 @cython.ccall
 @cython.inline
 @cython.returns(cython.int)
@@ -9,6 +10,7 @@ import cython
 @cython.nogil
 def add(a, b):
     return a + b
+
 
 @cython.ccall
 @cython.locals(n=cython.int, i=Py_ssize_t, result=cython.int)
