@@ -1,7 +1,7 @@
-from transonic import jit
 import numba
+from pure_numpy import laplace_loops, laplace_numpy
 
-from pure_numpy import laplace_numpy, laplace_loops
+from transonic import jit
 
 laplace_transonic_pythran = jit(native=True, xsimd=True)(laplace_numpy)
 laplace_transonic_python = jit(backend="python")(laplace_numpy)
@@ -14,10 +14,10 @@ laplace_transonic_numba_loops = jit(backend="numba")(laplace_loops)
 laplace_numba_loops = numba.njit(laplace_loops)
 
 if __name__ == "__main__":
-    from transonic import wait_for_all_extensions
-
-    from skimage.data import astronaut
     from skimage.color import rgb2gray
+    from skimage.data import astronaut
+
+    from transonic import wait_for_all_extensions
 
     image = astronaut()
     image = rgb2gray(image)
@@ -37,9 +37,9 @@ if __name__ == "__main__":
     laplace_transonic_numba(image)
     laplace_transonic_numba_loops(image)
 
-    from transonic.util import timeit
-    from transonic import __version__
     import pythran
+    from transonic import __version__
+    from transonic.util import timeit
 
     loc = locals()
 

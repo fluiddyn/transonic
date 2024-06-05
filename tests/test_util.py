@@ -1,5 +1,5 @@
 from transonic import util
-from transonic.util import query_yes_no, timeit, print_versions, timeit_verbose
+from transonic.util import print_versions, query_yes_no, timeit, timeit_verbose
 
 
 def test_query_yes_no():

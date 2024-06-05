@@ -1,5 +1,5 @@
-from subprocess import getoutput
 from pathlib import Path
+from subprocess import getoutput
 
 from transonic.util import timeit
 

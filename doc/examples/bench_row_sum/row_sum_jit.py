@@ -21,9 +21,9 @@ def row_sum_loops(arr, columns):
 
 if __name__ == "__main__":
 
-    from transonic import wait_for_all_extensions
+    from util import bench, check
 
-    from util import check, bench
+    from transonic import wait_for_all_extensions
 
     functions = [row_sum, row_sum_loops]
     arr = np.arange(1_000_000).reshape(1_000, 1_000)

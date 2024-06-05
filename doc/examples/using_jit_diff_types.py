@@ -1,4 +1,4 @@
-from transonic import jit, Type
+from transonic import Type, jit
 
 T = Type(int, float)
 

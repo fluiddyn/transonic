@@ -1,18 +1,18 @@
 import importlib
-import unittest
 import os
-import time
 import sys
+import time
+import unittest
 
+from transonic import mpi
+from transonic.aheadoftime import modules
 from transonic.backends import backends
 from transonic.config import backend_default
 from transonic.util import (
-    has_to_compile_at_import,
-    ext_suffix,
     can_import_accelerator,
+    ext_suffix,
+    has_to_compile_at_import,
 )
-from transonic.aheadoftime import modules
-from transonic import mpi
 
 backend = backends[backend_default]
 

@@ -3,12 +3,14 @@
 
 """
 
-from transonic.analyses import extast
-from transonic.analyses import compute_ancestors_chains, get_decorated_dicts
+from transonic.analyses import (
+    compute_ancestors_chains,
+    extast,
+    get_decorated_dicts,
+)
 from transonic.analyses.capturex import CaptureX
-
-from transonic.log import logger
 from transonic.analyses.util import get_exterior_code
+from transonic.log import logger
 
 
 def analysis_jit(code, pathfile, backend_name):

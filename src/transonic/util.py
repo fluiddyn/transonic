@@ -45,13 +45,13 @@ Internal API
 
 """
 
-import os
-import sys
-import inspect
-import re
-from pathlib import Path
 import importlib.util
+import inspect
+import os
+import re
 import shutil
+import sys
+from pathlib import Path
 from textwrap import dedent
 from typing import Callable
 
@@ -101,16 +101,13 @@ except ImportError:
 
 from transonic import __version__
 from transonic.analyses import extast
-
 from transonic.compiler import (
     ext_suffix,
+    has_to_build,
     make_hex,
     modification_date,
-    has_to_build,
 )
-
 from transonic.config import path_root, strtobool
-
 
 __all__ = ["modification_date", "has_to_build", "path_root"]
 
@@ -406,8 +403,8 @@ def query_yes_no(question: str, default: str = None, force: bool = False):
 def clear_cached_extensions(module_name: str, force: bool, backend: str):
     """Delete the cached extensions related to a module"""
 
-    from transonic.backends import backends
     from transonic import mpi
+    from transonic.backends import backends
 
     backend = backends[backend]
     path_jit = mpi.Path(backend.jit.path_base)

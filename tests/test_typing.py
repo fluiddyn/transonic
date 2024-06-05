@@ -1,24 +1,23 @@
 import numpy as np
 
+from transonic.backends.typing import base_type_formatter
 from transonic.typing import (
     Array,
-    NDim,
-    str2type,
-    UnionMeta,
-    List,
-    ListMeta,
     Dict,
     DictMeta,
+    List,
+    ListMeta,
+    MemLayout,
+    NDim,
+    Optional,
     Set,
     SetMeta,
-    typeof,
-    str2shape,
-    MemLayout,
-    Optional,
+    UnionMeta,
     const,
+    str2shape,
+    str2type,
+    typeof,
 )
-
-from transonic.backends.typing import base_type_formatter
 
 
 def compare_array_types(A0, A1):

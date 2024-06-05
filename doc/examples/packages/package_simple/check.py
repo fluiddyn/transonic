@@ -1,13 +1,12 @@
 import numpy as np
-
-from transonic.aheadoftime import modules_backends
-
 from package_simple.calcul import laplace
 from package_simple.util import func
 
+from transonic.aheadoftime import modules_backends
+
 laplace(np.ones((2, 2), dtype=np.int32))
 func(1)
-func(2.)
+func(2.0)
 
 modules = modules_backends["pythran"]
 

@@ -11,23 +11,22 @@ Internal API
 """
 
 import argparse
-from pathlib import Path
-from glob import glob
 import sys
+from glob import glob
+from pathlib import Path
 
 from transonic import __version__
-
-from transonic.compiler import wait_for_all_extensions, scheduler
-
-from .backends import backends
+from transonic.analyses import analyse_files
+from transonic.compiler import scheduler, wait_for_all_extensions
 from transonic.config import backend_default
 from transonic.log import logger
 from transonic.util import (
-    has_to_build,
-    clear_cached_extensions,
     can_import_accelerator,
+    clear_cached_extensions,
+    has_to_build,
 )
-from transonic.analyses import analyse_files
+
+from .backends import backends
 
 doc = """
 transonic: easily speedup your Python code with Pythran

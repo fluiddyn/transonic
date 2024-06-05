@@ -1,10 +1,9 @@
 from transonic.config import backend_default
-
 from transonic.justintime import modules_backends
 
 
 def test_set_backend_for_this_module():
-    from transonic.backends.for_test_set_backend import ts, func
+    from transonic.backends.for_test_set_backend import func, ts
 
     assert ts.backend.name == "python"
     assert func() == 0

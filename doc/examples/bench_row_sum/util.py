@@ -1,7 +1,7 @@
 import numpy as np
 
-from transonic.util import timeit
 from transonic.config import backend_default
+from transonic.util import timeit
 
 
 def check(functions, arr, columns):

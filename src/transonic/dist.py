@@ -14,18 +14,18 @@ setup.py.
 """
 
 import os
+import re
 import sys
+from concurrent.futures import ThreadPoolExecutor as Pool
 from pathlib import Path
 from sysconfig import get_config_var
 from typing import Iterable
-from concurrent.futures import ThreadPoolExecutor as Pool
-import re
 
 from setuptools.command.build_ext import build_ext as SetuptoolsBuildExt
 
 try:
-    from Cython.Distutils.build_ext import build_ext as CythonBuildExt
     from Cython.Build import cythonize
+    from Cython.Distutils.build_ext import build_ext as CythonBuildExt
 except ImportError:
     build_ext_classes = [SetuptoolsBuildExt]
     can_import_cython = False
@@ -43,11 +43,10 @@ else:
     build_ext_classes.insert(0, PythranBuildExt)
     can_import_pythran = True
 
-from transonic.util import modification_date
+from transonic.backends import backends, make_backend_files
 from transonic.config import backend_default
-from transonic.backends import make_backend_files, backends
-from transonic.util import can_import_accelerator
 from transonic.log import get_logger
+from transonic.util import can_import_accelerator, modification_date
 
 __all__ = [
     "PythranBuildExt",

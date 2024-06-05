@@ -1,7 +1,6 @@
 import numpy as np
 
-from transonic import boost, Type, Array, NDim
-
+from transonic import Array, NDim, Type, boost
 
 T = Type(np.int32, np.float64, np.float32)
 A = Array[T, NDim(2)]

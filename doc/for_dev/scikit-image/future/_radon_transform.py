@@ -1,8 +1,7 @@
 import numpy as np
-from numpy import cos, sin, floor, ceil, sqrt
+from numpy import ceil, cos, floor, sin, sqrt
 
-
-from transonic import boost, Optional
+from transonic import Optional, boost
 
 
 def bilinear_ray_sum(image, theta, ray_position):
@@ -26,17 +25,17 @@ def bilinear_ray_sum(image, theta, ray_position):
         A measure of how long the ray's path through the reconstruction
         circle was
     """
-    theta = theta / 180. * np.pi
+    theta = theta / 180.0 * np.pi
     radius = image.shape[0] // 2 - 1
     projection_center = image.shape[0] // 2
     rotation_center = image.shape[0] // 2
     # (s, t) is the (x, y) system rotated by theta
     t = ray_position - projection_center
     # s0 is the half-length of the ray's path in the reconstruction circle
-    s0 = sqrt(radius * radius - t * t) if radius*radius >= t*t else 0.
+    s0 = sqrt(radius * radius - t * t) if radius * radius >= t * t else 0.0
     Ns = 2 * int(ceil(2 * s0))  # number of steps along the ray
-    ray_sum = 0.
-    weight_norm = 0.
+    ray_sum = 0.0
+    weight_norm = 0.0
 
     if Ns > 0:
         # step length between samples
@@ -58,27 +57,28 @@ def bilinear_ray_sum(image, theta, ray_position):
             # Use linear interpolation between values
             # Where values fall outside the array, assume zero
             if i > 0 and j > 0:
-                weight = (1. - di) * (1. - dj) * ds
+                weight = (1.0 - di) * (1.0 - dj) * ds
                 ray_sum += weight * image[i, j]
                 weight_norm += weight * weight
             if i > 0 and j < image.shape[1] - 1:
-                weight = (1. - di) * dj * ds
-                ray_sum += weight * image[i, j+1]
+                weight = (1.0 - di) * dj * ds
+                ray_sum += weight * image[i, j + 1]
                 weight_norm += weight * weight
             if i < image.shape[0] - 1 and j > 0:
                 weight = di * (1 - dj) * ds
-                ray_sum += weight * image[i+1, j]
+                ray_sum += weight * image[i + 1, j]
                 weight_norm += weight * weight
             if i < image.shape[0] - 1 and j < image.shape[1] - 1:
                 weight = di * dj * ds
-                ray_sum += weight * image[i+1, j+1]
+                ray_sum += weight * image[i + 1, j + 1]
                 weight_norm += weight * weight
 
     return ray_sum, weight_norm
 
 
-def bilinear_ray_update(image, image_update, theta, ray_position,
-                        projected_value):
+def bilinear_ray_update(
+    image, image_update, theta, ray_position, projected_value
+):
     """Compute the update along a ray using bilinear interpolation.
 
     Parameters
@@ -100,18 +100,18 @@ def bilinear_ray_update(image, image_update, theta, ray_position,
         Deviation before updating the image.
     """
     ray_sum, weight_norm = bilinear_ray_sum(image, theta, ray_position)
-    if weight_norm > 0.:
+    if weight_norm > 0.0:
         deviation = -(ray_sum - projected_value) / weight_norm
     else:
-        deviation = 0.
-    theta = theta / 180. * np.pi
+        deviation = 0.0
+    theta = theta / 180.0 * np.pi
     radius = image.shape[0] // 2 - 1
     projection_center = image.shape[0] // 2
     rotation_center = image.shape[0] // 2
     # (s, t) is the (x, y) system rotated by theta
     t = ray_position - projection_center
     # s0 is the half-length of the ray's path in the reconstruction circle
-    s0 = sqrt(radius*radius - t*t) if radius*radius >= t*t else 0.
+    s0 = sqrt(radius * radius - t * t) if radius * radius >= t * t else 0.0
     Ns = 2 * int(ceil(2 * s0))
     # beta for equiripple Hamming window
     hamming_beta = 0.46164
@@ -133,29 +133,36 @@ def bilinear_ray_update(image, image_update, theta, ray_position,
             j = int(floor(index_j))
             di = index_i - floor(index_i)
             dj = index_j - floor(index_j)
-            hamming_window = ((1 - hamming_beta)
-                              - hamming_beta * cos(2 * np.pi * k / (Ns - 1)))
+            hamming_window = (1 - hamming_beta) - hamming_beta * cos(
+                2 * np.pi * k / (Ns - 1)
+            )
             if i > 0 and j > 0:
-                image_update[i, j] += (deviation * (1. - di) * (1. - dj)
-                                       * ds * hamming_window)
+                image_update[i, j] += (
+                    deviation * (1.0 - di) * (1.0 - dj) * ds * hamming_window
+                )
             if i > 0 and j < image.shape[1] - 1:
-                image_update[i, j+1] += (deviation * (1. - di) * dj
-                                         * ds * hamming_window)
+                image_update[i, j + 1] += (
+                    deviation * (1.0 - di) * dj * ds * hamming_window
+                )
             if i < image.shape[0] - 1 and j > 0:
-                image_update[i+1, j] += (deviation * di * (1 - dj)
-                                         * ds * hamming_window)
+                image_update[i + 1, j] += (
+                    deviation * di * (1 - dj) * ds * hamming_window
+                )
             if i < image.shape[0] - 1 and j < image.shape[1] - 1:
-                image_update[i+1, j+1] += (deviation * di * dj
-                                           * ds * hamming_window)
+                image_update[i + 1, j + 1] += (
+                    deviation * di * dj * ds * hamming_window
+                )
 
     return deviation
 
 
 @boost
-def sart_projection_update(image: "float64[:,:]",
-                           theta: float,
-                           projection: "float64[:]",
-                           projection_shift: float = 0.):
+def sart_projection_update(
+    image: "float64[:,:]",
+    theta: float,
+    projection: "float64[:]",
+    projection_shift: float = 0.0,
+):
     """
     Compute update to a reconstruction estimate from a single projection
     using bilinear interpolation.
@@ -181,6 +188,7 @@ def sart_projection_update(image: "float64[:,:]",
     image_update = np.zeros_like(image)
     for i in range(projection.shape[0]):
         ray_position = i + projection_shift
-        bilinear_ray_update(image, image_update, theta, ray_position,
-                            projection[i])
+        bilinear_ray_update(
+            image, image_update, theta, ray_position, projection[i]
+        )
     return image_update

@@ -1,9 +1,9 @@
 import os
 import sys
-from packaging import version
 from pathlib import Path
 
 import nox
+from packaging import version
 
 os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
 nox.options.reuse_existing_virtualenvs = 1

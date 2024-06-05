@@ -3,8 +3,8 @@
 
 """
 
-from io import StringIO
 from copy import deepcopy
+from io import StringIO
 
 import gast
 from gast.ast3 import GAstToAst3

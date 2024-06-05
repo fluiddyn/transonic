@@ -1,17 +1,17 @@
-import sys
 import os
-from time import sleep
+import sys
 from shutil import rmtree
+from time import sleep
 
 import numpy as np
 import pytest
 
+from transonic import mpi
 from transonic.backends import backends
 from transonic.compiler import scheduler, wait_for_all_extensions
-from transonic.justintime import modules
-from transonic import mpi
-from transonic.util import can_import_accelerator
 from transonic.config import backend_default
+from transonic.justintime import modules
+from transonic.util import can_import_accelerator
 
 backend = backends[backend_default]
 scheduler.nb_cpus = 2
@@ -188,8 +188,8 @@ def test_main():
 
 def test_jit_imported():
     from _transonic_testing.for_test_justintime import (
-        jitted_func_import,
         func_import,
+        jitted_func_import,
     )
 
     result = jitted_func_import()

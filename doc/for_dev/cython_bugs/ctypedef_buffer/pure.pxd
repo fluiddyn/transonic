@@ -1,6 +1,6 @@
 import cython
-
 import numpy as np
+
 cimport numpy as np
 
 ctypedef fused T0:

@@ -9,8 +9,7 @@ from textwrap import dedent
 
 import gast as ast
 
-from transonic.analyses import beniget
-from transonic.analyses import extast
+from transonic.analyses import beniget, extast
 
 try:
     import astunparse

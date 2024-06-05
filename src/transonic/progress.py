@@ -8,7 +8,6 @@ logging messages.
 
 from transonic.log import logger
 
-
 try:
     import rich
 except ImportError:
@@ -28,4 +27,4 @@ except ImportError:
     logger.debug("Install rich for tracking progress.")
 else:
     logger.debug("Using rich for tracking progress.")
-    from rich.progress import track, Progress
+    from rich.progress import Progress, track

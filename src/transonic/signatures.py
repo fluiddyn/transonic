@@ -14,8 +14,8 @@ Internal API
 
 """
 
-import itertools
 import inspect
+import itertools
 from typing import List
 
 from transonic.typing import format_type_as_backend_type, str2type

@@ -1,4 +1,4 @@
-from transonic import boost, jit, set_backend_for_this_module, Transonic
+from transonic import Transonic, boost, jit, set_backend_for_this_module
 
 set_backend_for_this_module("python")
 

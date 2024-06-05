@@ -1,6 +1,6 @@
 import numpy as np
 
-from transonic import jit, boost
+from transonic import boost, jit
 from transonic.mpi import Path
 
 
@@ -71,9 +71,10 @@ class MyClass:
         assert self.myfunc(1) == 3
 
 
+from numpy import pi
+
 # FIXME support multilevel imported jitted function call in a jitted function
 from .for_test_exterior_import_jit import foo, func_import, func_import2
-from numpy import pi
 
 const = 1
 

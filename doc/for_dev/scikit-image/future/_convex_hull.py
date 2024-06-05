@@ -1,6 +1,6 @@
 import numpy as np
 
-from transonic import boost, Array
+from transonic import Array, boost
 
 
 @boost(wraparound=False, boundscheck=False, cdivision=True, nonecheck=False)

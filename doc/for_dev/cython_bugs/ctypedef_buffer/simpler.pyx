@@ -1,6 +1,6 @@
 import cython
-
 import numpy as np
+
 cimport numpy as np
 
 # not supported, see: https://github.com/cython/cython/issues/754

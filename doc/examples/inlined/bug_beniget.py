@@ -1,12 +1,13 @@
-
-import gast as ast
 import beniget
+import gast as ast
 
-mod = ast.parse("""
+mod = ast.parse(
+    """
 T = int
 def func() -> T:
     return 1
-""")
+"""
+)
 
 fdef = mod.body[1]
 node = fdef.returns

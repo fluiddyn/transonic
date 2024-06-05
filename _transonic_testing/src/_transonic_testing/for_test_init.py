@@ -1,7 +1,6 @@
 import numpy as np
 
-from transonic import Transonic, boost, Array, Union, const
-
+from transonic import Array, Transonic, Union, boost, const
 
 # transonic def func(int, float)
 

@@ -1,7 +1,6 @@
 import numpy as np
 
 from transonic import Array
-
 from transonic.backends.typing import base_type_formatter
 
 

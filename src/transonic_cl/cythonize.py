@@ -1,8 +1,8 @@
 import sys
 from distutils.core import setup
 
-from Cython.Build import cythonize
 import numpy as np
+from Cython.Build import cythonize
 
 path = sys.argv.pop()
 sys.argv.extend(("build_ext", "--inplace"))

@@ -4,8 +4,9 @@
 #cython: wraparound=False
 
 import numpy as np
+
 cimport numpy as np
-from libc.stdlib cimport malloc, free
+from libc.stdlib cimport free, malloc
 
 
 def _dilate(np.uint8_t[:, :] image,

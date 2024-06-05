@@ -78,6 +78,15 @@ doc = [
 ]
 dev = ["pip", "build", "pylint", "twine"]
 
+[tool.pdm.scripts]
+black = "black src _transonic_testing data_tests tests doc noxfile.py"
+isort = "isort --atomic --tc src _transonic_testing tests doc noxfile.py"
+black_check = "black --check src _transonic_testing data_tests tests doc noxfile.py"
+lint = {shell="pylint -rn --rcfile=pylintrc --jobs=$(nproc) src --exit-zero"}
+validate_code = {composite = ["black_check", "lint"]}
+format = {composite = ["black", "isort"]}
+
+
 
 [tool.pytest]
 addopts = "--doctest-modules"
@@ -90,6 +99,11 @@ addopts = "--pdbcls=IPython.terminal.debugger:TerminalPdb"
 line-length = 82
 target-version = ['py38']
 
+[tool.isort]
+profile = "black"
+line_length = 82
+src_paths = ["src", "_transonic_testing", "tests", "doc", "noxfile.py"]
+known_first_party = ["pythran"]
 
 [tool.coverage.run]
 branch = true

@@ -1,7 +1,7 @@
-from transonic import boost, Array
 import numba
-
 import numpy as np
+
+from transonic import Array, boost
 
 Image = Array[np.float64, "2d", "C"]
 
@@ -54,6 +54,7 @@ laplace_loops_numba = numba.njit(laplace_loops)
 
 # For Cython, we need to add more type annotations
 
+
 @boost(backend="cython", boundscheck=False, wraparound=False)
 def laplace_loops_transonic_cython(image: Image):
     """Laplace operator for 2D images."""
@@ -79,8 +80,8 @@ def laplace_loops_transonic_cython(image: Image):
 
 if __name__ == "__main__":
 
-    from skimage.data import astronaut
     from skimage.color import rgb2gray
+    from skimage.data import astronaut
 
     image = astronaut()
     image = rgb2gray(image)
@@ -91,9 +92,9 @@ if __name__ == "__main__":
     laplace_numba(image)
     laplace_loops_numba(image)
 
-    from transonic.util import timeit
-    from transonic import __version__
     import pythran
+    from transonic import __version__
+    from transonic.util import timeit
 
     loc = locals()
 

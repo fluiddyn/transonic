@@ -1,19 +1,17 @@
 import shutil
-from setuptools import Distribution
 from pprint import pformat
 
 import pytest
+from setuptools import Distribution
 
 from transonic.config import backend_default
-
 from transonic.dist import (
-    detect_transonic_extensions,
-    modification_date,
-    make_backend_files,
     ParallelBuildExt,
+    detect_transonic_extensions,
     get_logger,
+    make_backend_files,
+    modification_date,
 )
-
 from transonic.mpi import nb_proc
 from transonic.path_data_tests import path_data_tests
 from transonic.util import can_import_accelerator

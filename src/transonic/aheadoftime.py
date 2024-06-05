@@ -21,31 +21,30 @@ Internal API
 
 """
 
-import inspect
-import time
-import subprocess
-import os
 import functools
+import inspect
+import os
+import subprocess
 import sys
+import time
 from importlib import import_module
 
-from transonic.backends import backends, get_backend_name_module
-from transonic.config import has_to_replace, backend_default
-from transonic.log import logger
 from transonic import mpi
+from transonic.backends import backends, get_backend_name_module
+from transonic.config import backend_default, has_to_replace
+from transonic.log import logger
 from transonic.mpi import Path
-
 from transonic.util import (
+    _get_pathfile_from_frame,
+    find_module_name_from_path,
+    get_frame,
     get_module_name,
+    has_to_build,
     has_to_compile_at_import,
     import_from_path,
-    has_to_build,
-    modification_date,
     is_method,
+    modification_date,
     write_if_has_to_write,
-    find_module_name_from_path,
-    _get_pathfile_from_frame,
-    get_frame,
 )
 
 if mpi.nb_proc == 1:

@@ -1,9 +1,8 @@
 import gast as ast
-
-from beniget import Ancestors, DefUseChains as DUC, UseDefChains
-
+from beniget import Ancestors
+from beniget import DefUseChains as DUC
+from beniget import UseDefChains
 from beniget.beniget import Def
-
 
 __all__ = ["Ancestors", "DefUseChains", "UseDefChains"]
 

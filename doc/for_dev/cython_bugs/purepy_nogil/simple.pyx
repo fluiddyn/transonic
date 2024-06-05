@@ -1,6 +1,7 @@
 # cython: language_level=3
 import cython
 
+
 cpdef inline int add(int a, int b) nogil:
     return a + b
 

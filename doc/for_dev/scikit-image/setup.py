@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
-from transonic.dist import make_backend_files, init_transonic_extensions
+from transonic.dist import init_transonic_extensions, make_backend_files
 
 path_here = Path(__file__).parent.absolute()
 include_dirs = [np.get_include()]

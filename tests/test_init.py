@@ -27,7 +27,7 @@ def test_not_transonified():
 
     importlib.reload(for_test_init)
 
-    from _transonic_testing.for_test_init import func, func1, check_class
+    from _transonic_testing.for_test_init import check_class, func, func1
 
     func(1, 3.14)
     func1(1.1, 2.2)

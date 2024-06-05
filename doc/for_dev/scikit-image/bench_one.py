@@ -1,4 +1,5 @@
 import argparse
+
 from bench_util import bench_one
 
 parser = argparse.ArgumentParser(description="Run one benchmark")

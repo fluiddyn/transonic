@@ -1,6 +1,6 @@
 import numpy as np
 
-from transonic import boost, Optional, Array
+from transonic import Array, Optional, boost
 
 A = Array[np.uint8, "2d", "memview"]
 
