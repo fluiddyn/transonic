@@ -15,6 +15,7 @@
    cython
    numba
    py
+   jax
 
 User API
 --------

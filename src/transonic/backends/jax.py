@@ -64,7 +64,11 @@ class SubBackendJITJax(SubBackendJITPython):
 
 
 class JaxBackend(PythonBackend):
-    """Main class for the Jax backend"""
+    """Main class for the Jax backend
+
+    See https://github.com/google/jax
+
+    """
 
     backend_name = "jax"
     _SubBackendJIT = SubBackendJITJax
