@@ -1,7 +1,11 @@
 # Release notes
 
 See also the
-[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.4...branch%2Fdefault).
+[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.1...branch%2Fdefault).
+
+## [0.7.1] (2024-07-24)
+
+- Support Numpy 2, Cython 3 and Python 3.12
 
 ## [0.7.0] (2024-06-06)
 
@@ -275,3 +279,4 @@ See also the
 [0.6.3]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.2...0.6.3
 [0.6.4]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.3...0.6.4
 [0.7.0]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.4...0.7.0
+[0.7.1]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.0...0.7.1
