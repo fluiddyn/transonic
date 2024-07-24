@@ -1,5 +1,5 @@
 import sys
-from distutils.core import setup
+from setuptools import setup
 
 import numpy as np
 from Cython.Build import cythonize
