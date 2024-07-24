@@ -116,14 +116,14 @@ def main():
         args = [sys.executable, "-m", "transonic_cl.cythonize", name]
 
     name_lock.touch()
-    try:
-        completed_process = subprocess.run(
-            args, stdout=stdout, stderr=stderr, universal_newlines=True
-        )
-    except Exception:
-        pass
-    finally:
-        name_lock.unlink()
+    completed_process = subprocess.run(
+        args, stdout=stdout, stderr=stderr, text=True, check=False
+    )
+    name_lock.unlink()
+
+    if completed_process.returncode:
+        print(completed_process.stderr)
+        raise subprocess.CalledProcessError(completed_process.returncode, args)
     if backend == "pythran" and "-o" in args and path_tmp.exists():
         path_tmp.rename(path_out)
     elif backend == "cython":
