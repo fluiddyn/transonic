@@ -131,7 +131,7 @@ def can_import_accelerator(backend: str = backend_default):
     elif backend == "jax":
         try:
             import jax
-        except ImportError:
+        except (ImportError, AttributeError, RuntimeError):
             return False
     elif backend == "python":
         return True
