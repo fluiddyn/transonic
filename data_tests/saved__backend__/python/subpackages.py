@@ -10,7 +10,7 @@ def test_np_fft(u):
 
 
 def test_np_linalg_random(u):
-    (nx, ny) = u.shape
+    nx, ny = u.shape
     u[:] = randn(nx, ny)
     u2 = u.T * u
     u4 = matrix_power(u2, 2)
@@ -21,4 +21,5 @@ def test_sp_special(v, x):
     return jv(v, x)
 
 
-__transonic__ = ("0.4.2",)
+def __transonic__():
+    return "0.7.1"

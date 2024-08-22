@@ -6,4 +6,5 @@ def func2():
     return 1
 
 
-__transonic__ = ("0.3.0.post0",)
+def __transonic__():
+    return "0.7.1"
