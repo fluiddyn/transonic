@@ -22,8 +22,8 @@ class PythranBackend(BackendAOT):
     def check_if_compiled(self, module):
         return hasattr(module, "__pythran__")
 
-    def _append_line_header_variable(self, lines_header, name_variable):
-        lines_header.append(f"export {name_variable}\n")
+    def _append_line_export_func_no_arg(self, lines_header, name_variable):
+        lines_header.append(f"export {name_variable}()\n")
 
     def _make_header_from_fdef_signatures(
         self, fdef, signatures_as_lists_strings, locals_types=None, returns=None
