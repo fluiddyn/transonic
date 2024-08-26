@@ -6,4 +6,8 @@ def func(x):
     return x**2
 
 
-__transonic__ = "0.6.4"
+# __protected__ @jit
+
+
+def __transonic__():
+    return "0.7.1"
