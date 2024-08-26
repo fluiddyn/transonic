@@ -18,11 +18,14 @@ def __for_method__Myclass__func(self_attr, self_attr2, arg):
         )
 
 
-__code_new_method__Myclass__func = """
+def __code_new_method__Myclass__func():
+    return """
 
 def new_method(self, arg):
     return backend_func(self.attr, self.attr2, arg)
 
 """
 
-__transonic__ = ("0.3.3",)
+
+def __transonic__():
+    return "0.7.1"
