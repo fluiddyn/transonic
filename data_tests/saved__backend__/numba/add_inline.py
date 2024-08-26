@@ -16,4 +16,8 @@ def use_add(n=10000):
     return tmp
 
 
-__transonic__ = ("0.4.7",)
+# __protected__ @njit(cache=True, fastmath=True)
+
+
+def __transonic__():
+    return "0.7.1"
