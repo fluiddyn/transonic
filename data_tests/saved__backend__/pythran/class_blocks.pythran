@@ -4,6 +4,6 @@ export block0(float64[:, :], float64[:, :], int)
 export block1(float64[:, :, :], float64[:, :, :], int)
 export block1(float64[:, :], float64[:, :], int)
 
-export arguments_blocks
+export arguments_blocks()
 
-export __transonic__
+export __transonic__()

@@ -58,12 +58,12 @@ def test_create_pythran_files():
         with open(saved_path) as file:
             saved_code = file.read()
 
-        if sys.version_info[:2] > (3, 10):
+        if sys.version_info[:2] < (3, 11):
             if path.name == "subpackages.py":
-                saved_code = saved_code.replace("(nx, ny) =", "nx, ny =")
+                saved_code = saved_code.replace("nx, ny =", "(nx, ny) =")
 
-        code = code.split("__transonic__ = ", 1)[0]
-        saved_code = saved_code.split("__transonic__ = ", 1)[0]
+        code = code.split("def __transonic__():", 1)[0]
+        saved_code = saved_code.split("def __transonic__()", 1)[0]
 
         if backend_default in header_suffixes:
             suffix = header_suffixes[backend_default]

@@ -43,7 +43,15 @@ def add_jax_comments(code):
                 node.module = "jax.numpy"
 
         # Add JIT decorator
-        if isinstance(node, gast.FunctionDef):
+        if (
+            isinstance(node, gast.FunctionDef)
+            and node.name
+            not in (
+                "arguments_blocks",
+                "__transonic__",
+            )
+            and not node.name.startswith("__code_new_method__")
+        ):
             new_body.append(CommentLine("# __protected__ @jit"))
         new_body.append(node)
 

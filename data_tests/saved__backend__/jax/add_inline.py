@@ -16,4 +16,5 @@ def use_add(n=10000):
     return tmp
 
 
-__transonic__ = "0.6.4"
+def __transonic__():
+    return "0.7.1"

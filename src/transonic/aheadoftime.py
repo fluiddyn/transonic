@@ -56,6 +56,19 @@ modules_backends = {backend_name: {} for backend_name in backends.keys()}
 modules = modules_backends[backend_default]
 
 
+def _get_data_from_func_or_data(data_or_func):
+    """
+    Before 0.7.2, some metadata was saved in module variables,
+    which leads to issue with Pythran on Windows.
+    They are now saved in functions, but we continue supporting the "old" extensions.
+    """
+    if callable(data_or_func):
+        return data_or_func()
+    else:
+        # extension compiled with Transonic < 0.7.2
+        return data_or_func
+
+
 def _get_transonic_calling_module(backend_name: str = None):
     """Get the Transonic instance corresponding to the calling module
 
@@ -337,11 +350,13 @@ class Transonic:
                 if module is not None:
                     if backend.name == "pythran":
                         module.__pythran__ = self.module_backend.__pythran__
-                    module.__transonic__ = self.module_backend.__transonic__
 
+                    module.__transonic__ = _get_data_from_func_or_data(
+                        self.module_backend.__transonic__
+                    )
             if hasattr(self.module_backend, "arguments_blocks"):
-                self.arguments_blocks = getattr(
-                    self.module_backend, "arguments_blocks"
+                self.arguments_blocks = _get_data_from_func_or_data(
+                    getattr(self.module_backend, "arguments_blocks")
                 )
 
         modules[module_name] = self
@@ -468,9 +483,10 @@ class Transonic:
 
             try:
                 backend_func = getattr(self.module_backend, name_backend_func)
-                code_new_method = getattr(
-                    self.module_backend, name_var_code_new_method
+                code_new_method = _get_data_from_func_or_data(
+                    getattr(self.module_backend, name_var_code_new_method)
                 )
+
             except AttributeError:
                 # TODO: improve what happens in this case
                 raise RuntimeError(

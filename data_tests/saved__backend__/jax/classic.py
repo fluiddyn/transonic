@@ -8,4 +8,5 @@ def func(a, b):
     return (a * np.log(b)).max()
 
 
-__transonic__ = "0.6.4"
+def __transonic__():
+    return "0.7.1"

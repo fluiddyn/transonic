@@ -6,4 +6,5 @@ def func(x):
     return x**2
 
 
-__transonic__ = ("0.4.7",)
+def __transonic__():
+    return "0.7.1"

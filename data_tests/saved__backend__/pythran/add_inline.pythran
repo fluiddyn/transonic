@@ -3,4 +3,4 @@ export add(int, int)
 export use_add()
 export use_add(int)
 
-export __transonic__
+export __transonic__()

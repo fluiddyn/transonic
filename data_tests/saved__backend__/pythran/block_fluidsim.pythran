@@ -1,5 +1,5 @@
 export rk2_step0(complex128[:, :, :], complex128[:, :, :], complex128[:, :, :], float64[:, :], float64)
 
-export arguments_blocks
+export arguments_blocks()
 
-export __transonic__
+export __transonic__()

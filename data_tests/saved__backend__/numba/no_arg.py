@@ -13,4 +13,5 @@ def func2():
     return 1
 
 
-__transonic__ = ("0.4.7",)
+def __transonic__():
+    return "0.7.1"

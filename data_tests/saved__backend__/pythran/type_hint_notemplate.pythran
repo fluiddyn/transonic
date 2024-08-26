@@ -15,4 +15,4 @@ export compute(int[:], int[:], complex128, int[:], str)
 export compute(int[:], int[:], int, float32[:, :], str)
 export compute(int[:], int[:], int, int[:], str)
 
-export __transonic__
+export __transonic__()

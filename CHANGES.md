@@ -1,7 +1,11 @@
 # Release notes
 
 See also the
-[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.1...branch%2Fdefault).
+[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.2...branch%2Fdefault).
+
+## [0.7.2] (2024-08-26)
+
+- Metadata stored in functions to avoid issues with Pythran on Windows
 
 ## [0.7.1] (2024-07-24)
 
@@ -280,3 +284,4 @@ See also the
 [0.6.4]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.3...0.6.4
 [0.7.0]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.4...0.7.0
 [0.7.1]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.0...0.7.1
+[0.7.2]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.1...0.7.2

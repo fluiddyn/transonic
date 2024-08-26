@@ -217,12 +217,12 @@ class Backend:
 
         if code:
             code = self._make_beginning_code() + code
-            self._append_line_header_variable(lines_header, "__transonic__")
-            code += f'\n\n__transonic__ = "{transonic.__version__}"'
+            self._append_line_export_func_no_arg(lines_header, "__transonic__")
+            code += f'\n\ndef __transonic__(): return "{transonic.__version__}"'
 
         return format_str(code), codes_ext, "\n".join(lines_header).strip() + "\n"
 
-    def _append_line_header_variable(self, lines_header, name_variable):
+    def _append_line_export_func_no_arg(self, lines_header, name_variable):
         pass
 
     def _make_code_blocks(self, blocks):
@@ -252,10 +252,12 @@ class Backend:
         }
 
         if arguments_blocks:
-            self._append_line_header_variable(
+            self._append_line_export_func_no_arg(
                 signatures_blocks, "arguments_blocks"
             )
-            code.append(f"arguments_blocks = {str(arguments_blocks)}\n")
+            code.append(
+                f"def arguments_blocks(): return {str(arguments_blocks)}\n"
+            )
         return signatures_blocks, code
 
     def _make_code_methods(self, boosted_dicts, annotations, path_py):
@@ -336,11 +338,11 @@ class Backend:
 
         name_var_code_new_method = f"__code_new_method__{class_name}__{meth_name}"
 
-        self._append_line_header_variable(
+        self._append_line_export_func_no_arg(
             signatures_method, name_var_code_new_method
         )
         python_code += (
-            f'\n{name_var_code_new_method} = """\n\n'
+            f'\ndef {name_var_code_new_method}(): return """\n\n'
             f"def new_method(self, {str_args_value_func}):\n"
             f"    return backend_func({str_args_backend_func})"
             '\n\n"""\n'

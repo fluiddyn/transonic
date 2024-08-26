@@ -4,4 +4,4 @@ export test_np_linalg_random(float64[:, :])
 
 export test_sp_special(int, float64)
 
-export __transonic__
+export __transonic__()

@@ -27,4 +27,5 @@ def row_sum_loops(arr, columns):
     return res
 
 
-__transonic__ = ("0.3.3",)
+def __transonic__():
+    return "0.7.1"
