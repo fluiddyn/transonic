@@ -30,8 +30,5 @@ def test_sp_special(v, x):
     return jv(v, x)
 
 
-# __protected__ @jit
-
-
 def __transonic__():
     return "0.7.1"

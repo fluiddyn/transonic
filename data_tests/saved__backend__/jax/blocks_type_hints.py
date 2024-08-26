@@ -15,14 +15,8 @@ def block0(a, b, n):
     return result
 
 
-# __protected__ @jit
-
-
 def arguments_blocks():
     return {"block0": ["a", "b", "n"]}
-
-
-# __protected__ @jit
 
 
 def __transonic__():

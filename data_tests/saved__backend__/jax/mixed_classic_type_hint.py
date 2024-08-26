@@ -15,8 +15,5 @@ def func1(a, b):
     return a * np.cos(b)
 
 
-# __protected__ @jit
-
-
 def __transonic__():
     return "0.7.1"

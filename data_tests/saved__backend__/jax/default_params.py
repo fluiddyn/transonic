@@ -7,8 +7,5 @@ def func(a=1, b=None, c=1.0):
     return a + c
 
 
-# __protected__ @jit
-
-
 def __transonic__():
     return "0.7.1"

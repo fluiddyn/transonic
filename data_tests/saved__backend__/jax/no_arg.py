@@ -13,8 +13,5 @@ def func2():
     return 1
 
 
-# __protected__ @jit
-
-
 def __transonic__():
     return "0.7.1"

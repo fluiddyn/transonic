@@ -16,8 +16,5 @@ def use_add(n=10000):
     return tmp
 
 
-# __protected__ @jit
-
-
 def __transonic__():
     return "0.7.1"

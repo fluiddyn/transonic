@@ -9,8 +9,5 @@ def func(a, b):
     return (a * np.log(b)).max() + func_import()
 
 
-# __protected__ @jit
-
-
 def __transonic__():
     return "0.7.1"

@@ -16,14 +16,8 @@ def __for_method__Myclass__func(self_attr, self_attr2, arg):
         )
 
 
-# __protected__ @jit
-
-
 def __code_new_method__Myclass__func():
     return "\n\ndef new_method(self, arg):\n    return backend_func(self.attr, self.attr2, arg)\n\n"
-
-
-# __protected__ @jit
 
 
 def __transonic__():
