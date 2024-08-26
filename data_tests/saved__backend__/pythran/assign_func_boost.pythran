@@ -1,3 +1,3 @@
 export func(int)
 
-export __transonic__
+export __transonic__()

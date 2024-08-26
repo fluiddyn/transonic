@@ -5,4 +5,4 @@ export func(int, None, float64)
 export func(int, str)
 export func(int, str, float64)
 
-export __transonic__
+export __transonic__()

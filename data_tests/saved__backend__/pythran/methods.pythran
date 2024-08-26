@@ -1,5 +1,5 @@
 export __for_method__Transmitter____call__(float64[:, :], float64, float64[:])
 
-export __code_new_method__Transmitter____call__
+export __code_new_method__Transmitter____call__()
 
-export __transonic__
+export __transonic__()

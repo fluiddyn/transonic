@@ -12,6 +12,9 @@ def block0(a, b, n):
     return result
 
 
-arguments_blocks = {"block0": ["a", "b", "n"]}
+def arguments_blocks():
+    return {"block0": ["a", "b", "n"]}
 
-__transonic__ = ("0.3.0",)
+
+def __transonic__():
+    return "0.7.1"

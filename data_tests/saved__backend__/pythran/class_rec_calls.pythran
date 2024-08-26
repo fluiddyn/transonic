@@ -1,5 +1,5 @@
 export __for_method__Myclass__func(int, int, int)
 
-export __code_new_method__Myclass__func
+export __code_new_method__Myclass__func()
 
-export __transonic__
+export __transonic__()

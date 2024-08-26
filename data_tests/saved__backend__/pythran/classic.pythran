@@ -1,4 +1,4 @@
 export func(float64[:, :], float64[:, :])
 export func(int[:, :], float64[:, :])
 
-export __transonic__
+export __transonic__()

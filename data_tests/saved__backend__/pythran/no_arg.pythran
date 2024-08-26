@@ -2,4 +2,4 @@ export func()
 
 export func2()
 
-export __transonic__
+export __transonic__()
