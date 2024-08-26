@@ -12,9 +12,6 @@ def rk2_step0(state_spect_n12, state_spect, tendencies_n, diss2, dt):
     state_spect_n12[:] = (state_spect + dt / 2 * tendencies_n) * diss2
 
 
-# __protected__ @njit(cache=True, fastmath=True)
-
-
 def arguments_blocks():
     return {
         "rk2_step0": [
@@ -25,9 +22,6 @@ def arguments_blocks():
             "dt",
         ]
     }
-
-
-# __protected__ @njit(cache=True, fastmath=True)
 
 
 def __transonic__():

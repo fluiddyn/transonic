@@ -28,7 +28,15 @@ def add_numba_comments(code):
     new_body = [CommentLine("# __protected__ from numba import njit")]
 
     for node in mod.body:
-        if isinstance(node, gast.FunctionDef):
+        if (
+            isinstance(node, gast.FunctionDef)
+            and node.name
+            not in (
+                "arguments_blocks",
+                "__transonic__",
+            )
+            and not node.name.startswith("__code_new_method__")
+        ):
             new_body.append(
                 CommentLine("# __protected__ @njit(cache=True, fastmath=True)")
             )

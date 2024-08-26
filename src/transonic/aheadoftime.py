@@ -62,9 +62,9 @@ def _get_data_from_func_or_data(data_or_func):
     which leads to issue with Pythran on Windows.
     They are now saved in functions, but we continue supporting the "old" extensions.
     """
-    try:
+    if callable(data_or_func):
         return data_or_func()
-    except TypeError:
+    else:
         # extension compiled with Transonic < 0.7.2
         return data_or_func
 

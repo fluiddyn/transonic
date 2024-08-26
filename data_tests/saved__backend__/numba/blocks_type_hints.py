@@ -15,14 +15,8 @@ def block0(a, b, n):
     return result
 
 
-# __protected__ @njit(cache=True, fastmath=True)
-
-
 def arguments_blocks():
     return {"block0": ["a", "b", "n"]}
-
-
-# __protected__ @njit(cache=True, fastmath=True)
 
 
 def __transonic__():

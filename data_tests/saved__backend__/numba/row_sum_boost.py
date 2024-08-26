@@ -24,8 +24,5 @@ def row_sum_loops(arr, columns):
     return res
 
 
-# __protected__ @njit(cache=True, fastmath=True)
-
-
 def __transonic__():
     return "0.7.1"
