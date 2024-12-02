@@ -13,7 +13,7 @@ nox.options.reuse_existing_virtualenvs = 1
 @nox.parametrize("with_pythran", [0, 1])
 @nox.session
 def test(session, with_pythran, with_cython):
-    command = "pdm sync -G base_test"
+    command = "pdm sync -G base-test"
     session.run_always(*command.split(), external=True)
 
     py_version = (
