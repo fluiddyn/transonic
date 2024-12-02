@@ -1,7 +1,7 @@
 [project]
 name = "transonic"
 version = "0.1.0"
-description = "Add a short description here"
+description = "Make your Python code fly at transonic speeds!"
 channels = ["conda-forge"]
 platforms = ["linux-64", "win-64"]
 
