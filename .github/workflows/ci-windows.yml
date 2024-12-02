@@ -10,15 +10,12 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - uses: prefix-dev/setup-pixi@v0.8.1
       with:
-        pixi-version: v0.26.1
+        pixi-version: v0.38.0
         cache: false
     - name: Tests
       run: |

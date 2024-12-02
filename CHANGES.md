@@ -1,7 +1,11 @@
 # Release notes
 
 See also the
-[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.2...branch%2Fdefault).
+[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.3...branch%2Fdefault).
+
+## [0.7.3] (2024-12-02)
+
+- Support Python 3.10 to 3.13 with beniget~=0.4.2 and gast~=0.6.0 (like Pythran 0.17)
 
 ## [0.7.2] (2024-08-26)
 
@@ -285,3 +289,4 @@ See also the
 [0.7.0]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.6.4...0.7.0
 [0.7.1]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.0...0.7.1
 [0.7.2]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.1...0.7.2
+[0.7.3]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.2...0.7.3

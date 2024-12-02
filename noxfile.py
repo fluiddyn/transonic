@@ -13,7 +13,7 @@ nox.options.reuse_existing_virtualenvs = 1
 @nox.parametrize("with_pythran", [0, 1])
 @nox.session
 def test(session, with_pythran, with_cython):
-    command = "pdm sync -G base_test"
+    command = "pdm sync -G base-test"
     session.run_always(*command.split(), external=True)
 
     py_version = (
@@ -21,10 +21,9 @@ def test(session, with_pythran, with_cython):
         if session.python is not None
         else sys.version.split(maxsplit=1)[0]
     )
-    if version.parse(py_version) < version.parse("3.12"):
+    if version.parse(py_version) < version.parse("3.13"):
+        # Numba not yet compatible with 3.13 (2024-12-02)
         session.install("numba")
-    else:
-        session.install("setuptools")
 
     session.install("jax", "jaxlib")
 
@@ -34,6 +33,7 @@ def test(session, with_pythran, with_cython):
         session.install("cython")
 
     if version.parse(py_version) < version.parse("3.12"):
+        session.install("setuptools<60.0")
         for backend in ("python", "pythran"):
             print(f"TRANSONIC_BACKEND={backend}")
             session.run(
