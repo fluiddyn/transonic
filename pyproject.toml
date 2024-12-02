@@ -53,6 +53,8 @@ base-test = [
     "pytest-cov",
     "pytest-venv",
     "scipy",
+    # setuptools for transonic.dist
+    "setuptools",
     "-e transonic_testing @ file:///${PROJECT_ROOT}/_transonic_testing",
 ]
 test = [
