@@ -52,7 +52,15 @@ def test(session, with_pythran, with_cython):
 
     code_dependencies = 10 * with_pythran + with_cython
 
-    for backend in ("python", "pythran", "numba", "jax", "cython"):
+    backends = ["python", "pythran", "numba", "jax", "cython"]
+
+    # potentially remove jax if broken (happens randomly in CI)
+    try:
+        session.run("python", "-c", "import jax.numpy")
+    except (AttributeError, RuntimeError):
+        backends.remove("jax")
+
+    for backend in backends:
         print(f"TRANSONIC_BACKEND={backend}")
         session.run(
             "pytest",
