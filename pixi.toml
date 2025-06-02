@@ -26,6 +26,7 @@ pip = ">=23.3.2"
 numba = ">=0.58.1"
 cython = ">=3.0.7"
 pythran = ">=0.15.0"
+setuptools = ">=80.9.0,<81"
 
 [build-dependencies]
 pdm-backend = ">=2.1.8"
