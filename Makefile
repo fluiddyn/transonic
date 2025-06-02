@@ -4,6 +4,8 @@ COV=pytest --cov --cov-config=pyproject.toml
 develop:
 	# needed to build mpi4py with Cython 3.1
 	export CFLAGS=-O2
+	pdm sync -G mpi --prod --no-default
+	unset CFLAGS
 	pdm sync --clean
 
 lock:
