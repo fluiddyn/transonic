@@ -42,7 +42,7 @@ distribution = true
 package-dir = "src"
 ignore_package_warnings = ["ipython"]
 
-[tool.pdm.dev-dependencies]
+[dependency-groups]
 
 base-test = [
     "black",
