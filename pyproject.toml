@@ -29,7 +29,7 @@ Documentation = "https://transonic.readthedocs.io"
 "Git Mirror" = "https://github.com/fluiddyn/transonic"
 
 [project.optional-dependencies]
-mpi = ["mpi4py"]
+mpi = ["mpi4py<4"]
 
 [project.scripts]
 transonic = "transonic.run:run"
@@ -47,7 +47,7 @@ ignore_package_warnings = ["ipython"]
 base-test = [
     "black",
     "coverage[toml]",
-    "mpi4py",
+    "mpi4py<4",
     "nbval ~=0.9.6",
     "pytest",
     "pytest-cov",
@@ -59,7 +59,7 @@ base-test = [
 ]
 test = [
     "cython",
-    "mpi4py",
+    "mpi4py<4",
     "pythran",
     "numba",
     "jax>=0.4.25",
