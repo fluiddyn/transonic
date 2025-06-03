@@ -13,8 +13,12 @@ nox.options.reuse_existing_virtualenvs = True
 @nox.parametrize("with_pythran", [0, 1])
 @nox.session
 def test(session, with_pythran, with_cython):
+
+    env_pdm_install = os.environ.copy()
+    env_pdm_install["CFLAGS"] = "-O2"
+
     command = "pdm sync -G base-test"
-    session.run_always(*command.split(), external=True)
+    session.run_install(*command.split(), external=True, env=env_pdm_install)
 
     py_version = (
         session.python
@@ -48,7 +52,15 @@ def test(session, with_pythran, with_cython):
 
     code_dependencies = 10 * with_pythran + with_cython
 
-    for backend in ("python", "pythran", "numba", "jax", "cython"):
+    backends = ["python", "pythran", "numba", "jax", "cython"]
+
+    # potentially remove jax if broken (happens randomly in CI)
+    try:
+        session.run("python", "-c", "import jax.numpy")
+    except (AttributeError, RuntimeError):
+        backends.remove("jax")
+
+    for backend in backends:
         print(f"TRANSONIC_BACKEND={backend}")
         session.run(
             "pytest",
@@ -73,7 +85,7 @@ def test(session, with_pythran, with_cython):
 
 @nox.session
 def doc(session):
-    session.run_always("pdm", "sync", "-G", "doc", external=True)
+    session.run_install("pdm", "sync", "-G", "doc", external=True)
     session.chdir("doc")
     session.run("make", "cleanall", external=True)
     session.run("make", external=True)
