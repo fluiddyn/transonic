@@ -1,6 +1,4 @@
-"""Tests the Meson support
-
-"""
+"""Tests the Meson support"""
 
 import os
 import subprocess

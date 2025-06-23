@@ -1,10 +1,8 @@
-import shutil
 from pprint import pformat
 
 import pytest
 from setuptools import Distribution
 
-from transonic.config import backend_default
 from transonic.dist import (
     ParallelBuildExt,
     detect_transonic_extensions,
@@ -13,14 +11,13 @@ from transonic.dist import (
     modification_date,
 )
 from transonic.mpi import nb_proc
-from transonic.path_data_tests import path_data_tests
+from transonic.testing import path_data_tests
 from transonic.util import can_import_accelerator
 
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
-def test_detect_backend_extensions():
-    shutil.rmtree(path_data_tests / f"__{backend_default}__", ignore_errors=True)
+def test_detect_backend_extensions(path_input_files):
 
     names = [
         "assign_func_boost.py",
@@ -39,8 +36,8 @@ def test_detect_backend_extensions():
         "no_pythran_.py",
     ]
 
-    make_backend_files((path_data_tests / name for name in names))
-    ext_names = detect_transonic_extensions(path_data_tests)
+    make_backend_files((path_input_files / name for name in names))
+    ext_names = detect_transonic_extensions(path_input_files)
 
     if can_import_accelerator():
         ext_names = [
@@ -55,13 +52,11 @@ def test_detect_backend_extensions():
             print("names:\n", pformat(sorted(names)), sep="")
             raise RuntimeError
 
-    shutil.rmtree(path_data_tests / f"__{backend_default}__", ignore_errors=True)
-
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No dist in MPI")
-def test_modification_date():
-    modification_date(path_data_tests / "no_pythran_.py")
+def test_modification_date(path_input_files):
+    modification_date(path_input_files / "no_pythran_.py")
     get_logger("bar")
 
 
