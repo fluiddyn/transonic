@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def is_valid_distance_matches_1ray(candidate, approved_matches_ray):
     _, ray_id = candidate
     if ray_id:
@@ -7,7 +10,7 @@ def is_valid_distance_matches_1ray(candidate, approved_matches_ray):
 
 
 def kernel_make_approved_matches__min_distance_matches_1ray(candidates):
-    approved_matches_ray = {}
+    approved_matches_ray: dict[np.int32, list[int]] = {}
     candidate = candidates[0]
     assert is_valid_distance_matches_1ray(candidate, approved_matches_ray)
     ray_id = candidate[1]
