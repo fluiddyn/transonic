@@ -1,0 +1,3 @@
+export kernel_make_approved_matches__min_distance_matches_1ray((int32, int32) list)
+
+export __transonic__()
