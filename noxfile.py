@@ -55,9 +55,8 @@ def test(session, with_pythran, with_cython):
     backends = ["python", "pythran", "numba", "jax", "cython"]
 
     # potentially remove jax if broken (happens randomly in CI)
-    try:
-        session.run("python", "-c", "import jax.numpy")
-    except (AttributeError, RuntimeError):
+    out = session.run("python", ".check_jax.py", silent=True)
+    if out.strip() != "jax usable":
         backends.remove("jax")
 
     for backend in backends:
