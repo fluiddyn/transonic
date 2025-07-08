@@ -1,6 +1,6 @@
 import numpy as np
 
-from transonic import boost
+from transonic import boost, Tuple
 
 
 def is_valid_distance_matches_1ray(candidate, approved_matches_ray):
@@ -11,8 +11,9 @@ def is_valid_distance_matches_1ray(candidate, approved_matches_ray):
     return True
 
 
-@boost
+@boost(keep_annotations=True)
 def kernel_make_approved_matches__min_distance_matches_1ray(
+    point: Tuple[float, float, float],
     candidates: "(int32, int32) list",
 ):
     approved_matches_ray: dict[np.int32, list[int]] = {}
@@ -22,4 +23,4 @@ def kernel_make_approved_matches__min_distance_matches_1ray(
     approved_matches_ray.setdefault(ray_id, [])
     other_closest_points = approved_matches_ray[ray_id]
     other_closest_points.append(1)
-    return approved_matches_ray
+    return approved_matches_ray, point
