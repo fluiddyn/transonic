@@ -1,4 +1,14 @@
 
+kwargs_extension_module = {
+  'cpp_args': cpp_args_pythran,
+  'dependencies': [pythran_dep, np_dep],
+  'install': true,
+}
+
+if is_variable('py_limited_api')
+  kwargs_extension_module += {'limited_api': py_limited_api}
+endif
+
 bar = custom_target(
   'bar',
   output: ['bar.cpp'],
@@ -10,11 +20,8 @@ bar = custom_target(
 bar = py.extension_module(
   'bar',
   bar,
-  cpp_args: cpp_args_pythran,
-  dependencies: [pythran_dep, np_dep],
-  # link_args: version_link_args,
-  install: true,
   subdir: 'package_for_test_meson/__pythran__',
+  kwargs: kwargs_extension_module,
 )
 
 foo = custom_target(
@@ -28,9 +35,6 @@ foo = custom_target(
 foo = py.extension_module(
   'foo',
   foo,
-  cpp_args: cpp_args_pythran,
-  dependencies: [pythran_dep, np_dep],
-  # link_args: version_link_args,
-  install: true,
   subdir: 'package_for_test_meson/__pythran__',
+  kwargs: kwargs_extension_module,
 )
