@@ -44,3 +44,4 @@ doc/for_dev/**/*.html
 
 .pdm-python
 .pdm-build
+.python-version
