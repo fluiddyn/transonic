@@ -1,34 +1,31 @@
 import os
 import sys
 import time
-from shutil import rmtree
 
 import pytest
 
 from transonic import util
 from transonic.config import backend_default
 from transonic.mpi import nb_proc
-from transonic.path_data_tests import path_data_tests
+from transonic.testing import path_data_tests
 from transonic.run import run
 
-path_dir_out = path_data_tests / f"__{backend_default}__"
+
 header_suffixes = {"pythran": ".pythran", "cython": ".pxd"}
 
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
-def test_create_pythran_files():
-    if path_dir_out.exists():
-        rmtree(path_dir_out)
+def test_create_pythran_files(path_input_files):
 
     if os.name != "nt":
-        sys.argv = f"transonic -nc {path_data_tests / '*.py'}".split()
+        sys.argv = f"transonic -nc {path_input_files / '*.py'}".split()
         run()
 
-    sys.argv = f"transonic -nc {path_data_tests}".split()
+    sys.argv = f"transonic -nc {path_input_files}".split()
     run()
 
-    paths = tuple(path_data_tests.glob("*.py*"))
+    paths = tuple(path_input_files.glob("*.py*"))
     sys.argv = ["transonic", "-nc"] + [str(path) for path in paths]
     run()
 
@@ -50,7 +47,9 @@ def test_create_pythran_files():
         __backend__path = path.parent / f"__{backend_default}__" / path.name
         assert __backend__path.exists()
 
-        saved_path = path.parent / dir_saved_files / backend_default / path.name
+        saved_path = (
+            path_data_tests / dir_saved_files / backend_default / path.name
+        )
         assert saved_path.exists()
 
         with open(__backend__path) as file:
@@ -94,13 +93,10 @@ def test_create_pythran_simple():
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
-def test_create_trans_classic():
+def test_create_trans_classic(path_input_files):
     util.input = lambda: "y"
 
-    if path_dir_out.exists():
-        rmtree(path_dir_out)
-
-    path_file = path_data_tests / "classic.py"
+    path_file = path_input_files / "classic.py"
     sys.argv = f"transonic -nc {path_file}".split()
     run()
 
@@ -113,7 +109,7 @@ def test_create_trans_classic():
 
     run()
 
-    path_file_pythran = path_data_tests / f"__{backend_default}__/classic.py"
+    path_file_pythran = path_input_files / f"__{backend_default}__/classic.py"
     path_file_pythran.unlink()
 
     print("after unlink")
@@ -131,7 +127,7 @@ def test_create_trans_classic():
 
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No commandline in MPI")
-def test_create_pythran_subpackages():
-    path_file = path_data_tests / "subpackages.py"
+def test_create_pythran_subpackages(path_input_files):
+    path_file = path_input_files / "subpackages.py"
     sys.argv = f"transonic -nc {path_file}".split()
     run()

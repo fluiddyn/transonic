@@ -2,7 +2,6 @@ import os
 import runpy
 import shutil
 import sys
-from contextlib import suppress
 from pathlib import Path
 
 import pytest
@@ -10,51 +9,51 @@ import pytest
 from transonic.config import backend_default
 from transonic.dist import make_backend_files
 from transonic.mpi import nb_proc
-from transonic.path_data_tests import path_data_tests
+from transonic.testing import path_data_tests
 
 cwd = Path.cwd().absolute()
-setup_dir = path_data_tests / "test_packaging"
 
 
-def setup_module():
-    os.chdir(setup_dir)
-    transonic_src_paths = [setup_dir / "add.py"]
+@pytest.fixture(scope="module")
+def path_test_package(tmpdir_factory):
+    path_input_dir = path_data_tests / "test_packaging"
+    self = tmpdir_factory.mktemp("test_packaging")
+    for path in path_input_dir.glob("*"):
+        if path.suffix in {".c", ".py", ".pyx"}:
+            shutil.copy(path, self)
+    return self
+
+
+@pytest.fixture(scope="module")
+def path_prebuilt_package(path_test_package):
+    os.chdir(path_test_package)
+    transonic_src_paths = [path_test_package / "add.py"]
     make_backend_files(transonic_src_paths)
+    return path_test_package
 
 
-@pytest.fixture
-def test_packaging():
-    sys.path.append(str(path_data_tests))
+@pytest.fixture(scope="module")
+def installed_package(path_prebuilt_package):
+    sys.path.append(str(path_prebuilt_package))
     yield "test_packaging"
-    sys.path.remove(str(path_data_tests))
+    sys.path.remove(str(path_prebuilt_package))
 
 
 @pytest.mark.skipif(backend_default != "pythran", reason="Speedup tests")
 @pytest.mark.skipif(not path_data_tests.exists(), reason="no data tests")
 @pytest.mark.skipif(nb_proc > 1, reason="No build_ext in MPI")
-def test_buildext():
-    os.chdir(setup_dir)
-    runpy.run_path(str(setup_dir / "setup.py"))
+def test_buildext(path_prebuilt_package):
+    os.chdir(path_prebuilt_package)
+    runpy.run_path(str(path_prebuilt_package / "setup.py"))
 
 
 @pytest.mark.xfail(reason="Issue 23")
-def test_jit_mod_import(test_packaging):
+def test_jit_mod_import(installed_package):
     """JIT a function from an imported module"""
-    runpy.run_module(f"{test_packaging}.base_mod_import")
+    runpy.run_module(f"{installed_package}.base_mod_import")
 
 
 @pytest.mark.xfail(reason="Issue 23")
 def test_jit_func_import(test_packaging):
     """JIT an imported function"""
     runpy.run_module(f"{test_packaging}.base_func_import")
-
-
-def teardown_module():
-    os.chdir(cwd)
-    for namedir in ("build", f"__{backend_default}__", "__pycache__"):
-        with suppress(FileNotFoundError):
-            shutil.rmtree(setup_dir / namedir)
-
-    to_remove = list(setup_dir.glob("*.h")) + list(setup_dir.glob("*.so"))
-    for path in to_remove:
-        os.remove(path)
