@@ -265,6 +265,10 @@ class TypeHintRemover(ast.NodeTransformer):
     from https://stackoverflow.com/a/42734810/1779806
     """
 
+    def __init__(self, keep_local_annotations=False):
+        self.keep_local_annotations = keep_local_annotations
+        super().__init__()
+
     def visit_FunctionDef(self, fdef):
         # remove the return type defintion
         fdef.returns = None
@@ -272,6 +276,9 @@ class TypeHintRemover(ast.NodeTransformer):
         if fdef.args.args:
             for arg in fdef.args.args:
                 arg.annotation = None
+
+        if self.keep_local_annotations:
+            return fdef
 
         body = []
         for node in fdef.body:
