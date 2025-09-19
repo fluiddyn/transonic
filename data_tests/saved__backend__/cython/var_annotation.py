@@ -12,7 +12,7 @@ def is_valid_distance_matches_1ray(candidate, approved_matches_ray):
     return True
 
 
-def kernel_make_approved_matches__min_distance_matches_1ray(candidates):
+def kernel_make_approved_matches__min_distance_matches_1ray(candidates, point):
     approved_matches_ray = {}
     candidate = candidates[0]
     assert is_valid_distance_matches_1ray(candidate, approved_matches_ray)
@@ -20,7 +20,7 @@ def kernel_make_approved_matches__min_distance_matches_1ray(candidates):
     approved_matches_ray.setdefault(ray_id, [])
     other_closest_points = approved_matches_ray[ray_id]
     other_closest_points.append(1)
-    return approved_matches_ray
+    return (approved_matches_ray, point)
 
 
 def __transonic__():

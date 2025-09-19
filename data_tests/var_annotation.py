@@ -11,10 +11,10 @@ def is_valid_distance_matches_1ray(candidate, approved_matches_ray):
     return True
 
 
-@boost(keep_annotations=True)
+@boost(keep_local_annotations=True)
 def kernel_make_approved_matches__min_distance_matches_1ray(
-    point: Tuple[float, float, float],
     candidates: "(int32, int32) list",
+    point: Tuple[float, float, float],
 ):
     approved_matches_ray: dict[np.int32, list[int]] = {}
     candidate = candidates[0]
