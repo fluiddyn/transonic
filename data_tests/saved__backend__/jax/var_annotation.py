@@ -1,4 +1,6 @@
 # __protected__ from jax import jit
+import jax.numpy as np
+
 # __protected__ @jit
 
 

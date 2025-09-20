@@ -1,4 +1,6 @@
 # __protected__ from numba import njit
+import numpy as np
+
 # __protected__ @njit(cache=True, fastmath=True)
 
 

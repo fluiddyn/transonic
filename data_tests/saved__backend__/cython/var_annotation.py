@@ -3,6 +3,8 @@ try:
 except ImportError:
     from transonic_cl import cython
 
+import numpy as np
+
 
 def is_valid_distance_matches_1ray(candidate, approved_matches_ray):
     _, ray_id = candidate
