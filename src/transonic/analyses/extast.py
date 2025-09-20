@@ -81,9 +81,13 @@ except ImportError:
 else:
     # python >= 3.9 (we use _ast._Unparser)
 
-    import ast as _ast
+    try:
+        from ast import _Unparser
+    except ImportError:
+        # Python >=3.14
+        from _ast_unparse import Unparser as _Unparser
 
-    class UnparserExtended(_ast._Unparser):
+    class UnparserExtended(_Unparser):
         def __init__(self, *, with_comments=True, **kargs):
             self.with_comments = with_comments
             super().__init__(**kargs)
