@@ -77,7 +77,7 @@ doc = [
     "setuptools",
     "sphinx-copybutton",
 ]
-dev = ["pip", "build", "pylint", "twine"]
+dev = ["pip", "build", "pylint", "twine", "ipdb"]
 
 [tool.pdm.scripts]
 black = "black src _transonic_testing data_tests tests doc noxfile.py"

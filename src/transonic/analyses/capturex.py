@@ -118,7 +118,13 @@ class CaptureX(ast.NodeVisitor):
                 self._annot = None
 
     def visit_AnnAssign(self, node):
-        if self.consider_annotations:
+
+        try:
+            keep_local_annotations = self.func._transonic_keywords["keep_local_annotations"]
+        except (AttributeError, KeyError):
+            keep_local_annotations = False
+
+        if self.consider_annotations or keep_local_annotations:
             self._annot = node.annotation
             self.visit(node.annotation)
             self._annot = None

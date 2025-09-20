@@ -22,7 +22,7 @@ meld_numba:
 	meld __numba__ saved__backend__/numba
 
 meld_jax:
-	meld __numba__ saved__backend__/numba
+	meld __jax__ saved__backend__/jax
 
 saved__backend__/%: __%__ FORCE
 	rsync -aP $< $@
