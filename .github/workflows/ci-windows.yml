@@ -17,9 +17,24 @@ jobs:
       with:
         pixi-version: v0.47.0
         cache: false
-    - name: Tests
+
+    - name: Setup
       run: |
         pixi run install-editable
+
+    - name: Checks
+      run: |
+        pixi run echo $CC
+        pixi run echo $CXX
+        pixi run echo $PATH
+        pixi run which clang-cl.exe
+
+    - name: Minimal Pythran check
+      run: |
+        pixi run pythran .github/minimal_pythran.py -vv
+
+    - name: Tests
+      run: |
         pixi run pytest tests
         pixi run mpirun -np 2 pytest tests
         echo "TRANSONIC_BACKEND=python" >> $GITHUB_ENV
