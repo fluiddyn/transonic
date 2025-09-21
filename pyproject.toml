@@ -1,5 +1,5 @@
 [build-system]
-requires = ["pdm-backend"]
+requires = ["pdm-backend>=2.4.0"]
 build-backend = "pdm.backend"
 
 [project]
@@ -12,14 +12,16 @@ authors = [
 dependencies = ["autopep8", "beniget ~=0.4.2", "gast ~=0.6.0", "numpy"]
 requires-python = ">= 3.11"
 readme = "README.md"
-license = { text = "BSD License" }
+license = "BSD-3-Clause"
+license-files = ["LICENSE.txt"]
+
 keywords = ["pythran"]
 classifiers = [
-    "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 
 [project.urls]
