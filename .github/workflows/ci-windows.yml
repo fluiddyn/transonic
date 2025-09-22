@@ -28,9 +28,15 @@ jobs:
         pixi run echo $CXX
         pixi run echo $PATH
         pixi run which clang-cl.exe
+        pixi run which pythran
 
     - name: Minimal Pythran check
       run: |
+        ls -l .pixi/envs/default/Lib/site-packages/pythran
+        mv .github/config.py .pixi/envs/default/Lib/site-packages/pythran
+        ls -l .pixi/envs/default/Lib/site-packages/pythran
+        pixi run python -c "from pythran import config as m; print(m)"
+        pixi run python -c "from pythran import config as m; print(m.MODIFIED); assert m.MODIFIED"
         pixi run pythran .github/minimal_pythran.py -vv
 
     - name: Tests
