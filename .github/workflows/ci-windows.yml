@@ -37,6 +37,7 @@ jobs:
         ls -l .pixi/envs/default/Lib/site-packages/pythran
         pixi run python -c "from pythran import config as m; print(m)"
         pixi run python -c "from pythran import config as m; print(m.MODIFIED); assert m.MODIFIED"
+        cd .github && pixi run pythran minimal_pythran.py -vv && cd ..
         pixi run pythran .github/minimal_pythran.py -vv
 
     - name: Tests
