@@ -22,25 +22,12 @@ jobs:
       run: |
         pixi run install-editable
 
-    - name: Checks
-      run: |
-        pixi run echo $CC
-        pixi run echo $CXX
-        pixi run echo $PATH
-        pixi run which clang-cl.exe
-        pixi run which pythran
-
     - name: Minimal Pythran check
       run: |
-        ls -l .pixi/envs/default/Lib/site-packages/pythran
-        mv .github/config.py .pixi/envs/default/Lib/site-packages/pythran
+        # todo: patch to be removed when Pythran >0.18.0 will be used
+        # see https://github.com/serge-sans-paille/pythran/issues/2360
         mv .github/dist.py .pixi/envs/default/Lib/site-packages/pythran
-        ls -l .pixi/envs/default/Lib/site-packages/pythran
-        pixi run python -c "from pythran import config as m; print(m)"
-        pixi run python -c "from pythran import config as m; print(m.MODIFIED); assert m.MODIFIED"
-        pixi run python -c "from pythran import dist as m; print(m)"
         pixi run python -c "from pythran import dist as m; print(m.MODIFIED); assert m.MODIFIED"
-        cd .github && pixi run pythran minimal_pythran.py -vv && cd ..
         pixi run pythran .github/minimal_pythran.py -vv
 
     - name: Tests
