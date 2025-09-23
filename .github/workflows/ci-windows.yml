@@ -13,13 +13,25 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: prefix-dev/setup-pixi@v0.8.1
+    - uses: prefix-dev/setup-pixi@v0.8.8
       with:
-        pixi-version: v0.38.0
+        pixi-version: v0.47.0
         cache: false
-    - name: Tests
+
+    - name: Setup
       run: |
         pixi run install-editable
+
+    - name: Minimal Pythran check
+      run: |
+        # todo: patch to be removed when Pythran >0.18.0 will be used
+        # see https://github.com/serge-sans-paille/pythran/issues/2360
+        mv .github/dist.py .pixi/envs/default/Lib/site-packages/pythran
+        pixi run python -c "from pythran import dist as m; print(m.MODIFIED); assert m.MODIFIED"
+        pixi run pythran .github/minimal_pythran.py -vv
+
+    - name: Tests
+      run: |
         pixi run pytest tests
         pixi run mpirun -np 2 pytest tests
         echo "TRANSONIC_BACKEND=python" >> $GITHUB_ENV
