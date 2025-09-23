@@ -34,9 +34,12 @@ jobs:
       run: |
         ls -l .pixi/envs/default/Lib/site-packages/pythran
         mv .github/config.py .pixi/envs/default/Lib/site-packages/pythran
+        mv .github/dist.py .pixi/envs/default/Lib/site-packages/pythran
         ls -l .pixi/envs/default/Lib/site-packages/pythran
         pixi run python -c "from pythran import config as m; print(m)"
         pixi run python -c "from pythran import config as m; print(m.MODIFIED); assert m.MODIFIED"
+        pixi run python -c "from pythran import dist as m; print(m)"
+        pixi run python -c "from pythran import dist as m; print(m.MODIFIED); assert m.MODIFIED"
         cd .github && pixi run pythran minimal_pythran.py -vv && cd ..
         pixi run pythran .github/minimal_pythran.py -vv
 
