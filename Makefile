@@ -12,7 +12,7 @@ lock:
 	pdm lock -G :all
 
 black:
-	black -l 82 src _transonic_testing data_tests tests
+	black src _transonic_testing data_tests tests
 
 format: black
 

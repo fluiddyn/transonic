@@ -100,7 +100,7 @@ addopts = "--pdbcls=IPython.terminal.debugger:TerminalPdb"
 
 [tool.black]
 line-length = 82
-target-version = ['py38']
+target-version = ['py311']
 
 [tool.isort]
 profile = "black"

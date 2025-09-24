@@ -52,7 +52,8 @@ class PythranBackend(BackendAOT):
         return signatures_func
 
     def make_meson_code(self, file_names, subdir):
-        meson_parts = ["""
+        meson_parts = [
+            """
 kwargs_extension_module = {
   'cpp_args': cpp_args_pythran,
   'dependencies': [pythran_dep, np_dep],
@@ -62,7 +63,8 @@ kwargs_extension_module = {
 if is_variable('py_limited_api')
   kwargs_extension_module += {'limited_api': py_limited_api}
 endif
-"""]
+"""
+        ]
 
         stems = [name[:-3] for name in file_names]
         for name in stems:

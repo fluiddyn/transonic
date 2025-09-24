@@ -57,10 +57,14 @@ class Backend:
 
     def _make_code_from_fdef_node(self, fdef):
         try:
-            keep_local_annotations = fdef._transonic_keywords["keep_local_annotations"]
+            keep_local_annotations = fdef._transonic_keywords[
+                "keep_local_annotations"
+            ]
         except (AttributeError, KeyError):
             keep_local_annotations = False
-        transformed = TypeHintRemover(keep_local_annotations=keep_local_annotations).visit(fdef)
+        transformed = TypeHintRemover(
+            keep_local_annotations=keep_local_annotations
+        ).visit(fdef)
         # convert the AST back to source code
         code = extast.unparse(transformed)
         return format_str(code)
