@@ -677,6 +677,10 @@ class LiteralMeta(UnionMeta):
     def _get_target_class(self):
         return Literal
 
+    def format_as_backend_type(self, backend_type_formatter, **kwargs):
+        type_ = kwargs.pop(self.template_var.__name__)
+        return backend_type_formatter.make_literal_type_code(type_, **kwargs)
+
 
 class Literal(metaclass=LiteralMeta):
     """Similar to typing.Literal
