@@ -10,6 +10,7 @@ from transonic.typing import (
     MemLayout,
     NDim,
     Optional,
+    Literal,
     Set,
     SetMeta,
     UnionMeta,
@@ -154,6 +155,10 @@ def test_shape():
 
 def test_optional():
     assert repr(Optional[int]) == "Union[int, None]"
+
+
+def test_literal():
+    assert repr(Literal[int, float]) == "Literal[int, float]"
 
 
 def test_const():

@@ -647,6 +647,40 @@ class Union(metaclass=UnionMeta):
     """
 
 
+class LiteralMeta(Meta):
+    """Metaclass for the Literal class"""
+
+    def __getitem__(self, values):
+        if not isinstance(values, tuple):
+            values = (values,)
+        return type("LiteralBis", (Literal,), {"values": values})
+
+    def get_template_parameters(self):
+        raise NotImplementedError
+
+    def __repr__(self):
+        strings = []
+        for value in self.values:
+            if isinstance(value, type):
+                name = value.__name__
+            else:
+                name = repr(value)
+            strings.append(name)
+        return f"Literal[{', '.join(strings)}]"
+
+    def format_as_backend_type(self, backend_type_formatter, **kwargs):
+        return backend_type_formatter.make_literal_code(self.types, **kwargs)
+
+
+class Literal(metaclass=LiteralMeta):
+    """Similar to typing.Literal
+
+    >>> Literal[int, float]
+    Literal[int, float]
+
+    """
+
+
 class ListMeta(Meta):
     """Metaclass for the List class"""
 
