@@ -1,6 +1,4 @@
-from typing import Literal
-
-from transonic import boost
+from transonic import boost, Literal
 
 
 @boost
