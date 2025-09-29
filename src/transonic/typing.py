@@ -34,6 +34,10 @@ User API
    :members:
    :private-members:
 
+.. autoclass:: Literal
+   :members:
+   :private-members:
+
 .. autofunction:: str2type
 
 .. autofunction:: typeof
@@ -286,6 +290,12 @@ class UnionVar(TemplateVar):
 
     _type_values = (type, type(None))
     _letter = "U"
+
+
+class LiteralVar(TemplateVar):
+    """TemplateVar used for the Literal type"""
+
+    _letter = "L"
 
 
 class Meta(type, FusedType):
@@ -575,6 +585,12 @@ class Array(metaclass=ArrayMeta):
 class UnionMeta(Meta):
     """Metaclass for the Union class"""
 
+    _cls_template_var = UnionVar
+    _name_target_class: str
+
+    def _get_target_class(self):
+        return Union
+
     def __getitem__(self, types):
         types_in = types
         if not isinstance(types_in, tuple):
@@ -588,7 +604,9 @@ class UnionMeta(Meta):
         types = tuple(types)
 
         name_calling_module = get_name_calling_module()
-        template_var = UnionVar(*types, name_calling_module=name_calling_module)
+        template_var = self._cls_template_var(
+            *types, name_calling_module=name_calling_module
+        )
 
         short_repr = []
         for value in types:
@@ -599,9 +617,13 @@ class UnionMeta(Meta):
             else:
                 short_repr.append(repr(value))
 
+        target_class = self._get_target_class()
+
+        self._name_target_class = target_class.__name__
+
         return type(
-            f"Union{'_'.join(short_repr)}",
-            (Union,),
+            self._name_target_class + "_".join(short_repr),
+            (target_class,),
             {"types": types, "template_var": template_var},
         )
 
@@ -626,7 +648,7 @@ class UnionMeta(Meta):
             else:
                 string = repr(p)
             strings.append(string)
-        return "Union[" + ", ".join(strings) + "]"
+        return self._name_target_class + "[" + ", ".join(strings) + "]"
 
     def format_as_backend_type(self, backend_type_formatter, **kwargs):
         type_ = kwargs.pop(self.template_var.__name__)
@@ -647,29 +669,13 @@ class Union(metaclass=UnionMeta):
     """
 
 
-class LiteralMeta(Meta):
+class LiteralMeta(UnionMeta):
     """Metaclass for the Literal class"""
 
-    def __getitem__(self, values):
-        if not isinstance(values, tuple):
-            values = (values,)
-        return type("LiteralBis", (Literal,), {"values": values})
+    _cls_template_var = LiteralVar
 
-    def get_template_parameters(self):
-        raise NotImplementedError
-
-    def __repr__(self):
-        strings = []
-        for value in self.values:
-            if isinstance(value, type):
-                name = value.__name__
-            else:
-                name = repr(value)
-            strings.append(name)
-        return f"Literal[{', '.join(strings)}]"
-
-    def format_as_backend_type(self, backend_type_formatter, **kwargs):
-        return backend_type_formatter.make_literal_code(self.types, **kwargs)
+    def _get_target_class(self):
+        return Literal
 
 
 class Literal(metaclass=LiteralMeta):
