@@ -56,5 +56,8 @@ class TypeFormatter:
     def make_const_code(self, code):
         return code
 
+    def make_literal_type_code(self, type_, **kwargs):
+        return format_type_as_backend_type(type_, self, **kwargs) + " type"
+
 
 base_type_formatter = TypeFormatter()

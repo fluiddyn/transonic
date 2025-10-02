@@ -1,0 +1,6 @@
+export gen_seq(float64 type, list type, int)
+export gen_seq(float64 type, set type, int)
+export gen_seq(int type, list type, int)
+export gen_seq(int type, set type, int)
+
+export __transonic__()
