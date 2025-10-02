@@ -1,11 +1,11 @@
 # Transonic documentation
 
-```{include} ../README.md
----
-start-after: <!-- start short description -->
-end-before: <!-- end short description -->
----
-```
+Transonic is a pure Python package (requiring Python >= 3.11) to easily accelerate modern
+Python-Numpy code with different accelerators (currently [Cython], [Pythran], [Numba] and
+[JAX], but potentially later [Cupy], [PyTorch], [Weld], [Pyccel], etc...).
+
+**The accelerators are not hard dependencies of Transonic:** Python codes using Transonic
+run fine without any accelerators installed (of course without speedup)!
 
 ```{toctree}
 ---
@@ -80,3 +80,12 @@ for_dev
 - {ref}`genindex`
 - {ref}`modindex`
 - {ref}`search`
+
+[cupy]: https://cupy.chainer.org/
+[cython]: https://cython.org/
+[jax]: https://github.com/google/jax
+[numba]: https://numba.pydata.org/
+[pyccel]: https://github.com/pyccel/pyccel
+[pythran]: https://github.com/serge-sans-paille/pythran
+[pytorch]: https://pytorch.org/
+[weld]: https://github.com/weld-project/weld

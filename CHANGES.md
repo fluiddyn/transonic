@@ -1,7 +1,20 @@
 # Release notes
 
 See also the
-[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.3...branch%2Fdefault).
+[unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.8.0...branch%2Fdefault).
+
+## [0.8.0] (2025-10-02)
+
+- [!159] Support for Pythran `type` keyword
+  (<https://github.com/serge-sans-paille/pythran/pull/2339>)
+
+- [!155] Meson: support `py_limited_api` variable to target the stable ABI (with Pythran)
+
+- [!151] New argument `keep_local_annotations` for the `boost` decorator (for Pythran)
+
+- [!156] Support for Python 3.14
+
+- Requires Python >=3.11
 
 ## [0.7.3] (2024-12-02)
 
@@ -276,6 +289,10 @@ See also the
 
 - Add a dist package
 
+[!151]: https://foss.heptapod.net/fluiddyn/transonic/-/merge_requests/151
+[!155]: https://foss.heptapod.net/fluiddyn/transonic/-/merge_requests/155
+[!156]: https://foss.heptapod.net/fluiddyn/transonic/-/merge_requests/156
+[!159]: https://foss.heptapod.net/fluiddyn/transonic/-/merge_requests/159
 [0.4.12]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.4.11...0.4.12
 [0.5.0]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.4.12...0.5.0
 [0.5.1]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.5.0...0.5.1
@@ -290,3 +307,4 @@ See also the
 [0.7.1]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.0...0.7.1
 [0.7.2]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.1...0.7.2
 [0.7.3]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.2...0.7.3
+[0.8.0]: https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.7.3...0.8.0
