@@ -38,9 +38,8 @@ def add_jax_comments(code):
                 node = gast.Import([g_alias])
 
         # Replace `from numpy import eye` -> `from jax.numpy import eye`
-        elif isinstance(node, gast.ImportFrom):
-            if node.module == "numpy":
-                node.module = "jax.numpy"
+        elif isinstance(node, gast.ImportFrom) and node.module == "numpy":
+            node.module = "jax.numpy"
 
         # Add JIT decorator
         if (
