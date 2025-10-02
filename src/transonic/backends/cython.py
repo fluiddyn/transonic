@@ -79,6 +79,9 @@ class TypeFormatterCython(TypeFormatter):
     def make_const_code(self, code):
         return "const " + code
 
+    def make_literal_type_code(self, type_, **kwargs):
+        return "object"
+
 
 def memoryview_type(dtype, ndim, mem_layout) -> str:
     ndim_F = 0

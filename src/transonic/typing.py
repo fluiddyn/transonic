@@ -618,11 +618,10 @@ class UnionMeta(Meta):
                 short_repr.append(repr(value))
 
         target_class = self._get_target_class()
-
         self._name_target_class = target_class.__name__
 
         return type(
-            self._name_target_class + "_".join(short_repr),
+            self._name_target_class + "_" + "_".join(short_repr),
             (target_class,),
             {"types": types, "template_var": template_var},
         )
