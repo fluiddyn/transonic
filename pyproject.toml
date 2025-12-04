@@ -9,7 +9,7 @@ description = "Make your Python code fly at transonic speeds!"
 authors = [
     { name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr" },
 ]
-dependencies = ["autopep8", "beniget ~=0.4.2", "gast ~=0.6.0", "numpy"]
+dependencies = ["autopep8", "beniget ~=0.5.0", "gast ~=0.7.0", "numpy"]
 requires-python = ">= 3.11"
 readme = "README.md"
 license = "BSD-3-Clause"
@@ -61,7 +61,8 @@ base-test = [
 test = [
     "cython",
     "mpi4py",
-    "pythran",
+    "pythran @ git+https://github.com/serge-sans-paille/pythran",
+    # "pythran",
     "numba",
     "jax>=0.4.25",
     "jaxlib>=0.4.25",
@@ -90,12 +91,8 @@ validate_code = {composite = ["black_check", "lint"]}
 format = {composite = ["black", "isort"]}
 
 
-
 [tool.pytest]
-addopts = "--doctest-modules"
-
-[tool.pytest.ini_options]
-addopts = "--pdbcls=IPython.terminal.debugger:TerminalPdb"
+addopts = ["--doctest-modules", "--pdbcls=IPython.terminal.debugger:TerminalPdb"]
 
 
 [tool.black]
