@@ -91,11 +91,8 @@ format = {composite = ["black", "isort"]}
 
 
 
-[tool.pytest]
-addopts = "--doctest-modules"
-
 [tool.pytest.ini_options]
-addopts = "--pdbcls=IPython.terminal.debugger:TerminalPdb"
+addopts = "--doctest-modules --pdbcls=IPython.terminal.debugger:TerminalPdb"
 
 
 [tool.black]
