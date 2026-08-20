@@ -53,6 +53,7 @@ import sys
 import time
 from functools import wraps
 from pathlib import Path
+from typing import Optional
 
 from transonic import mpi
 from transonic.aheadoftime import TransonicTemporaryJITMethod
@@ -184,7 +185,7 @@ def _get_module_jit(backend_name: str = None, depth_frame: int = 2, frame=None):
         return ModuleJIT(backend_name=backend_name, frame=frame)
 
 
-def jit(func=None, backend: str = None, native=False, xsimd=False, openmp=False):
+def jit(func=None, backend: str | None = None, native=False, xsimd=False, openmp=False, fastmath=False):
     """Decorator to record that the function has to be jit compiled"""
     frame = get_frame(1)
     decor = JIT(frame, backend=backend, native=native, xsimd=xsimd, openmp=openmp)

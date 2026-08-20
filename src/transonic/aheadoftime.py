@@ -28,6 +28,7 @@ import subprocess
 import sys
 import time
 from importlib import import_module
+from typing import Optional
 
 from transonic import mpi
 from transonic.backends import backends, get_backend_name_module
@@ -107,13 +108,14 @@ def _get_transonic_calling_module(backend_name: str = None):
 
 def boost(
     obj=None,
-    backend: str = None,
+    backend: str | None = None,
     inline=False,
     boundscheck=True,
     wraparound=True,
     cdivision=False,
     nonecheck=True,
     nogil=False,
+    fastmath=False
 ):
     """Decorator to declare that an object can be accelerated
 
@@ -135,6 +137,7 @@ def boost(
         wraparound=wraparound,
         cdivision=cdivision,
         nonecheck=nonecheck,
+        fastmath=fastmath
     )
     if callable(obj) or isinstance(obj, type):
         return decor(obj)
