@@ -10,7 +10,6 @@ from transonic.mpi import nb_proc
 from transonic.testing import path_data_tests
 from transonic.run import run
 
-
 header_suffixes = {"pythran": ".pythran", "cython": ".pxd"}
 
 

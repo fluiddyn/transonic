@@ -305,12 +305,7 @@ class JIT:
             #     assert hex_header0 == hex_header
             hex = make_hex(hex_src + "_" + hex_header)
 
-            name_ext_file = (
-                func_name
-                + "_"
-                + hex
-                + backend.suffix_extension
-            )
+            name_ext_file = func_name + "_" + hex + backend.suffix_extension
             self.path_extension = path_backend.with_name(name_ext_file)
 
             self.compiling, self.process = backend.compile_extension(
