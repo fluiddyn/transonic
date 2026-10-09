@@ -303,12 +303,12 @@ class JIT:
             # if mpi.nb_proc > 1:
             #     hex_header0 = mpi.bcast(hex_header)
             #     assert hex_header0 == hex_header
+            hex = make_hex(hex_src + "_" + hex_header)
+
             name_ext_file = (
                 func_name
                 + "_"
-                + hex_src
-                + "_"
-                + hex_header
+                + hex
                 + backend.suffix_extension
             )
             self.path_extension = path_backend.with_name(name_ext_file)
