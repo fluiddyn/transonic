@@ -36,16 +36,14 @@ def test(session, with_pythran, with_cython):
     if with_cython:
         session.install("cython")
 
-    if version.parse(py_version) < version.parse("3.12"):
-        session.install("setuptools<60.0")
-        for backend in ("python", "pythran"):
-            print(f"TRANSONIC_BACKEND={backend}")
-            session.run(
-                "pytest",
-                "--nbval-lax",
-                "data_tests/ipynb",
-                env={"TRANSONIC_BACKEND": backend},
-            )
+    for backend in ("python", "pythran"):
+        print(f"TRANSONIC_BACKEND={backend}")
+        session.run(
+            "pytest",
+            "--nbval-lax",
+            "data_tests/ipynb",
+            env={"TRANSONIC_BACKEND": backend},
+        )
 
     path_coverage = Path(".coverage")
     path_coverage.mkdir(exist_ok=True)

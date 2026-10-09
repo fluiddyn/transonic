@@ -103,7 +103,7 @@ class ModuleJIT:
             path.stem.isdigit() and path.parent.name.startswith("ipykernel_")
         ):
             self.is_dummy_file = True
-            self._ipython_src, self.pathfile = get_info_from_ipython()
+            self._ipython_src, self.pathfile = get_info_from_ipython(frame)
             self.module_name = self.pathfile
         else:
             self.is_dummy_file = False
