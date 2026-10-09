@@ -3,6 +3,14 @@
 See also the
 [unreleased changes](https://foss.heptapod.net/fluiddyn/transonic/-/compare/0.8.0...branch%2Fdefault).
 
+## [0.8.1] (2026-10-09)
+
+- Compatibility with Pythran 0.19.0, Gast 0.7.0 and Beniget 0.5.0
+
+- Support for Python 3.15
+
+- Requires Python >=3.12
+
 ## [0.8.0] (2025-10-02)
 
 - [!159] Support for Pythran `type` keyword
