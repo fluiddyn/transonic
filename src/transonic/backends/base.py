@@ -417,10 +417,7 @@ class Backend:
         raise NotImplementedError
 
     def make_meson_code(self, file_names, subdir):
-        return (
-            "python_sources = [\n  '"
-            + "',\n  '".join(file_names)
-            + f"""',
+        return "python_sources = [\n  '" + "',\n  '".join(file_names) + f"""',
 ]
 
 py.install_sources(
@@ -429,7 +426,6 @@ py.install_sources(
   subdir: '{subdir}',
 )
 """
-        )
 
 
 class BackendAOT(Backend):

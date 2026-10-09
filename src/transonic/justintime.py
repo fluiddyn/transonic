@@ -103,7 +103,7 @@ class ModuleJIT:
             path.stem.isdigit() and path.parent.name.startswith("ipykernel_")
         ):
             self.is_dummy_file = True
-            self._ipython_src, self.pathfile = get_info_from_ipython()
+            self._ipython_src, self.pathfile = get_info_from_ipython(frame)
             self.module_name = self.pathfile
         else:
             self.is_dummy_file = False
@@ -303,14 +303,9 @@ class JIT:
             # if mpi.nb_proc > 1:
             #     hex_header0 = mpi.bcast(hex_header)
             #     assert hex_header0 == hex_header
-            name_ext_file = (
-                func_name
-                + "_"
-                + hex_src
-                + "_"
-                + hex_header
-                + backend.suffix_extension
-            )
+            hex = make_hex(hex_src + "_" + hex_header)
+
+            name_ext_file = func_name + "_" + hex + backend.suffix_extension
             self.path_extension = path_backend.with_name(name_ext_file)
 
             self.compiling, self.process = backend.compile_extension(

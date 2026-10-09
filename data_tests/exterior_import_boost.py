@@ -2,7 +2,6 @@ import gast
 import numpy as np
 from exterior_import_boost_2 import func_import_2
 
-
 const = 1
 foo = 1
 

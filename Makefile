@@ -17,19 +17,19 @@ black:
 format: black
 
 tests_pythran:
-	TRANSONIC_BACKEND="pythran" pytest --nbval-lax tests data_tests/ipynb
+	TRANSONIC_BACKEND="pythran" pytest --nbval tests data_tests/ipynb
 
 tests_cython:
-	TRANSONIC_BACKEND="cython" pytest tests data_tests/ipynb
+	TRANSONIC_BACKEND="cython" pytest --nbval tests data_tests/ipynb
 
 tests_jax:
-	TRANSONIC_BACKEND="jax" pytest --lf tests data_tests/ipynb
+	TRANSONIC_BACKEND="jax" pytest --nbval --lf tests data_tests/ipynb
 
 tests_numba:
-	TRANSONIC_BACKEND="numba" pytest tests data_tests/ipynb
+	TRANSONIC_BACKEND="numba" pytest --nbval tests data_tests/ipynb
 
 tests_python:
-	TRANSONIC_BACKEND="python" pytest tests data_tests/ipynb
+	TRANSONIC_BACKEND="python" pytest --nbval tests data_tests/ipynb
 
 tests_mpi:
 	mpirun -np 2 pytest tests

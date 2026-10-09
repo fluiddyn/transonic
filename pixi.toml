@@ -1,4 +1,4 @@
-[project]
+[workspace]
 name = "transonic"
 version = "0.1.0"
 description = "Make your Python code fly at transonic speeds!"
@@ -11,6 +11,7 @@ install-dependencies = "pixi install && pip install -e ./_transonic_testing"
 install-editable = {cmd = "pip install -e . -v --no-deps", depends-on = ["install-dependencies"]}
 
 [dependencies]
+pdm-backend = ">=2.1.8"
 beniget = ">=0.4.1"
 autopep8 = ">=2.0.4"
 gast = ">=0.5.4"
@@ -27,9 +28,6 @@ numba = ">=0.58.1"
 cython = ">=3.0.7"
 pythran = ">=0.15.0"
 setuptools = ">=80.9.0,<81"
-
-[build-dependencies]
-pdm-backend = ">=2.1.8"
 
 [pypi-dependencies]
 pytest-venv = "*"

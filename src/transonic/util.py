@@ -47,6 +47,7 @@ Internal API
 
 import importlib.util
 import inspect
+import linecache
 import os
 import re
 import shutil
@@ -225,7 +226,7 @@ def get_module_name(frame):
 
     if module_name is None:
         # ipython ?
-        src, module_name = get_info_from_ipython()
+        src, module_name = get_info_from_ipython(frame)
 
     return module_name
 
@@ -314,8 +315,25 @@ def make_code_from_fdef_node(fdef):
     return format_str(code)
 
 
-def get_ipython_input(last=True):
+def _get_ipython_cell_source(frame):
+    """Get the source of the IPython cell being executed in a frame
+
+    IPython registers the source of each executed cell in ``linecache``, under
+    the (fake) filename of the code object.
+    """
+    lines = linecache.getlines(frame.f_code.co_filename)
+    if not lines:
+        return None
+    return "".join(lines)
+
+
+def get_ipython_input(last=True, frame=None):
     """Get the input code when called from IPython"""
+    if last and frame is not None:
+        src = _get_ipython_cell_source(frame)
+        if src is not None:
+            return src
+
     ip = get_ipython()
 
     hist_raw = ip.history_manager.input_hist_raw
@@ -325,9 +343,9 @@ def get_ipython_input(last=True):
         return "\n".join(hist_raw)
 
 
-def get_info_from_ipython():
+def get_info_from_ipython(frame=None):
     """Get the input code and a "filename" when called from IPython"""
-    src = get_ipython_input()
+    src = get_ipython_input(frame=frame)
     hex_input = make_hex(src)
     dummy_filename = "__ipython__" + hex_input
     return src, dummy_filename

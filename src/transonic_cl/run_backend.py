@@ -125,7 +125,11 @@ def main():
         print(completed_process.stderr)
         raise subprocess.CalledProcessError(completed_process.returncode, args)
     if backend == "pythran" and "-o" in args and path_tmp.exists():
-        path_tmp.rename(path_out)
+        try:
+            path_tmp.rename(path_out)
+        except FileExistsError as exc:
+            print(f"warning: {exc}")
+
     elif backend == "cython":
         path_tmp.with_suffix(".c").unlink()
         path_tmp.with_suffix(".pxd").unlink()

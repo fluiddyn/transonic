@@ -1,7 +1,6 @@
 import gast
 import numpy as np
 
-
 const = 1
 foo = 1
 
