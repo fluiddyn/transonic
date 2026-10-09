@@ -10,7 +10,7 @@ authors = [
     { name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr" },
 ]
 dependencies = ["autopep8", "beniget ~=0.5.0", "gast ~=0.7.0", "numpy"]
-requires-python = ">= 3.11"
+requires-python = ">= 3.12"
 readme = "README.md"
 license = "BSD-3-Clause"
 license-files = ["LICENSE.txt"]
@@ -49,7 +49,7 @@ base-test = [
     "black",
     "coverage[toml]",
     "mpi4py",
-    "nbval ~=0.9.6",
+    "nbval",
     "pytest",
     "pytest-cov",
     "pytest-venv",
